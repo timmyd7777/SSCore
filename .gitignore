@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# OS X Finder files
+.DS_Store
+.Trashes
+
+# Xcode User settings
+xcuserdata/
+*.xcworkspace
+
