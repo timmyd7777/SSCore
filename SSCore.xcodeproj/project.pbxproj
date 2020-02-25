@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A328D7352402DBFD00BCE781 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A328D7342402DBFD00BCE781 /* main.cpp */; };
-		A3494C6F2402DC5000792BAF /* SSTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3494C6D2402DC5000792BAF /* SSTime.cpp */; };
+		4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87C2404EEEA00BDD11C /* SSAngle.cpp */; };
+		4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87E2404EF0800BDD11C /* SSVector.cpp */; };
+		4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8822404EF3800BDD11C /* SSMatrix.cpp */; };
+		4703A8852404EF5700BDD11C /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8842404EF5700BDD11C /* test.cpp */; };
+		4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8862404EF7F00BDD11C /* SSTime.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,10 +27,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4703A87B2404EEEA00BDD11C /* SSAngle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSAngle.hpp; sourceTree = SOURCE_ROOT; };
+		4703A87C2404EEEA00BDD11C /* SSAngle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSAngle.cpp; sourceTree = SOURCE_ROOT; };
+		4703A87E2404EF0800BDD11C /* SSVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSVector.cpp; sourceTree = SOURCE_ROOT; };
+		4703A87F2404EF0800BDD11C /* SSVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSVector.hpp; sourceTree = SOURCE_ROOT; };
+		4703A8812404EF3800BDD11C /* SSMatrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSMatrix.hpp; sourceTree = SOURCE_ROOT; };
+		4703A8822404EF3800BDD11C /* SSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSMatrix.cpp; sourceTree = SOURCE_ROOT; };
+		4703A8842404EF5700BDD11C /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = SOURCE_ROOT; };
+		4703A8862404EF7F00BDD11C /* SSTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSTime.cpp; sourceTree = SOURCE_ROOT; };
+		4703A8872404EF7F00BDD11C /* SSTime.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSTime.hpp; sourceTree = SOURCE_ROOT; };
 		A328D7312402DBFD00BCE781 /* SSCore */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SSCore; sourceTree = BUILT_PRODUCTS_DIR; };
-		A328D7342402DBFD00BCE781 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		A3494C6D2402DC5000792BAF /* SSTime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSTime.cpp; sourceTree = "<group>"; };
-		A3494C6E2402DC5000792BAF /* SSTime.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSTime.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,9 +69,15 @@
 		A328D7332402DBFD00BCE781 /* SSCore */ = {
 			isa = PBXGroup;
 			children = (
-				A328D7342402DBFD00BCE781 /* main.cpp */,
-				A3494C6D2402DC5000792BAF /* SSTime.cpp */,
-				A3494C6E2402DC5000792BAF /* SSTime.hpp */,
+				4703A8862404EF7F00BDD11C /* SSTime.cpp */,
+				4703A8872404EF7F00BDD11C /* SSTime.hpp */,
+				4703A87C2404EEEA00BDD11C /* SSAngle.cpp */,
+				4703A87B2404EEEA00BDD11C /* SSAngle.hpp */,
+				4703A87E2404EF0800BDD11C /* SSVector.cpp */,
+				4703A87F2404EF0800BDD11C /* SSVector.hpp */,
+				4703A8822404EF3800BDD11C /* SSMatrix.cpp */,
+				4703A8812404EF3800BDD11C /* SSMatrix.hpp */,
+				4703A8842404EF5700BDD11C /* test.cpp */,
 			);
 			path = SSCore;
 			sourceTree = "<group>";
@@ -124,8 +139,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3494C6F2402DC5000792BAF /* SSTime.cpp in Sources */,
-				A328D7352402DBFD00BCE781 /* main.cpp in Sources */,
+				4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */,
+				4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */,
+				4703A8852404EF5700BDD11C /* test.cpp in Sources */,
+				4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */,
+				4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
