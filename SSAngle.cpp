@@ -1,5 +1,5 @@
 #include <math.h>
-#include "SSVector.hpp"
+#include "SSAngle.hpp"
 
 SSAngle::SSAngle ( void )
 {

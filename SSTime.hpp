@@ -74,8 +74,8 @@ public:
 	void		getCalendarDate ( int &year, short &month, double &day, short &hour, short &min, double &dec );
 	void		setCalendarDate ( int year, short month, double day, short hour, short min, double sec );
 	
-	time_t		getUnixTime ( void ) { return ( mJulianDate - kJ1970 ) * kSecPerDay; }
-	void		setUnixTime ( time_t t ) { mJulianDate = t / kSecPerDay + kJ1970; }
+	time_t		getUnixTime ( void ) { return ( mJulianDate - kJ1970 ) * kSecondsPerDay; }
+	void		setUnixTime ( time_t t ) { mJulianDate = t / kSecondsPerDay + kJ1970; }
 	
 	double		getDeltaT ( void );
 	double		getJulianEphemerisDate ( void );

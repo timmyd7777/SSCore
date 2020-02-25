@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "SSVector.hpp"
+#include "SSMatrix.hpp"
 
 int main ( int argc, char *argv[] )
 {
