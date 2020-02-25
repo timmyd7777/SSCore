@@ -15,7 +15,8 @@ SSTime::SSTime ( void )
 	
 	gettimeofday ( &tv, &tz );
 	mJulianDate = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
-	mTimeZone = tz.tz_minuteswest / 60.0;	mDateFormat = string ( "%Y-%m-%d" );
+	mTimeZone = -tz.tz_minuteswest / 60.0;
+    mDateFormat = string ( "%Y-%m-%d" );
 	mTimeFormat = string ( "%H:%M:%S" );
 }
 
@@ -35,7 +36,7 @@ void SSTime::setFromSystem ( void )
 	
 	gettimeofday ( &tv, &tz );
 	mJulianDate = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
-	mTimeZone = tz.tz_minuteswest / 60.0;
+	mTimeZone = -tz.tz_minuteswest / 60.0;
 }
 
 void SSTime::getCalendarDate ( int &year, short &month, double &day, short &hour, short &minute, double &second )
