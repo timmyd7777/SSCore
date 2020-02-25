@@ -1,10 +1,8 @@
-//
 //  SSTime.hpp
 //  SSCore
 //
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
-//
 
 #ifndef SSTime_hpp
 #define SSTime_hpp

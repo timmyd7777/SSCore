@@ -1,3 +1,9 @@
+//  test.cpp
+//  SSCore
+//
+//  Created by Tim DeBenedictis on 2/24/20.
+//  Copyright © 2020 Southern Stars. All rights reserved.
+
 #include <stdio.h>
 #include "SSMatrix.hpp"
 

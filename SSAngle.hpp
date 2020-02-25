@@ -1,10 +1,8 @@
-//
-//  SSTime.hpp
+//  SSAngle.hpp
 //  SSCore
 //
 //  Created by Tim DeBenedictis on 2/24/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
-//
 
 #ifndef SSAngle_hpp
 #define SSAngle_hpp

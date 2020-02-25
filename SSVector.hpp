@@ -1,3 +1,12 @@
+//  SSVector.hpp
+//  SSCore
+//
+//  Created by Tim DeBenedictis on 2/24/20.
+//  Copyright © 2020 Southern Stars. All rights reserved.
+
+#ifndef SSVector_hpp
+#define SSVector_hpp
+
 #include "SSAngle.hpp"
 
 class SSVector
@@ -28,3 +37,5 @@ public:
     
     double distance ( SSVector other );
 };
+
+#endif /* SSVector_hpp */

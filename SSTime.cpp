@@ -1,10 +1,8 @@
-//
 //  SSTime.cpp
 //  SSCore
 //
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
-//
 
 #include <sys/time.h>
 

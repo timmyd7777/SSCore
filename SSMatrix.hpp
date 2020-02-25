@@ -1,3 +1,12 @@
+//  SSMatrix.hpp
+//  SSCore
+//
+//  Created by Tim DeBenedictis on 2/24/20.
+//  Copyright © 2020 Southern Stars. All rights reserved.
+
+#ifndef SSMatrix_hpp
+#define SSMatrix_hpp
+
 #include "SSVector.hpp"
 
 class SSMatrix
@@ -19,3 +28,5 @@ class SSMatrix
     SSVector multiply ( SSVector vec );
     SSMatrix multiply ( SSMatrix mat );
 };
+
+#endif /* SSMatrix_hpp */
