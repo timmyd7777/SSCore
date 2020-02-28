@@ -10,20 +10,23 @@
 
 int main ( int argc, char *argv[] )
 {
-    SSTime now;
+    double zone = 0;
+    SSTime now = SSTime::fromSystem ( zone );
+    SSTime::CalendarDate date = now.toCalendarDate ( kSSCalendarGregorian, zone );
     
-    int year = 0;
-    short month = 0, hour = 0, min = 0;
-    double jd = 0, day = 0, sec = 0, zone = 0;
-    
-    jd = now.getJulianDate();
-    zone = now.getTimeZone();
-    now.getCalendarDate ( year, month, day, hour, min, sec );
-    
-    printf ( "Julian Date: %f\n", jd );
+    printf ( "Julian Date: %f\n", now.jd );
     printf ( "Time Zone: %.1f\n", zone );
-    printf ( "Calendar Date: %04d-%02hd-%02.0f %02d:%02d:%04.1f\n", year, month, floor ( day ), hour, min, sec );
+    printf ( "Calendar Date: %04d-%02hd-%02.0f %02d:%02d:%04.1f\n", date.year, date.month, floor ( date.day ), date.hour, date.min, date.sec );
     
+    SSAngle ra ( 1 );
+    SSAngle dec = SSAngle::fromDegMinSec ( '+', 12, 34, 56.0 );
+    
+    SSAngle::HMS hms = ra.toHMS();
+    SSAngle::DMS dms = dec.toDMS();
+    
+    printf ( "RA = %c%02hd %02hd %02.0f\n", hms.sign, hms.hour, hms.min, hms.sec );
+    printf ( "Dec = %c%02hd %02hd %02.0f\n", dms.sign, dms.deg, dms.min, dms.sec );
+
     SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );
     SSVector v3;

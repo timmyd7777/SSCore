@@ -22,15 +22,11 @@ enum SSCalendar
 
 class SSTime
 {
-	double		mJulianDate;		// Julian date in civil time (NOT epehmeris time!)
-	double		mTimeZone;			// Local time offset from UTC in hours; east positive, west negative
-	SSCalendar	mCalendar;			// Calendar system to use for date/time conversion
-	string		mDateFormat;		// strftime()-style arguments for formatting date strings
-	string		mTimeFormat;		// strftime()-style arguments for formatting time strings
-	
-public:
-	
-	static constexpr double		kJ2000 = 2451545.0;		// JD of standard Julian epoch J2000
+    public:
+    
+	double		jd;		        // Julian date in civil time (NOT epehmeris time!)
+    
+    static constexpr double		kJ2000 = 2451545.0;		// JD of standard Julian epoch J2000
 	static constexpr double		kJ1970 = 2440587.5;		// JD of standard UNIX time base 1.0 January 1970 UTC
 	static constexpr double		kB1950 = 2433282.423;	// JD of standard Besselian epoch B1950
 	static constexpr double		kB1900 = 2433282.423;	// JD of standard Besselian epoch B1900
@@ -45,49 +41,39 @@ public:
 	static constexpr double		kSiderealPerSolarDays = 1.00273790934;	// Sidereal days per Solar day
 	static constexpr double		kSolarPerSiderealDays = 0.99726957;		// Days per Sidereal Day
 
+    struct CalendarDate
+    {
+        SSCalendar calendar;
+        double zone;
+        int year;
+        short month;
+        double day;
+        short hour;
+        short min;
+        double sec;
+    };
+    
 	SSTime ( void );
 	SSTime ( double jd );
-	SSTime ( int year, short month, double day, short hour, short min, double sec );
-	SSTime ( time_t t );
 	
-	double		getJulianDate ( void ) { return mJulianDate; }
-	void		setJulianDate ( double jd ) { mJulianDate = jd; }
-	
-	double		getJulianYear ( void ) { return ( mJulianDate - kJ2000 ) / kDaysPerJulianYear + 2000.0; }
-	void		setJulianYear ( double year ) { mJulianDate = kJ2000 + kDaysPerJulianYear * ( year - 2000.0 ); }
-	
-	double		getBesselianYear ( void ) { return ( mJulianDate - kB1900 ) / kDaysPerJulianYear + 1900.0; }
-	void		setBesselianYear ( double year ) { mJulianDate = kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ); }
+	static SSTime   fromSystem ( void );
+    static SSTime   fromSystem ( double &zone );
+    static SSTime   fromUnixTime ( time_t time );
+    static SSTime   fromJulianYear ( double year );
+    static SSTime   fromBesselianYear ( double year );
+    static SSTime   fromCalendarDate ( SSCalendar cal, double zone, int year, short month, double day, short hour, short min, double sec );
 
-	SSCalendar	getCalendarSystem ( void ) { return mCalendar; }
-	void		setCalendarSystem ( SSCalendar cal ) { mCalendar = cal; }
-	
-	double		getTimeZone ( void ) { return mTimeZone; }
-	void		setTimeZome ( double tz ) { mTimeZone = tz; }
-	
-	int			getDayOfWeek ( void );
-	
-	void		setFromSystem ( void );
-	
-	void		getCalendarDate ( int &year, short &month, double &day, short &hour, short &min, double &dec );
-	void		setCalendarDate ( int year, short month, double day, short hour, short min, double sec );
-	
-	time_t		getUnixTime ( void ) { return ( mJulianDate - kJ1970 ) * kSecondsPerDay; }
-	void		setUnixTime ( time_t t ) { mJulianDate = t / kSecondsPerDay + kJ1970; }
-	
-	double		getDeltaT ( void );
-	double		getJulianEphemerisDate ( void );
-	
-	double		getGreenwichMeanSiderealTime ( void );
+    void            toCalendarDate ( SSCalendar cal, double zone, int &year, short &month, double &day, short &hour, short &min, double &sec );
+    CalendarDate    toCalendarDate ( SSCalendar cal, double zone );
+    
+    time_t          toUnixTime ( void );
+    double          toJulianYear ( void );
+    double          toBesselianYear ( void );
 
-	void		setDateFormat ( string fmt ) { mDateFormat = fmt; }
-	string		getDateFormat ( void ) { return mDateFormat; }
-	
-	void		setTimeFormat ( string fmt ) { mTimeFormat = fmt; }
-	string		getTimeFormat ( void ) { return mTimeFormat; }
-	
-	string		formatDate ( void );
-	string		formatTime ( void );
+    int             getWeekday ( double zone );
+	double		    getDeltaT ( void );
+	double		    getJulianEphemerisDate ( void );
+	double		    getGreenwichMeanSiderealTime ( void );
 };
 
 #endif /* SSTime_hpp */
