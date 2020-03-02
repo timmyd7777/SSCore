@@ -30,32 +30,32 @@ int main ( int argc, char *argv[] )
     SSAngle::HMS ra = siriusFun.ra.toHMS();
     SSAngle::DMS dec = siriusFun.dec.toDMS();
     
-    printf ( "Fundamental RA  = %02hd %02hd %02.0f\n", ra.hour, ra.min, ra.sec );
-    printf ( "Fundamental Dec = %c%02hd %02hd %02.0f\n", dec.sign, dec.deg, dec.min, dec.sec );
+    printf ( "Fundamental RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
+    printf ( "Fundamental Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
     ra = siriusEqu.ra.toHMS();
     dec = siriusEqu.dec.toDMS();
     
-    printf ( "Equatorial RA  = %02hd %02hd %02.0f\n", ra.hour, ra.min, ra.sec );
-    printf ( "Equatorial Dec = %c%02hd %02hd %02.0f\n", dec.sign, dec.deg, dec.min, dec.sec );
+    printf ( "Equatorial RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
+    printf ( "Equatorial Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
     SSAngle::DMS eclon = siriusEcl.lon.toDMS();
     SSAngle::DMS eclat = siriusEcl.lat.toDMS();
 
-    printf ( "Ecliptic Lon = %03hd %02hd %02.0f\n", eclon.deg, eclon.min, eclon.sec );
-    printf ( "Ecliptic Lat = %c%02hd %02hd %02.0f\n", eclat.sign, eclat.deg, eclat.min, eclat.sec );
+    printf ( "Ecliptic Lon = %03hd %02hd %04.1f\n", eclon.deg, eclon.min, eclon.sec );
+    printf ( "Ecliptic Lat = %c%02hd %02hd %04.1f\n", eclat.sign, eclat.deg, eclat.min, eclat.sec );
 
     SSAngle::DMS galon = siriusGal.lon.toDMS();
     SSAngle::DMS galat = siriusGal.lat.toDMS();
 
-    printf ( "Ecliptic Lon = %03hd %02hd %02.0f\n", galon.deg, galon.min, galon.sec );
-    printf ( "Ecliptic Lat = %c%02hd %02hd %02.0f\n", galat.sign, galat.deg, galat.min, galat.sec );
+    printf ( "Ecliptic Lon = %03hd %02hd %04.1f\n", galon.deg, galon.min, galon.sec );
+    printf ( "Ecliptic Lat = %c%02hd %02hd %04.1f\n", galat.sign, galat.deg, galat.min, galat.sec );
 
     SSAngle::DMS azm = siriusHor.azm.toDMS();
     SSAngle::DMS alt = siriusHor.alt.toDMS();
 
-    printf ( "Azimuth  = %03hd %02hd %02.0f\n", azm.deg, azm.min,azm.sec );
-    printf ( "Altitude = %c%02hd %02hd %02.0f\n", alt.sign, alt.deg, alt.min, alt.sec );
+    printf ( "Azimuth  = %03hd %02hd %04.1f\n", azm.deg, azm.min,azm.sec );
+    printf ( "Altitude = %c%02hd %02hd %04.1f\n", alt.sign, alt.deg, alt.min, alt.sec );
 
     SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );

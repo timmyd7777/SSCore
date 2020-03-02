@@ -80,7 +80,7 @@ void SSTime::toCalendarDate ( SSCalendar calendar, double zone, int &year, short
 {
 	double	j = jd + 0.5 + zone / 24.0;
 	int		z = floor ( j ), a = 0;
-	double	f = jd - z;
+	double	f = j - z;
 	
 	if ( calendar == kSSCalendarGregorian )
 	{
