@@ -5,6 +5,7 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
 #include <math.h>
+#include <stdarg.h>
 #include "SSMatrix.hpp"
 
 SSMatrix::SSMatrix ( void )
@@ -63,31 +64,48 @@ SSMatrix SSMatrix::multiply ( SSMatrix mat )
                       x2, y2, z2 );
 }
 
-SSMatrix SSMatrix::rotation ( int axis, double angle )
+SSMatrix SSMatrix::rotate ( int axis, double angle )
 {
     double cosa = cos ( angle );
     double sina = sin ( angle );
-    
+
     if ( axis == 0 )
     {
-        return SSMatrix ( 1.0, 0.0, 0.0,
-                          0.0, cosa, -sina,
-                          0.0, sina, cosa );
+        return SSMatrix ( 1.0, 0.0,  0.0,
+                        0.0, cosa, -sina,
+                        0.0, sina, cosa ).multiply ( *this );
     }
-    
-    if ( axis == 1 )    // signs on sina are suspect!!!
+    else if ( axis == 1 )
     {
-        return SSMatrix ( cosa, 0.0, sina,
-                          0.0,  1.0, 0.0,
-                          -sina, 0.0, cosa );
+        return SSMatrix ( cosa, 0.0, -sina,
+                             0.0, 1.0, 0.0,
+                            sina, 0.0, cosa ).multiply ( *this );
     }
-    
-    if ( axis == 2 )
+    else if ( axis == 2 )
     {
         return SSMatrix ( cosa, -sina, 0.0,
-                          sina, cosa, 0.0,
-                          0.0,  0.0, 1.0 );
+                          sina,  cosa, 0.0,
+                           0.0,   0.0, 1.0 ).multiply ( *this );
+    }
+    else
+    {
+        return *this;
+    }
+}
+                                                    
+SSMatrix SSMatrix::rotation ( int n, ... )
+{
+    SSMatrix m = SSMatrix::identity();
+    va_list ap;
+
+    va_start ( ap, n );
+
+    for ( int k = 0; k < n; k++ )
+    {
+        int axis = va_arg ( ap, int );
+        double angle = va_arg ( ap, double );
+        m = m.rotate ( axis, angle );
     }
     
-    return ( identity() );
+    return ( m );
 }

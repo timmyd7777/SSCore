@@ -29,8 +29,11 @@ public:
     double dotProduct ( SSVector other );
     SSVector crossProduct ( SSVector other );
        
+    void toSpherical ( SSAngle &lon, SSAngle &lat );
     void toSpherical ( SSAngle &lon, SSAngle &lat, double &rad );
-    void fromSpherical ( SSAngle lon, SSAngle lat, double rad );
+    
+    static SSVector fromSpherical ( SSAngle lon, SSAngle lat );
+    static SSVector fromSpherical ( SSAngle lon, SSAngle lat, double rad );
 
     SSAngle angularSeparation ( SSVector other );
     SSAngle positionAngle ( SSVector other );

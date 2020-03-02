@@ -12,6 +12,7 @@
 		4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8822404EF3800BDD11C /* SSMatrix.cpp */; };
 		4703A8852404EF5700BDD11C /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8842404EF5700BDD11C /* test.cpp */; };
 		4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8862404EF7F00BDD11C /* SSTime.cpp */; };
+		A36F9198240979770038FE04 /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36F9196240979770038FE04 /* SSCoords.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +38,8 @@
 		4703A8862404EF7F00BDD11C /* SSTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSTime.cpp; sourceTree = SOURCE_ROOT; };
 		4703A8872404EF7F00BDD11C /* SSTime.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSTime.hpp; sourceTree = SOURCE_ROOT; };
 		A328D7312402DBFD00BCE781 /* SSCore */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SSCore; sourceTree = BUILT_PRODUCTS_DIR; };
+		A36F9196240979770038FE04 /* SSCoords.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSCoords.cpp; sourceTree = SOURCE_ROOT; };
+		A36F9197240979770038FE04 /* SSCoords.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSCoords.hpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +74,8 @@
 			children = (
 				4703A8862404EF7F00BDD11C /* SSTime.cpp */,
 				4703A8872404EF7F00BDD11C /* SSTime.hpp */,
+				A36F9196240979770038FE04 /* SSCoords.cpp */,
+				A36F9197240979770038FE04 /* SSCoords.hpp */,
 				4703A87C2404EEEA00BDD11C /* SSAngle.cpp */,
 				4703A87B2404EEEA00BDD11C /* SSAngle.hpp */,
 				4703A87E2404EF0800BDD11C /* SSVector.cpp */,
@@ -142,6 +147,7 @@
 				4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */,
 				4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */,
 				4703A8852404EF5700BDD11C /* test.cpp in Sources */,
+				A36F9198240979770038FE04 /* SSCoords.cpp in Sources */,
 				4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */,
 				4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */,
 			);

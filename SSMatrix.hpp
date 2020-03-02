@@ -23,10 +23,11 @@ class SSMatrix
     SSMatrix transpose ( void );
 
     static SSMatrix identity ( void );
-    static SSMatrix rotation ( int axis, double angle );
+    static SSMatrix rotation ( int n, ... );
     
     SSVector multiply ( SSVector vec );
     SSMatrix multiply ( SSMatrix mat );
+    SSMatrix rotate ( int axis, double angle );
 };
 
 #endif /* SSMatrix_hpp */

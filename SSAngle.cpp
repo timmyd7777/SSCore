@@ -73,6 +73,16 @@ SSAngle::DMS SSAngle::toDMS ( void )
     return ( dms );
 }
 
+SSAngle SSAngle::fromArcsec ( double arcsec )
+{
+    return SSAngle ( arcsec * kRadPerArcsec );
+}
+
+SSAngle SSAngle::fromArcmin ( double arcmin )
+{
+    return SSAngle ( arcmin * kRadPerArcmin );
+}
+
 SSAngle SSAngle::fromDegrees ( double degrees )
 {
     return SSAngle ( degrees * kRadPerDeg );
@@ -105,4 +115,19 @@ SSAngle SSAngle::fromHourMinSec ( char sign, short hour, short min, double sec )
 {
     double rad = ( hour + min / 60.0 + sec / 3600.0 ) * kRadPerHour;
     return SSAngle ( sign == '+' ? rad : -rad );
+}
+
+SSAngle SSAngle::mod2Pi ( void )
+{
+    return SSAngle ( a - kTwoPi * floor ( a / kTwoPi ) );
+}
+
+SSAngle SSAngle::modPi ( void )
+{
+    double x = mod2Pi().a;
+    
+    if ( x > kPi )
+        x -= kTwoPi;
+    
+    return ( SSAngle ( x ) );
 }

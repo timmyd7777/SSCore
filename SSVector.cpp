@@ -66,18 +66,36 @@ SSVector SSVector::crossProduct ( SSVector other )
     return ( SSVector ( cX, cY, cZ ) );
 }
 
-void SSVector::toSpherical ( SSAngle &lon, SSAngle &lat, double &rad )
+void SSVector::toSpherical ( SSAngle &lon, SSAngle &lat )
 {
-    rad = magnitude();
-    lat.a = asin ( y / rad );
+    double r = magnitude();
+    lat.a = asin ( z / r );
     lon.a = atan2 ( y, x );
 }
 
-void SSVector::fromSpherical ( SSAngle lon, SSAngle lat, double rad )
+void SSVector::toSpherical ( SSAngle &lon, SSAngle &lat, double &r )
 {
-    x = rad * cos ( lat.a ) * cos ( lon.a );
-    y = rad * cos ( lat.a ) * sin ( lon.a );
-    z = rad * sin ( lat.a );
+    r = magnitude();
+    lat.a = asin ( z / r );
+    lon.a = atan2 ( y, x );
+}
+
+SSVector SSVector::fromSpherical ( SSAngle lon, SSAngle lat, double rad )
+{
+    double x = rad * cos ( lat.a ) * cos ( lon.a );
+    double y = rad * cos ( lat.a ) * sin ( lon.a );
+    double z = rad * sin ( lat.a );
+    
+    return SSVector ( x, y, z );
+}
+
+SSVector SSVector::fromSpherical ( SSAngle lon, SSAngle lat )
+{
+    double x = cos ( lat.a ) * cos ( lon.a );
+    double y = cos ( lat.a ) * sin ( lon.a );
+    double z = sin ( lat.a );
+    
+    return SSVector ( x, y, z );
 }
 
 SSAngle SSVector::angularSeparation ( SSVector other )
