@@ -5,13 +5,15 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
 #include <stdio.h>
+#include "AstroLib.h"
 #include "SSCoords.hpp"
 
 int main ( int argc, char *argv[] )
 {
     double zone = 0;
     SSTime now = SSTime::fromSystem ( zone );
-    SSCoords::LonLat here = { SSAngle::fromDegMin ( '-', 122, 26 ), SSAngle::fromDegMin ( '+', 37, 46 ) };
+
+	SSCoords::LonLat here = { SSAngle::fromDegMin ( '-', 122, 26 ), SSAngle::fromDegMin ( '+', 37, 46 ) };
     SSCoords coords ( now.jd, true, here.lon.a, here.lat.a );
 
     SSTime::CalendarDate date = now.toCalendarDate ( kSSCalendarGregorian, zone );

@@ -25,7 +25,7 @@ public:
     static constexpr double kRadPerArcmin = 1.0 / kArcminPerRad;
 
     static constexpr double kDegPerRad = 57.295779513082321;
-    static constexpr double kRadPerDeg = 1.0 / 57.295779513082321;
+    static constexpr double kRadPerDeg = 1.0 / kDegPerRad;
     
     static constexpr double kHourPerRad = kDegPerRad / 15.0;
     static constexpr double kRadPerHour = 1.0 / kHourPerRad;

@@ -25,7 +25,7 @@ SSCoords::SSCoords ( double jd, bool nutate, double lon, double lat )
     else
         de = dl = 0;
     
-    this->obq = getObliquity() + de;
+    this->obq = getObliquity();
     
     equatorial = getFundamentalToEquatorialMatrix();
     ecliptic = getEquatorialToEclipticMatrix().multiply ( equatorial );
@@ -50,7 +50,7 @@ void SSCoords::getNutationConstants ( double &de, double &dl )
       
     t = ( epoch.jd - SSTime::kJ2000 ) / 36525.0;
     n  = SSAngle::fromDegrees ( 125.0445 -   1934.1363 * t ).mod2Pi().a;
-    l  = SSAngle::fromDegrees ( 280.4665 +  36000.7698 * t ).mod2Pi().a;
+    l  = SSAngle::fromDegrees ( 280.4665 +  36000.7698 * t ).mod2Pi().a * 2.0;
     l1 = SSAngle::fromDegrees ( 218.3165 + 481267.8813 * t ).mod2Pi().a * 2.0;
     
     sn   = sin ( n );
