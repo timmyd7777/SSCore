@@ -48,8 +48,8 @@ int main ( int argc, char *argv[] )
     SSAngle::DMS galon = siriusGal.lon.toDMS();
     SSAngle::DMS galat = siriusGal.lat.toDMS();
 
-    printf ( "Ecliptic Lon = %03hd %02hd %04.1f\n", galon.deg, galon.min, galon.sec );
-    printf ( "Ecliptic Lat = %c%02hd %02hd %04.1f\n", galat.sign, galat.deg, galat.min, galat.sec );
+    printf ( "Galactic Lon = %03hd %02hd %04.1f\n", galon.deg, galon.min, galon.sec );
+    printf ( "Galactic Lat = %c%02hd %02hd %04.1f\n", galat.sign, galat.deg, galat.min, galat.sec );
 
     SSAngle::DMS azm = siriusHor.azm.toDMS();
     SSAngle::DMS alt = siriusHor.alt.toDMS();

@@ -5,6 +5,7 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
 #include <math.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include "SSMatrix.hpp"
 
@@ -18,8 +19,8 @@ SSMatrix::SSMatrix ( void )
 SSMatrix::SSMatrix ( double m00, double m01, double m02, double m10, double m11, double m12, double m20, double m21, double m22 )
 {
     this->m00 = m00; this->m01 = m01; this->m02 = m02;
-    this->m10 = m01; this->m11 = m11; this->m12 = m12;
-    this->m20 = m02; this->m21 = m21; this->m22 = m22;
+    this->m10 = m10; this->m11 = m11; this->m12 = m12;
+    this->m20 = m20; this->m21 = m21; this->m22 = m22;
 }
 
 SSMatrix SSMatrix::identity ( void )
@@ -34,6 +35,15 @@ SSMatrix SSMatrix::transpose ( void )
     return SSMatrix ( m00, m10, m20,
                       m01, m11, m21,
                       m02, m12, m22 );
+}
+
+double SSMatrix::determinant ( void )
+{
+    double det = m00 * ( m11 * m22 - m12 * m21 )
+               - m01 * ( m10 * m22 - m12 * m20 )
+               + m02 * ( m10 * m21 - m11 * m20 );
+    
+    return ( det );
 }
 
 SSVector SSMatrix::multiply ( SSVector vec )
@@ -64,6 +74,8 @@ SSMatrix SSMatrix::multiply ( SSMatrix mat )
                       x2, y2, z2 );
 }
 
+#if 1
+
 SSMatrix SSMatrix::rotate ( int axis, double angle )
 {
     double cosa = cos ( angle );
@@ -78,8 +90,8 @@ SSMatrix SSMatrix::rotate ( int axis, double angle )
     else if ( axis == 1 )
     {
         return SSMatrix ( cosa, 0.0, -sina,
-                             0.0, 1.0, 0.0,
-                            sina, 0.0, cosa ).multiply ( *this );
+                           0.0, 1.0, 0.0,
+                          sina, 0.0, cosa ).multiply ( *this );
     }
     else if ( axis == 2 )
     {
@@ -92,7 +104,40 @@ SSMatrix SSMatrix::rotate ( int axis, double angle )
         return *this;
     }
 }
-                                                    
+                   
+#else
+
+SSMatrix SSMatrix::rotate ( int axis, double angle )
+{
+    double cosa = cos ( angle );
+    double sina = sin ( angle );
+
+    if ( axis == 0 )
+    {
+        return multiply ( SSMatrix ( 1.0, 0.0,  0.0,
+                        0.0, cosa, -sina,
+                        0.0, sina, cosa ) );
+    }
+    else if ( axis == 1 )
+    {
+        return multiply ( SSMatrix ( cosa, 0.0, -sina,
+                           0.0, 1.0, 0.0,
+                          sina, 0.0, cosa ) );
+    }
+    else if ( axis == 2 )
+    {
+        return multiply ( SSMatrix ( cosa, -sina, 0.0,
+                          sina,  cosa, 0.0,
+                           0.0,   0.0, 1.0 ) );
+    }
+    else
+    {
+        return *this;
+    }
+}
+
+#endif
+                         
 SSMatrix SSMatrix::rotation ( int n, ... )
 {
     SSMatrix m = SSMatrix::identity();
