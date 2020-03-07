@@ -24,8 +24,9 @@ class SSTime
 {
     public:
     
-	double		jd;		        // Julian date in civil time (NOT epehmeris time!)
-    
+	double		jd;		        // Julian date in civil time (NOT epehemeris time!)
+	double		zone;			// Local time zone offset from UTC [Hours east of Greenwich]
+	
     static constexpr double		kJ2000 = 2451545.0;		// JD of standard Julian epoch J2000
 	static constexpr double		kJ1970 = 2440587.5;		// JD of standard UNIX time base 1.0 January 1970 UTC
 	static constexpr double		kB1950 = 2433282.423;	// JD of standard Besselian epoch B1950
@@ -54,10 +55,9 @@ class SSTime
     };
     
 	SSTime ( void );
-	SSTime ( double jd );
+	SSTime ( double jd, double zone );
 	
-	static SSTime   fromSystem ( void );
-    static SSTime   fromSystem ( double &zone );
+    static SSTime   fromSystem ( void );
     static SSTime   fromUnixTime ( time_t time );
     static SSTime   fromJulianYear ( double year );
     static SSTime   fromBesselianYear ( double year );
@@ -65,15 +65,16 @@ class SSTime
 
     void            toCalendarDate ( SSCalendar cal, double zone, int &year, short &month, double &day, short &hour, short &min, double &sec );
     CalendarDate    toCalendarDate ( SSCalendar cal, double zone );
-    
+    CalendarDate    toCalendarDate ( SSCalendar cal );
+
     time_t          toUnixTime ( void );
     double          toJulianYear ( void );
     double          toBesselianYear ( void );
 
-    int             getWeekday ( double zone );
-	double		    getDeltaT ( void );
+    int             getWeekday ( void );
+	double		    getDeltaT ( void );		// in seconds
 	double		    getJulianEphemerisDate ( void );
-	double		    getGreenwichMeanSiderealTime ( void );
+	double		    getGreenwichMeanSiderealTime ( void );		// in radians
 };
 
 #endif /* SSTime_hpp */

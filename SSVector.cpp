@@ -69,15 +69,15 @@ SSVector SSVector::crossProduct ( SSVector other )
 void SSVector::toSpherical ( SSAngle &lon, SSAngle &lat )
 {
     double r = magnitude();
-    lat.a = asin ( z / r );
-    lon.a = atan2 ( y, x );
+    lat = SSAngle ( asin ( z / r ) );
+    lon = SSAngle ( atan2 ( y, x ) ).mod2Pi();
 }
 
 void SSVector::toSpherical ( SSAngle &lon, SSAngle &lat, double &r )
 {
     r = magnitude();
-    lat.a = asin ( z / r );
-    lon.a = atan2 ( y, x );
+    lat = SSAngle ( asin ( z / r ) );
+    lon = SSAngle ( atan2 ( y, x ) ).mod2Pi();
 }
 
 SSVector SSVector::fromSpherical ( SSAngle lon, SSAngle lat, double rad )

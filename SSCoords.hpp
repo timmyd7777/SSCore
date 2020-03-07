@@ -17,7 +17,7 @@
 class SSCoords
 {
 private:
-    SSTime      epoch;          // precession epoch [Julian Date]
+    double      epoch;          // precession epoch [Julian Date]
     double      lon;            // observer's longitude [radians, east positive
     double      lat;            // obseerver's latitude [radians, north positive]
     double      lst;            // local apparent sidereal time [radians]
@@ -88,9 +88,9 @@ public:
     AzmAlt   toHorizon ( double funRA, double funDec );
 
     RADec     fromEquatorial ( double equRA, double equDec );
-    LonLat    fromEcliptic ( double eclLon, double eclLat );
-    LonLat    fromGalactic ( double galLon, double galLat );
-    AzmAlt    fromHorizon ( double azm, double alt );
+    RADec    fromEcliptic ( double eclLon, double eclLat );
+    RADec    fromGalactic ( double galLon, double galLat );
+    RADec    fromHorizon ( double azm, double alt );
 
     static RADec toRADec ( SSVector vec );
     static LonLat toLonLat ( SSVector vec );

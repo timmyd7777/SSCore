@@ -6,53 +6,46 @@
 
 #include <sys/time.h>
 
+#include "SSAngle.hpp"
 #include "SSTime.hpp"
 
 SSTime::SSTime ( void )
 {
-    jd = 0.0;
+	jd = kJ2000;
+	zone = 0.0;
 }
 
-SSTime::SSTime ( double jd )
+SSTime::SSTime ( double jd, double zone )
 {
     this->jd = jd;
+	this->zone = zone;
 }
 
 SSTime SSTime::fromSystem ( void )
-{
-	struct timeval	tv = { 0 };
-	
-	gettimeofday ( &tv, NULL );
-	double jd = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
-    
-    return SSTime ( jd );
-}
-
-SSTime SSTime::fromSystem ( double &zone )
 {
     struct timeval    tv = { 0 };
     struct timezone    tz = { 0 };
     
     gettimeofday ( &tv, &tz );
     double jd = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
-    zone = -tz.tz_minuteswest / 60.0;
+    double zone = -tz.tz_minuteswest / 60.0;
     
-    return SSTime ( jd );
+    return SSTime ( jd, zone );
 }
 
 SSTime SSTime::fromUnixTime ( time_t time )
 {
-    return SSTime ( time / kSecondsPerDay + kJ1970 );
+    return SSTime ( time / kSecondsPerDay + kJ1970, 0.0 );
 }
 
 SSTime SSTime::fromJulianYear ( double year )
 {
-    return SSTime ( kJ2000 + kDaysPerJulianYear * ( year - 2000.0 ) );
+    return SSTime ( kJ2000 + kDaysPerJulianYear * ( year - 2000.0 ), 0.0 );
 }
 
 SSTime SSTime::fromBesselianYear ( double year )
 {
-    return SSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ) );
+    return SSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ), 0.0 );
 }
 
 SSTime SSTime::fromCalendarDate ( SSCalendar calendar, double zone, int year, short month, double day, short hour, short minute, double second )
@@ -73,7 +66,7 @@ SSTime SSTime::fromCalendarDate ( SSCalendar calendar, double zone, int year, sh
     }
 
     double jd = floor ( 365.25 * ( year + 4716 ) ) + floor ( 30.6001 * ( month + 1 ) ) + day + b - 1524.5;
-    return SSTime ( jd );
+    return SSTime ( jd, zone );
 }
 
 void SSTime::toCalendarDate ( SSCalendar calendar, double zone, int &year, short &month, double &day, short &hour, short &minute, double &second )
@@ -123,6 +116,11 @@ SSTime::CalendarDate SSTime::toCalendarDate ( SSCalendar calendar, double zone )
     return ( date );
 }
 
+SSTime::CalendarDate SSTime::toCalendarDate ( SSCalendar calendar )
+{
+    return toCalendarDate ( calendar, zone );
+}
+
 double SSTime::toJulianYear ( void )
 {
     return ( jd - kJ2000 ) / kDaysPerJulianYear + 2000.0;
@@ -133,7 +131,7 @@ double SSTime::toBesselianYear ( void )
     return ( jd - kB1900 ) / kDaysPerJulianYear + 1900.0;
 }
 
-int SSTime::getWeekday ( double zone )
+int SSTime::getWeekday ( void )
 {
 	int	d = floor ( jd + zone / 24.0 + 0.5 );
 	
@@ -286,5 +284,5 @@ double SSTime::getGreenwichMeanSiderealTime ( void )
 	double t3 = t2 * t;
 	double gmst = 280.46061837 + 360.98564736629 * ( jd - kJ2000 ) + 0.000387933 * t2 - t3 / 38710000.0;
 
-	return ( gmst );
+	return ( SSAngle::fromDegrees ( gmst ).mod2Pi().a );
 }

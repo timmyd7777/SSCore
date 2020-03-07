@@ -10,16 +10,15 @@
 
 int main ( int argc, char *argv[] )
 {
-    double zone = 0;
-    SSTime now = SSTime::fromSystem ( zone );
+    SSTime now = SSTime::fromSystem();
 
-	SSCoords::LonLat here = { SSAngle::fromDegMin ( '-', 122, 26 ), SSAngle::fromDegMin ( '+', 37, 46 ) };
+	SSCoords::LonLat here = { SSAngle::fromDegMinSec ( '-', 122, 25, 55.3 ), SSAngle::fromDegMinSec ( '+', 37, 46, 09.7 ) };
     SSCoords coords ( now.jd, true, here.lon.a, here.lat.a );
 
-    SSTime::CalendarDate date = now.toCalendarDate ( kSSCalendarGregorian, zone );
+    SSTime::CalendarDate date = now.toCalendarDate ( kSSCalendarGregorian );
     
     printf ( "Julian Date: %f\n", now.jd );
-    printf ( "Time Zone: %.1f\n", zone );
+    printf ( "Time Zone: %.1f\n", now.zone );
     printf ( "Local Date: %04d-%02hd-%02.0f\n", date.year, date.month, floor ( date.day ) );
     printf ( "Local Time: %02d:%02d:%04.1f\n", date.hour, date.min, date.sec );
 
@@ -59,7 +58,20 @@ int main ( int argc, char *argv[] )
     printf ( "Azimuth  = %03hd %02hd %04.1f\n", azm.deg, azm.min,azm.sec );
     printf ( "Altitude = %c%02hd %02hd %04.1f\n", alt.sign, alt.deg, alt.min, alt.sec );
 
-    SSVector v1 ( 1.0, 2.0, 3.0 );
+	SSCoords::RADec galCen = coords.fromGalactic ( 0.0, 0.0 );
+	ra = galCen.ra.toHMS();
+	dec = galCen.dec.toDMS();
+    printf ( "Gal Cen RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
+    printf ( "Gal Cen Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
+
+	SSCoords::RADec ngp = coords.fromGalactic ( 0.0, SSAngle::fromDegrees ( 90.0 ).a );
+	ra = ngp.ra.toHMS();
+	dec = ngp.dec.toDMS();
+    printf ( "NGP RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
+    printf ( "NGP Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
+
+/*
+	SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );
     SSVector v3;
     
@@ -80,4 +92,6 @@ int main ( int argc, char *argv[] )
     printf ( "%lf %lf %lf\n", i.m00, i.m01, i.m02 );
     printf ( "%lf %lf %lf\n", i.m10, i.m11, i.m12 );
     printf ( "%lf %lf %lf\n", i.m20, i.m21, i.m22 );
+*/
+	
 }
