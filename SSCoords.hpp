@@ -14,6 +14,15 @@
 #include "SSTime.hpp"
 #include "SSMatrix.hpp"
 
+enum SSFrame
+{
+	kFundamental = 0,
+	kEquatorial = 1,
+	kEcliptic = 2,
+	kGalactic = 3,
+	kHorizon = 4,
+};
+
 class SSCoords
 {
 private:
@@ -32,34 +41,6 @@ private:
     
 public:
 
-    struct LonLat
-    {
-        SSAngle lon;
-        SSAngle lat;
-    };
-
-    struct RADec
-    {
-        SSAngle ra;
-        SSAngle dec;
-    };
-
-    struct AzmAlt
-    {
-        SSAngle azm;
-        SSAngle alt;
-    };
-
-    enum Frame
-    {
-        kFundamental = 0,
-        kEquatorial = 1,
-        kEcliptic = 2,
-        kGalactic = 3,
-        kHorizon = 4,
-    };
-    
-    SSCoords ( void );
     SSCoords ( double epoch, bool nutate, double lon, double lat );
     
     double  getObliquity ( void );
@@ -82,22 +63,18 @@ public:
     SSVector fromHorizon ( SSVector horVec );
     SSVector fromGalactic ( SSVector galVec );
 
-    RADec    toEquatorial ( double funRA, double funDec );
-    LonLat   toEcliptic ( double funRA, double funDec );
-    LonLat   toGalactic ( double funRA, double funDec );
-    AzmAlt   toHorizon ( double funRA, double funDec );
+    SSSpherical toEquatorial ( SSSpherical funSph );
+    SSSpherical toEcliptic ( SSSpherical funSph );
+    SSSpherical toGalactic ( SSSpherical funSph );
+    SSSpherical toHorizon ( SSSpherical funSph );
 
-    RADec     fromEquatorial ( double equRA, double equDec );
-    RADec    fromEcliptic ( double eclLon, double eclLat );
-    RADec    fromGalactic ( double galLon, double galLat );
-    RADec    fromHorizon ( double azm, double alt );
+    SSSpherical fromEquatorial ( SSSpherical equSph );
+    SSSpherical fromEcliptic ( SSSpherical eclSph );
+    SSSpherical fromGalactic ( SSSpherical galSph );
+    SSSpherical fromHorizon ( SSSpherical horSph );
 
-    static RADec toRADec ( SSVector vec );
-    static LonLat toLonLat ( SSVector vec );
-    static AzmAlt toAzmAlt ( SSVector vec );
-    
-    SSVector    transform ( Frame from, Frame to, SSVector vec );
-    LonLat    transform ( Frame from, Frame to, double lon, double lat );
+    SSVector  	transform ( SSFrame from, SSFrame to, SSVector vec );
+    SSSpherical transform ( SSFrame from, SSFrame to, SSSpherical sph );
 };
 
 #endif /* SSCoords_hpp */

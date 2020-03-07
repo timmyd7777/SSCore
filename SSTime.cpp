@@ -3,79 +3,38 @@
 //
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
+//	Classes for converting between Julian Day and calendar date/time; and between civil and dynamic time.
 
 #include <sys/time.h>
 
 #include "SSAngle.hpp"
 #include "SSTime.hpp"
 
-SSTime::SSTime ( void )
-{
-	jd = kJ2000;
-	zone = 0.0;
-}
+// Constructs a calendar date/time from the specified calendar system, local time zone in hours east of UTC,
+// and year/month/day hour:min:sec.
 
-SSTime::SSTime ( double jd, double zone )
+SSDate::SSDate ( SSCalendar calendar, double zone, int year, short month, double day, short hour, short min, double sec )
 {
-    this->jd = jd;
+	this->calendar = calendar;
 	this->zone = zone;
+	this->year = year;
+	this->month = month;
+	this->day = day;
+	this->hour = hour;
+	this->min = min;
+	this->sec = sec;
 }
 
-SSTime SSTime::fromSystem ( void )
+// Constructs a local calendar date/time from an SSTime object representing a moment in time as a Julian Date.
+// The SSTime object specifies the calendar system and local time zone used for converting to calendar date/time.
+
+SSDate::SSDate ( SSTime time )
 {
-    struct timeval    tv = { 0 };
-    struct timezone    tz = { 0 };
-    
-    gettimeofday ( &tv, &tz );
-    double jd = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
-    double zone = -tz.tz_minuteswest / 60.0;
-    
-    return SSTime ( jd, zone );
-}
-
-SSTime SSTime::fromUnixTime ( time_t time )
-{
-    return SSTime ( time / kSecondsPerDay + kJ1970, 0.0 );
-}
-
-SSTime SSTime::fromJulianYear ( double year )
-{
-    return SSTime ( kJ2000 + kDaysPerJulianYear * ( year - 2000.0 ), 0.0 );
-}
-
-SSTime SSTime::fromBesselianYear ( double year )
-{
-    return SSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ), 0.0 );
-}
-
-SSTime SSTime::fromCalendarDate ( SSCalendar calendar, double zone, int year, short month, double day, short hour, short minute, double second )
-{
-    day += hour / 24.0 + minute / 1440.0 + second / 86400.0 - zone / 24.0;
-
-    if ( month < 3 )
-    {
-        year = year - 1;
-        month = month + 12;
-    }
-
-    int b = 0;
-    if ( calendar == kSSCalendarGregorian )
-    {
-        int a = floor ( year / 100.0 );
-        b = 2 - a + floor ( a / 4.0 );
-    }
-
-    double jd = floor ( 365.25 * ( year + 4716 ) ) + floor ( 30.6001 * ( month + 1 ) ) + day + b - 1524.5;
-    return SSTime ( jd, zone );
-}
-
-void SSTime::toCalendarDate ( SSCalendar calendar, double zone, int &year, short &month, double &day, short &hour, short &minute, double &second )
-{
-	double	j = jd + 0.5 + zone / 24.0;
+	double	j = time.jd + 0.5 + time.zone / 24.0;
 	int		z = floor ( j ), a = 0;
 	double	f = j - z;
 	
-	if ( calendar == kSSCalendarGregorian )
+	if ( time.calendar == kGregorian )
 	{
 		a = ( z - 1867216.25 ) / 36524.25;
 		a = z + 1 + a - a / 4;
@@ -103,33 +62,131 @@ void SSTime::toCalendarDate ( SSCalendar calendar, double zone, int &year, short
 		year = c - 4715;
 
 	hour = f * 24.0;
-	minute = f * 1440.0 - hour * 60.0;
-	second = f * 86400.0 - hour * 3600.0 - minute * 60.0;
+	min = f * 1440.0 - hour * 60.0;
+	sec = f * 86400.0 - hour * 3600.0 - min * 60.0;
+
+	calendar = time.calendar;
+	zone = time.zone;
 }
 
-SSTime::CalendarDate SSTime::toCalendarDate ( SSCalendar calendar, double zone )
+// Constructs a time with default values of 1.5 Jan 2000 UTC in the Gregorian calendar.
+
+SSTime::SSTime ( void )
 {
-    SSTime::CalendarDate    date = { calendar, zone, 0, 0, 0, 0, 0, 0 };
-    
-    toCalendarDate ( calendar, zone, date.year, date.month, date.day, date.hour, date.min, date.sec );
-    
-    return ( date );
+	jd = kJ2000;
+	zone = 0.0;
+	calendar = kGregorian;
 }
 
-SSTime::CalendarDate SSTime::toCalendarDate ( SSCalendar calendar )
+// Constructs a time from a specific Julian date in UTC and the Gregorian calendar.
+
+SSTime::SSTime ( double jd )
 {
-    return toCalendarDate ( calendar, zone );
+	this->jd = jd;
+	this->zone = 0.0;
+	this->calendar = kGregorian;
 }
+
+// Constructs a time from a specific Julian date and time zone in hours east of Greenwich,
+// and the Gregorian calendar.
+
+SSTime::SSTime ( double jd, double zone )
+{
+    this->jd = jd;
+	this->zone = zone;
+	this->calendar = kGregorian;
+}
+
+// Constructs a time from a specific Julian date and time zone in hours east of Greenwich,
+// in a specific calendar system.
+
+SSTime::SSTime ( double jd, double zone, SSCalendar cal )
+{
+    this->jd = jd;
+	this->zone = zone;
+	this->calendar = cal;
+}
+
+// Constructs a time from an SSDate object represeting a local calendar date/time.
+// The calendar system and local time zone are specified in the SSDate object.
+
+SSTime::SSTime ( SSDate date )
+{
+    date.day += date.hour / 24.0 + date.min / 1440.0 + date.sec / 86400.0 - date.zone / 24.0;
+	
+    if ( date.month < 3 )
+    {
+        date.year = date.year - 1;
+        date.month = date.month + 12;
+    }
+
+    int b = 0;
+    if ( date.calendar == kGregorian )
+    {
+        int a = floor ( date.year / 100.0 );
+        b = 2 - a + floor ( a / 4.0 );
+    }
+
+	jd = floor ( 365.25 * ( date.year + 4716 ) ) + floor ( 30.6001 * ( date.month + 1 ) ) + date.day + b - 1524.5;
+    zone = date.zone;
+}
+
+// Constructs a time from the computer system time; the local time zone is also read from the system.
+// The calendar system is set to use Gregorian.
+
+SSTime SSTime::fromSystem ( void )
+{
+    struct timeval    tv = { 0 };
+    struct timezone    tz = { 0 };
+    
+    gettimeofday ( &tv, &tz );
+    double jd = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
+    double zone = -tz.tz_minuteswest / 60.0;
+    
+    return SSTime ( jd, zone );
+}
+
+// Constructs a time from an arbitrary unix time (i.e. seconds since 1.0 Jan 1970 UTC).
+// The time zone is UTC and the calendar is Gregorian.
+
+SSTime SSTime::fromUnixTime ( time_t time )
+{
+    return SSTime ( time / kSecondsPerDay + kJ1970 );
+}
+
+// Constructs a time from a Julian year number (i.e. Julian years since 1.5 Jan 2000 UTC).
+// The time zone is UTC and the calendar is Gregorian.
+
+SSTime SSTime::fromJulianYear ( double year )
+{
+    return SSTime ( kJ2000 + kDaysPerJulianYear * ( year - 2000.0 ) );
+}
+
+// Constructs a time from a Besselian year number (i.e. Besselian years since 1.0 Jan 1900).
+// The time zone is UTC and the calendar is Gregorian.
+
+SSTime SSTime::fromBesselianYear ( double year )
+{
+    return SSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ), 0.0 );
+}
+
+// Returns the Julian year corresponding to this time object's Julian Date
+// (i.e. Julian years since 1.5 Jan 2000 UTC).
 
 double SSTime::toJulianYear ( void )
 {
     return ( jd - kJ2000 ) / kDaysPerJulianYear + 2000.0;
 }
 
+// Returns the Besselian year corresponding to this time object's Julian Date
+// (i.e. Besselian years since 1.0 Jan 1900).
+
 double SSTime::toBesselianYear ( void )
 {
     return ( jd - kB1900 ) / kDaysPerJulianYear + 1900.0;
 }
+
+// Returns the local week day; 0 = Sun, 1 = Mon, etc.
 
 int SSTime::getWeekday ( void )
 {
@@ -141,6 +198,9 @@ int SSTime::getWeekday ( void )
 		
 	return ( d );
 }
+
+// Returns the time offset in seconds from civil time (UT) to dynamic time (DT)
+// at this time object's current Julian Date, i.e. DT = UT + DeltaT.
 
 double SSTime::getDeltaT ( void )
 {
@@ -276,13 +336,19 @@ double SSTime::getDeltaT ( void )
 	return ( dt );
 }
 
-double SSTime::getGreenwichMeanSiderealTime ( void )
+// Returns local mean sidereal time as an angle in radians
+// at this time object's current Julian Date and a particular longitude
+// in radians, where east is positive, wast is negative.
+// For Greenwich Mean Sidereal Time, pass lon = 0.0.
+// Note: add nutation in longitude to obtain local apparent (true) sidereal time.
+
+SSAngle SSTime::getMeanSiderealTime ( SSAngle lon )
 {
 	double jd0 = floor ( jd - 0.5 ) + 0.5;
 	double t = ( jd0 - 2451545.0 ) / 36525.0;
 	double t2 = t * t;
 	double t3 = t2 * t;
-	double gmst = 280.46061837 + 360.98564736629 * ( jd - kJ2000 ) + 0.000387933 * t2 - t3 / 38710000.0;
-
-	return ( SSAngle::fromDegrees ( gmst ).mod2Pi().a );
+	double gmst = SSAngle::fromDegrees ( 280.46061837 + 360.98564736629 * ( jd - kJ2000 ) + 0.000387933 * t2 - t3 / 38710000.0 ).rad;
+	
+	return ( SSAngle ( gmst + lon.rad ).mod2Pi() );
 }

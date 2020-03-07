@@ -7,70 +7,60 @@
 #include <math.h>
 #include "SSAngle.hpp"
 
-SSAngle::SSAngle ( void )
+SSDegMinSec::SSDegMinSec ( char sign, short deg, short min, double sec )
 {
-    a = 0.0;
+	this->sign = sign;
+	this->deg = deg;
+	this->min = min;
+	this->sec = sec;
 }
 
-SSAngle::SSAngle ( double a )
+SSDegMinSec::SSDegMinSec ( SSAngle ang )
 {
-    this->a = a;
+    double degrees = fabs ( ang.toDegrees() );
+
+	sign = ang.rad >= 0.0 ? '+' : '-';
+	deg = degrees;
+	min = 60.0 * ( degrees - deg );
+	sec = 3600.0 * ( degrees - deg - min / 60.0 );
 }
 
-void SSAngle::toDegMin ( char &sign, short &deg, double &min )
+SSHourMinSec::SSHourMinSec ( char sign, short hour, short min, double sec )
 {
-    double degrees = fabs ( a ) * kDegPerRad;
-    
-    sign = a >= 0.0 ? '+' : '-';
-    deg = floor ( degrees );
-    min = 60.0 * ( degrees - deg );
+	this->sign = sign;
+	this->hour = hour;
+	this->min = min;
+	this->sec = sec;
 }
 
-void SSAngle::toHourMin ( char &sign, short &hour, double &min )
+SSHourMinSec::SSHourMinSec ( SSAngle ang )
 {
-    double hours = fabs ( a ) * kHourPerRad;
-    
-    sign = a >= 0.0 ? '+' : '-';
-    hour = floor ( hours );
-    min = 60.0 * ( hours - hour );
-}
+	double hours = fabs ( ang.toHours() );
 
-void SSAngle::toHourMinSec ( char &sign, short &hour, short &min, double &sec )
-{
-    double hours = fabs ( a ) * kHourPerRad;
-    
-    sign = a >= 0.0 ? '+' : '-';
-    hour = floor ( hours );
+	sign = ang.rad >= 0.0 ? '+' : '-';
+    hour = hours;
     min = 60.0 * ( hours - hour );
     sec = 3600.0 * ( hours - hour - min / 60.0 );
 }
 
-SSAngle::HMS SSAngle::toHMS ( void )
+SSAngle::SSAngle ( void )
 {
-    SSAngle::HMS hms = { 0 };
-    
-    toHourMinSec ( hms.sign, hms.hour, hms.min, hms.sec );
-    
-    return ( hms );
+    rad = 0.0;
 }
 
-void SSAngle::toDegMinSec ( char &sign, short &deg, short &min, double &sec )
+SSAngle::SSAngle ( double rad )
 {
-    double degrees = fabs ( a ) * kDegPerRad;
-    
-    sign = a >= 0.0 ? '+' : '-';
-    deg = floor ( degrees );
-    min = 60.0 * ( degrees - deg );
-    sec = 3600.0 * ( degrees - deg - min / 60.0 );
+    this->rad = rad;
 }
 
-SSAngle::DMS SSAngle::toDMS ( void )
+SSAngle::SSAngle ( SSDegMinSec dms )
 {
-    SSAngle::DMS dms = { 0 };
-    
-    toDegMinSec ( dms.sign, dms.deg, dms.min, dms.sec );
-    
-    return ( dms );
+	rad = kRadPerDeg * ( dms.deg + dms.min / 60.0 + dms.sec / 3600.0 ) * ( dms.sign == '+' ? 1 : -1 );
+}
+
+SSAngle::SSAngle ( SSHourMinSec hms )
+{
+	rad = kRadPerHour * ( hms.hour + hms.min / 60.0 + hms.sec / 3600.0 ) * ( hms.sign == '+' ? 1 : -1 );
 }
 
 SSAngle SSAngle::fromArcsec ( double arcsec )
@@ -88,43 +78,19 @@ SSAngle SSAngle::fromDegrees ( double degrees )
     return SSAngle ( degrees * kRadPerDeg );
 }
 
-SSAngle SSAngle::fromDegMin ( char sign, short deg, double min )
-{
-    double rad = ( deg + min / 60.0 ) * kRadPerDeg;
-    return SSAngle ( sign == '+' ? rad : -rad );
-}
-
-SSAngle SSAngle::fromDegMinSec ( char sign, short deg, short min, double sec )
-{
-    double rad = ( deg + min / 60.0 + sec / 3600.0 ) * kRadPerDeg;
-    return SSAngle ( sign == '+' ? rad : -rad );
-}
-
 SSAngle SSAngle::fromHours ( double hours )
 {
     return SSAngle ( hours * kRadPerHour );
 }
 
-SSAngle SSAngle::fromHourMin ( char sign, short hour, double min )
-{
-    double rad = ( hour + min / 60.0 ) * kRadPerHour;
-    return SSAngle ( sign == '+' ? rad : -rad );
-}
-
-SSAngle SSAngle::fromHourMinSec ( char sign, short hour, short min, double sec )
-{
-    double rad = ( hour + min / 60.0 + sec / 3600.0 ) * kRadPerHour;
-    return SSAngle ( sign == '+' ? rad : -rad );
-}
-
 SSAngle SSAngle::mod2Pi ( void )
 {
-    return SSAngle ( a - kTwoPi * floor ( a / kTwoPi ) );
+    return SSAngle ( rad - kTwoPi * floor ( rad / kTwoPi ) );
 }
 
 SSAngle SSAngle::modPi ( void )
 {
-    double x = mod2Pi().a;
+    double x = mod2Pi().rad;
     
     if ( x > kPi )
         x -= kTwoPi;

@@ -12,61 +12,63 @@ int main ( int argc, char *argv[] )
 {
     SSTime now = SSTime::fromSystem();
 
-	SSCoords::LonLat here = { SSAngle::fromDegMinSec ( '-', 122, 25, 55.3 ), SSAngle::fromDegMinSec ( '+', 37, 46, 09.7 ) };
-    SSCoords coords ( now.jd, true, here.lon.a, here.lat.a );
+	SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 55.3 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 09.7 ) ) };
+    SSCoords coords ( now.jd, true, here.lon.rad, here.lat.rad );
 
-    SSTime::CalendarDate date = now.toCalendarDate ( kSSCalendarGregorian );
+//	SSTime now ( SSDate ( kSSGregorian, -5.0, 1971, 12, 28, 11, 44, 0.0 ) );
+	SSDate date = ( now );
     
     printf ( "Julian Date: %f\n", now.jd );
     printf ( "Time Zone: %.1f\n", now.zone );
     printf ( "Local Date: %04d-%02hd-%02.0f\n", date.year, date.month, floor ( date.day ) );
     printf ( "Local Time: %02d:%02d:%04.1f\n", date.hour, date.min, date.sec );
 
-    SSCoords::RADec siriusFun = { SSAngle::fromHourMinSec ( '+', 06, 45, 08.92 ), SSAngle::fromDegMinSec  ( '-', 16, 42, 58.0 ) };
-    SSCoords::RADec siriusEqu = coords.toEquatorial ( siriusFun.ra.a, siriusFun.dec.a );
-    SSCoords::LonLat siriusEcl = coords.toEcliptic ( siriusFun.ra.a, siriusFun.dec.a );
-    SSCoords::LonLat siriusGal = coords.toGalactic ( siriusFun.ra.a, siriusFun.dec.a );
-    SSCoords::AzmAlt siriusHor = coords.toHorizon ( siriusFun.ra.a, siriusFun.dec.a );
+    SSSpherical siriusFun = { SSAngle ( SSHourMinSec ( '+', 06, 45, 08.92 ) ).rad, SSAngle ( SSDegMinSec  ( '-', 16, 42, 58.0 ) ).rad };
+    SSSpherical siriusEqu = coords.toEquatorial ( siriusFun );
+    SSSpherical siriusEcl = coords.toEcliptic ( siriusFun );
+    SSSpherical siriusGal = coords.toGalactic ( siriusFun );
+    SSSpherical siriusHor = coords.toHorizon ( siriusFun );
 
-    SSAngle::HMS ra = siriusFun.ra.toHMS();
-    SSAngle::DMS dec = siriusFun.dec.toDMS();
+    SSHourMinSec ra ( siriusFun.lon );
+    SSDegMinSec dec ( siriusFun.lat );
     
     printf ( "Fundamental RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Fundamental Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
-    ra = siriusEqu.ra.toHMS();
-    dec = siriusEqu.dec.toDMS();
+    ra = SSHourMinSec ( siriusEqu.lon );
+    dec = SSDegMinSec ( siriusEqu.lat );
     
     printf ( "Equatorial RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Equatorial Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
-    SSAngle::DMS eclon = siriusEcl.lon.toDMS();
-    SSAngle::DMS eclat = siriusEcl.lat.toDMS();
+    SSDegMinSec eclon ( siriusEcl.lon );
+    SSDegMinSec eclat ( siriusEcl.lat );
 
     printf ( "Ecliptic Lon = %03hd %02hd %04.1f\n", eclon.deg, eclon.min, eclon.sec );
     printf ( "Ecliptic Lat = %c%02hd %02hd %04.1f\n", eclat.sign, eclat.deg, eclat.min, eclat.sec );
 
-    SSAngle::DMS galon = siriusGal.lon.toDMS();
-    SSAngle::DMS galat = siriusGal.lat.toDMS();
+    SSDegMinSec galon ( siriusGal.lon );
+    SSDegMinSec galat ( siriusGal.lat );
 
     printf ( "Galactic Lon = %03hd %02hd %04.1f\n", galon.deg, galon.min, galon.sec );
     printf ( "Galactic Lat = %c%02hd %02hd %04.1f\n", galat.sign, galat.deg, galat.min, galat.sec );
 
-    SSAngle::DMS azm = siriusHor.azm.toDMS();
-    SSAngle::DMS alt = siriusHor.alt.toDMS();
+    SSDegMinSec azm ( siriusHor.lon );
+    SSDegMinSec alt ( siriusHor.lat );
 
     printf ( "Azimuth  = %03hd %02hd %04.1f\n", azm.deg, azm.min,azm.sec );
     printf ( "Altitude = %c%02hd %02hd %04.1f\n", alt.sign, alt.deg, alt.min, alt.sec );
 
-	SSCoords::RADec galCen = coords.fromGalactic ( 0.0, 0.0 );
-	ra = galCen.ra.toHMS();
-	dec = galCen.dec.toDMS();
+	SSSpherical galCen = coords.fromGalactic ( SSSpherical ( 0.0, 0.0 ) );
+	ra = SSHourMinSec ( galCen.lon );
+	dec = SSDegMinSec ( galCen.lat );
+	
     printf ( "Gal Cen RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Gal Cen Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
-	SSCoords::RADec ngp = coords.fromGalactic ( 0.0, SSAngle::fromDegrees ( 90.0 ).a );
-	ra = ngp.ra.toHMS();
-	dec = ngp.dec.toDMS();
+	SSSpherical ngp = coords.fromGalactic ( SSSpherical ( 0.0, SSAngle::fromDegrees ( 90.0 ) ) );
+	ra = SSHourMinSec ( ngp.lon );
+	dec = SSDegMinSec ( ngp.lat );
     printf ( "NGP RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "NGP Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 

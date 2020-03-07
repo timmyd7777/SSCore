@@ -8,24 +8,18 @@
 
 #include "SSCoords.hpp"
 
-SSCoords::SSCoords ( void )
-{
-    
-}
-
 SSCoords::SSCoords ( double jd, bool nutate, double lon, double lat )
 {
-    this->epoch = jd;
-    this->lon = lon;
-    this->lat = lat;
-    this->lst = SSAngle ( SSTime ( jd, 0.0 ).getGreenwichMeanSiderealTime() + dl + lon ).mod2Pi().a;
-    
     if ( nutate )
         getNutationConstants ( de, dl );
     else
         de = dl = 0;
     
     this->obq = getObliquity();
+	this->epoch = jd;
+    this->lon = lon;
+    this->lat = lat;
+    this->lst = SSTime ( jd ).getMeanSiderealTime ( SSAngle ( lon + dl ) ).rad;
     
     equatorial = getFundamentalToEquatorialMatrix();
     ecliptic = getEquatorialToEclipticMatrix().multiply ( equatorial );
@@ -39,9 +33,9 @@ void SSCoords::getPrecessionConstants ( double &zeta, double &z, double &theta )
     double t2 = t * t;
     double t3 = t * t2;
 
-    zeta  = SSAngle::fromArcsec ( 2306.2181 * t + 0.30188 * t2 + 0.017998 * t3 ).a;
-    z     = SSAngle::fromArcsec ( 2306.2181 * t + 1.09468 * t2 + 0.018203 * t3 ).a;
-    theta = SSAngle::fromArcsec ( 2004.3109 * t - 0.42665 * t2 - 0.041833 * t3 ).a;
+    zeta  = SSAngle::fromArcsec ( 2306.2181 * t + 0.30188 * t2 + 0.017998 * t3 ).rad;
+    z     = SSAngle::fromArcsec ( 2306.2181 * t + 1.09468 * t2 + 0.018203 * t3 ).rad;
+    theta = SSAngle::fromArcsec ( 2004.3109 * t - 0.42665 * t2 - 0.041833 * t3 ).rad;
 }
 
 void SSCoords::getNutationConstants ( double &de, double &dl )
@@ -49,9 +43,9 @@ void SSCoords::getNutationConstants ( double &de, double &dl )
     double t, n, l, l1, sn, cn, s2n, c2n, s2l, c2l, s2l1, c2l1;
       
     t = ( epoch - SSTime::kJ2000 ) / 36525.0;
-    n  = SSAngle::fromDegrees ( 125.0445 -   1934.1363 * t ).mod2Pi().a;
-    l  = SSAngle::fromDegrees ( 280.4665 +  36000.7698 * t ).mod2Pi().a * 2.0;
-    l1 = SSAngle::fromDegrees ( 218.3165 + 481267.8813 * t ).mod2Pi().a * 2.0;
+    n  = SSAngle::fromDegrees ( 125.0445 -   1934.1363 * t ).mod2Pi().rad;
+    l  = SSAngle::fromDegrees ( 280.4665 +  36000.7698 * t ).mod2Pi().rad * 2.0;
+    l1 = SSAngle::fromDegrees ( 218.3165 + 481267.8813 * t ).mod2Pi().rad * 2.0;
     
     sn   = sin ( n );
     cn   = cos ( n );
@@ -62,8 +56,8 @@ void SSCoords::getNutationConstants ( double &de, double &dl )
     s2l1 = sin ( l1 );
     c2l1 = cos ( l1 );
     
-    dl = SSAngle::fromArcsec ( -17.20 * sn - 1.32 * s2l - 0.23 * s2l1 + 0.21 * s2n ).a;
-    de = SSAngle::fromArcsec (   9.20 * cn + 0.57 * c2l + 0.10 * c2l1 - 0.09 * c2n ).a;
+    dl = SSAngle::fromArcsec ( -17.20 * sn - 1.32 * s2l - 0.23 * s2l1 + 0.21 * s2n ).rad;
+    de = SSAngle::fromArcsec (   9.20 * cn + 0.57 * c2l + 0.10 * c2l1 - 0.09 * c2n ).rad;
 }
 
 double SSCoords::getObliquity ( void )
@@ -73,7 +67,7 @@ double SSCoords::getObliquity ( void )
     t = ( epoch - SSTime::kJ2000 ) / 36525.0;
     e = 23.439291 + t * ( -0.0130042 + t * ( -0.00000016 + t * 0.000000504 ) );
       
-    return SSAngle::fromDegrees ( e ).a;
+    return SSAngle::fromDegrees ( e ).rad;
 }
 
 SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( void )
@@ -145,79 +139,42 @@ SSVector SSCoords::fromGalactic ( SSVector funVec )
     return galactic.transpose().multiply ( funVec );
 }
 
-SSCoords::RADec SSCoords::toRADec ( SSVector vec )
+SSSpherical SSCoords::toEquatorial ( SSSpherical fun )
 {
-    RADec radec = { 0 };
-    vec.toSpherical ( radec.ra, radec.dec );
-    return ( radec );
+    return SSSpherical ( toEquatorial ( SSVector ( fun ) ) );
 }
 
-SSCoords::LonLat SSCoords::toLonLat ( SSVector vec )
+SSSpherical SSCoords::toEcliptic ( SSSpherical fun )
 {
-    LonLat lonlat = { 0 };
-    vec.toSpherical ( lonlat.lon, lonlat.lat );
-    return ( lonlat );
+    return SSSpherical ( toEcliptic ( SSVector ( fun ) ) );
 }
 
-SSCoords::AzmAlt SSCoords::toAzmAlt ( SSVector vec )
+SSSpherical SSCoords::toGalactic ( SSSpherical fun )
 {
-    AzmAlt azmalt = { 0 };
-    vec.toSpherical ( azmalt.azm, azmalt.alt );
-    return ( azmalt );
+    return SSSpherical ( toGalactic ( SSVector ( fun ) ) );
 }
 
-SSCoords::RADec SSCoords::toEquatorial ( double funRA, double funDec )
+SSSpherical SSCoords::toHorizon ( SSSpherical fun )
 {
-    SSVector funVec = SSVector::fromSpherical ( funRA, funDec, 1.0 );
-    SSVector equVec = equatorial.multiply ( funVec );
-    return SSCoords::toRADec ( equVec );
+    return SSSpherical ( toHorizon ( SSVector ( fun ) ) );
 }
 
-SSCoords::LonLat SSCoords::toEcliptic ( double funRA, double funDec )
+SSSpherical SSCoords::fromEquatorial ( SSSpherical equ )
 {
-    SSVector funVec = SSVector::fromSpherical ( funRA, funDec, 1.0 );
-    SSVector eclVec = ecliptic.multiply ( funVec );
-    return SSCoords::toLonLat ( eclVec );
+    return SSSpherical ( fromEquatorial ( SSVector ( equ ) ) );
 }
 
-SSCoords::LonLat SSCoords::toGalactic ( double funRA, double funDec )
+SSSpherical SSCoords::fromEcliptic ( SSSpherical ecl )
 {
-    SSVector funVec = SSVector::fromSpherical ( funRA, funDec, 1.0 );
-    SSVector galVec = galactic.multiply ( funVec );
-    return SSCoords::toLonLat ( galVec );
+    return SSSpherical ( fromEcliptic ( SSVector ( ecl ) ) );
 }
 
-SSCoords::AzmAlt SSCoords::toHorizon ( double funRA, double funDec )
+SSSpherical SSCoords::fromGalactic ( SSSpherical gal )
 {
-    SSVector funVec = SSVector::fromSpherical ( funRA, funDec, 1.0 );
-    SSVector horVec = horizon.multiply ( funVec );
-    return SSCoords::toAzmAlt ( horVec );
+    return SSSpherical ( fromGalactic ( SSVector ( gal ) ) );
 }
 
-SSCoords::RADec SSCoords::fromEquatorial ( double equRA, double equDec )
+SSSpherical SSCoords::fromHorizon ( SSSpherical hor )
 {
-    SSVector equVec = SSVector::fromSpherical ( equRA, equDec, 1.0 );
-    SSVector funVec = equatorial.transpose().multiply ( equVec );
-    return SSCoords::toRADec ( funVec );
-}
-
-SSCoords::RADec SSCoords::fromEcliptic ( double eclLon, double eclLat )
-{
-    SSVector eclVec = SSVector::fromSpherical ( eclLon, eclLat, 1.0 );
-    SSVector funVec = ecliptic.transpose().multiply ( eclVec );
-    return SSCoords::toRADec ( funVec );
-}
-
-SSCoords::RADec SSCoords::fromGalactic ( double galLon, double galLat )
-{
-    SSVector galVec = SSVector::fromSpherical ( galLon, galLat, 1.0 );
-    SSVector funVec = galactic.transpose().multiply ( galVec );
-    return SSCoords::toRADec ( funVec );
-}
-
-SSCoords::RADec SSCoords::fromHorizon ( double azm, double alt )
-{
-    SSVector horVec = SSVector::fromSpherical ( azm, alt, 1.0 );
-    SSVector funVec = horizon.multiply ( horVec );
-    return SSCoords::toRADec ( funVec );
+    return SSSpherical ( fromHorizon ( SSVector ( hor ) ) );
 }

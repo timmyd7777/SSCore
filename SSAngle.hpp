@@ -3,16 +3,44 @@
 //
 //  Created by Tim DeBenedictis on 2/24/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
+//  Classes for converting angular values from radians to degress/hours, minutes, seconds; and vice-versa
 
 #ifndef SSAngle_hpp
 #define SSAngle_hpp
 
+// Represents an angular value expressed in degrees, minutes, seconds
+
+struct SSDegMinSec
+{
+	char sign;		// sign of angle, either '+' or '-'
+	short deg;		// degrees portion of angle, 0 - 360, always positive
+	short min;		// minutes portion of angle, 0 - 59, always positive
+	double sec;		// seconds portion of angle, 0 - 59.999..., always positive
+	
+	SSDegMinSec ( char sign, short deg, short min, double sec );
+	SSDegMinSec ( class SSAngle );
+};
+
+// Represents an angular value expressed in hours, minutes, seconds
+
+struct SSHourMinSec
+{
+	char sign;		// sign of angle, either '+' or '-'
+	short hour;		// hours portion of angle, 0 - 23, always positive
+	short min;		// minutes portion of angle, 0 - 59, always positive
+	double sec;		// seconds portion of angle, 0 - 59.999..., always positive
+
+	SSHourMinSec ( char sign, short hour, short min, double sec );
+	SSHourMinSec ( class SSAngle );
+};
+
+// Represents an angular value expressed in radians
 
 class SSAngle
 {
 public:
 
-    double a;       // always radians
+    double rad;      // angular value in radians
     
     static constexpr double kPi  = 3.141592653589793;
     static constexpr double kTwoPi = 6.283185307179586;
@@ -30,48 +58,21 @@ public:
     static constexpr double kHourPerRad = kDegPerRad / 15.0;
     static constexpr double kRadPerHour = 1.0 / kHourPerRad;
 
-    struct DMS
-    {
-        char sign;
-        short deg;
-        short min;
-        double sec;
-    };
-
-    struct HMS
-    {
-        char sign;
-        short hour;
-        short min;
-        double sec;
-    };
-
     SSAngle ( void );
     SSAngle ( double rad );
-    
-    double toArcsec ( void ) { return a * kArcsecPerRad; }
-    double toArcmin ( void ) { return a * kArcminPerRad; }
-    double toDegrees ( void ) { return a * kDegPerRad; }
-    void toDegMin ( char &sign, short &deg, double &min );
-    void toDegMinSec ( char &sign, short &deg, short &min, double &sec );
-    
-    double toHours ( void ) { return a * kHourPerRad; }
-    void toHourMin ( char &sign, short &deg, double &min );
-    void toHourMinSec ( char &sign, short &deg, short &min, double &sec );
+	SSAngle ( SSDegMinSec dms );
+	SSAngle ( SSHourMinSec hms );
+	
+    double toArcsec ( void ) { return rad * kArcsecPerRad; }
+    double toArcmin ( void ) { return rad * kArcminPerRad; }
+    double toDegrees ( void ) { return rad * kDegPerRad; }
+    double toHours ( void ) { return rad * kHourPerRad; }
 
-    HMS toHMS ( void );
-    DMS toDMS ( void );
-    
     static SSAngle fromArcsec ( double arcsec );
     static SSAngle fromArcmin ( double arcmin );
     static SSAngle fromDegrees ( double degrees );
-    static SSAngle fromDegMin ( char sign, short deg, double min );
-    static SSAngle fromDegMinSec ( char sign, short deg, short min, double sec );
-    
     static SSAngle fromHours ( double hours );
-    static SSAngle fromHourMin ( char sign, short hour, double min );
-    static SSAngle fromHourMinSec ( char sign, short hour, short min, double sec );
-
+ 
     SSAngle modPi ( void );
     SSAngle mod2Pi ( void );
     
