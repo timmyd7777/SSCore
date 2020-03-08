@@ -71,16 +71,20 @@ public:
     SSSpherical toEcliptic ( SSSpherical funSph );
     SSSpherical toGalactic ( SSSpherical funSph );
     SSSpherical toHorizon ( SSSpherical funSph );
+    SSSpherical toHorizon ( SSSpherical funSph, bool refract );
 
     SSSpherical fromEquatorial ( SSSpherical equSph );
     SSSpherical fromEcliptic ( SSSpherical eclSph );
     SSSpherical fromGalactic ( SSSpherical galSph );
     SSSpherical fromHorizon ( SSSpherical horSph );
+    SSSpherical fromHorizon ( SSSpherical horSph, bool refract );
 
     SSVector  	transform ( SSFrame from, SSFrame to, SSVector vec );
     SSSpherical transform ( SSFrame from, SSFrame to, SSSpherical sph );
 	
-	static SSAngle refraction ( SSAngle alt, bool a );
+	static SSAngle refractionAngle ( SSAngle alt, bool a );
+	static SSAngle toRefractedAltitude ( SSAngle alt );
+	static SSAngle fromRefractedAltitude ( SSAngle alt );
 };
 
 #endif /* SSCoords_hpp */

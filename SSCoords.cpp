@@ -262,7 +262,7 @@ SSSpherical SSCoords::fromHorizon ( SSSpherical hor )
 // and false if alt is an apparent (refracted) altitude.  This formula assumes
 // standard atmospheric pressure and temperature of 1010 millibars and +10 deg C.
 
-SSAngle SSCoords::refraction ( SSAngle alt, bool a )
+SSAngle SSCoords::refractionAngle ( SSAngle alt, bool a )
 {
 	double	h, r;
 	
@@ -278,4 +278,18 @@ SSAngle SSCoords::refraction ( SSAngle alt, bool a )
 	}
 	
 	return SSAngle::fromArcmin ( r );
+}
+
+// Returns refracted (apparent) altitude from true (geometric) altitude
+
+SSAngle SSCoords::toRefractedAltitude ( SSAngle alt )
+{
+	return SSAngle ( alt.rad + SSCoords::refractionAngle ( alt, true ).rad );
+}
+
+// Returns true (geometric) from refracted (apparent) altitude
+
+SSAngle SSCoords::fromRefractedAltitude ( SSAngle alt )
+{
+	return SSAngle ( alt.rad - SSCoords::refractionAngle ( alt, false ).rad );
 }
