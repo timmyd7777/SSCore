@@ -339,6 +339,14 @@ double SSTime::getDeltaT ( void )
 	return ( dt );
 }
 
+// Returns the Julian Ephemeris Date (i.e., TDT) corresponding
+// to this time object's current Julian Date, which is in UTC.
+
+double SSTime::getJulianEphemerisDate ( void )
+{
+	return jd + getDeltaT() / kSecondsPerDay;
+}
+
 // Returns local mean sidereal time as an angle in radians
 // at this time object's current Julian Date and a particular longitude
 // in radians, where east is positive, wast is negative.

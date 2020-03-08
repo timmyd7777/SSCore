@@ -1,4 +1,3 @@
-//
 //  SSCoords.cpp
 //  SSCore
 //
@@ -14,7 +13,7 @@
 SSCoords::SSCoords ( double jd, bool nutate, double lon, double lat )
 {
     if ( nutate )
-        getNutationConstants ( de, dl );
+        getNutationConstants ( jd, de, dl );
     else
         de = dl = 0;
     
@@ -30,13 +29,12 @@ SSCoords::SSCoords ( double jd, bool nutate, double lon, double lat )
     galMat = getFundamentalToGalacticMatrix();
 }
 
-// Computes constants needed to compute precession from J2000 to this coordindate
-// transformation object's current Julian date.
+// Computes constants needed to compute precession from J2000 to a specific Julian Date (jd).
 // From Jean Meeus, "Astronomical Algorithms", ch 21., p. 134.
 
-void SSCoords::getPrecessionConstants ( double &zeta, double &z, double &theta )
+void SSCoords::getPrecessionConstants ( double jd, double &zeta, double &z, double &theta )
 {
-    double t = ( epoch - SSTime::kJ2000 ) / 36525.0;
+    double t = ( jd - SSTime::kJ2000 ) / 36525.0;
     double t2 = t * t;
     double t3 = t * t2;
 
@@ -45,15 +43,14 @@ void SSCoords::getPrecessionConstants ( double &zeta, double &z, double &theta )
     theta = SSAngle::fromArcsec ( 2004.3109 * t - 0.42665 * t2 - 0.041833 * t3 ).rad;
 }
 
-// Computes constants needed to compute nutation from J2000 to this coordindate
-// transformation object's current Julian date.
+// Computes constants needed to compute nutation from J2000 to a specific Julian date (jd).
 // From Jean Meeus, "Astronomical Algorithms", ch. 22, p. 144.
 
-void SSCoords::getNutationConstants ( double &de, double &dl )
+void SSCoords::getNutationConstants ( double jd, double &de, double &dl )
 {
     double t, n, l, l1, sn, cn, s2n, c2n, s2l, c2l, s2l1, c2l1;
       
-    t = ( epoch - SSTime::kJ2000 ) / 36525.0;
+    t = ( jd - SSTime::kJ2000 ) / 36525.0;
     n  = SSAngle::fromDegrees ( 125.0445 -   1934.1363 * t ).mod2Pi().rad;
     l  = SSAngle::fromDegrees ( 280.4665 +  36000.7698 * t ).mod2Pi().rad * 2.0;
     l1 = SSAngle::fromDegrees ( 218.3165 + 481267.8813 * t ).mod2Pi().rad * 2.0;
@@ -72,43 +69,64 @@ void SSCoords::getNutationConstants ( double &de, double &dl )
 }
 
 // Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
-// planes) at this coordindate transformation object's current Julian date.  Does not include nutation!
+// planes) at any epoch (expressed as a Julian Date) from 1600 to 2100.  Does not include nutation!
 
-double SSCoords::getObliquity ( void )
+double SSCoords::getObliquity ( double jd )
 {
     double t, e;
 
-    t = ( epoch - SSTime::kJ2000 ) / 36525.0;
+    t = ( jd - SSTime::kJ2000 ) / 36525.0;
     e = 23.439291 + t * ( -0.0130042 + t * ( -0.00000016 + t * 0.000000504 ) );
       
     return SSAngle::fromDegrees ( e ).rad;
 }
 
-// Returns a rotation matrix for transforming rectangular coordinates from the
-// fundamental J2000 mean equatorial frame to the current equatorial frame.
+// Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
+// planes) at this coordindate transformation object's current Julian date.  Does not include nutation!
 
-SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( void )
+double SSCoords::getObliquity ( void )
+{
+    return toRadians ( getObliquity ( epoch ) );
+}
+
+// Returns a rotation matrix for transforming rectangular coordinates from the
+// fundamental J2000 mean equatorial frame to the precessed equatorial frame
+// at the specified epoch (expressed as a Julian Date, jd), optionally including
+// nutation (nut).
+
+SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( double jd, bool nut )
 {
     double zeta = 0.0, z = 0.0, theta = 0.0;
     
-    getPrecessionConstants ( zeta, z, theta );
-    return SSMatrix::rotation ( 6, 2, zeta, 1, theta, 2, z, 0, -obq, 2, dl, 0, obq + de );
+    getPrecessionConstants ( jd, zeta, z, theta );
+	if ( nut )
+	{
+		double nutObq, nutLon, obq = getObliquity ( jd );
+		getNutationConstants ( jd, nutObq, nutLon );
+		return SSMatrix::rotation ( 6, 2, zeta, 1, theta, 2, z, 0, -obq, 2, nutLon, 0, obq + nutObq );
+	}
+	else
+	{
+		return SSMatrix::rotation ( 3, 2, zeta, 1, theta, 2, z );
+	}
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
-// fundamental J2000 mean equatorial to the current ecliptic frame.
+// ecliptic to the equatorial frame, where oliquity is the angle in radians between
+// the ecliptic and equatorial planes (i.e., the Earth's orbital and equatorial planes).
+// Pass negative obliquity to get matrix for transforming equatorial -> ecliptic.
 
-SSMatrix SSCoords::getEquatorialToEclipticMatrix ( void )
+SSMatrix SSCoords::getEclipticToEquatorialMatrix ( double obliquity )
 {
-    return SSMatrix::rotation ( 1, 0, - obq - de );
+    return SSMatrix::rotation ( 1, 0, obliquity );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
-// fundamental J2000 mean equatorial to the current local horizon frame.
-// Note we negate the middle row of the matrix because horizon coordinates
-// are left-handed!
+// current equatorial frame to the local horizon frame, given the local sidereal
+// time (lst) and latitude (lat), both in radians. Note we negate the middle row
+// of the matrix because horizon coordinates are left-handed!
 
-SSMatrix SSCoords::getEquatorialToHorizonMatrix ( void )
+SSMatrix SSCoords::getEquatorialToHorizonMatrix ( double lst, double lat )
 {
     SSMatrix m = SSMatrix::rotation ( 2, 2, SSAngle::kPi - lst, 1, lat - SSAngle::kHalfPi );
     
@@ -127,6 +145,33 @@ SSMatrix SSCoords::getFundamentalToGalacticMatrix ( void )
     return SSMatrix ( -0.054875539390, -0.873437104725, -0.483834991775,
                       +0.494109453633, -0.444829594298, +0.746982248696,
                       -0.867666135681, -0.198076389622, +0.455983794523 );
+}
+
+// Returns a rotation matrix for transforming rectangular coordinates from the
+// fundamental J2000 mean equatorial frame to the current equatorial frame.
+
+SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( void )
+{
+    double zeta = 0.0, z = 0.0, theta = 0.0;
+    
+    getPrecessionConstants ( epoch, zeta, z, theta );
+    return SSMatrix::rotation ( 6, 2, zeta, 1, theta, 2, z, 0, -obq, 2, dl, 0, obq + de );
+}
+
+// Returns a rotation matrix for transforming rectangular coordinates from the
+// current equatorial to the current ecliptic frame.
+
+SSMatrix SSCoords::getEquatorialToEclipticMatrix ( void )
+{
+    return getEclipticToEquatorialMatrix ( - obq - de );
+}
+
+// Returns a rotation matrix for transforming rectangular coordinates from the
+// current equatorial frame to the current local horizon frame.
+
+SSMatrix SSCoords::getEquatorialToHorizonMatrix ( void )
+{
+    return getEquatorialToHorizonMatrix ( lst, lat );
 }
 
 // Given a rectangular coordinate vector in the fundamental frame,

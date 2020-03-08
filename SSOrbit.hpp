@@ -25,6 +25,8 @@ class SSOrbit
 	double		n;		// longitude of ascending node in radians
 	double		m;		// mean anomaly at epoch in radians
 	double		mm;		// mean motion, radians per day
+
+public:
 	
 	static const int	kMaxIterations = 1000;		// Maximum number of iterations for solving Kepler's equation
 	static constexpr double	kTolerance = 1.0e-9;	// Tolerance for solving Kepler's eqn is about 0.0002 arcsec

@@ -1,10 +1,10 @@
-//
 //  SSCoords.hpp
 //  SSCore
 //
 //  Created by Tim DeBenedictis on 2/28/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
-//	Classes for converting rectangular and spherical coordinates between different astronomical reference frames.
+//	Classes for converting rectangular and spherical coordinates between different astronomical reference frames
+//  at a particular time and geographic location.
 
 #ifndef SSCoords_hpp
 #define SSCoords_hpp
@@ -47,15 +47,21 @@ public:
 
     SSCoords ( double epoch, bool nutate, double lon, double lat );
     
+	static double	getObliquity ( double epoch );
+    static void    	getNutationConstants ( double jd, double &de, double &dl );
+    static void    	getPrecessionConstants ( double jd, double &zeta, double &z, double &theta );
+
     double  getObliquity ( void );
-    void    getNutationConstants ( double &de, double &dl );
-    void    getPrecessionConstants ( double &zeta, double &z, double &theta );
-    double  getLocalSiderealTime ( void );
-    
+	double  getLocalSiderealTime ( void );
+
+    static SSMatrix getFundamentalToEquatorialMatrix ( double epoch, bool nutate );
+    static SSMatrix getEclipticToEquatorialMatrix ( double obliquity );
+    static SSMatrix getEquatorialToHorizonMatrix ( double lst, double lat );
+    static SSMatrix getFundamentalToGalacticMatrix ( void );
+
     SSMatrix getFundamentalToEquatorialMatrix ( void );
     SSMatrix getEquatorialToEclipticMatrix ( void );
     SSMatrix getEquatorialToHorizonMatrix ( void );
-    SSMatrix getFundamentalToGalacticMatrix ( void );
 
     SSVector toEquatorial ( SSVector funVec );
     SSVector toEcliptic ( SSVector funVec );

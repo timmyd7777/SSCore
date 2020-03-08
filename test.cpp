@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "AstroLib.h"
 #include "SSCoords.hpp"
+#include "SSOrbit.hpp"
 
 int main ( int argc, char *argv[] )
 {
@@ -59,6 +60,8 @@ int main ( int argc, char *argv[] )
     printf ( "Azimuth  = %03hd %02hd %04.1f\n", azm.deg, azm.min,azm.sec );
     printf ( "Altitude = %c%02hd %02hd %04.1f\n", alt.sign, alt.deg, alt.min, alt.sec );
 
+	// Print J2000 RA/Dec of north galactic pole
+	
 	SSSpherical galCen = coords.fromGalactic ( SSSpherical ( 0.0, 0.0 ) );
 	ra = SSHourMinSec ( galCen.lon );
 	dec = SSDegMinSec ( galCen.lat );
@@ -66,11 +69,31 @@ int main ( int argc, char *argv[] )
     printf ( "Gal Cen RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Gal Cen Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
+	// Print J2000 RA/Dec of galactic center
+	
 	SSSpherical ngp = coords.fromGalactic ( SSSpherical ( 0.0, SSAngle::fromDegrees ( 90.0 ) ) );
 	ra = SSHourMinSec ( ngp.lon );
 	dec = SSDegMinSec ( ngp.lat );
     printf ( "NGP RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "NGP Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
+
+	double jde = now.getJulianEphemerisDate();
+	SSOrbit orb = SSOrbit::getEarthOrbit ( jde );
+	SSMatrix orbMat = SSCoords::getEclipticToEquatorialMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
+	
+	SSVector pos, vel;
+	orb.toPositionVelocity ( jde, pos, vel );
+	pos.multiplyBy ( -1.0 );
+	pos = orbMat.multiply ( pos );
+	vel = orbMat.multiply ( vel );
+	
+	pos = coords.toEquatorial ( pos );
+	SSSpherical equ ( pos );
+	ra = SSHourMinSec ( equ.lon );
+	dec = SSDegMinSec ( equ.lat );
+
+    printf ( "Sun RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
+    printf ( "Sun Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
 /*
 	SSVector v1 ( 1.0, 2.0, 3.0 );
