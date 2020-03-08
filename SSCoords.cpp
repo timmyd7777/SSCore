@@ -7,26 +7,24 @@
 #include "SSCoords.hpp"
 
 // Constructs a coordinate transformation object for a specific
-// Julian Date (jd) and geographic longtiude/latitude (both in radians,
-// east and noth are positive), optionally including nutation (nutate).
+// Julian Date (jd) and geographic longitude/latitude (both in radians,
+// east and noth are positive).
 
-SSCoords::SSCoords ( double jd, bool nutate, double lon, double lat )
+SSCoords::SSCoords ( double jd, double lon, double lat )
 {
-    if ( nutate )
-        getNutationConstants ( jd, de, dl );
-    else
-        de = dl = 0;
-    
-    this->obq = getObliquity();
+    getNutationConstants ( jd, de, dl );
+    this->obq = getObliquity ( jd );
 	this->epoch = jd;
     this->lon = lon;
     this->lat = lat;
     this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl ) ).rad;
     
-    equMat = getFundamentalToEquatorialMatrix();
-    eclMat = getEquatorialToEclipticMatrix().multiply ( equMat );
-    horMat = getEquatorialToHorizonMatrix().multiply ( equMat );
-    galMat = getFundamentalToGalacticMatrix();
+	preMat = getPrecessionMatrix ( jd );
+	nutMat = getNutationMatrix ( obq, dl, de );
+    equMat = nutMat.multiply ( preMat );
+    eclMat = getEclipticMatrix ( - obq - de ).multiply ( equMat );
+    horMat = getHorizonMatrix ( lst, lat ).multiply ( equMat );
+    galMat = getGalacticMatrix();
 }
 
 // Computes constants needed to compute precession from J2000 to a specific Julian Date (jd).
@@ -78,37 +76,28 @@ double SSCoords::getObliquity ( double jd )
     t = ( jd - SSTime::kJ2000 ) / 36525.0;
     e = 23.439291 + t * ( -0.0130042 + t * ( -0.00000016 + t * 0.000000504 ) );
       
-    return SSAngle::fromDegrees ( e ).rad;
-}
-
-// Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
-// planes) at this coordindate transformation object's current Julian date.  Does not include nutation!
-
-double SSCoords::getObliquity ( void )
-{
-    return toRadians ( getObliquity ( epoch ) );
+    return toRadians ( e );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
 // fundamental J2000 mean equatorial frame to the precessed equatorial frame
-// at the specified epoch (expressed as a Julian Date, jd), optionally including
-// nutation (nut).
+// at the specified epoch (expressed as a Julian Date, jd). Does not include nutation!
 
-SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( double jd, bool nut )
+SSMatrix SSCoords::getPrecessionMatrix ( double jd )
 {
     double zeta = 0.0, z = 0.0, theta = 0.0;
-    
     getPrecessionConstants ( jd, zeta, z, theta );
-	if ( nut )
-	{
-		double nutObq, nutLon, obq = getObliquity ( jd );
-		getNutationConstants ( jd, nutObq, nutLon );
-		return SSMatrix::rotation ( 6, 2, zeta, 1, theta, 2, z, 0, -obq, 2, nutLon, 0, obq + nutObq );
-	}
-	else
-	{
-		return SSMatrix::rotation ( 3, 2, zeta, 1, theta, 2, z );
-	}
+	return SSMatrix::rotation ( 3, 2, zeta, 1, theta, 2, z );
+}
+
+// Returns a rotation matrix which corrects equatorial coordinates for nutation,
+// i.e. transforming rectangular coordinates from the mean to the true equatorial frame.
+// The mean obliquity of the ecliptic is obq; the nutation in longitude and obliquity
+//  are nutLon and nutObj, all in radians.
+
+SSMatrix SSCoords::getNutationMatrix ( double obq, double nutLon, double nutObq )
+{
+	return SSMatrix::rotation ( 3, 0, -obq, 2, nutLon, 0, obq + nutObq );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
@@ -116,17 +105,17 @@ SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( double jd, bool nut )
 // the ecliptic and equatorial planes (i.e., the Earth's orbital and equatorial planes).
 // Pass negative obliquity to get matrix for transforming equatorial -> ecliptic.
 
-SSMatrix SSCoords::getEclipticToEquatorialMatrix ( double obliquity )
+SSMatrix SSCoords::getEclipticMatrix ( double obliquity )
 {
     return SSMatrix::rotation ( 1, 0, obliquity );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
-// current equatorial frame to the local horizon frame, given the local sidereal
+// current true equatorial frame to the local horizon frame, given the local sidereal
 // time (lst) and latitude (lat), both in radians. Note we negate the middle row
 // of the matrix because horizon coordinates are left-handed!
 
-SSMatrix SSCoords::getEquatorialToHorizonMatrix ( double lst, double lat )
+SSMatrix SSCoords::getHorizonMatrix ( double lst, double lat )
 {
     SSMatrix m = SSMatrix::rotation ( 2, 2, SSAngle::kPi - lst, 1, lat - SSAngle::kHalfPi );
     
@@ -140,38 +129,11 @@ SSMatrix SSCoords::getEquatorialToHorizonMatrix ( double lst, double lat )
 // From J.C Liu et al, "Reconsidering the Galactic Coordinate System",
 // https://www.aanda.org/articles/aa/full_html/2011/02/aa14961-10/aa14961-10.html
 
-SSMatrix SSCoords::getFundamentalToGalacticMatrix ( void )
+SSMatrix SSCoords::getGalacticMatrix ( void )
 {
     return SSMatrix ( -0.054875539390, -0.873437104725, -0.483834991775,
                       +0.494109453633, -0.444829594298, +0.746982248696,
                       -0.867666135681, -0.198076389622, +0.455983794523 );
-}
-
-// Returns a rotation matrix for transforming rectangular coordinates from the
-// fundamental J2000 mean equatorial frame to the current equatorial frame.
-
-SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( void )
-{
-    double zeta = 0.0, z = 0.0, theta = 0.0;
-    
-    getPrecessionConstants ( epoch, zeta, z, theta );
-    return SSMatrix::rotation ( 6, 2, zeta, 1, theta, 2, z, 0, -obq, 2, dl, 0, obq + de );
-}
-
-// Returns a rotation matrix for transforming rectangular coordinates from the
-// current equatorial to the current ecliptic frame.
-
-SSMatrix SSCoords::getEquatorialToEclipticMatrix ( void )
-{
-    return getEclipticToEquatorialMatrix ( - obq - de );
-}
-
-// Returns a rotation matrix for transforming rectangular coordinates from the
-// current equatorial frame to the current local horizon frame.
-
-SSMatrix SSCoords::getEquatorialToHorizonMatrix ( void )
-{
-    return getEquatorialToHorizonMatrix ( lst, lat );
 }
 
 // Given a rectangular coordinate vector in the fundamental frame,

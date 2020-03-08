@@ -29,39 +29,33 @@ enum SSFrame
 
 class SSCoords
 {
-private:
+public:
     double      epoch;          // precession epoch [Julian Date]
     double      lon;            // observer's longitude [radians, east positive]
     double      lat;            // obseerver's latitude [radians, north positive]
     double      lst;            // local apparent sidereal time [radians]
-    double      obq;            // obliquity of ecliptic [radians]
+    double      obq;            // mean obliquity of ecliptic at current epoch [radians]
     double      de;             // nutation in obliquity [radians]
     double      dl;             // nutation in longitude [radians]
     
-    SSMatrix    equMat;     	// transforms coords from fundamental to equatorial frame
-    SSMatrix    eclMat;       	// transforms coords from fundamental to ecliptic frame
-    SSMatrix    horMat;       	// transforms coords from fundamental to horizon frame
-    SSMatrix    galMat;       	// transforms coords from fundamental to galactic frame
+	SSMatrix 	preMat;			// transforms from fundamental to mean precessed equatorial frame, not including nutation.
+	SSMatrix	nutMat;			// transforms from mean precessed equatorial frame to true equatorial frame, i.e. corrects for nutation.
+    SSMatrix    equMat;     	// transforms from fundamental to current true equatorial frame.
+    SSMatrix    eclMat;       	// transforms from fundamental to current true ecliptic frame (includes nutation).
+    SSMatrix    horMat;       	// transforms from fundamental to current local horizon frame.
+    SSMatrix    galMat;       	// transforms from fundamental to galactic frame
     
-public:
-
-    SSCoords ( double epoch, bool nutate, double lon, double lat );
+    SSCoords ( double epoch, double lon, double lat );
     
 	static double	getObliquity ( double epoch );
     static void    	getNutationConstants ( double jd, double &de, double &dl );
     static void    	getPrecessionConstants ( double jd, double &zeta, double &z, double &theta );
 
-    double  getObliquity ( void );
-	double  getLocalSiderealTime ( void );
-
-    static SSMatrix getFundamentalToEquatorialMatrix ( double epoch, bool nutate );
-    static SSMatrix getEclipticToEquatorialMatrix ( double obliquity );
-    static SSMatrix getEquatorialToHorizonMatrix ( double lst, double lat );
-    static SSMatrix getFundamentalToGalacticMatrix ( void );
-
-    SSMatrix getFundamentalToEquatorialMatrix ( void );
-    SSMatrix getEquatorialToEclipticMatrix ( void );
-    SSMatrix getEquatorialToHorizonMatrix ( void );
+    static SSMatrix getPrecessionMatrix ( double epoch );
+    static SSMatrix getNutationMatrix ( double onliquity, double nutLon, double nutObq );
+    static SSMatrix getEclipticMatrix ( double obliquity );
+    static SSMatrix getHorizonMatrix ( double lst, double lat );
+    static SSMatrix getGalacticMatrix ( void );
 
     SSVector toEquatorial ( SSVector funVec );
     SSVector toEcliptic ( SSVector funVec );

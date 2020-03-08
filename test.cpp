@@ -14,7 +14,7 @@ int main ( int argc, char *argv[] )
     SSTime now = SSTime::fromSystem();
 
 	SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 55.3 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 09.7 ) ) };
-    SSCoords coords ( now.jd, true, here.lon.rad, here.lat.rad );
+    SSCoords coords ( now.jd, here.lon.rad, here.lat.rad );
 
 //	SSTime now ( SSDate ( kSSGregorian, -5.0, 1971, 12, 28, 11, 44, 0.0 ) );
 	SSDate date = ( now );
@@ -79,7 +79,7 @@ int main ( int argc, char *argv[] )
 
 	double jde = now.getJulianEphemerisDate();
 	SSOrbit orb = SSOrbit::getEarthOrbit ( jde );
-	SSMatrix orbMat = SSCoords::getEclipticToEquatorialMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
+	SSMatrix orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
 	
 	SSVector pos, vel;
 	orb.toPositionVelocity ( jde, pos, vel );
