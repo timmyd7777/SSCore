@@ -79,6 +79,8 @@ public:
 
     SSVector  	transform ( SSFrame from, SSFrame to, SSVector vec );
     SSSpherical transform ( SSFrame from, SSFrame to, SSSpherical sph );
+	
+	static SSAngle refraction ( SSAngle alt, bool a );
 };
 
 #endif /* SSCoords_hpp */

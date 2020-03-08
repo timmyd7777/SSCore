@@ -30,6 +30,8 @@ double kcoskdeg ( double k, double deg )
 	return SSAngle::kRadPerDeg * k * cos ( k * deg * SSAngle::kRadPerDeg );
 }
 
+// Constructs an orbit from the specified set of Keplerian elements.
+
 SSOrbit::SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm )
 {
 	this->t = t;
@@ -258,7 +260,7 @@ SSOrbit SSOrbit::fromPositionVelocity ( double jde, double mu, SSVector pos, SSV
 // For 1800 - 2100, positions predicted using this orbit are accurate to about 1 arcminute;
 // outside that interval, accuracy is about 10 arcminutes.  Based on formulae from
 // E. M. Standish, "Keplerian Elements for Approximate Positions of the Major Planets",
-// Solar System Dynamics Group, JPL/Caltech.
+// Solar System Dynamics Group, JPL/Caltech, https://ssd.jpl.nasa.gov/?planet_pos
 
 SSOrbit SSOrbit::getMercuryOrbit ( double jde )
 {

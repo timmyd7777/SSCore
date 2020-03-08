@@ -256,3 +256,26 @@ SSSpherical SSCoords::fromHorizon ( SSSpherical hor )
 {
     return SSSpherical ( fromHorizon ( SSVector ( hor ) ) );
 }
+
+// Computes atmospheric refraction angle at a particular altitude in radians.
+// The boolean a should be true if alt is a true (geometric, un-refracted) altitude,
+// and false if alt is an apparent (refracted) altitude.  This formula assumes
+// standard atmospheric pressure and temperature of 1010 millibars and +10 deg C.
+
+SSAngle SSCoords::refraction ( SSAngle alt, bool a )
+{
+	double	h, r;
+	
+	if ( a == true )
+	{
+		h = max ( alt.toDegrees(), -1.9 );
+		r = 1.02 / tan ( SSAngle::fromDegrees ( h + ( 10.3 / ( h + 5.11 ) ) ).rad );
+	}
+	else
+	{
+		h = max ( alt.toDegrees(), -1.7 );
+		r = 1.0 / tan ( SSAngle::fromDegrees ( h + ( 7.31 / ( h + 4.4 ) ) ).rad );
+	}
+	
+	return SSAngle::fromArcmin ( r );
+}

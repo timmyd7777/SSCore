@@ -4,7 +4,7 @@
 //
 //  Created by Tim DeBenedictis on 3/7/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
-//
+//  Class for storing Keplerian orbital elements, computing position/velocity at a given time from them, and vice-versa.
 
 #ifndef SSOrbit_hpp
 #define SSOrbit_hpp
@@ -12,10 +12,13 @@
 #include <stdio.h>
 #include "SSVector.hpp"
 
+// Stores Keplerian orbital elements.  For heliocentric orbits, the reference plane
+// is usually the J2000 ecliptic, and the periapse distance is measured in AU.
+
 class SSOrbit
 {
 	double		t;		// epoch of orbital elements as Julian Ephemeris Date
-	double		q;		// periapse distance, arbitrary units
+	double		q;		// periapse distance in astronomical units
 	double		e;		// eccentricity: 0.0 = circular, 1.0 = parabolic, > 1.0 = hyperbolic
 	double		i;		// inclination to reference plance in radians
 	double		w;		// argument of peripse in radians
