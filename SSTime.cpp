@@ -26,6 +26,7 @@ SSDate::SSDate ( SSCalendar calendar, double zone, int year, short month, double
 
 // Constructs a local calendar date/time from an SSTime object representing a moment in time as a Julian Date.
 // The SSTime object specifies the calendar system and local time zone used for converting to calendar date/time.
+// From Jean Meeus, "Astronomical Algorithms", ch. 7, pp. 63-64.
 
 SSDate::SSDate ( SSTime time )
 {
@@ -108,6 +109,7 @@ SSTime::SSTime ( double jd, double zone, SSCalendar cal )
 
 // Constructs a time from an SSDate object represeting a local calendar date/time.
 // The calendar system and local time zone are specified in the SSDate object.
+// From Jean Meeus, "Astronomical Algorithms", ch. 7, pp. 60-61.
 
 SSTime::SSTime ( SSDate date )
 {

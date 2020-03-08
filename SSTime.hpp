@@ -15,10 +15,12 @@
 
 using namespace std;
 
+// Identifers for the calendar systems used in SSDate and SSTime.
+
 enum SSCalendar
 {
-	kGregorian = 0,
-	kJulian = 1
+	kGregorian = 0,		// JD >= 2299161.0, 15 October 1582.  Leap years every 4th year, but not every 100th, unless also 400th.
+	kJulian = 1			// JD <  2299161.0,  4 October 1582.  Leap years every 4th year.
 };
 
 // Represents an instant in time as a calendar date in a local time zone.
