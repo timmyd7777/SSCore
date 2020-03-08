@@ -77,4 +77,8 @@ public:
     SSAngle mod2Pi ( void );
 };
 
+double modPi ( double x );
+double mod2Pi ( double x );
+double atan2Pi ( double y, double x );
+
 #endif /* SSAngle_hpp */

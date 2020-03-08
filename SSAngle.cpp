@@ -111,17 +111,41 @@ SSAngle SSAngle::fromHours ( double hours )
 
 SSAngle SSAngle::mod2Pi ( void )
 {
-    return SSAngle ( rad - kTwoPi * floor ( rad / kTwoPi ) );
+    return SSAngle ( ::mod2Pi ( rad ) );
 }
 
 // Reduces an angle in radians to the range -kPi to +kPi.
 
 SSAngle SSAngle::modPi ( void )
 {
-    double x = mod2Pi().rad;
-    
-    if ( x > kPi )
-        x -= kTwoPi;
-    
-    return ( SSAngle ( x ) );
+    return SSAngle ( ::modPi ( rad ) );
+}
+
+// Reduces an angle in radians to the range -kPi to +kPi.
+
+double modPi ( double x )
+{
+	x = mod2Pi ( x );
+	
+	if ( x > SSAngle::kPi )
+		x -= SSAngle::kTwoPi;
+
+	return x;
+}
+
+// Reduces an angle to the range 0 to kTwoPi.
+
+double mod2Pi ( double x )
+{
+    return x - SSAngle::kTwoPi * floor ( x / SSAngle::kTwoPi );
+}
+
+// Returns arctangent of y / x in radians in the range 0 to kTwoPi.
+
+double atan2Pi ( double y, double x )
+{
+	if ( y < 0.0 )
+		return atan2 ( y, x ) + SSAngle::kTwoPi;
+	else
+		return atan2 ( y, x );
 }
