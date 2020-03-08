@@ -75,9 +75,6 @@ public:
  
     SSAngle modPi ( void );
     SSAngle mod2Pi ( void );
-    
-    SSAngle angularSeparation ( SSAngle lon0, SSAngle lat0, SSAngle lon1, SSAngle lat1 );
-    SSAngle positionAngle ( SSAngle lon0, SSAngle lat0, SSAngle lon1, SSAngle lat1 );
 };
 
 #endif /* SSAngle_hpp */

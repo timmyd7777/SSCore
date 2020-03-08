@@ -9,12 +9,16 @@
 #include <stdarg.h>
 #include "SSMatrix.hpp"
 
+// Constructs a 3x3 matrix whose elements are all initialized to zero.
+
 SSMatrix::SSMatrix ( void )
 {
     m00 = 0.0;  m01 = 0.0; m02 = 0.0;
     m10 = 0.0;  m11 = 0.0; m12 = 0.0;
     m20 = 0.0;  m21 = 0.0; m22 = 0.0;
 }
+
+// Constructs a 3x3 matrix whose elements are specified individually by row.
 
 SSMatrix::SSMatrix ( double m00, double m01, double m02, double m10, double m11, double m12, double m20, double m21, double m22 )
 {
@@ -23,6 +27,8 @@ SSMatrix::SSMatrix ( double m00, double m01, double m02, double m10, double m11,
     this->m20 = m20; this->m21 = m21; this->m22 = m22;
 }
 
+// Returns a 3x3 identity matrix.
+
 SSMatrix SSMatrix::identity ( void )
 {
     return SSMatrix ( 1.0, 0.0, 0.0,
@@ -30,12 +36,19 @@ SSMatrix SSMatrix::identity ( void )
                       0.0, 0.0, 1.0 );
 }
 
+// Returns a 3x3 matrix which is the transpose of this matrix.
+// Does not transpose this matrix in place!
+// For a rotation matrix, its transpose is also its inverse.
+
 SSMatrix SSMatrix::transpose ( void )
 {
     return SSMatrix ( m00, m10, m20,
                       m01, m11, m21,
                       m02, m12, m22 );
 }
+
+// Returns the determinant of this 3x3 matrix.
+// For a rotation matrix, the determinant is 1.0.
 
 double SSMatrix::determinant ( void )
 {
@@ -46,6 +59,9 @@ double SSMatrix::determinant ( void )
     return ( det );
 }
 
+// Returns the product of this matrix and a 3-element vector
+// as another vector.  Does not modify the input vector (vec)!
+
 SSVector SSMatrix::multiply ( SSVector vec )
 {
     double x = m00 * vec.x + m01 * vec.y + m02 * vec.z;
@@ -54,6 +70,11 @@ SSVector SSMatrix::multiply ( SSVector vec )
     
     return SSVector ( x, y, z );
 }
+
+// Returns the product of this matrix and another 3x3 matrix
+// as another matrix.  Does not modify the input matrix (mat)!
+// Note: matrix multiplication is NOT commutative; in other words,
+// this.multiply(that) and that.multiply(this) return different matrices!
 
 SSMatrix SSMatrix::multiply ( SSMatrix mat )
 {
@@ -74,6 +95,10 @@ SSMatrix SSMatrix::multiply ( SSMatrix mat )
                       x2, y2, z2 );
 }
 
+// Returns a matrix which represents this matrix rotated around
+// a particular coordinate axis (0=X,1=Y,2=Z) by an angle in radians.
+// Does not modify this matrix; returns a transformed copy!
+
 SSMatrix SSMatrix::rotate ( int axis, double angle )
 {
     double cosa = cos ( angle );
@@ -83,8 +108,8 @@ SSMatrix SSMatrix::rotate ( int axis, double angle )
     if ( axis == 0 )
     {
         return SSMatrix ( 1.0, 0.0,  0.0,
-                        0.0, cosa, -sina,
-                        0.0, sina, cosa ).multiply ( *this );
+                          0.0, cosa, -sina,
+                          0.0, sina, cosa ).multiply ( *this );
     }
     else if ( axis == 1 )
     {
@@ -103,7 +128,14 @@ SSMatrix SSMatrix::rotate ( int axis, double angle )
         return *this;
     }
 }
-										
+
+// Returns a matrix which represents an arbitrary set of rotations around
+// the principal coordinate axes (X,Y,Z).  The number of rotations is n.
+// For each rotation, a pair of arguments gives the axis and angle as per above,
+// so the total numbe of arguments is 1 + 2 * n.  The order of rotations is important!
+// For example, the matrix returned by rotation ( 3, 0, a, 1, b, 2, c ) is the inverse
+// (i.e. transpose) of the matrix returned by rotation ( 3, 2, -c, 1, -b, 0, a )
+
 SSMatrix SSMatrix::rotation ( int n, ... )
 {
     SSMatrix m = SSMatrix::identity();
@@ -118,5 +150,6 @@ SSMatrix SSMatrix::rotation ( int n, ... )
         m = m.rotate ( axis, angle );
     }
     
+	va_end ( ap );
     return ( m );
 }

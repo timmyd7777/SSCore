@@ -4,9 +4,12 @@
 //
 //  Created by Tim DeBenedictis on 2/28/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
-//
 
 #include "SSCoords.hpp"
+
+// Constructs a coordinate transformation object for a specific
+// Julian Date (jd) and geographic longtiude/latitude (both in radians,
+// east and noth are positive), optionally including nutation (nutate).
 
 SSCoords::SSCoords ( double jd, bool nutate, double lon, double lat )
 {
@@ -19,13 +22,17 @@ SSCoords::SSCoords ( double jd, bool nutate, double lon, double lat )
 	this->epoch = jd;
     this->lon = lon;
     this->lat = lat;
-    this->lst = SSTime ( jd ).getMeanSiderealTime ( SSAngle ( lon + dl ) ).rad;
+    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl ) ).rad;
     
-    equatorial = getFundamentalToEquatorialMatrix();
-    ecliptic = getEquatorialToEclipticMatrix().multiply ( equatorial );
-    horizon = getEquatorialToHorizonMatrix().multiply ( equatorial );
-    galactic = getFundamentalToGalacticMatrix();
+    equMat = getFundamentalToEquatorialMatrix();
+    eclMat = getEquatorialToEclipticMatrix().multiply ( equMat );
+    horMat = getEquatorialToHorizonMatrix().multiply ( equMat );
+    galMat = getFundamentalToGalacticMatrix();
 }
+
+// Computes constants needed to compute precession from J2000 to this coordindate
+// transformation object's current Julian date.
+// From Jean Meeus, "Astronomical Algorithms", ch 21., p. 134.
 
 void SSCoords::getPrecessionConstants ( double &zeta, double &z, double &theta )
 {
@@ -37,6 +44,10 @@ void SSCoords::getPrecessionConstants ( double &zeta, double &z, double &theta )
     z     = SSAngle::fromArcsec ( 2306.2181 * t + 1.09468 * t2 + 0.018203 * t3 ).rad;
     theta = SSAngle::fromArcsec ( 2004.3109 * t - 0.42665 * t2 - 0.041833 * t3 ).rad;
 }
+
+// Computes constants needed to compute nutation from J2000 to this coordindate
+// transformation object's current Julian date.
+// From Jean Meeus, "Astronomical Algorithms", ch. 22, p. 144.
 
 void SSCoords::getNutationConstants ( double &de, double &dl )
 {
@@ -60,6 +71,9 @@ void SSCoords::getNutationConstants ( double &de, double &dl )
     de = SSAngle::fromArcsec (   9.20 * cn + 0.57 * c2l + 0.10 * c2l1 - 0.09 * c2n ).rad;
 }
 
+// Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
+// planes) at this coordindate transformation object's current Julian date.  Does not include nutation!
+
 double SSCoords::getObliquity ( void )
 {
     double t, e;
@@ -70,6 +84,9 @@ double SSCoords::getObliquity ( void )
     return SSAngle::fromDegrees ( e ).rad;
 }
 
+// Returns a rotation matrix for transforming rectangular coordinates from the
+// fundamental J2000 mean equatorial frame to the current equatorial frame.
+
 SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( void )
 {
     double zeta = 0.0, z = 0.0, theta = 0.0;
@@ -78,10 +95,18 @@ SSMatrix SSCoords::getFundamentalToEquatorialMatrix ( void )
     return SSMatrix::rotation ( 6, 2, zeta, 1, theta, 2, z, 0, -obq, 2, dl, 0, obq + de );
 }
 
+// Returns a rotation matrix for transforming rectangular coordinates from the
+// fundamental J2000 mean equatorial to the current ecliptic frame.
+
 SSMatrix SSCoords::getEquatorialToEclipticMatrix ( void )
 {
     return SSMatrix::rotation ( 1, 0, - obq - de );
 }
+
+// Returns a rotation matrix for transforming rectangular coordinates from the
+// fundamental J2000 mean equatorial to the current local horizon frame.
+// Note we negate the middle row of the matrix because horizon coordinates
+// are left-handed!
 
 SSMatrix SSCoords::getEquatorialToHorizonMatrix ( void )
 {
@@ -92,6 +117,11 @@ SSMatrix SSCoords::getEquatorialToHorizonMatrix ( void )
     return ( m );
 }
 
+// Returns a rotation matrix for transforming rectangular coordinates
+// from the fundamental J2000 mean equatorial to the galactic frame.
+// From J.C Liu et al, "Reconsidering the Galactic Coordinate System",
+// https://www.aanda.org/articles/aa/full_html/2011/02/aa14961-10/aa14961-10.html
+
 SSMatrix SSCoords::getFundamentalToGalacticMatrix ( void )
 {
     return SSMatrix ( -0.054875539390, -0.873437104725, -0.483834991775,
@@ -99,80 +129,128 @@ SSMatrix SSCoords::getFundamentalToGalacticMatrix ( void )
                       -0.867666135681, -0.198076389622, +0.455983794523 );
 }
 
+// Given a rectangular coordinate vector in the fundamental frame,
+// returns a copy of that vector transformed to the current equatorial frame.
+
 SSVector SSCoords::toEquatorial ( SSVector funVec )
 {
-    return equatorial.multiply ( funVec );
+    return equMat.multiply ( funVec );
 }
+
+// Given a rectangular coordinate vector in the fundamental frame,
+// returns a copy of that vector transformed to the ecliptic frame.
 
 SSVector SSCoords::toEcliptic ( SSVector funVec )
 {
-    return ecliptic.multiply ( funVec );
+    return eclMat.multiply ( funVec );
 }
+
+// Given a rectangular coordinate vector in the fundamental frame,
+// returns a copy of that vector transformed to the current local horizon frame.
 
 SSVector SSCoords::toHorizon ( SSVector funVec )
 {
-    return horizon.multiply ( funVec );
+    return horMat.multiply ( funVec );
 }
+
+// Given a rectangular coordinate vector in the fundamental frame,
+// returns a copy of that vector transformed to the galactic frame.
 
 SSVector SSCoords::toGalactic ( SSVector funVec )
 {
-    return galactic.multiply ( funVec );
+    return galMat.multiply ( funVec );
 }
 
-SSVector SSCoords::fromEquatorial ( SSVector funVec )
+// Given a rectangular coordinate vector in the current equatorial frame,
+// returns a copy of that vector transformed to the fundamental frame.
+
+SSVector SSCoords::fromEquatorial ( SSVector equVec )
 {
-    return equatorial.transpose().multiply ( funVec );
+    return equMat.transpose().multiply ( equVec );
 }
 
-SSVector SSCoords::fromEcliptic ( SSVector funVec )
+// Given a rectangular coordinate vector in the current ecliptic frame,
+// returns a copy of that vector transformed to the fundamental frame.
+
+SSVector SSCoords::fromEcliptic ( SSVector eclVec )
 {
-    return ecliptic.transpose().multiply ( funVec );
+    return eclMat.transpose().multiply ( eclVec );
 }
 
-SSVector SSCoords::fromHorizon ( SSVector funVec )
+// Given a rectangular coordinate vector in the galactic frame,
+// returns a copy of that vector transformed to the fundamental frame.
+
+SSVector SSCoords::fromGalactic ( SSVector galVec )
 {
-    return horizon.transpose().multiply ( funVec );
+    return galMat.transpose().multiply ( galVec );
 }
 
-SSVector SSCoords::fromGalactic ( SSVector funVec )
+// Given a rectangular coordinate vector in the current local horizon frame,
+// returns a copy of that vector transformed to the fundamental frame.
+
+SSVector SSCoords::fromHorizon ( SSVector horVec )
 {
-    return galactic.transpose().multiply ( funVec );
+    return horMat.transpose().multiply ( horVec );
 }
+
+// Given a spherical coordinates in the fundamental frame, returns a copy
+// of those spherical coords transformed to the current equatorial frame.
 
 SSSpherical SSCoords::toEquatorial ( SSSpherical fun )
 {
     return SSSpherical ( toEquatorial ( SSVector ( fun ) ) );
 }
 
+// Given a spherical coordinates in the fundamental frame, returns a copy
+// of those spherical coords transformed to the current ecliptic frame.
+
 SSSpherical SSCoords::toEcliptic ( SSSpherical fun )
 {
     return SSSpherical ( toEcliptic ( SSVector ( fun ) ) );
 }
+
+// Given a spherical coordinates in the fundamental frame, returns a copy
+// of those spherical coords transformed to the galactic frame.
 
 SSSpherical SSCoords::toGalactic ( SSSpherical fun )
 {
     return SSSpherical ( toGalactic ( SSVector ( fun ) ) );
 }
 
+// Given a spherical coordinates in the fundamental frame, returns a copy
+// of those spherical coords transformed to the current local horizon frame.
+
 SSSpherical SSCoords::toHorizon ( SSSpherical fun )
 {
     return SSSpherical ( toHorizon ( SSVector ( fun ) ) );
 }
+
+// Given a spherical coordinates in the current equatorial frame,
+// returns a copy transformed to the fundamental frame.
 
 SSSpherical SSCoords::fromEquatorial ( SSSpherical equ )
 {
     return SSSpherical ( fromEquatorial ( SSVector ( equ ) ) );
 }
 
+// Given a spherical coordinates in the current ecliptic frame,
+// returns a copy transformed to the fundamental frame.
+
 SSSpherical SSCoords::fromEcliptic ( SSSpherical ecl )
 {
     return SSSpherical ( fromEcliptic ( SSVector ( ecl ) ) );
 }
 
+// Given a spherical coordinates in the galactic frame,
+// returns a copy transformed to the fundamental frame.
+
 SSSpherical SSCoords::fromGalactic ( SSSpherical gal )
 {
     return SSSpherical ( fromGalactic ( SSVector ( gal ) ) );
 }
+
+// Given a spherical coordinates in the current local horizon frame,
+// returns a copy transformed to the fundamental frame.
 
 SSSpherical SSCoords::fromHorizon ( SSSpherical hor )
 {

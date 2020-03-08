@@ -3,6 +3,7 @@
 //
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
+//	Classes for converting between Julian Day and calendar date/time; and between civil and dynamic time.
 
 #ifndef SSTime_hpp
 #define SSTime_hpp
@@ -81,7 +82,7 @@ class SSTime
     int             getWeekday ( void );
 	double		    getDeltaT ( void );
 	double		    getJulianEphemerisDate ( void );
-	SSAngle		    getMeanSiderealTime ( SSAngle lon );
+	SSAngle		    getSiderealTime ( SSAngle lon );
 };
 
 #endif /* SSTime_hpp */

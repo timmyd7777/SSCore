@@ -3,7 +3,6 @@
 //
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
-//	Classes for converting between Julian Day and calendar date/time; and between civil and dynamic time.
 
 #include <sys/time.h>
 
@@ -201,6 +200,8 @@ int SSTime::getWeekday ( void )
 
 // Returns the time offset in seconds from civil time (UT) to dynamic time (DT)
 // at this time object's current Julian Date, i.e. DT = UT + DeltaT.
+// From an algorithm by F. Espenak and J. Meeus, described here:
+// https://eclipse.gsfc.nasa.gov/SEhelp/deltatpoly2004.html
 
 double SSTime::getDeltaT ( void )
 {
@@ -341,8 +342,9 @@ double SSTime::getDeltaT ( void )
 // in radians, where east is positive, wast is negative.
 // For Greenwich Mean Sidereal Time, pass lon = 0.0.
 // Note: add nutation in longitude to obtain local apparent (true) sidereal time.
+// From Jean Meeus, "Astronomical Algorithms", ch. 12, p. 88
 
-SSAngle SSTime::getMeanSiderealTime ( SSAngle lon )
+SSAngle SSTime::getSiderealTime ( SSAngle lon )
 {
 	double jd0 = floor ( jd - 0.5 ) + 0.5;
 	double t = ( jd0 - 2451545.0 ) / 36525.0;
