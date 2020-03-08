@@ -149,3 +149,17 @@ double atan2Pi ( double y, double x )
 	else
 		return atan2 ( y, x );
 }
+
+// Converts an angle in radians to degrees
+
+double toDegrees ( double rad )
+{
+	return rad * SSAngle::kDegPerRad;
+}
+
+// Converts an angle in degrees to radians
+
+double toRadians ( double deg )
+{
+	return deg * SSAngle::kRadPerDeg;
+}

@@ -81,4 +81,7 @@ double modPi ( double x );
 double mod2Pi ( double x );
 double atan2Pi ( double y, double x );
 
+double toDegrees ( double rad );
+double toRadians ( double deg );
+
 #endif /* SSAngle_hpp */

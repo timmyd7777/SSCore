@@ -269,12 +269,12 @@ SSAngle SSCoords::refractionAngle ( SSAngle alt, bool a )
 	if ( a == true )
 	{
 		h = max ( alt.toDegrees(), -1.9 );
-		r = 1.02 / tan ( SSAngle::fromDegrees ( h + ( 10.3 / ( h + 5.11 ) ) ).rad );
+		r = 1.02 / tan ( toRadians ( h + ( 10.3 / ( h + 5.11 ) ) ) );
 	}
 	else
 	{
 		h = max ( alt.toDegrees(), -1.7 );
-		r = 1.0 / tan ( SSAngle::fromDegrees ( h + ( 7.31 / ( h + 4.4 ) ) ).rad );
+		r = 1.0 / tan ( toRadians ( h + ( 7.31 / ( h + 4.4 ) ) ) );
 	}
 	
 	return SSAngle::fromArcmin ( r );
