@@ -83,7 +83,8 @@ int main ( int argc, char *argv[] )
 	
 	SSVector pos, vel;
 	orb.toPositionVelocity ( jde, pos, vel );
-	pos.multiplyBy ( -1.0 );
+	
+	pos = pos.multiplyBy ( -1.0 );
 	pos = orbMat.multiply ( pos );
 	vel = orbMat.multiply ( vel );
 	
@@ -92,8 +93,9 @@ int main ( int argc, char *argv[] )
 	ra = SSHourMinSec ( equ.lon );
 	dec = SSDegMinSec ( equ.lat );
 
-    printf ( "Sun RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
-    printf ( "Sun Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
+    printf ( "Sun RA   = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
+    printf ( "Sun Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
+    printf ( "Sun Dist = %f AU\n", equ.rad );
 
 /*
 	SSVector v1 ( 1.0, 2.0, 3.0 );
