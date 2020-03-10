@@ -8,6 +8,7 @@
 #include "AstroLib.h"
 #include "SSCoords.hpp"
 #include "SSOrbit.hpp"
+#include "SSDynamics.hpp"
 
 int main ( int argc, char *argv[] )
 {
@@ -97,6 +98,23 @@ int main ( int argc, char *argv[] )
     printf ( "Sun Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
     printf ( "Sun Dist = %f AU\n", equ.rad );
 
+    SSDynamics dyn ( now.jd, here.lon.rad, here.lat.rad );
+    
+    SSPlanetID planetIDs[10] = { kSun, kMercury, kVenus, kEarth, kMars, kJupiter, kSaturn, kUranus, kNeptune, kPluto };
+    
+    for ( SSPlanetID id : planetIDs )
+    {
+        SSPlanet planet ( id );
+        planet.computeEphemeris ( dyn );
+        
+        SSSpherical equ ( dyn.coords.toEquatorial ( planet.dir ) );
+        ra = SSHourMinSec ( equ.lon );
+        dec = SSDegMinSec ( equ.lat );
+
+        printf ( "%d RA   = %02hd %02hd %05.2f\n", id, ra.hour, ra.min, ra.sec );
+        printf ( "%d Dec  = %c%02hd %02hd %04.1f\n", id, dec.sign, dec.deg, dec.min, dec.sec );
+        printf ( "%d Dist = %f AU\n", id, equ.rad );
+    }
 /*
 	SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );

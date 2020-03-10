@@ -33,6 +33,7 @@ public:
 	static constexpr double	kGaussianGravityConstant = 1.0;
 //	static double	mu = kGaussianGravityConstant;
 
+    SSOrbit ( void );
 	SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm );
 	
 	void solveKeplerEquation ( double jde, double &nu, double &r );

@@ -30,6 +30,13 @@ double kcoskdeg ( double k, double deg )
 	return SSAngle::kRadPerDeg * k * cos ( k * deg * SSAngle::kRadPerDeg );
 }
 
+// Constructs an orbit with default values of zero.
+
+SSOrbit::SSOrbit ( void )
+{
+    t = q = e = i = w = n = m = mm = 0.0;
+}
+
 // Constructs an orbit from the specified set of Keplerian elements.
 
 SSOrbit::SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm )
