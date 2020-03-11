@@ -115,6 +115,16 @@ int main ( int argc, char *argv[] )
         printf ( "%d Dec  = %c%02hd %02hd %04.1f\n", id, dec.sign, dec.deg, dec.min, dec.sec );
         printf ( "%d Dist = %f AU\n", id, equ.rad );
     }
+	
+	dyn.getMoonPositionVelocity ( kLuna, pos, vel );
+	equ = SSSpherical ( dyn.coords.toEquatorial ( pos ) );
+	ra = SSHourMinSec ( equ.lon );
+	dec = SSDegMinSec ( equ.lat );
+	
+    printf ( "Moon RA   = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
+    printf ( "Moon Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
+    printf ( "Moon Dist = %f ER\n", equ.rad );
+
 /*
 	SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );
