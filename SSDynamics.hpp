@@ -93,6 +93,10 @@ class SSDynamics
     
     double      jde;
 
+	static constexpr double	kKMPerAU = 149597870.7;
+	static constexpr double	kKMPerEarthRadii = 6378.137;
+	static constexpr double kEarthFlattening = 1 / 198.257;
+	
     SSDynamics ( double jd, double lon, double lat );
     
     static SSVector toGeocentric ( SSSpherical geodetic, double re, double f );

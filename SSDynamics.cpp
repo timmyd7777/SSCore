@@ -14,6 +14,55 @@ SSDynamics::SSDynamics ( double jd, double lon, double lat ) : coords ( jd, lon,
     jde = SSTime ( jd ).getJulianEphemerisDate();
     orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
     getPlanetPositionVelocity ( kEarth, obsPos, obsVel );
+	
+	SSSpherical geodetic ( coords.lst, coords.lat, 0.0 );
+	SSVector geocentric = SSDynamics::toGeocentric ( geodetic, kKMPerEarthRadii / kKMPerAU, kEarthFlattening );
+	
+	obsPos = obsPos.add ( coords.fromEquatorial ( geocentric ) );
+}
+
+SSVector SSDynamics::toGeocentric ( SSSpherical geodetic, double a, double f )
+{
+	double c, s, cp = cos ( geodetic.lat.rad ), sp = sin ( geodetic.lat.rad );
+
+	f = ( 1.0 - f ) * ( 1.0 - f );
+	c = 1.0 / sqrt ( cp * cp + f * sp * sp );
+	s = f * c;
+	
+	double x = ( a * c + geodetic.rad ) * cp * cos ( geodetic.lon.rad );
+	double y = ( a * c + geodetic.rad ) * cp * sin ( geodetic.lon.rad );
+	double z = ( a * s + geodetic.rad ) * sp;
+	
+	return SSVector ( x, y, z );
+}
+
+SSSpherical SSDynamics::toGeodetic ( SSVector geocentric, double a, double f )
+{
+	double x = geocentric.x, y = geocentric.y, z = geocentric.z;
+	double r = sqrt ( x * x + y * y );
+	double e2 = 2.0 * f - f * f, s, c;
+	double lon = atan2Pi ( y, x );
+	double lat = atan2 ( z, r ), lat1 = lat;
+
+	if ( r > 0.0 )
+	{
+		do
+		{
+			lat1 = lat;
+			s = sin ( lat1 );
+			c = 1.0 / sqrt ( 1.0 - e2 * s * s );
+			lat = atan ( ( z + a * c * e2 * s ) / r );
+		}
+		while ( fabs ( lat1 - lat ) > 1.0e-8 );
+	}
+  	else
+	{
+		lat = z == 0.0 ? 0.0 : z > 0.0 ? SSAngle::kHalfPi : -SSAngle::kHalfPi;
+		c = 1.0 / ( 1.0 - f );
+	}
+	
+	double h = r / cos ( lat ) - a * c;
+	return SSSpherical ( lon, lat, h );
 }
 
 void SSDynamics::getPlanetPositionVelocity ( SSPlanetID id, SSVector &pos, SSVector &vel )
@@ -118,6 +167,13 @@ void SSDynamics::getMoonPositionVelocity ( SSMoonID id, SSVector &pos, SSVector 
 	pos.x = xh;
 	pos.y = yh * cos ( ecl ) - zh * sin ( ecl );
 	pos.z = yh * sin ( ecl ) + zh * cos ( ecl );
+	
+	pos = pos.multiplyBy ( kKMPerEarthRadii / kKMPerAU );
+	
+	SSVector earthPos, earthVel;
+	
+	getPlanetPositionVelocity ( kEarth, earthPos, earthVel );
+	pos = earthPos.add ( pos );
 }
 
 

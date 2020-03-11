@@ -117,13 +117,14 @@ int main ( int argc, char *argv[] )
     }
 	
 	dyn.getMoonPositionVelocity ( kLuna, pos, vel );
+	pos = pos.subtract ( dyn.obsPos );
 	equ = SSSpherical ( dyn.coords.toEquatorial ( pos ) );
 	ra = SSHourMinSec ( equ.lon );
 	dec = SSDegMinSec ( equ.lat );
 	
     printf ( "Moon RA   = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Moon Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
-    printf ( "Moon Dist = %f ER\n", equ.rad );
+    printf ( "Moon Dist = %f ER\n", equ.rad * SSDynamics::kKMPerAU );
 
 /*
 	SSVector v1 ( 1.0, 2.0, 3.0 );
