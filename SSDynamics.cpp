@@ -13,10 +13,10 @@ SSDynamics::SSDynamics ( double jd, double lon, double lat ) : coords ( jd, lon,
 {
     jde = SSTime ( jd ).getJulianEphemerisDate();
     orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
-    getPlanetPositionVelocity ( kEarth, obsPos, obsVel );
+    getPlanetPositionVelocity ( kEarth, jde, obsPos, obsVel );
 	
 	SSSpherical geodetic ( coords.lst, coords.lat, 0.0 );
-	SSVector geocentric = SSDynamics::toGeocentric ( geodetic, kKMPerEarthRadii / kKMPerAU, kEarthFlattening );
+	SSVector geocentric = SSDynamics::toGeocentric ( geodetic, kKmPerEarthRadii / kKmPerAU, kEarthFlattening );
 	
 	obsPos = obsPos.add ( coords.fromEquatorial ( geocentric ) );
 }
@@ -65,7 +65,17 @@ SSSpherical SSDynamics::toGeodetic ( SSVector geocentric, double a, double f )
 	return SSSpherical ( lon, lat, h );
 }
 
-void SSDynamics::getPlanetPositionVelocity ( SSPlanetID id, SSVector &pos, SSVector &vel )
+SSVector SSDynamics::addAberration ( SSVector funDir )
+{
+    return ( funDir + obsVel / kLightAUPerDay ).normalize();
+}
+
+SSVector SSDynamics::subtractAberration ( SSVector aberrFunDir )
+{
+    return aberrFunDir.subtract ( obsVel.divideBy ( kLightAUPerDay ) ).normalize();
+}
+
+void SSDynamics::getPlanetPositionVelocity ( SSPlanetID id, double jde, SSVector &pos, SSVector &vel )
 {
     SSOrbit orb;
     
@@ -93,7 +103,7 @@ void SSDynamics::getPlanetPositionVelocity ( SSPlanetID id, SSVector &pos, SSVec
     vel = orbMat.multiply ( vel );
 }
 
-void SSDynamics::getMoonPositionVelocity ( SSMoonID id, SSVector &pos, SSVector &vel )
+void SSDynamics::getMoonPositionVelocity ( SSMoonID id, double jde, SSVector &pos, SSVector &vel )
 {
 	double d = jde - SSTime::kJ2000 + 1.5;
 	double a = 60.2666; // Earth radii
@@ -168,11 +178,11 @@ void SSDynamics::getMoonPositionVelocity ( SSMoonID id, SSVector &pos, SSVector 
 	pos.y = yh * cos ( ecl ) - zh * sin ( ecl );
 	pos.z = yh * sin ( ecl ) + zh * cos ( ecl );
 	
-	pos = pos.multiplyBy ( kKMPerEarthRadii / kKMPerAU );
+	pos = pos.multiplyBy ( kKmPerEarthRadii / kKmPerAU );
 	
 	SSVector earthPos, earthVel;
 	
-	getPlanetPositionVelocity ( kEarth, earthPos, earthVel );
+	getPlanetPositionVelocity ( kEarth, jde, earthPos, earthVel );
 	pos = earthPos.add ( pos );
 }
 
@@ -189,8 +199,11 @@ SSPlanet::SSPlanet ( SSPlanetID id )
 
 void SSPlanet::computeEphemeris ( SSDynamics dyn )
 {
-    dyn.getPlanetPositionVelocity ( id, pos, vel );
+    double lt = 0.0;
     
-    dir = pos.subtract ( dyn.obsPos );
-    dist = dir.normalize();
+    dyn.getPlanetPositionVelocity ( id, dyn.jde, pos, vel );
+    lt = ( pos - dyn.obsPos ).magnitude() / dyn.kLightAUPerDay;
+
+    dyn.getPlanetPositionVelocity ( id, dyn.jde - lt, pos, vel );
+    dir = ( pos - dyn.obsPos ).normalize ( dist );
 }

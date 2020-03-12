@@ -93,17 +93,22 @@ class SSDynamics
     
     double      jde;
 
-	static constexpr double	kKMPerAU = 149597870.7;
-	static constexpr double	kKMPerEarthRadii = 6378.137;
+	static constexpr double	kKmPerAU = 149597870.7;
+	static constexpr double	kKmPerEarthRadii = 6378.137;
 	static constexpr double kEarthFlattening = 1 / 198.257;
-	
+    static constexpr double kLightKmPerSec = 299792.458;                            // Speed of Light in Kilometers per Second
+    static constexpr double kLightAUPerDay = kLightKmPerSec * 86400.0 / kKmPerAU;   // Speed of lignt in days per AU
+    
     SSDynamics ( double jd, double lon, double lat );
     
     static SSVector toGeocentric ( SSSpherical geodetic, double re, double f );
     static SSSpherical toGeodetic ( SSVector geocentric, double re, double f );
     
-    void getPlanetPositionVelocity ( SSPlanetID, SSVector &pos, SSVector &vel );
-    void getMoonPositionVelocity ( SSMoonID, SSVector &pos, SSVector &vel );
+    void getPlanetPositionVelocity ( SSPlanetID, double jde, SSVector &pos, SSVector &vel );
+    void getMoonPositionVelocity ( SSMoonID, double jde, SSVector &pos, SSVector &vel );
+    
+    SSVector addAberration ( SSVector funDir );
+    SSVector subtractAberration ( SSVector aberrFunDir );
 };
 
 #endif /* SSDynamics_hpp */

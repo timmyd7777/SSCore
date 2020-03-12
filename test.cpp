@@ -13,10 +13,9 @@
 int main ( int argc, char *argv[] )
 {
     SSTime now = SSTime::fromSystem();
-
 	SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 55.3 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 09.7 ) ) };
-    SSCoords coords ( now.jd, here.lon.rad, here.lat.rad );
-
+    SSDynamics dyn ( now.jd, here.lon.rad, here.lat.rad );
+    
 //	SSTime now ( SSDate ( kSSGregorian, -5.0, 1971, 12, 28, 11, 44, 0.0 ) );
 	SSDate date = ( now );
     
@@ -26,10 +25,12 @@ int main ( int argc, char *argv[] )
     printf ( "Local Time: %02d:%02d:%04.1f\n", date.hour, date.min, date.sec );
 
     SSSpherical siriusFun = { SSAngle ( SSHourMinSec ( '+', 06, 45, 08.92 ) ).rad, SSAngle ( SSDegMinSec  ( '-', 16, 42, 58.0 ) ).rad };
-    SSSpherical siriusEqu = coords.toEquatorial ( siriusFun );
-    SSSpherical siriusEcl = coords.toEcliptic ( siriusFun );
-    SSSpherical siriusGal = coords.toGalactic ( siriusFun );
-    SSSpherical siriusHor = coords.toHorizon ( siriusFun );
+    siriusFun = dyn.addAberration ( siriusFun );
+    
+    SSSpherical siriusEqu = dyn.coords.toEquatorial ( siriusFun );
+    SSSpherical siriusEcl = dyn.coords.toEcliptic ( siriusFun );
+    SSSpherical siriusGal = dyn.coords.toGalactic ( siriusFun );
+    SSSpherical siriusHor = dyn.coords.toHorizon ( siriusFun );
 
     SSHourMinSec ra ( siriusFun.lon );
     SSDegMinSec dec ( siriusFun.lat );
@@ -63,7 +64,7 @@ int main ( int argc, char *argv[] )
 
 	// Print J2000 RA/Dec of north galactic pole
 	
-	SSSpherical galCen = coords.fromGalactic ( SSSpherical ( 0.0, 0.0 ) );
+	SSSpherical galCen = dyn.coords.fromGalactic ( SSSpherical ( 0.0, 0.0 ) );
 	ra = SSHourMinSec ( galCen.lon );
 	dec = SSDegMinSec ( galCen.lat );
 	
@@ -72,7 +73,7 @@ int main ( int argc, char *argv[] )
 
 	// Print J2000 RA/Dec of galactic center
 	
-	SSSpherical ngp = coords.fromGalactic ( SSSpherical ( 0.0, SSAngle::fromDegrees ( 90.0 ) ) );
+	SSSpherical ngp = dyn.coords.fromGalactic ( SSSpherical ( 0.0, SSAngle::fromDegrees ( 90.0 ) ) );
 	ra = SSHourMinSec ( ngp.lon );
 	dec = SSDegMinSec ( ngp.lat );
     printf ( "NGP RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
@@ -89,7 +90,7 @@ int main ( int argc, char *argv[] )
 	pos = orbMat.multiply ( pos );
 	vel = orbMat.multiply ( vel );
 	
-	pos = coords.toEquatorial ( pos );
+	pos = dyn.coords.toEquatorial ( pos );
 	SSSpherical equ ( pos );
 	ra = SSHourMinSec ( equ.lon );
 	dec = SSDegMinSec ( equ.lat );
@@ -98,8 +99,6 @@ int main ( int argc, char *argv[] )
     printf ( "Sun Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
     printf ( "Sun Dist = %f AU\n", equ.rad );
 
-    SSDynamics dyn ( now.jd, here.lon.rad, here.lat.rad );
-    
     SSPlanetID planetIDs[10] = { kSun, kMercury, kVenus, kEarth, kMars, kJupiter, kSaturn, kUranus, kNeptune, kPluto };
     
     for ( SSPlanetID id : planetIDs )
@@ -113,10 +112,10 @@ int main ( int argc, char *argv[] )
 
         printf ( "%d RA   = %02hd %02hd %05.2f\n", id, ra.hour, ra.min, ra.sec );
         printf ( "%d Dec  = %c%02hd %02hd %04.1f\n", id, dec.sign, dec.deg, dec.min, dec.sec );
-        printf ( "%d Dist = %f AU\n", id, equ.rad );
+        printf ( "%d Dist = %f AU\n", id, planet.dist );
     }
 	
-	dyn.getMoonPositionVelocity ( kLuna, pos, vel );
+	dyn.getMoonPositionVelocity ( kLuna, dyn.jde, pos, vel );
 	pos = pos.subtract ( dyn.obsPos );
 	equ = SSSpherical ( dyn.coords.toEquatorial ( pos ) );
 	ra = SSHourMinSec ( equ.lon );
@@ -124,7 +123,7 @@ int main ( int argc, char *argv[] )
 	
     printf ( "Moon RA   = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Moon Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
-    printf ( "Moon Dist = %f ER\n", equ.rad * SSDynamics::kKMPerAU );
+    printf ( "Moon Dist = %f ER\n", equ.rad * SSDynamics::kKmPerAU );
 
 /*
 	SSVector v1 ( 1.0, 2.0, 3.0 );

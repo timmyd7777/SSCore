@@ -37,8 +37,9 @@ struct SSVector
 	SSVector ( SSSpherical lbr );
 	
     double magnitude ( void );
-    double normalize ( void );
-    
+    SSVector normalize ( void );
+    SSVector normalize ( double &magnitude );
+
     SSVector add ( SSVector other );
     SSVector subtract ( SSVector other );
     SSVector multiplyBy ( double s );
@@ -47,6 +48,17 @@ struct SSVector
     double dotProduct ( SSVector other );
     SSVector crossProduct ( SSVector other );
        
+    SSVector operator + ( SSVector other ) { return add ( other ); }
+    SSVector operator - ( SSVector other ) { return subtract ( other ); }
+    double  operator * ( SSVector other ) { return dotProduct ( other ); }
+    SSVector operator * ( double scale )  { return multiplyBy ( scale ); }
+    SSVector operator / ( double scale )  { return divideBy ( scale ); }
+
+    void operator += ( SSVector other ) { *this = add ( other ); }
+    void operator -= ( SSVector other ) { *this = subtract ( other ); }
+    void operator *= ( double scale )  { *this = multiplyBy ( scale ); }
+    void operator /= ( double scale )  { *this = divideBy ( scale ); }
+
     SSAngle angularSeparation ( SSVector other );
     SSAngle positionAngle ( SSVector other );
     

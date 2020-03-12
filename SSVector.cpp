@@ -82,15 +82,27 @@ double SSVector::magnitude ( void )
     return ( sqrt ( x * x + y * y + z * z ) );
 }
 
-// Modifies this vector to unit length and returns its original magnitude.
+// Returns a copy of this vector normalized to unit length, and returns its original magnitude.
+// If the original vector was a zero-length vector, the returned vector will also be zero length.
+// Does not modify this vector!
 
-double SSVector::normalize ( void )
+SSVector SSVector::normalize ( double &mag )
 {
-    double s = magnitude();
-    if ( s > 0.0 )
-        divideBy ( s ); 
-    return ( s );
+    mag = magnitude();
+    if ( mag > 0.0 )
+        return divideBy ( mag );
+    else
+        return SSVector ( 0.0, 0.0, 0.0 );
 }
+
+// Returns a copy of this vector normalized to unit length. Does not modify this vector!
+
+SSVector SSVector::normalize ( void )
+{
+    double mag;
+    return normalize ( mag );
+}
+
 
 // Returns a vector which is the sum of this vector with another.
 // This vector is not affected by the addition.

@@ -141,7 +141,7 @@ SSMatrix SSCoords::getGalacticMatrix ( void )
 
 SSVector SSCoords::toEquatorial ( SSVector funVec )
 {
-    return equMat.multiply ( funVec );
+    return equMat * funVec;
 }
 
 // Given a rectangular coordinate vector in the fundamental frame,
@@ -149,7 +149,7 @@ SSVector SSCoords::toEquatorial ( SSVector funVec )
 
 SSVector SSCoords::toEcliptic ( SSVector funVec )
 {
-    return eclMat.multiply ( funVec );
+    return eclMat * funVec;
 }
 
 // Given a rectangular coordinate vector in the fundamental frame,
@@ -157,7 +157,7 @@ SSVector SSCoords::toEcliptic ( SSVector funVec )
 
 SSVector SSCoords::toHorizon ( SSVector funVec )
 {
-    return horMat.multiply ( funVec );
+    return horMat * funVec;
 }
 
 // Given a rectangular coordinate vector in the fundamental frame,
@@ -165,7 +165,7 @@ SSVector SSCoords::toHorizon ( SSVector funVec )
 
 SSVector SSCoords::toGalactic ( SSVector funVec )
 {
-    return galMat.multiply ( funVec );
+    return galMat * funVec;
 }
 
 // Given a rectangular coordinate vector in the current equatorial frame,
@@ -173,7 +173,7 @@ SSVector SSCoords::toGalactic ( SSVector funVec )
 
 SSVector SSCoords::fromEquatorial ( SSVector equVec )
 {
-    return equMat.transpose().multiply ( equVec );
+    return equMat.transpose() * equVec;
 }
 
 // Given a rectangular coordinate vector in the current ecliptic frame,
@@ -181,7 +181,7 @@ SSVector SSCoords::fromEquatorial ( SSVector equVec )
 
 SSVector SSCoords::fromEcliptic ( SSVector eclVec )
 {
-    return eclMat.transpose().multiply ( eclVec );
+    return eclMat.transpose() * eclVec;
 }
 
 // Given a rectangular coordinate vector in the galactic frame,
@@ -189,7 +189,7 @@ SSVector SSCoords::fromEcliptic ( SSVector eclVec )
 
 SSVector SSCoords::fromGalactic ( SSVector galVec )
 {
-    return galMat.transpose().multiply ( galVec );
+    return galMat.transpose() * galVec;
 }
 
 // Given a rectangular coordinate vector in the current local horizon frame,
@@ -197,7 +197,7 @@ SSVector SSCoords::fromGalactic ( SSVector galVec )
 
 SSVector SSCoords::fromHorizon ( SSVector horVec )
 {
-    return horMat.transpose().multiply ( horVec );
+    return horMat.transpose() * horVec;
 }
 
 // Given a spherical coordinates in the fundamental frame, returns a copy

@@ -30,6 +30,9 @@ class SSMatrix
     SSVector multiply ( SSVector vec );
     SSMatrix multiply ( SSMatrix mat );
     SSMatrix rotate ( int axis, double angle );
+    
+    SSVector operator * ( SSVector other ) { return multiply ( other ); }
+    SSMatrix operator * ( SSMatrix other ) { return multiply ( other ); }
 };
 
 #endif /* SSMatrix_hpp */
