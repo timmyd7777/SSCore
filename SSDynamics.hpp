@@ -12,74 +12,7 @@
 #include <stdio.h>
 
 #include "SSCoords.hpp"
-#include "SSOrbit.hpp"
-
-enum SSPlanetID
-{
-    kSun = 0,
-    kMercury = 1,
-    kVenus = 2,
-    kEarth = 3,
-    kMars = 4,
-    kJupiter = 5,
-    kSaturn = 6,
-    kUranus = 7,
-    kNeptune = 8,
-    kPluto = 9,
-};
-
-enum SSMoonID
-{
-    kLuna = 301,
-    
-    kPhobos = 401,
-    kDeimos = 402,
-    
-    kIo = 501,
-    kEuropa = 502,
-    kGanymede = 503,
-    kCallisto = 504,
-    
-    kMimas = 601,
-    kEnceladus = 602,
-    kTethys = 603,
-    kDione = 604,
-    kRhea = 605,
-    kTitan = 606,
-    kHyperion = 607,
-    kIapetus = 608,
-    kPhoebe = 609,
-    
-    kMiranda = 701,
-    kAriel = 702,
-    kUmbriel = 703,
-    kTitania = 704,
-    kOberon = 705,
-
-    kTriton = 801,
-    kNereid = 802,
-    
-    kCharon = 901
-};
-
-class SSPlanet
-{
-public:
-    
-    string      name;
-    SSPlanetID  id;
-    SSOrbit     orb;
-    
-    SSVector    pos;
-    SSVector    vel;
-
-    SSVector    dir;
-    double      dist;
-    float       mag;
-
-    SSPlanet ( SSPlanetID id );
-    void computeEphemeris ( class SSDynamics );
-};
+#include "SSPlanet.hpp"
 
 class SSDynamics
 {
@@ -96,16 +29,23 @@ class SSDynamics
 	static constexpr double	kKmPerAU = 149597870.7;
 	static constexpr double	kKmPerEarthRadii = 6378.137;
 	static constexpr double kEarthFlattening = 1 / 198.257;
-    static constexpr double kLightKmPerSec = 299792.458;                            // Speed of Light in Kilometers per Second
-    static constexpr double kLightAUPerDay = kLightKmPerSec * 86400.0 / kKmPerAU;   // Speed of lignt in days per AU
+    static constexpr double kLightKmPerSec = 299792.458;                            // Speed of light in kilometers per second
+    static constexpr double kLightAUPerDay = kLightKmPerSec * 86400.0 / kKmPerAU;   // Speed of lignt in astronomical units per day = 173.144
+    static constexpr double kAUPerParsec = SSAngle::kArcsecPerRad;                  // Astronomical units per parsec = 206264.806247
+    static constexpr double kParsecPerAU = 1.0 / kAUPerParsec;                      // Parsecs per astronomical unit
+    static constexpr double kAUPerLY = kLightAUPerDay * 365.25;                     // Astronomical units per light year = 63241.077084 (assuming Julian year of exactly 365.25 days)
+    static constexpr double kLYPerAU = 1.0 / kAUPerLY;                              // Light years per astronomical unit
+    static constexpr double kLYPerParsec = kAUPerLY / kAUPerParsec;                 // Light years per parsec = 3.261563777179643
+    static constexpr double kParsecPerLY = kAUPerParsec / kAUPerLY;                 // Parsecs per light year
+
     
     SSDynamics ( double jd, double lon, double lat );
     
     static SSVector toGeocentric ( SSSpherical geodetic, double re, double f );
     static SSSpherical toGeodetic ( SSVector geocentric, double re, double f );
     
-    void getPlanetPositionVelocity ( SSPlanetID, double jde, SSVector &pos, SSVector &vel );
-    void getMoonPositionVelocity ( SSMoonID, double jde, SSVector &pos, SSVector &vel );
+    void getPlanetPositionVelocity ( SSPlanetID pid, double jde, SSVector &pos, SSVector &vel );
+    void getMoonPositionVelocity ( SSPlanetID mid, double jde, SSVector &pos, SSVector &vel );
     
     SSVector addAberration ( SSVector funDir );
     SSVector subtractAberration ( SSVector aberrFunDir );

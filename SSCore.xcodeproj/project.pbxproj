@@ -12,6 +12,9 @@
 		4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8822404EF3800BDD11C /* SSMatrix.cpp */; };
 		4703A8852404EF5700BDD11C /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8842404EF5700BDD11C /* test.cpp */; };
 		4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8862404EF7F00BDD11C /* SSTime.cpp */; };
+		A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
+		A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C3241EE07900197F8A /* SSPlanet.cpp */; };
+		A30545C8241EF45000197F8A /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
 		A3462BF724184A5900A7519A /* SSDynamics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3462BF524184A5900A7519A /* SSDynamics.cpp */; };
 		A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A358D99B24147D3E009078A6 /* SSOrbit.cpp */; };
 		A36F9198240979770038FE04 /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36F9196240979770038FE04 /* SSCoords.cpp */; };
@@ -63,6 +66,12 @@
 		4703A8842404EF5700BDD11C /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = SOURCE_ROOT; };
 		4703A8862404EF7F00BDD11C /* SSTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSTime.cpp; sourceTree = SOURCE_ROOT; };
 		4703A8872404EF7F00BDD11C /* SSTime.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSTime.hpp; sourceTree = SOURCE_ROOT; };
+		A30545C0241EDBB400197F8A /* SSObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSObject.cpp; sourceTree = "<group>"; };
+		A30545C1241EDBB400197F8A /* SSObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSObject.hpp; sourceTree = "<group>"; };
+		A30545C3241EE07900197F8A /* SSPlanet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSPlanet.cpp; sourceTree = "<group>"; };
+		A30545C4241EE07900197F8A /* SSPlanet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSPlanet.hpp; sourceTree = "<group>"; };
+		A30545C6241EF45000197F8A /* SSStar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSStar.cpp; sourceTree = "<group>"; };
+		A30545C7241EF45000197F8A /* SSStar.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSStar.hpp; sourceTree = "<group>"; };
 		A328D7312402DBFD00BCE781 /* SSCore */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SSCore; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3462BF4241849DB00A7519A /* target.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = target.h; sourceTree = "<group>"; };
 		A3462BF524184A5900A7519A /* SSDynamics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSDynamics.cpp; sourceTree = "<group>"; };
@@ -131,6 +140,7 @@
 		A328D7332402DBFD00BCE781 /* SSCore */ = {
 			isa = PBXGroup;
 			children = (
+				4703A8842404EF5700BDD11C /* test.cpp */,
 				4703A8862404EF7F00BDD11C /* SSTime.cpp */,
 				4703A8872404EF7F00BDD11C /* SSTime.hpp */,
 				A36F9196240979770038FE04 /* SSCoords.cpp */,
@@ -145,7 +155,12 @@
 				A358D99C24147D3E009078A6 /* SSOrbit.hpp */,
 				A3462BF524184A5900A7519A /* SSDynamics.cpp */,
 				A3462BF624184A5900A7519A /* SSDynamics.hpp */,
-				4703A8842404EF5700BDD11C /* test.cpp */,
+				A30545C0241EDBB400197F8A /* SSObject.cpp */,
+				A30545C1241EDBB400197F8A /* SSObject.hpp */,
+				A30545C3241EE07900197F8A /* SSPlanet.cpp */,
+				A30545C6241EF45000197F8A /* SSStar.cpp */,
+				A30545C7241EF45000197F8A /* SSStar.hpp */,
+				A30545C4241EE07900197F8A /* SSPlanet.hpp */,
 			);
 			name = SSCore;
 			sourceTree = "<group>";
@@ -247,6 +262,8 @@
 				4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */,
 				4703A8852404EF5700BDD11C /* test.cpp in Sources */,
 				A3DBB4B6240EADE80035011E /* Angle.c in Sources */,
+				A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */,
+				A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */,
 				A3DBB4C4240EADE80035011E /* JupiMoon.c in Sources */,
 				A3DBB4C3240EADE80035011E /* CoordSys.c in Sources */,
 				A3DBB4BF240EADE80035011E /* MarsMoon.c in Sources */,
@@ -270,6 +287,7 @@
 				A3DBB4C2240EADE80035011E /* Time.c in Sources */,
 				A3DBB4B7240EADE80035011E /* PLUTO95.c in Sources */,
 				4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */,
+				A30545C8241EF45000197F8A /* SSStar.cpp in Sources */,
 				A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */,
 				A3DBB4C1240EADE80035011E /* UranMoon.c in Sources */,
 				A3462BF724184A5900A7519A /* SSDynamics.cpp in Sources */,

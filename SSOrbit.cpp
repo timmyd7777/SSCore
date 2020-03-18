@@ -255,9 +255,9 @@ SSOrbit SSOrbit::fromPositionVelocity ( double jde, double mu, SSVector pos, SSV
 	}
 
 	double i = acos ( hz / h );
-	double n = atan2Pi ( hx, - hy );
-	double u = atan2Pi ( ( - pos.x * hx - pos.y * hy ) / hz, ( - pos.x * hy + pos.y * hx ) / h );
-	double w = mod2Pi ( u - nu );
+	double n = SSAngle::atan2Pi ( hx, - hy );
+	double u = SSAngle::atan2Pi ( ( - pos.x * hx - pos.y * hy ) / hz, ( - pos.x * hy + pos.y * hx ) / h );
+	double w = SSAngle ( u - nu ).mod2Pi();
 	
 	return SSOrbit ( jde, q, e, i, w, n, m, mm );
 }
@@ -298,11 +298,11 @@ SSOrbit SSOrbit::getMercuryOrbit ( double jde )
 	return SSOrbit ( jde,
 				 	 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Venus's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -338,11 +338,11 @@ SSOrbit SSOrbit::getVenusOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Earth's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -378,11 +378,11 @@ SSOrbit SSOrbit::getEarthOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Mars's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -418,11 +418,11 @@ SSOrbit SSOrbit::getMarsOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Jupiter's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -464,11 +464,11 @@ SSOrbit SSOrbit::getJupiterOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Saturn's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -510,11 +510,11 @@ SSOrbit SSOrbit::getSaturnOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Uranus's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -556,11 +556,11 @@ SSOrbit SSOrbit::getUranusOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Neptune's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -602,11 +602,11 @@ SSOrbit SSOrbit::getNeptuneOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Pluto's orbital elements at a specific Julian Ephemeris Date (jde)
@@ -642,9 +642,9 @@ SSOrbit SSOrbit::getPlutoOrbit ( double jde )
 	return SSOrbit ( jde,
 					 a * ( 1.0 - e ),
 					 e,
-					 SSAngle::fromDegrees ( i ).rad,
-					 SSAngle::fromDegrees ( p - n ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( n ).rad,
-					 SSAngle::fromDegrees ( l - p ).mod2Pi().rad,
-					 SSAngle::fromDegrees ( mm / 36525.0 ).rad );
+					 SSAngle::fromDegrees ( i ),
+					 SSAngle::fromDegrees ( p - n ).mod2Pi(),
+					 SSAngle::fromDegrees ( n ),
+					 SSAngle::fromDegrees ( l - p ).mod2Pi(),
+					 SSAngle::fromDegrees ( mm / 36525.0 ) );
 }

@@ -360,7 +360,7 @@ SSAngle SSTime::getSiderealTime ( SSAngle lon )
 	double t = ( jd0 - 2451545.0 ) / 36525.0;
 	double t2 = t * t;
 	double t3 = t2 * t;
-	double gmst = SSAngle::fromDegrees ( 280.46061837 + 360.98564736629 * ( jd - kJ2000 ) + 0.000387933 * t2 - t3 / 38710000.0 ).rad;
+	double gmst = 280.46061837 + 360.98564736629 * ( jd - kJ2000 ) + 0.000387933 * t2 - t3 / 38710000.0;
 	
-	return ( SSAngle ( gmst + lon.rad ).mod2Pi() );
+	return ( SSAngle::fromDegrees ( gmst ) + lon ).mod2Pi();
 }

@@ -65,4 +65,7 @@ struct SSVector
     double distance ( SSVector other );
 };
 
+void SSVectorToSphericalMotion ( SSVector posVec, SSVector velVec, SSSpherical &posSph, SSSpherical &velSph );
+void SSSphericalToVectorMotion ( SSSpherical posSph, SSSpherical velSph, SSVector &posVec, SSVector velVec );
+
 #endif /* SSVector_hpp */

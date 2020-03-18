@@ -23,7 +23,7 @@ SSDegMinSec::SSDegMinSec ( SSAngle ang )
 {
     double degrees = fabs ( ang.toDegrees() );
 
-	sign = ang.rad >= 0.0 ? '+' : '-';
+	sign = ang >= 0.0 ? '+' : '-';
 	deg = degrees;
 	min = 60.0 * ( degrees - deg );
 	sec = 3600.0 * ( degrees - deg - min / 60.0 );
@@ -45,7 +45,7 @@ SSHourMinSec::SSHourMinSec ( SSAngle ang )
 {
 	double hours = fabs ( ang.toHours() );
 
-	sign = ang.rad >= 0.0 ? '+' : '-';
+	sign = ang >= 0.0 ? '+' : '-';
     hour = hours;
     min = 60.0 * ( hours - hour );
     sec = 3600.0 * ( hours - hour - min / 60.0 );
@@ -55,28 +55,28 @@ SSHourMinSec::SSHourMinSec ( SSAngle ang )
 
 SSAngle::SSAngle ( void )
 {
-    rad = 0.0;
+    _rad = 0.0;
 }
 
 // Constructs an angle from a specfic value in radians.
 
 SSAngle::SSAngle ( double rad )
 {
-    this->rad = rad;
+    _rad = rad;
 }
 
 // Constructs an angle in radians from degrees, minutes, and seconds.
 
 SSAngle::SSAngle ( SSDegMinSec dms )
 {
-	rad = kRadPerDeg * ( dms.deg + dms.min / 60.0 + dms.sec / 3600.0 ) * ( dms.sign == '+' ? 1 : -1 );
+	_rad = kRadPerDeg * ( dms.deg + dms.min / 60.0 + dms.sec / 3600.0 ) * ( dms.sign == '+' ? 1 : -1 );
 }
 
 // Constructs an angle in radians from hours, minutes, and seconds.
 
 SSAngle::SSAngle ( SSHourMinSec hms )
 {
-	rad = kRadPerHour * ( hms.hour + hms.min / 60.0 + hms.sec / 3600.0 ) * ( hms.sign == '+' ? 1 : -1 );
+	_rad = kRadPerHour * ( hms.hour + hms.min / 60.0 + hms.sec / 3600.0 ) * ( hms.sign == '+' ? 1 : -1 );
 }
 
 // Constructs an angle in radians from an angle in arcseconds (360*60*60=1296000 arcseconds per circle)
@@ -111,43 +111,29 @@ SSAngle SSAngle::fromHours ( double hours )
 
 SSAngle SSAngle::mod2Pi ( void )
 {
-    return SSAngle ( ::mod2Pi ( rad ) );
+    return SSAngle ( _rad - kTwoPi * floor ( _rad / kTwoPi ) );
 }
 
 // Reduces an angle in radians to the range -kPi to +kPi.
 
 SSAngle SSAngle::modPi ( void )
 {
-    return SSAngle ( ::modPi ( rad ) );
-}
+    SSAngle x = mod2Pi();
+    
+    if ( x > kPi )
+        x -= kTwoPi;
 
-// Reduces an angle in radians to the range -kPi to +kPi.
-
-double modPi ( double x )
-{
-	x = mod2Pi ( x );
-	
-	if ( x > SSAngle::kPi )
-		x -= SSAngle::kTwoPi;
-
-	return x;
-}
-
-// Reduces an angle to the range 0 to kTwoPi.
-
-double mod2Pi ( double x )
-{
-    return x - SSAngle::kTwoPi * floor ( x / SSAngle::kTwoPi );
+    return x;
 }
 
 // Returns arctangent of y / x in radians in the range 0 to kTwoPi.
 
-double atan2Pi ( double y, double x )
+SSAngle SSAngle::atan2Pi ( double y, double x )
 {
 	if ( y < 0.0 )
-		return atan2 ( y, x ) + SSAngle::kTwoPi;
+		return SSAngle ( atan2 ( y, x ) + kTwoPi );
 	else
-		return atan2 ( y, x );
+		return SSAngle ( atan2 ( y, x ) );
 }
 
 // Converts an angle in radians to degrees

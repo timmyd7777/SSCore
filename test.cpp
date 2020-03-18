@@ -12,9 +12,18 @@
 
 int main ( int argc, char *argv[] )
 {
+    SSAngle zero = 0.0;
+    SSAngle one ( 1.0 );
+    SSAngle two ( 2.0 );
+    
+    SSAngle sum = zero + one - 1.5;
+    sum /= two;
+    
+    printf ( "%f\n", (double) sum );
+            
     SSTime now = SSTime::fromSystem();
 	SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 55.3 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 09.7 ) ) };
-    SSDynamics dyn ( now.jd, here.lon.rad, here.lat.rad );
+    SSDynamics dyn ( now.jd, here.lon, here.lat );
     
 //	SSTime now ( SSDate ( kSSGregorian, -5.0, 1971, 12, 28, 11, 44, 0.0 ) );
 	SSDate date = ( now );
@@ -24,7 +33,7 @@ int main ( int argc, char *argv[] )
     printf ( "Local Date: %04d-%02hd-%02.0f\n", date.year, date.month, floor ( date.day ) );
     printf ( "Local Time: %02d:%02d:%04.1f\n", date.hour, date.min, date.sec );
 
-    SSSpherical siriusFun = { SSAngle ( SSHourMinSec ( '+', 06, 45, 08.92 ) ).rad, SSAngle ( SSDegMinSec  ( '-', 16, 42, 58.0 ) ).rad };
+    SSSpherical siriusFun = { SSAngle ( SSHourMinSec ( '+', 06, 45, 08.92 ) ), SSAngle ( SSDegMinSec  ( '-', 16, 42, 58.0 ) ) };
     siriusFun = dyn.addAberration ( siriusFun );
     
     SSSpherical siriusEqu = dyn.coords.toEquatorial ( siriusFun );
@@ -103,16 +112,16 @@ int main ( int argc, char *argv[] )
     
     for ( SSPlanetID id : planetIDs )
     {
-        SSPlanet planet ( id );
+        SSPlanet planet ( kPlanet, id );
         planet.computeEphemeris ( dyn );
         
-        SSSpherical equ ( dyn.coords.toEquatorial ( planet.dir ) );
+        SSSpherical equ ( dyn.coords.toEquatorial ( planet.getDirection() ) );
         ra = SSHourMinSec ( equ.lon );
         dec = SSDegMinSec ( equ.lat );
 
         printf ( "%d RA   = %02hd %02hd %05.2f\n", id, ra.hour, ra.min, ra.sec );
         printf ( "%d Dec  = %c%02hd %02hd %04.1f\n", id, dec.sign, dec.deg, dec.min, dec.sec );
-        printf ( "%d Dist = %f AU\n", id, planet.dist );
+        printf ( "%d Dist = %f AU\n", id, planet.getDistance() );
     }
 	
 	dyn.getMoonPositionVelocity ( kLuna, dyn.jde, pos, vel );

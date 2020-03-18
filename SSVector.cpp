@@ -70,9 +70,9 @@ SSVector::SSVector ( double x, double y, double z )
 
 SSVector::SSVector ( SSSpherical sph )
 {
-	x = sph.rad * cos ( sph.lat.rad ) * cos ( sph.lon.rad );
-	y = sph.rad * cos ( sph.lat.rad ) * sin ( sph.lon.rad );
-	z = sph.rad * sin ( sph.lat.rad );
+	x = sph.rad * cos ( sph.lat ) * cos ( sph.lon );
+	y = sph.rad * cos ( sph.lat ) * sin ( sph.lon );
+	z = sph.rad * sin ( sph.lat );
 }
 
 // Returns this vector's magnitude (length) measured from the origin.
@@ -170,4 +170,43 @@ SSAngle SSVector::angularSeparation ( SSVector other )
 double SSVector::distance ( SSVector other )
 {
     return subtract ( other ).magnitude();
+}
+
+void SSVectorToSphericalMotion ( SSVector posVec, SSVector velVec, SSSpherical &posSph, SSSpherical &velSph )
+{
+    posSph.rad = posVec.magnitude();
+    if ( posSph.rad || ( posVec.x == 0.0 && posVec.y == 0.0 ) )
+    {
+        posSph.lon = posSph.lat = velSph.lon = velSph.lat = velSph.rad = 0.0;
+    }
+    else
+    {
+        posSph.lon = asin ( posVec.z / posSph.rad );
+        posSph.lat = SSAngle::atan2Pi ( posVec.y, posVec.x );
+    
+        double cosb = cos ( posSph.lat );
+      
+        velSph.rad = ( posVec * velVec ) / posSph.rad;
+        velSph.lat = ( posSph.rad * velVec.z - posVec.z * posSph.rad ) / ( cosb * posSph.rad * posSph.rad );
+        velSph.lon = ( posVec.x * velVec.y - posVec.y * velVec.x ) / ( posVec.x * posVec.x + posVec.y * posVec.y );
+    }
+}
+
+void SSSphericalToVectorMotion ( SSSpherical posSph, SSSpherical velSph, SSVector &posVec, SSVector velVec )
+{
+    double cosl = cos ( posSph.lon );
+    double sinl = sin ( posSph.lon );
+    double cosb = cos ( posSph.lat );
+    double sinb = sin ( posSph.lat );
+    double vlon = velSph.lon;
+    double vlat = velSph.lat;
+    double vrad = velSph.rad;
+    
+    posVec.x = posSph.rad * cosl * cosb;
+    posVec.y = posSph.rad * sinl * cosb;
+    posVec.z = posSph.rad * sinb;
+      
+    velVec.x = posSph.rad * ( -cosb * sinl * vlon - cosl * sinb * vlat ) + cosl * cosb * vrad;
+    velVec.y = posSph.rad * (  cosl * cosb * vlon - sinl * sinb * vlat ) + cosb * sinl * vrad;
+    velVec.z = posSph.rad * cosb * vrad + sinb * vrad;
 }

@@ -17,7 +17,7 @@ SSCoords::SSCoords ( double jd, double lon, double lat )
 	this->epoch = jd;
     this->lon = lon;
     this->lat = lat;
-    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl ) ).rad;
+    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl ) );
     
 	preMat = getPrecessionMatrix ( jd );
 	nutMat = getNutationMatrix ( obq, dl, de );
@@ -36,9 +36,9 @@ void SSCoords::getPrecessionConstants ( double jd, double &zeta, double &z, doub
     double t2 = t * t;
     double t3 = t * t2;
 
-    zeta  = SSAngle::fromArcsec ( 2306.2181 * t + 0.30188 * t2 + 0.017998 * t3 ).rad;
-    z     = SSAngle::fromArcsec ( 2306.2181 * t + 1.09468 * t2 + 0.018203 * t3 ).rad;
-    theta = SSAngle::fromArcsec ( 2004.3109 * t - 0.42665 * t2 - 0.041833 * t3 ).rad;
+    zeta  = SSAngle::fromArcsec ( 2306.2181 * t + 0.30188 * t2 + 0.017998 * t3 );
+    z     = SSAngle::fromArcsec ( 2306.2181 * t + 1.09468 * t2 + 0.018203 * t3 );
+    theta = SSAngle::fromArcsec ( 2004.3109 * t - 0.42665 * t2 - 0.041833 * t3 );
 }
 
 // Computes constants needed to compute nutation from J2000 to a specific Julian date (jd).
@@ -49,9 +49,9 @@ void SSCoords::getNutationConstants ( double jd, double &de, double &dl )
     double t, n, l, l1, sn, cn, s2n, c2n, s2l, c2l, s2l1, c2l1;
       
     t = ( jd - SSTime::kJ2000 ) / 36525.0;
-    n  = SSAngle::fromDegrees ( 125.0445 -   1934.1363 * t ).mod2Pi().rad;
-    l  = SSAngle::fromDegrees ( 280.4665 +  36000.7698 * t ).mod2Pi().rad * 2.0;
-    l1 = SSAngle::fromDegrees ( 218.3165 + 481267.8813 * t ).mod2Pi().rad * 2.0;
+    n  = SSAngle::fromDegrees ( 125.0445 -   1934.1363 * t ).mod2Pi();
+    l  = SSAngle::fromDegrees ( 280.4665 +  36000.7698 * t ).mod2Pi() * 2.0;
+    l1 = SSAngle::fromDegrees ( 218.3165 + 481267.8813 * t ).mod2Pi() * 2.0;
     
     sn   = sin ( n );
     cn   = cos ( n );
@@ -62,8 +62,8 @@ void SSCoords::getNutationConstants ( double jd, double &de, double &dl )
     s2l1 = sin ( l1 );
     c2l1 = cos ( l1 );
     
-    dl = SSAngle::fromArcsec ( -17.20 * sn - 1.32 * s2l - 0.23 * s2l1 + 0.21 * s2n ).rad;
-    de = SSAngle::fromArcsec (   9.20 * cn + 0.57 * c2l + 0.10 * c2l1 - 0.09 * c2n ).rad;
+    dl = SSAngle::fromArcsec ( -17.20 * sn - 1.32 * s2l - 0.23 * s2l1 + 0.21 * s2n );
+    de = SSAngle::fromArcsec (   9.20 * cn + 0.57 * c2l + 0.10 * c2l1 - 0.09 * c2n );
 }
 
 // Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
@@ -71,12 +71,10 @@ void SSCoords::getNutationConstants ( double jd, double &de, double &dl )
 
 double SSCoords::getObliquity ( double jd )
 {
-    double t, e;
-
-    t = ( jd - SSTime::kJ2000 ) / 36525.0;
-    e = 23.439291 + t * ( -0.0130042 + t * ( -0.00000016 + t * 0.000000504 ) );
+    double t = ( jd - SSTime::kJ2000 ) / 36525.0;
+    double e = 23.439291 + t * ( -0.0130042 + t * ( -0.00000016 + t * 0.000000504 ) );
       
-    return toRadians ( e );
+    return SSAngle::fromDegrees ( e );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
@@ -276,12 +274,12 @@ SSAngle SSCoords::refractionAngle ( SSAngle alt, bool a )
 	if ( a == true )
 	{
 		h = max ( alt.toDegrees(), -1.9 );
-		r = 1.02 / tan ( toRadians ( h + ( 10.3 / ( h + 5.11 ) ) ) );
+		r = 1.02 / tan ( SSAngle::fromDegrees ( h + ( 10.3 / ( h + 5.11 ) ) ) );
 	}
 	else
 	{
 		h = max ( alt.toDegrees(), -1.7 );
-		r = 1.0 / tan ( toRadians ( h + ( 7.31 / ( h + 4.4 ) ) ) );
+		r = 1.0 / tan ( SSAngle::fromDegrees ( h + ( 7.31 / ( h + 4.4 ) ) ) );
 	}
 	
 	return SSAngle::fromArcmin ( r );
@@ -291,12 +289,12 @@ SSAngle SSCoords::refractionAngle ( SSAngle alt, bool a )
 
 SSAngle SSCoords::toRefractedAltitude ( SSAngle alt )
 {
-	return SSAngle ( alt.rad + SSCoords::refractionAngle ( alt, true ).rad );
+	return alt + SSCoords::refractionAngle ( alt, true );
 }
 
 // Returns true (geometric) from refracted (apparent) altitude
 
 SSAngle SSCoords::fromRefractedAltitude ( SSAngle alt )
 {
-	return SSAngle ( alt.rad - SSCoords::refractionAngle ( alt, false ).rad );
+	return alt - SSCoords::refractionAngle ( alt, false );
 }

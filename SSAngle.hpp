@@ -38,10 +38,12 @@ struct SSHourMinSec
 
 class SSAngle
 {
+protected:
+    
+    double _rad;      // angular value in radians
+    
 public:
 
-    double rad;      // angular value in radians
-    
     static constexpr double kPi  = 3.141592653589793;
     static constexpr double kTwoPi = 6.283185307179586;
     static constexpr double kHalfPi = 1.570796326794897;
@@ -63,25 +65,32 @@ public:
 	SSAngle ( SSDegMinSec dms );
 	SSAngle ( SSHourMinSec hms );
 	
-    double toArcsec ( void ) { return rad * kArcsecPerRad; }
-    double toArcmin ( void ) { return rad * kArcminPerRad; }
-    double toDegrees ( void ) { return rad * kDegPerRad; }
-    double toHours ( void ) { return rad * kHourPerRad; }
+    double toArcsec ( void ) { return _rad * kArcsecPerRad; }
+    double toArcmin ( void ) { return _rad * kArcminPerRad; }
+    double toDegrees ( void ) { return _rad * kDegPerRad; }
+    double toHours ( void ) { return _rad * kHourPerRad; }
 
     static SSAngle fromArcsec ( double arcsec );
     static SSAngle fromArcmin ( double arcmin );
     static SSAngle fromDegrees ( double degrees );
     static SSAngle fromHours ( double hours );
  
+    operator double() { return _rad; }
+
+    SSAngle operator + ( double k ) { return SSAngle ( _rad + k ); }
+    SSAngle operator - ( double k ) { return SSAngle ( _rad - k ); }
+    SSAngle operator * ( double k ) { return SSAngle ( _rad * k ); }
+    SSAngle operator / ( double k ) { return SSAngle ( _rad / k ); }
+
+    void operator += ( double k ) { _rad += k; }
+    void operator -= ( double k ) { _rad -= k; }
+    void operator *= ( double k ) { _rad *= k; }
+    void operator /= ( double k ) { _rad /= k; }
+    
     SSAngle modPi ( void );
     SSAngle mod2Pi ( void );
+    
+    static SSAngle atan2Pi ( double y, double x );
 };
-
-double modPi ( double x );
-double mod2Pi ( double x );
-double atan2Pi ( double y, double x );
-
-double toDegrees ( double rad );
-double toRadians ( double deg );
 
 #endif /* SSAngle_hpp */
