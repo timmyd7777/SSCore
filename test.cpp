@@ -9,9 +9,30 @@
 #include "SSCoords.hpp"
 #include "SSOrbit.hpp"
 #include "SSDynamics.hpp"
+#include "SSStar.hpp"
+
+#include <iostream>
+#include <fstream>
+#include <map>
+
+typedef multimap<int,string> HIPMap;
+
+void importHIC ( const char *filename );
+void importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar );
+HIPMap importHIPtoHRMap ( const char *filename );
+HIPMap importHIPtoBayerFlamsteedMap ( const char *filename );
+HIPMap importHIPtoVarMap ( const char *filename );
+void importHIP2 ( const char *filename );
 
 int main ( int argc, char *argv[] )
 {
+	importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
+	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
+	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
+	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
+	importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar );
+	importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
+
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );
@@ -158,4 +179,251 @@ int main ( int argc, char *argv[] )
     printf ( "%lf %lf %lf\n", i.m20, i.m21, i.m22 );
 */
 	
+}
+
+void importHIC ( const char *hic_filename )
+{
+	ifstream hic_file ( hic_filename );
+	
+	if ( ! hic_file )
+		return;
+	
+	string line;
+	while ( getline ( hic_file, line ) )
+	{
+		string strHIP = line.substr ( 0, 6 );
+		string strRA = line.substr ( 13, 12 );
+		string strDec = line.substr ( 26, 12 );
+		string strPMRA = line.substr ( 155, 6 );
+		string strPMDec = line.substr ( 162, 6 );
+		string strMag = line.substr ( 190, 6 );
+		string strBmV = line.substr ( 202, 6 );
+		string strSpec = line.substr ( 216, 11 );
+		string strPlx = line.substr ( 230, 6 );
+		string strRV = line.substr ( 241, 6 );
+		string strVar = line.substr ( 251, 9 );
+		string strVarType = line.substr ( 261, 3 );
+		string strVarPer = line.substr ( 265, 6 );
+		string strVarMax = line.substr ( 272, 4 );
+		string strVarMin = line.substr ( 277, 4 );
+		string strHD = line.substr ( 359, 6 );
+		string strBD = line.substr ( 320, 10 );
+		string strCD = line.substr ( 334, 10 );
+		string strCP = line.substr ( 348, 10 );
+		string strSAO = line.substr ( 385, 6 );
+
+		cout <<
+		
+		strHIP << "," <<
+		strRA << "," <<
+		strDec << "," <<
+		strPMRA << "," <<
+		strPMDec << "," <<
+		strMag << "," <<
+		strBmV << "," <<
+		strPlx << "," <<
+		strRV << "," <<
+		strSpec << "," <<
+		strHD << "," <<
+		strSAO << "," <<
+		strBD << "," <<
+		strCD << "," <<
+		strCP << "," <<
+		strVar << "," <<
+		strVarType << "," <<
+		strVarPer << "," <<
+		strVarMax << "," <<
+		strVarMin << "," <<
+
+		endl;
+	}
+}
+
+void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar )
+{
+	ifstream hip_main_file ( hip_main_filename );
+	
+	if ( ! hip_main_file )
+		return;
+	
+	string line;
+	while ( getline ( hip_main_file, line ) )
+	{
+		string strHIP = line.substr ( 8, 6 );
+		string strRA = line.substr ( 51, 12 );
+		string strDec = line.substr ( 64, 12 );
+		string strPMRA = line.substr ( 87, 8 );
+		string strPMDec = line.substr ( 96, 8 );
+		string strMag = line.substr ( 41, 5 );
+		string strBmV = line.substr ( 245, 6 );
+		string strPlx = line.substr ( 79, 7 );
+		string strSpec = line.substr ( 435, 12 );
+		string strHD = line.substr ( 390, 6 );
+		string strBD = line.substr ( 398, 9 );
+		string strCD = line.substr ( 409, 9 );
+		string strCP = line.substr ( 420, 9 );
+
+		int hip = stoi ( strHIP );
+		
+		cout <<
+		
+		strHIP << "," <<
+		strRA << "," <<
+		strDec << "," <<
+		strPMRA << "," <<
+		strPMDec << "," <<
+		strMag << "," <<
+		strBmV << "," <<
+		strPlx << "," <<
+		strSpec << "," <<
+		strHD << "," <<
+		strBD << "," <<
+		strCD << "," <<
+		strCP << ",";
+
+		auto rangeHR = mapHIPtoHR.equal_range ( hip );
+		for ( auto i = rangeHR.first; i != rangeHR.second; i++ )
+			cout << i->second << ",";
+
+		auto rangeBF = mapHIPtoBF.equal_range ( hip );
+		for ( auto i = rangeBF.first; i != rangeBF.second; i++ )
+			cout << i->second << ",";
+		
+		auto rangeVar = mapHIPtoVar.equal_range ( hip );
+		for ( auto i = rangeVar.first; i != rangeVar.second; i++ )
+			cout << i->second << ",";
+
+		cout <<	endl;
+	}
+}
+
+HIPMap importHIPtoHRMap ( const char *filename )
+{
+	HIPMap mapHIPtoHR;
+	
+	ifstream file ( filename );
+	
+	if ( ! file )
+	{
+		cout << "Failure: can't open " << filename << endl;
+		return mapHIPtoHR;
+	}
+	
+	string line ( "" );
+	int linecount = 0;
+	
+	while ( getline ( file, line ) )
+	{
+		string strHR = line.substr ( 0, 6 );
+		string strHIP = line.substr ( 7, 6 );
+		int hip = stoi ( strHIP );
+		// cout << strHIP << "," << strHR << "," << endl;
+		mapHIPtoHR.insert ( { hip, strHR } );
+		linecount++;
+	}
+	
+	if ( linecount == mapHIPtoHR.size() )
+		cout << "Success: " << filename << " linecount " << linecount << " == mapHIPtoHR.size() " << mapHIPtoHR.size() << endl;
+	else
+		cout << "Failure: " << filename << " linecount " << linecount << " != mapHIPtoHR.size() " << mapHIPtoHR.size() << endl;
+
+	return mapHIPtoHR;
+}
+
+HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
+{
+	HIPMap mapHIPtoBF;
+	ifstream file ( filename );
+	if ( ! file )
+	{
+		cout << "Failure: can't open " << filename << endl;
+		return mapHIPtoBF;
+	}
+	
+	string line = "";
+	int linecount = 0;
+
+	while ( getline ( file, line ) )
+	{
+		string strBF = line.substr ( 0, 11 );
+		string strHIP = line.substr ( 12, 6 );
+		int hip = stoi ( strHIP );
+
+		// cout << strHIP << "," << strHR << "," << endl;
+		mapHIPtoBF.insert ( { hip, strBF } );
+		linecount++;
+	}
+
+	if ( linecount == mapHIPtoBF.size() )
+		cout << "Success: " << filename << " linecount " << linecount << " == mapHIPtoBF.size() " << mapHIPtoBF.size() << endl;
+	else
+		cout << "Failure: " << filename << " linecount " << linecount << " != mapHIPtoBF.size() " << mapHIPtoBF.size() << endl;
+
+	return mapHIPtoBF;
+}
+
+HIPMap importHIPtoVarMap ( const char *filename )
+{
+	HIPMap mapHIPtoVar;
+	ifstream file ( filename );
+	if ( ! file )
+	{
+		cout << "Failure: can't open " << filename << endl;
+		return mapHIPtoVar;
+	}
+	
+	string line = "";
+	int linecount = 0;
+	
+	while ( getline ( file, line ) )
+	{
+		string strVar = line.substr ( 0, 11 );
+		string strHIP = line.substr ( 12, 6 );
+		int hip = stoi ( strHIP );
+
+		// cout << strHIP << "," << strHR << "," << endl;
+		mapHIPtoVar.insert ( { hip, strVar } );
+		linecount++;
+	}
+
+	if ( linecount == mapHIPtoVar.size() )
+		cout << "Success: " << filename << " linecount " << linecount << " == mapHIPtoVar.size() " << mapHIPtoVar.size() << endl;
+	else
+		cout << "Failure: " << filename << " linecount " << linecount << " != mapHIPtoVar.size() " << mapHIPtoVar.size() << endl;
+	
+	return mapHIPtoVar;
+}
+
+void importHIP2 ( const char *hip2_filename )
+{
+	ifstream hip2_file ( hip2_filename );
+	
+	if ( ! hip2_file )
+		return;
+	
+	string line;
+	while ( getline ( hip2_file, line ) )
+	{
+		string strHIP = line.substr ( 0, 6 );
+		string strRA = line.substr ( 15, 13 );
+		string strDec = line.substr ( 29, 13 );
+		string strPMRA = line.substr ( 51, 8 );
+		string strPMDec = line.substr ( 60, 8 );
+		string strMag = line.substr ( 129, 7 );
+		string strBmV = line.substr ( 152, 6 );
+		string strPlx = line.substr ( 43, 7 );
+
+		cout <<
+		
+		strHIP << "," <<
+		strRA << "," <<
+		strDec << "," <<
+		strPMRA << "," <<
+		strPMDec << "," <<
+		strMag << "," <<
+		strBmV << "," <<
+		strPlx << "," <<
+
+		endl;
+	}
 }
