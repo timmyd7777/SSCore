@@ -36,6 +36,42 @@ SSSpherical::SSSpherical ( SSVector vec )
     lon = SSAngle ( atan2 ( vec.y, vec.x ) ).mod2Pi();
 }
 
+// Converts spherical coordinates to rectanguler x,y,z position vector.
+// Inputs are this spherical coordinate object whose (lon,lat) are in radians
+// are radial distance from the origin (rad) is in arbitrary distance units.
+// Returns x,y,z position vector in same units as input radial distance.
+
+SSVector SSSpherical::toVectorPosition ( void )
+{
+    double x = rad * cos ( lat ) * cos ( lon );
+    double y = rad * cos ( lat ) * sin ( lon );
+    double z = rad * sin ( lat );
+    
+    return SSVector ( x, y, z );
+}
+
+// Converts spherical position and velocity to rectanguler position and velocity vectors.
+// Inputs are spherical coordinates (this object) and velocity (vsph) whose (lon,lat)
+// are motion in radians/time unit and whose (rad) is radial velocity in distance/time unit.
+// Returns x,y,z velocity vector in same distance/time unit as input radial velocity.
+
+SSVector SSSpherical::toVectorVelocity ( SSSpherical vsph )
+{
+    double coslon = cos ( lon );
+    double sinlon = sin ( lon );
+    double coslat = cos ( lat );
+    double sinlat = sin ( lat );
+    double vlon = vsph.lon;
+    double vlat = vsph.lat;
+    double vrad = vsph.rad;
+    
+    double vx = rad * ( -coslat * sinlon * vlon - coslon * sinlat * vlat ) + coslon * coslat * vrad;
+    double vy = rad * (  coslon * coslat * vlon - sinlon * sinlat * vlat ) + coslon * sinlon * vrad;
+    double vz = rad * coslat * vrad + sinlat * vrad;
+    
+    return SSVector ( vx, vy, vz );
+}
+
 // Returns angular separation in radians from this point in a spherical coordinate system
 // to another point in the same spherical coordinate system.  Both points must have radial
 // distance from the origin set to 1.0, or the returned value will be invalid.
@@ -172,41 +208,41 @@ double SSVector::distance ( SSVector other )
     return subtract ( other ).magnitude();
 }
 
-void SSVectorToSphericalMotion ( SSVector posVec, SSVector velVec, SSSpherical &posSph, SSSpherical &velSph )
+// Converts this rectangular vectors to spherical coordinates (lon,lat,rad).
+// Returns coordinates (lon,lat) in radians and radial distance in same
+// unit as input x,y,z vector.
+
+SSSpherical SSVector::toSpherical ( void )
 {
-    posSph.rad = posVec.magnitude();
-    if ( posSph.rad || ( posVec.x == 0.0 && posVec.y == 0.0 ) )
+    double r = magnitude();
+    double lat = asin ( z / r );
+    double lon = atan2 ( y, x );
+    
+    return SSSpherical ( SSAngle ( lon ).mod2Pi(), SSAngle ( lat ), r );
+}
+
+// Converts rectangular position and velocity vectors to spherical position and velocity.
+// Inputs are position (this vector) and velocity (vvec) as x,y,z vectors.
+// Returns spherical velocity whose (lon,lat) are in radians per time unit
+// and whose rad is radial distance per time unit; Distance & time units
+// are the same in returned spherical coordinates as for input x,y,z vectors.
+
+SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
+{
+    double r = magnitude();
+    if ( r == 0 || ( x == 0.0 && y == 0.0 ) )
     {
-        posSph.lon = posSph.lat = velSph.lon = velSph.lat = velSph.rad = 0.0;
+        return SSSpherical ( 0.0, 0.0, 0.0 );
     }
     else
     {
-        posSph.lon = asin ( posVec.z / posSph.rad );
-        posSph.lat = SSAngle::atan2Pi ( posVec.y, posVec.x );
-    
-        double cosb = cos ( posSph.lat );
+        double lat = asin ( z / r );
       
-        velSph.rad = ( posVec * velVec ) / posSph.rad;
-        velSph.lat = ( posSph.rad * velVec.z - posVec.z * posSph.rad ) / ( cosb * posSph.rad * posSph.rad );
-        velSph.lon = ( posVec.x * velVec.y - posVec.y * velVec.x ) / ( posVec.x * posVec.x + posVec.y * posVec.y );
+        double vrad = dotProduct ( vvec ) / r;
+        double vlat = ( r * vvec.z - z * vrad ) / ( cos ( lat ) * r * r );
+        double vlon = ( x * vvec.y - y * vvec.x ) / ( x * x + y * y );
+        
+        return SSSpherical ( vlon, vlat, vrad );
     }
 }
 
-void SSSphericalToVectorMotion ( SSSpherical posSph, SSSpherical velSph, SSVector &posVec, SSVector velVec )
-{
-    double cosl = cos ( posSph.lon );
-    double sinl = sin ( posSph.lon );
-    double cosb = cos ( posSph.lat );
-    double sinb = sin ( posSph.lat );
-    double vlon = velSph.lon;
-    double vlat = velSph.lat;
-    double vrad = velSph.rad;
-    
-    posVec.x = posSph.rad * cosl * cosb;
-    posVec.y = posSph.rad * sinl * cosb;
-    posVec.z = posSph.rad * sinb;
-      
-    velVec.x = posSph.rad * ( -cosb * sinl * vlon - cosl * sinb * vlat ) + cosl * cosb * vrad;
-    velVec.y = posSph.rad * (  cosl * cosb * vlon - sinl * sinb * vlat ) + cosb * sinl * vrad;
-    velVec.z = posSph.rad * cosb * vrad + sinb * vrad;
-}

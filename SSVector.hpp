@@ -24,6 +24,9 @@ struct SSSpherical
 
     SSAngle angularSeparation ( SSSpherical other );
     SSAngle positionAngle ( SSSpherical other );
+
+    SSVector toVectorPosition ( void );
+    SSVector toVectorVelocity ( SSSpherical vsph );
 };
 
 // Represents a point in a rectangular coordinate system.
@@ -47,7 +50,9 @@ struct SSVector
     
     double dotProduct ( SSVector other );
     SSVector crossProduct ( SSVector other );
-       
+    
+    operator double() { return magnitude(); }
+    
     SSVector operator + ( SSVector other ) { return add ( other ); }
     SSVector operator - ( SSVector other ) { return subtract ( other ); }
     double  operator * ( SSVector other ) { return dotProduct ( other ); }
@@ -63,9 +68,9 @@ struct SSVector
     SSAngle positionAngle ( SSVector other );
     
     double distance ( SSVector other );
-};
 
-void SSVectorToSphericalMotion ( SSVector posVec, SSVector velVec, SSSpherical &posSph, SSSpherical &velSph );
-void SSSphericalToVectorMotion ( SSSpherical posSph, SSSpherical velSph, SSVector &posVec, SSVector velVec );
+    SSSpherical toSpherical ( void );
+    SSSpherical toSphericalVelocity ( SSVector vvec );
+};
 
 #endif /* SSVector_hpp */
