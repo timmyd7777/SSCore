@@ -16,7 +16,25 @@ SSStar::SSStar ( SSObjectType type ) : SSObject ( type )
 
 SSStar::SSStar ( SSObjectType type, SSSpherical position, SSSpherical motion, float vmag, float bmag, string spectrum ) : SSObject ( type )
 {
-    
+	_parallax = position.rad;
+	_radvel = motion.rad;
+
+	if ( _parallax <= 0.0 || isinf ( position.rad ) )
+	{
+		position.rad = 1.0;
+		motion.rad = 0.0;
+	}
+	
+	if ( isinf ( motion.rad ) )
+		motion.rad = 0.0;
+	
+	_position = position.toVectorPosition();
+	_velocity = position.toVectorVelocity ( motion );
+	
+	_Vmag = vmag;
+	_Bmag = bmag;
+	
+	_spectrum = spectrum;
 }
 
 void SSStar::computeEphemeris ( SSDynamics dyn )

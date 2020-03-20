@@ -187,7 +187,7 @@ string trim ( string str )
     auto start = str.find_first_not_of ( " \t\r\n" );
     auto end = str.find_last_not_of ( " \t\r\n" );
 
-    if ( start == end )
+    if ( start == string::npos )
         return string ( "" );
     else
         return str.substr ( start, ( end - start ) + 1 );
@@ -228,20 +228,31 @@ SSStarMap importHIC ( const char *filename )
 
         linecount++;
         
-        SSSpherical position ( SSAngle ( 1.0 ), SSAngle ( 2.0 ) ), velocity;
+		SSSpherical position ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+		SSSpherical velocity ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
         
         position.lon = SSHourMinSec ( strRA );
         position.lat = SSDegMinSec ( strDec );
-        position.rad = strPlx.empty() ? HUGE_VAL : 1000.0 / stof ( strPlx );
+		
+		float plx = strPlx.empty() ? 0.0 : stof ( strPlx );
+		if ( plx > 0.0 )
+        	position.rad = 1000.0 / plx;
         
-        velocity.lon = stof ( strPMRA );
-        velocity.lat = stof ( strPMDec );
-        velocity.rad = strRV.empty() ? HUGE_VAL : stof ( strRV );
+		if ( ! strPMRA.empty() )
+        	velocity.lon = SSAngle::fromArcsec ( stof ( strPMRA ) ) / cos ( position.lat );
+		
+		if ( ! strPMDec.empty() )
+        	velocity.lat = SSAngle::fromArcsec ( stof ( strPMDec ) );
+		
+		if ( ! strRV.empty() )
+        	velocity.rad = stof ( strRV ) / SSDynamics::kLightKmPerSec;
         
-        float vmag = stof ( strMag );
-        float bmag = vmag - stof ( strBmV );
+        float vmag = strMag.empty() ? HUGE_VAL : stof ( strMag );
+        float bmag = strBmV.empty() ? HUGE_VAL : vmag - stof ( strBmV );
         
+		int hip = stoi ( strHIP );
         SSStar star ( kStar, position, velocity, vmag, bmag, strSpec );
+		starmap.insert ( { hip, star } );
 /*
 		cout <<
 		

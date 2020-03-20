@@ -74,7 +74,7 @@ SSVector SSSpherical::toVectorVelocity ( SSSpherical vsph )
     
     double vx = rad * ( -coslat * sinlon * vlon - coslon * sinlat * vlat ) + coslon * coslat * vrad;
     double vy = rad * (  coslon * coslat * vlon - sinlon * sinlat * vlat ) + coslon * sinlon * vrad;
-    double vz = rad * coslat * vrad + sinlat * vrad;
+    double vz = rad * coslat * vlat + sinlat * vrad;
     
     return SSVector ( vx, vy, vz );
 }
@@ -244,11 +244,10 @@ SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
     else
     {
         double lat = asin ( z / r );
-      
         double vrad = dotProduct ( vvec ) / r;
-        double vlat = ( r * vvec.z - z * vrad ) / ( cos ( lat ) * r * r );
         double vlon = ( x * vvec.y - y * vvec.x ) / ( x * x + y * y );
-        
+        double vlat = ( r * vvec.z - z * vrad ) / ( r * r * cos ( lat ) );
+
         return SSSpherical ( vlon, vlat, vrad );
     }
 }
