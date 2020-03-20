@@ -8,6 +8,10 @@
 #ifndef SSAngle_hpp
 #define SSAngle_hpp
 
+#include <string>
+
+using namespace std;
+
 // Represents an angular value expressed in degrees, minutes, seconds
 
 struct SSDegMinSec
@@ -17,6 +21,7 @@ struct SSDegMinSec
 	short min;		// minutes portion of angle, 0 - 59, always positive
 	double sec;		// seconds portion of angle, 0 - 59.999..., always positive
 	
+    SSDegMinSec ( string s );
 	SSDegMinSec ( char sign, short deg, short min, double sec );
 	SSDegMinSec ( class SSAngle );
 };
@@ -30,6 +35,7 @@ struct SSHourMinSec
 	short min;		// minutes portion of angle, 0 - 59, always positive
 	double sec;		// seconds portion of angle, 0 - 59.999..., always positive
 
+    SSHourMinSec ( string s );
 	SSHourMinSec ( char sign, short hour, short min, double sec );
 	SSHourMinSec ( class SSAngle );
 };

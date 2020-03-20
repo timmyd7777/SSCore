@@ -16,8 +16,9 @@
 #include <map>
 
 typedef multimap<int,string> HIPMap;
+typedef map<int,SSStar> SSStarMap;
 
-void importHIC ( const char *filename );
+SSStarMap importHIC ( const char *filename );
 void importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar );
 HIPMap importHIPtoHRMap ( const char *filename );
 HIPMap importHIPtoBayerFlamsteedMap ( const char *filename );
@@ -26,7 +27,7 @@ void importHIP2 ( const char *filename );
 
 int main ( int argc, char *argv[] )
 {
-	importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
+	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
@@ -181,37 +182,67 @@ int main ( int argc, char *argv[] )
 	
 }
 
-void importHIC ( const char *hic_filename )
+string trim ( string str )
 {
-	ifstream hic_file ( hic_filename );
+    auto start = str.find_first_not_of ( " \t\r\n" );
+    auto end = str.find_last_not_of ( " \t\r\n" );
+
+    if ( start == end )
+        return string ( "" );
+    else
+        return str.substr ( start, ( end - start ) + 1 );
+}
+
+SSStarMap importHIC ( const char *filename )
+{
+    SSStarMap starmap;
+	ifstream hic_file ( filename );
 	
 	if ( ! hic_file )
-		return;
+		return starmap;
 	
 	string line;
+    int linecount = 0;
 	while ( getline ( hic_file, line ) )
 	{
-		string strHIP = line.substr ( 0, 6 );
-		string strRA = line.substr ( 13, 12 );
-		string strDec = line.substr ( 26, 12 );
-		string strPMRA = line.substr ( 155, 6 );
-		string strPMDec = line.substr ( 162, 6 );
-		string strMag = line.substr ( 190, 6 );
-		string strBmV = line.substr ( 202, 6 );
-		string strSpec = line.substr ( 216, 11 );
-		string strPlx = line.substr ( 230, 6 );
-		string strRV = line.substr ( 241, 6 );
-		string strVar = line.substr ( 251, 9 );
-		string strVarType = line.substr ( 261, 3 );
-		string strVarPer = line.substr ( 265, 6 );
-		string strVarMax = line.substr ( 272, 4 );
-		string strVarMin = line.substr ( 277, 4 );
-		string strHD = line.substr ( 359, 6 );
-		string strBD = line.substr ( 320, 10 );
-		string strCD = line.substr ( 334, 10 );
-		string strCP = line.substr ( 348, 10 );
-		string strSAO = line.substr ( 385, 6 );
+		string strHIP = trim ( line.substr ( 0, 6 ) );
+		string strRA = trim ( line.substr ( 13, 12 ) );
+		string strDec = trim ( line.substr ( 26, 12 ) );
+		string strPMRA = trim ( line.substr ( 155, 6 ) );
+		string strPMDec = trim ( line.substr ( 162, 6 ) );
+		string strMag = trim ( line.substr ( 190, 6 ) );
+		string strBmV = trim ( line.substr ( 202, 6 ) );
+		string strSpec = trim ( line.substr ( 216, 11 ) );
+		string strPlx = trim ( line.substr ( 230, 6 ) );
+		string strRV = trim ( line.substr ( 241, 6 ) );
+		string strVar = trim ( line.substr ( 251, 9 ) );
+		string strVarType = trim ( line.substr ( 261, 3 ) );
+		string strVarPer = trim ( line.substr ( 265, 6 ) );
+		string strVarMax = trim ( line.substr ( 272, 4 ) );
+		string strVarMin = trim ( line.substr ( 277, 4 ) );
+		string strHD = trim ( line.substr ( 359, 6 ) );
+		string strBD = trim ( line.substr ( 320, 10 ) );
+		string strCD = trim ( line.substr ( 334, 10 ) );
+		string strCP = trim ( line.substr ( 348, 10 ) );
+		string strSAO = trim ( line.substr ( 385, 6 ) );
 
+        linecount++;
+        
+        SSSpherical position ( SSAngle ( 1.0 ), SSAngle ( 2.0 ) ), velocity;
+        
+        position.lon = SSHourMinSec ( strRA );
+        position.lat = SSDegMinSec ( strDec );
+        position.rad = strPlx.empty() ? HUGE_VAL : 1000.0 / stof ( strPlx );
+        
+        velocity.lon = stof ( strPMRA );
+        velocity.lat = stof ( strPMDec );
+        velocity.rad = strRV.empty() ? HUGE_VAL : stof ( strRV );
+        
+        float vmag = stof ( strMag );
+        float bmag = vmag - stof ( strBmV );
+        
+        SSStar star ( kStar, position, velocity, vmag, bmag, strSpec );
+/*
 		cout <<
 		
 		strHIP << "," <<
@@ -236,7 +267,17 @@ void importHIC ( const char *hic_filename )
 		strVarMin << "," <<
 
 		endl;
+*/
+        
+        
 	}
+    
+    if ( linecount == starmap.size() )
+        cout << "Success: " << filename << " linecount " << linecount << " == starmap.size() " << starmap.size() << endl;
+    else
+        cout << "Failure: " << filename << " linecount " << linecount << " != starmap.size() " << starmap.size() << endl;
+
+    return starmap;
 }
 
 void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar )

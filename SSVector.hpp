@@ -18,6 +18,7 @@ struct SSSpherical
 	SSAngle lat;	// Latitude coordinate, in radians from -kHalfPi to +kHalfPi.
 	double  rad;	// Radial distance from origin of coordinate system, in arbitrary units; 1.0 is a unit vector.
 	
+    SSSpherical ( void );
 	SSSpherical ( SSAngle lon, SSAngle lat );
 	SSSpherical ( SSAngle lon, SSAngle lat, double rad );
 	SSSpherical ( class SSVector );

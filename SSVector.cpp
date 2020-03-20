@@ -7,6 +7,13 @@
 #include <math.h>
 #include "SSVector.hpp"
 
+// Constructs spberical coordinates with default values of zero.
+
+SSSpherical::SSSpherical ( void )
+{
+    lon = lat = rad = 0.0;
+}
+
 // Constructs spberical coordinates from longitude and latitude, both in radians.
 // Since we often don't care about the radial coordinate, set it to 1.0 to make a unit vector.
 

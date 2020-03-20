@@ -29,6 +29,17 @@ SSDegMinSec::SSDegMinSec ( SSAngle ang )
 	sec = 3600.0 * ( degrees - deg - min / 60.0 );
 }
 
+// Constructs an angular value from a string in degrees, minutes, and seconds
+
+SSDegMinSec::SSDegMinSec ( string str )
+{
+    const char *cstr = str.c_str();
+    
+    deg = min = sec = 0;
+    sscanf ( cstr, "%hd %hd %lf", &deg, &min, &sec );
+    sign = cstr[0] == '-' ? '-' : '+';
+}
+
 // Constructs an angular value in hours, minutes, seconds with the given sign.
 
 SSHourMinSec::SSHourMinSec ( char sign, short hour, short min, double sec )
@@ -49,6 +60,17 @@ SSHourMinSec::SSHourMinSec ( SSAngle ang )
     hour = hours;
     min = 60.0 * ( hours - hour );
     sec = 3600.0 * ( hours - hour - min / 60.0 );
+}
+
+// Constructs an angular value from a string in degrees, minutes, and seconds
+
+SSHourMinSec::SSHourMinSec ( string str )
+{
+    const char *cstr = str.c_str();
+    
+    hour = min = sec = 0;
+    sscanf ( cstr, "%hd %hd %lf", &hour, &min, &sec );
+    sign = cstr[0] == '-' ? '-' : '+';
 }
 
 // Constructs an angle in radians with the defautl value of zero.
