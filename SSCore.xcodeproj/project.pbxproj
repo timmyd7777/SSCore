@@ -15,6 +15,7 @@
 		A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
 		A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C3241EE07900197F8A /* SSPlanet.cpp */; };
 		A30545C8241EF45000197F8A /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
+		A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */; };
 		A3462BF724184A5900A7519A /* SSDynamics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3462BF524184A5900A7519A /* SSDynamics.cpp */; };
 		A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A358D99B24147D3E009078A6 /* SSOrbit.cpp */; };
 		A36F9198240979770038FE04 /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36F9196240979770038FE04 /* SSCoords.cpp */; };
@@ -72,6 +73,8 @@
 		A30545C4241EE07900197F8A /* SSPlanet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSPlanet.hpp; sourceTree = "<group>"; };
 		A30545C6241EF45000197F8A /* SSStar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSStar.cpp; sourceTree = "<group>"; };
 		A30545C7241EF45000197F8A /* SSStar.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSStar.hpp; sourceTree = "<group>"; };
+		A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSIdentifier.cpp; sourceTree = "<group>"; };
+		A30C7A4924251E96004FEF82 /* SSIdentifier.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSIdentifier.hpp; sourceTree = "<group>"; };
 		A328D7312402DBFD00BCE781 /* SSCore */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SSCore; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3462BF4241849DB00A7519A /* target.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = target.h; sourceTree = "<group>"; };
 		A3462BF524184A5900A7519A /* SSDynamics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSDynamics.cpp; sourceTree = "<group>"; };
@@ -141,6 +144,8 @@
 			isa = PBXGroup;
 			children = (
 				4703A8842404EF5700BDD11C /* test.cpp */,
+				A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */,
+				A30C7A4924251E96004FEF82 /* SSIdentifier.hpp */,
 				4703A8862404EF7F00BDD11C /* SSTime.cpp */,
 				4703A8872404EF7F00BDD11C /* SSTime.hpp */,
 				A36F9196240979770038FE04 /* SSCoords.cpp */,
@@ -264,6 +269,7 @@
 				A3DBB4B6240EADE80035011E /* Angle.c in Sources */,
 				A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */,
 				A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */,
+				A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */,
 				A3DBB4C4240EADE80035011E /* JupiMoon.c in Sources */,
 				A3DBB4C3240EADE80035011E /* CoordSys.c in Sources */,
 				A3DBB4BF240EADE80035011E /* MarsMoon.c in Sources */,

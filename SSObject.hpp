@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "SSVector.hpp"
+#include "SSIdentifier.hpp"
 
 using namespace std;
 

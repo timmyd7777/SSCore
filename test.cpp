@@ -27,12 +27,17 @@ void importHIP2 ( const char *filename );
 
 int main ( int argc, char *argv[] )
 {
-	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
-	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
+	
+	SSIdentifier id = SSIdentifier::fromBayer ( "o5 An" );
+	
+	cout << id.toString() << endl;
+	
+//	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
+//	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
-	importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar );
-	importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
+//	importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar );
+//	importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
 
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
@@ -339,7 +344,9 @@ void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIP
 
 		auto rangeBF = mapHIPtoBF.equal_range ( hip );
 		for ( auto i = rangeBF.first; i != rangeBF.second; i++ )
+		{
 			cout << i->second << ",";
+		}
 		
 		auto rangeVar = mapHIPtoVar.equal_range ( hip );
 		for ( auto i = rangeVar.first; i != rangeVar.second; i++ )
@@ -382,6 +389,25 @@ HIPMap importHIPtoHRMap ( const char *filename )
 	return mapHIPtoHR;
 }
 
+string cleanHIPNameString ( string str )
+{
+	if ( str.find ( "alf" ) == 0 )
+		str.replace ( 0, 3, "alp" );
+	
+	if ( str.find ( "ksi" ) == 0 )
+		str.replace ( 0, 3, "xi." );
+	
+	size_t idx = str.find ( "." );
+	if ( idx != string::npos )
+		str.erase ( idx, 1 );
+	
+	idx = str.find ( "_" );
+	if ( idx != string::npos )
+		str.replace ( idx, 1, " " );
+	
+	return str;
+}
+
 HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 {
 	HIPMap mapHIPtoBF;
@@ -397,10 +423,16 @@ HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 
 	while ( getline ( file, line ) )
 	{
-		string strBF = line.substr ( 0, 11 );
-		string strHIP = line.substr ( 12, 6 );
+		string strBF = trim ( line.substr ( 0, 11 ) );
+		string strHIP = trim ( line.substr ( 12, 6 ) );
 		int hip = stoi ( strHIP );
 
+		strBF = cleanHIPNameString ( strBF );
+		SSIdentifier id = SSIdentifier::fromBayer ( strBF );
+		string str = id.toString();
+		
+		cout << strBF << "," << str << endl;
+		
 		// cout << strHIP << "," << strHR << "," << endl;
 		mapHIPtoBF.insert ( { hip, strBF } );
 		linecount++;
@@ -429,10 +461,15 @@ HIPMap importHIPtoVarMap ( const char *filename )
 	
 	while ( getline ( file, line ) )
 	{
-		string strVar = line.substr ( 0, 11 );
-		string strHIP = line.substr ( 12, 6 );
+		string strVar = trim ( line.substr ( 0, 11 ) );
+		string strHIP = trim ( line.substr ( 12, 6 ) );
 		int hip = stoi ( strHIP );
 
+		strVar = cleanHIPNameString ( strVar );
+		SSIdentifier id = SSIdentifier::fromBayer ( strVar );
+		string str = id.toString();
+
+		cout << strVar << "," << str << endl;
 		// cout << strHIP << "," << strHR << "," << endl;
 		mapHIPtoVar.insert ( { hip, strVar } );
 		linecount++;
