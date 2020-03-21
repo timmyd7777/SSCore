@@ -40,7 +40,7 @@ SSStar::SSStar ( SSObjectType type, vector<string> names, vector<SSIdentifier> i
 	_names = names;
 	_ids = ids;
 	
-	_parallax = position.rad;
+	_parallax = 1.0 / position.rad;
 	_radvel = motion.rad;
 
 	if ( _parallax <= 0.0 || isinf ( position.rad ) )
@@ -94,6 +94,20 @@ void SSStar::computeEphemeris ( SSDynamics dyn )
     }
 }
 
+SSSpherical SSStar::getFundamentalPosition ( void )
+{
+	SSSpherical pos = _position.toSpherical();
+	pos.rad = isinf ( _parallax ) || _parallax == 0.0 ? HUGE_VAL : 1.0 / _parallax;
+	return pos;
+}
+
+SSSpherical SSStar::getFundamentalProperMotion ( void )
+{
+	SSSpherical vel = _position.toSphericalVelocity ( _velocity );
+	vel.rad = _radvel;
+	return vel;
+}
+
 string SSStar::toCSV ( void )
 {
 	SSSpherical pos = _position.toSpherical();
@@ -116,6 +130,11 @@ string SSStar::toCSV ( void )
 	csv += isinf ( _parallax ) ? ", " : format ( "%.4f, ", _parallax );
 	csv += isinf ( _radvel ) ? ", " : format ( "%+.1f, ", _radvel * SSDynamics::kLightKmPerSec );
 	
+	csv += _spectrum + ", ";
+	
+	for ( int i = 0; i < _names.size(); i++ )
+		csv += _names[i] + ", ";
+
 	for ( int i = 0; i < _ids.size(); i++ )
 		csv += _ids[i].toString() + ", ";
 		

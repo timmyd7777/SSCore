@@ -36,6 +36,9 @@ public:
 	SSIdentifier getIdentifier ( SSCatalog cat );
 	vector<SSIdentifier> getIdentifiers ( void );
 	
+	SSSpherical getFundamentalPosition ( void );
+	SSSpherical getFundamentalProperMotion ( void );
+	
 	float getParallax ( void ) { return _parallax; }
 	float getRadVel ( void ) { return _radvel; }
 	
