@@ -7,18 +7,6 @@
 #include "SSDynamics.hpp"
 #include "SSStar.hpp"
 
-std::string format ( const char *fmt, ... )
-{
-	char buf[1024] = { 0 };
-
-    va_list args;
-    va_start ( args, fmt );
-    vsnprintf ( buf, sizeof buf, fmt, args );
-    va_end ( args );
-
-	return string ( buf );
-}
-
 SSStar::SSStar ( void ) : SSObject ( kStar )
 {
 	_names = vector<string> ( 0 );

@@ -376,6 +376,15 @@ void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIP
 		if ( ! strHD.empty() )
 			ids.push_back ( SSIdentifier ( kCatHD, stoi ( strHD ) ) );
 
+		if ( ! strBD.empty() )
+			ids.push_back ( SSIdentifier::fromString ( "BD " + strBD ) );
+		
+		if ( ! strCD.empty() )
+			ids.push_back ( SSIdentifier::fromString ( "CD " + strCD ) );
+
+		if ( ! strCP.empty() )
+			ids.push_back ( SSIdentifier::fromString ( "CP " + strCP ) );
+
 		if ( hicStar.getIdentifier ( kCatHIP ) == hipID )
 		{
 			SSIdentifier saoID = hicStar.getIdentifier ( kCatSAO );

@@ -7,6 +7,20 @@
 #include <math.h>
 #include "SSAngle.hpp"
 
+// Returns C++ string constructed from printf()-style input arguments.
+
+string format ( const char *fmt, ... )
+{
+	char buf[1024] = { 0 };
+
+    va_list args;
+    va_start ( args, fmt );
+    vsnprintf ( buf, sizeof buf, fmt, args );
+    va_end ( args );
+
+	return string ( buf );
+}
+
 // Constructs an angular value in degrees, minutes, seconds with the given sign.
 
 SSDegMinSec::SSDegMinSec ( char sign, short deg, short min, double sec )

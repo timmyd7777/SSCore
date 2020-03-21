@@ -4,6 +4,7 @@
 //  Created by Tim DeBenedictis on 3/20/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
+#include "SSAngle.hpp"
 #include "SSIdentifier.hpp"
 #include <vector>
 #include <map>
@@ -75,7 +76,7 @@ static int string_to_bayer ( string str )
 	return 0;
 }
 
-static string bayer_to_string ( int bay )
+static string bayer_to_string ( int64_t bay )
 {
 	if ( bay > 50 )
 		return string ( 1, bay - 51 + 'A' );
@@ -85,7 +86,7 @@ static string bayer_to_string ( int bay )
 		return _bayvec[ bay - 1 ];
 }
 
-static int string_to_variable ( string str )
+static int64_t string_to_variable ( string str )
 {
 	size_t len = str.length();
 	int n1 = 0, n2 = 0;
@@ -135,9 +136,9 @@ static int string_to_variable ( string str )
 	return 0;
 }
 
-string variable_to_string ( int n )
+string variable_to_string ( int64_t n )
 {
-	int n0 = 0, n1 = 0, n2 = 0;
+	int64_t n0 = 0, n1 = 0, n2 = 0;
 	
 	// Sequence R, S, T, ... Z
 	
@@ -186,6 +187,63 @@ string variable_to_string ( int n )
 	return "";
 }
 
+int64_t string_to_dm ( string str )
+{
+	char 	sign = 0, suffix = 0;
+    int		zone = 0, num = 0;
+	
+	sscanf ( str.c_str(), "%c%d%d%c", &sign, &zone, &num, &suffix );
+
+    if ( sign == '+' )
+    	sign = 1;
+    else
+    	sign = 0;
+
+    if ( suffix == 'a' || suffix == 'A' )
+    	suffix = 1;
+    else if ( suffix == 'b' || suffix == 'B' )
+    	suffix = 2;
+    else if ( suffix == 'n' || suffix == 'N' )
+    	suffix = 3;
+    else if ( suffix == 'p' || suffix == 'P' )
+    	suffix = 4;
+    else if ( suffix == 's' || suffix == 'S' )
+    	suffix = 5;
+	else
+    	suffix = 0;
+    
+	return sign * 100000000 + zone * 1000000 + num * 10 + suffix;
+}
+
+string dm_to_string ( int64_t dm )
+{
+	int64_t sign = dm / 100000000;
+	int64_t	zone = ( dm - sign * 100000000 ) / 1000000;
+    int64_t num = ( dm - sign * 100000000 - zone * 1000000 ) / 10;
+	int64_t suffix = dm - sign * 100000000 - zone * 1000000 - num * 10;
+    
+    if ( sign )
+    	sign = '+';
+    else
+    	sign = '-';
+
+    if ( suffix == 1 )
+    	suffix = 'a';
+    else if ( suffix == 2 )
+    	suffix = 'b';
+    else if ( suffix == 3 )
+    	suffix = 'n';
+    else if ( suffix == 4 )
+    	suffix = 'p';
+    else if ( suffix == 5 )
+    	suffix = 's';
+
+	if ( suffix > 0 )
+	    return format ( "%c%02d %d%c", sign, zone, num, suffix );
+	else
+    	return format ( "%c%02d %d", sign, zone, num );
+}
+
 static void mapinit ( void )
 {
 	for ( int i = 0; i < _bayvec.size(); i++ )
@@ -200,19 +258,20 @@ SSIdentifier::SSIdentifier ( void )
 	_id = 0;
 }
 
-SSIdentifier::SSIdentifier ( SSCatalog catalog, int64_t id )
+SSIdentifier::SSIdentifier ( SSCatalog catalog, int64_t ident )
 {
-	_id = ( (int64_t) catalog ) << 56 | ( id & 0x00ffffffffffffff );
+	_id = catalog * 10000000000000000LL + ident;
+//	_id = ( (int64_t) catalog ) << 56 | ( id & 0x00ffffffffffffff );
 }
 
 SSCatalog SSIdentifier::catalog ( void )
 {
-	return static_cast<SSCatalog> ( _id >> 56 );
+	return static_cast<SSCatalog> ( _id / 10000000000000000LL );
 }
 
 int64_t SSIdentifier::identifier ( void )
 {
-	return _id & 0x00ffffffffffffff;
+	return _id % 10000000000000000LL;
 }
 
 SSIdentifier SSIdentifier::fromString ( string str )
@@ -258,6 +317,33 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatHIP, stoi ( str.substr ( pos, len - pos ) ) );
 	}
 
+	// if string begins with "BD", attempt to parse a Bonner Durchmusterung catalog identifier
+	
+	if ( str.find ( "BD" ) == 0 )
+	{
+		size_t pos = str.find_first_of ( "+-" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatBD, string_to_dm ( str.substr ( pos, len - pos ) ) );
+	}
+
+	// if string begins with "CD", attempt to parse a Bonner Durchmusterung catalog identifier
+	
+	if ( str.find ( "CD" ) == 0 )
+	{
+		size_t pos = str.find_first_of ( "+-" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatCD, string_to_dm ( str.substr ( pos, len - pos ) ) );
+	}
+
+	// if string begins with "CP", attempt to parse a Bonner Durchmusterung catalog identifier
+	
+	if ( str.find ( "CP" ) == 0 )
+	{
+		size_t pos = str.find_first_of ( "+-" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatCP, string_to_dm ( str.substr ( pos, len - pos ) ) );
+	}
+
 	// parse constellation abbreviation
 	
 	string constr = "";
@@ -274,7 +360,7 @@ SSIdentifier SSIdentifier::fromString ( string str )
 	// try parsing prefix as a variable star designation; return GCVS identifier if successful.
 	
 	string varstr = str.substr ( 0, consep );
-	int var = string_to_variable ( varstr );
+	int64_t var = string_to_variable ( varstr );
 	if ( var > 0 )
 		return SSIdentifier ( kCatGCVS, var * 100 + con );
 	
@@ -320,9 +406,9 @@ string SSIdentifier::toString ( void )
 	
 	if ( cat == kCatBayer )
 	{
-		int bay = id / 10000;
-		int num = ( id - bay * 10000 ) / 100;
-		int con = id % 100;
+		int64_t bay = id / 10000;
+		int64_t num = ( id - bay * 10000 ) / 100;
+		int64_t con = id % 100;
 		
 		string baystr = bayer_to_string ( bay );
 		string constr = _convec[con - 1];
@@ -333,14 +419,14 @@ string SSIdentifier::toString ( void )
 	}
 	else if ( cat == kCatFlamsteed )
 	{
-		int num = id / 100;
-		int con = id % 100;
+		int64_t num = id / 100;
+		int64_t con = id % 100;
 		str = to_string ( num ) + " " + _convec[con - 1];
 	}
 	else if ( cat == kCatGCVS )
 	{
-		int num = id / 100;
-		int con = id % 100;
+		int64_t num = id / 100;
+		int64_t con = id % 100;
 		str = variable_to_string ( num ) + " " + _convec[con - 1];
 	}
 	else if ( cat == kCatHR )
@@ -359,7 +445,18 @@ string SSIdentifier::toString ( void )
 	{
 		str = "HIP " + to_string ( id );
 	}
-
+	else if ( cat == kCatBD )
+	{
+		str = "BD " + dm_to_string ( id );
+	}
+	else if ( cat == kCatCD )
+	{
+		str = "CD " + dm_to_string ( id );
+	}
+	else if ( cat == kCatCP )
+	{
+		str = "CP " + dm_to_string ( id );
+	}
 	return str;
 }
 
