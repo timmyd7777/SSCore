@@ -371,6 +371,8 @@ void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIP
 		vector<SSIdentifier> ids ( 0 );
 		vector<string> names ( 0 );
 		
+		ids.push_back ( hipID );
+
 		if ( ! strHD.empty() )
 			ids.push_back ( SSIdentifier ( kCatHD, stoi ( strHD ) ) );
 
