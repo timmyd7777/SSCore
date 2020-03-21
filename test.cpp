@@ -15,29 +15,28 @@
 #include <fstream>
 #include <map>
 
-typedef multimap<int,string> HIPMap;
+typedef multimap<int,SSIdentifier> HIPMap;
 typedef map<int,SSStar> SSStarMap;
 
 SSStarMap importHIC ( const char *filename );
-void importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar );
+void importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2 );
 HIPMap importHIPtoHRMap ( const char *filename );
 HIPMap importHIPtoBayerFlamsteedMap ( const char *filename );
 HIPMap importHIPtoVarMap ( const char *filename );
-void importHIP2 ( const char *filename );
+SSStarMap importHIP2 ( const char *filename );
 
 int main ( int argc, char *argv[] )
 {
-	
-	SSIdentifier id = SSIdentifier::fromBayer ( "o5 An" );
+	SSIdentifier id = SSIdentifier::fromString ( "HR     57" );
 	
 	cout << id.toString() << endl;
 	
-//	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
-//	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
+	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
-//	importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar );
-//	importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
+	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
+	SSStarMap mapHIP2 = importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
+	importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2 );
 
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
@@ -255,8 +254,20 @@ SSStarMap importHIC ( const char *filename )
         float vmag = strMag.empty() ? HUGE_VAL : stof ( strMag );
         float bmag = strBmV.empty() ? HUGE_VAL : vmag - stof ( strBmV );
         
+		vector<SSIdentifier> ids ( 0 );
+		vector<string> names ( 0 );
+		
+		if ( ! strHD.empty() )
+			ids.push_back ( SSIdentifier ( kCatHD, stoi ( strHD ) ) );
+
+		if ( ! strSAO.empty() )
+			ids.push_back ( SSIdentifier ( kCatSAO, stoi ( strSAO ) ) );
+
+		if ( ! strHIP.empty() )
+			ids.push_back ( SSIdentifier ( kCatHIP, stoi ( strHIP ) ) );
+		
 		int hip = stoi ( strHIP );
-        SSStar star ( kStar, position, velocity, vmag, bmag, strSpec );
+        SSStar star ( kStar, names, ids, position, velocity, vmag, bmag, strSpec );
 		starmap.insert ( { hip, star } );
 /*
 		cout <<
@@ -296,7 +307,7 @@ SSStarMap importHIC ( const char *filename )
     return starmap;
 }
 
-void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar )
+void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2 )
 {
 	ifstream hip_main_file ( hip_main_filename );
 	
@@ -306,53 +317,88 @@ void importHIP ( const char *hip_main_filename, HIPMap mapHIPtoHR, HIPMap mapHIP
 	string line;
 	while ( getline ( hip_main_file, line ) )
 	{
-		string strHIP = line.substr ( 8, 6 );
-		string strRA = line.substr ( 51, 12 );
-		string strDec = line.substr ( 64, 12 );
-		string strPMRA = line.substr ( 87, 8 );
-		string strPMDec = line.substr ( 96, 8 );
-		string strMag = line.substr ( 41, 5 );
-		string strBmV = line.substr ( 245, 6 );
-		string strPlx = line.substr ( 79, 7 );
-		string strSpec = line.substr ( 435, 12 );
-		string strHD = line.substr ( 390, 6 );
-		string strBD = line.substr ( 398, 9 );
-		string strCD = line.substr ( 409, 9 );
-		string strCP = line.substr ( 420, 9 );
+		string strHIP = trim ( line.substr ( 8, 6 ) );
+		string strRA = trim ( line.substr ( 51, 12 ) );
+		string strDec = trim ( line.substr ( 64, 12 ) );
+		string strPMRA = trim ( line.substr ( 87, 8 ) );
+		string strPMDec = trim ( line.substr ( 96, 8 ) );
+		string strMag = trim ( line.substr ( 41, 5 ) );
+		string strBmV = trim ( line.substr ( 245, 6 ) );
+		string strPlx = trim ( line.substr ( 79, 7 ) );
+		string strSpec = trim ( line.substr ( 435, 12 ) );
+		string strHD = trim ( line.substr ( 390, 6 ) );
+		string strBD = trim ( line.substr ( 398, 9 ) );
+		string strCD = trim ( line.substr ( 409, 9 ) );
+		string strCP = trim ( line.substr ( 420, 9 ) );
 
-		int hip = stoi ( strHIP );
+		int hip = 0;
+		SSIdentifier hipID;
+		if ( ! strHIP.empty() )
+		{
+			hip = stoi ( strHIP );
+			hipID = SSIdentifier ( kCatHIP, hip );
+		}
 		
-		cout <<
+		SSStar hicStar = mapHIC[ hip ];
+		SSStar hip2Star = mapHIP2[ hip ];
 		
-		strHIP << "," <<
-		strRA << "," <<
-		strDec << "," <<
-		strPMRA << "," <<
-		strPMDec << "," <<
-		strMag << "," <<
-		strBmV << "," <<
-		strPlx << "," <<
-		strSpec << "," <<
-		strHD << "," <<
-		strBD << "," <<
-		strCD << "," <<
-		strCP << ",";
+		SSSpherical position ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+		SSSpherical velocity ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        
+		if ( ! strRA.empty() )
+			position.lon = SSAngle::fromDegrees ( stof ( strRA ) );
+		else
+			position.lon = SSHourMinSec ( trim ( line.substr ( 17, 11 ) ) );
+		
+		if ( ! strDec.empty() )
+			position.lat = SSAngle::fromDegrees ( stof ( strDec ) );
+		else
+			position.lat = SSDegMinSec ( trim ( line.substr ( 29, 11 ) ) );
+		
+		float plx = strPlx.empty() ? 0.0 : stof ( strPlx );
+		if ( plx > 0.0 )
+        	position.rad = 1000.0 / plx;
+        
+		if ( ! strPMRA.empty() )
+        	velocity.lon = SSAngle::fromArcsec ( stof ( strPMRA ) ) / cos ( position.lat );
+		
+		if ( ! strPMDec.empty() )
+        	velocity.lat = SSAngle::fromArcsec ( stof ( strPMDec ) );
+		
+        float vmag = strMag.empty() ? HUGE_VAL : stof ( strMag );
+        float bmag = strBmV.empty() ? HUGE_VAL : vmag - stof ( strBmV );
 
+		vector<SSIdentifier> ids ( 0 );
+		vector<string> names ( 0 );
+		
+		if ( ! strHD.empty() )
+			ids.push_back ( SSIdentifier ( kCatHD, stoi ( strHD ) ) );
+
+		if ( hicStar.getIdentifier ( kCatHIP ) == hipID )
+		{
+			SSIdentifier saoID = hicStar.getIdentifier ( kCatSAO );
+			if ( saoID )
+				ids.push_back ( saoID );
+			
+			velocity.rad = hicStar.getRadVel();
+		}
+		
 		auto rangeHR = mapHIPtoHR.equal_range ( hip );
 		for ( auto i = rangeHR.first; i != rangeHR.second; i++ )
-			cout << i->second << ",";
+			ids.push_back ( i->second );
 
 		auto rangeBF = mapHIPtoBF.equal_range ( hip );
 		for ( auto i = rangeBF.first; i != rangeBF.second; i++ )
-		{
-			cout << i->second << ",";
-		}
+			ids.push_back ( i->second );
 		
 		auto rangeVar = mapHIPtoVar.equal_range ( hip );
 		for ( auto i = rangeVar.first; i != rangeVar.second; i++ )
-			cout << i->second << ",";
+			ids.push_back ( i->second );
 
-		cout <<	endl;
+		sort ( ids.begin(), ids.end(), compareSSIdentifiers );
+		SSStar star ( kStar, names, ids, position, velocity, vmag, bmag, strSpec );
+
+		cout << star.toCSV() << endl;
 	}
 }
 
@@ -373,11 +419,13 @@ HIPMap importHIPtoHRMap ( const char *filename )
 	
 	while ( getline ( file, line ) )
 	{
-		string strHR = line.substr ( 0, 6 );
-		string strHIP = line.substr ( 7, 6 );
+		string strHR = trim ( line.substr ( 0, 6 ) );
+		string strHIP = trim ( line.substr ( 7, 6 ) );
 		int hip = stoi ( strHIP );
 		// cout << strHIP << "," << strHR << "," << endl;
-		mapHIPtoHR.insert ( { hip, strHR } );
+		
+		SSIdentifier id = SSIdentifier ( kCatHR, stoi ( strHR ) );
+		mapHIPtoHR.insert ( { hip, id } );
 		linecount++;
 	}
 	
@@ -428,13 +476,11 @@ HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 		int hip = stoi ( strHIP );
 
 		strBF = cleanHIPNameString ( strBF );
-		SSIdentifier id = SSIdentifier::fromBayer ( strBF );
-		string str = id.toString();
+		SSIdentifier id = SSIdentifier::fromString ( strBF );
 		
-		cout << strBF << "," << str << endl;
-		
+		cout << strBF << "," << id.toString() << endl;
 		// cout << strHIP << "," << strHR << "," << endl;
-		mapHIPtoBF.insert ( { hip, strBF } );
+		mapHIPtoBF.insert ( { hip, id } );
 		linecount++;
 	}
 
@@ -466,12 +512,10 @@ HIPMap importHIPtoVarMap ( const char *filename )
 		int hip = stoi ( strHIP );
 
 		strVar = cleanHIPNameString ( strVar );
-		SSIdentifier id = SSIdentifier::fromBayer ( strVar );
-		string str = id.toString();
-
-		cout << strVar << "," << str << endl;
+		SSIdentifier id = SSIdentifier::fromString ( strVar );
+		cout << strVar << "," << id.toString() << endl;
 		// cout << strHIP << "," << strHR << "," << endl;
-		mapHIPtoVar.insert ( { hip, strVar } );
+		mapHIPtoVar.insert ( { hip, id } );
 		linecount++;
 	}
 
@@ -483,12 +527,14 @@ HIPMap importHIPtoVarMap ( const char *filename )
 	return mapHIPtoVar;
 }
 
-void importHIP2 ( const char *hip2_filename )
+SSStarMap importHIP2 ( const char *hip2_filename )
 {
+	SSStarMap mapHIP2;
+	
 	ifstream hip2_file ( hip2_filename );
 	
 	if ( ! hip2_file )
-		return;
+		return mapHIP2;
 	
 	string line;
 	while ( getline ( hip2_file, line ) )
@@ -502,7 +548,7 @@ void importHIP2 ( const char *hip2_filename )
 		string strBmV = line.substr ( 152, 6 );
 		string strPlx = line.substr ( 43, 7 );
 
-		cout <<
+/*		cout <<
 		
 		strHIP << "," <<
 		strRA << "," <<
@@ -513,6 +559,9 @@ void importHIP2 ( const char *hip2_filename )
 		strBmV << "," <<
 		strPlx << "," <<
 
-		endl;
+		endl;	*/
+		
 	}
+	
+	return mapHIP2;
 }

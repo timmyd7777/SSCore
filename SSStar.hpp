@@ -14,6 +14,8 @@ class SSStar : public SSObject
 {
 protected:
     
+	vector<SSIdentifier> _ids;
+	
     SSVector _position;     // heliocentric position in fundamental frame at epoch J2000; parsecs if _parallax > 0 or unit vector if _parallax is zero
     SSVector _velocity;     // heliocentric space motion in fundamental frame at epoch J2000, parsecs per Julian year if _parallax > 0 or unit vector if _parallax is zero
     
@@ -27,10 +29,19 @@ protected:
     
 public:
     
+	SSStar ( void );
     SSStar ( SSObjectType type );
-    SSStar ( SSObjectType type, SSSpherical position, SSSpherical motion, float vmag, float bmag, string spectrum );
+    SSStar ( SSObjectType type, vector<string> names, vector<SSIdentifier> ids, SSSpherical position, SSSpherical motion, float vmag, float bmag, string spectrum );
 
+	SSIdentifier getIdentifier ( SSCatalog cat );
+	vector<SSIdentifier> getIdentifiers ( void );
+	
+	float getParallax ( void ) { return _parallax; }
+	float getRadVel ( void ) { return _radvel; }
+	
     void computeEphemeris ( SSDynamics dyn );
+	
+	string toCSV ( void );
 };
 
 #endif /* SSStar_hpp */

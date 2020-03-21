@@ -40,6 +40,15 @@ SSDegMinSec::SSDegMinSec ( string str )
     sign = cstr[0] == '-' ? '-' : '+';
 }
 
+// Converts an angle in degrees, minutes, seconds to a string
+
+string SSDegMinSec::toString ( void )
+{
+	char cstr[256] = { 0 };
+	sprintf ( cstr, "%c%02hd %02hd %04.1f", sign, deg, min, sec );
+	return string ( cstr );
+}
+
 // Constructs an angular value in hours, minutes, seconds with the given sign.
 
 SSHourMinSec::SSHourMinSec ( char sign, short hour, short min, double sec )
@@ -71,6 +80,15 @@ SSHourMinSec::SSHourMinSec ( string str )
     hour = min = sec = 0;
     sscanf ( cstr, "%hd %hd %lf", &hour, &min, &sec );
     sign = cstr[0] == '-' ? '-' : '+';
+}
+
+// Converts an angle in hours, minutes, seconds to a string.  OMITS SIGN!
+
+string SSHourMinSec::toString ( void )
+{
+	char cstr[256] = { 0 };
+	sprintf ( cstr, "%02hd %02hd %05.2f", hour, min, sec );
+	return string ( cstr );
 }
 
 // Constructs an angle in radians with the defautl value of zero.

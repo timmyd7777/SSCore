@@ -215,10 +215,48 @@ int64_t SSIdentifier::identifier ( void )
 	return _id & 0x00ffffffffffffff;
 }
 
-SSIdentifier SSIdentifier::fromBayer ( string str )
+SSIdentifier SSIdentifier::fromString ( string str )
 {
+	size_t len = str.length();
+	
 	if ( _conmap.size() == 0 || _baymap.size() == 0 )
 		mapinit();
+
+	// if string begins with "HR", attempt to parse a Harvard Revised (Bright Star) catalog identifier
+	
+	if ( str.find ( "HR" ) == 0 )
+	{
+		size_t pos = str.find_first_of ( "0123456789" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatHR, stoi ( str.substr ( pos, len - pos ) ) );
+	}
+	
+	// if string begins with "HD", attempt to parse a Henry Draper catalog identifier
+	
+	if ( str.find ( "HD" ) == 0 )
+	{
+		size_t pos = str.find_first_of ( "0123456789" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatHD, stoi ( str.substr ( pos, len - pos ) ) );
+	}
+
+	// if string begins with "SAO", attempt to parse a Smithsonian Astrophyiscal Observatory catalog identifier
+	
+	if ( str.find ( "SAO" ) == 0 )
+	{
+		size_t pos = str.find_first_of ( "0123456789" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatSAO, stoi ( str.substr ( pos, len - pos ) ) );
+	}
+
+	// if string begins with "HIP", attempt to parse a Hipparcos catalog identifier
+	
+	if ( str.find ( "HIP" ) == 0 )
+	{
+		size_t pos = str.find_first_of ( "0123456789" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatHIP, stoi ( str.substr ( pos, len - pos ) ) );
+	}
 
 	// parse constellation abbreviation
 	
@@ -305,6 +343,27 @@ string SSIdentifier::toString ( void )
 		int con = id % 100;
 		str = variable_to_string ( num ) + " " + _convec[con - 1];
 	}
-	
+	else if ( cat == kCatHR )
+	{
+		str = "HR " + to_string ( id );
+	}
+	else if ( cat == kCatHD )
+	{
+		str = "HD " + to_string ( id );
+	}
+	else if ( cat == kCatSAO )
+	{
+		str = "SAO " + to_string ( id );
+	}
+	else if ( cat == kCatHIP )
+	{
+		str = "HIP " + to_string ( id );
+	}
+
 	return str;
+}
+
+bool compareSSIdentifiers ( SSIdentifier id1, SSIdentifier id2 )
+{
+	return id1 < id2;
 }

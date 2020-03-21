@@ -24,13 +24,13 @@ enum SSCatalog
 	kCatBayer = 10,			// Bayer star letters (Alpha CMa, etc.)
 	kCatFlamsteed = 11,		// Flamsteed star numbers (9 CMa, etc.)
 	kCatGCVS = 12,			// General Catalog of Variable Stars (R And, etc.)
-	kCatHR = 12,			// Harvard Revised (Yale Bright Star) catalog
-	kCatHD = 13,			// Henry Draper star catalog
-	kCatSAO = 14,			// Sminthsonian Astrophysical Observatory star catalog
-	kCatBD = 15,			// Bonner Durchmusterung star catalog
-	kCatCD = 16,			// Cordoba Durchmusterung star catalog
-	kCatCP = 17,			// Cape Photographic Durchmusterung star catalog
-	kCatHIP = 18,			// Hipparcos star catalog
+	kCatHR = 13,			// Harvard Revised (Yale Bright Star) catalog
+	kCatHD = 14,			// Henry Draper star catalog
+	kCatSAO = 15,			// Sminthsonian Astrophysical Observatory star catalog
+	kCatBD = 16,			// Bonner Durchmusterung star catalog
+	kCatCD = 17,			// Cordoba Durchmusterung star catalog
+	kCatCP = 18,			// Cape Photographic Durchmusterung star catalog
+	kCatHIP = 19,			// Hipparcos star catalog
 	
 	kCatMessier = 20,		// Messier deep sky objects
 	kCatCaldwell = 21,		// Caldwell deep sky objects
@@ -55,6 +55,11 @@ public:
 	string toString ( void );
 	static SSIdentifier fromString ( string s );
 	
+	bool operator > ( SSIdentifier other ) { return _id > other._id; }
+	bool operator < ( SSIdentifier &other ) const { return _id < other._id; }
+	bool operator == ( SSIdentifier other ) { return _id == other._id; }
+	operator bool() { return _id != 0; }
+	
 	static SSIdentifier fromBayer ( string s );
 	static SSIdentifier fromFlamsteed ( string s );
 	static SSIdentifier fromGCVS ( string s );
@@ -71,5 +76,7 @@ public:
 	static SSIdentifier fromNGC ( string s );
 	static SSIdentifier fromIC ( string s );
 };
+
+bool compareSSIdentifiers ( SSIdentifier id1, SSIdentifier id2 );
 
 #endif /* SSIdentifier_hpp */

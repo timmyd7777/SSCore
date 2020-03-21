@@ -24,6 +24,8 @@ struct SSDegMinSec
     SSDegMinSec ( string s );
 	SSDegMinSec ( char sign, short deg, short min, double sec );
 	SSDegMinSec ( class SSAngle );
+	
+	string toString ( void );
 };
 
 // Represents an angular value expressed in hours, minutes, seconds
@@ -38,6 +40,8 @@ struct SSHourMinSec
     SSHourMinSec ( string s );
 	SSHourMinSec ( char sign, short hour, short min, double sec );
 	SSHourMinSec ( class SSAngle );
+
+	string toString ( void );
 };
 
 // Represents an angular value expressed in radians
