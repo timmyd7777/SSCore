@@ -103,6 +103,12 @@ public:
     static SSAngle atan2Pi ( double y, double x );
 };
 
+int strtoint ( string str );
+int64_t strtoint64 ( string str );
+float strtofloat ( string str );
+double strtofloat64 ( string str );
+
 string format ( const char *fmt, ... );
+string trim ( string str );
 
 #endif /* SSAngle_hpp */

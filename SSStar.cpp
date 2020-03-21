@@ -107,11 +107,11 @@ string SSStar::toCSV ( void )
 	csv += ra.toString() + ", ";
 	csv += dec.toString() + ", ";
 	
-	csv += format ( "%+.4f, ", ( vel.lon / 15.0 ).toArcsec() );
-	csv += format ( "%+.3f, ", vel.lat.toArcsec() );
+	csv += isnan ( vel.lon ) ? ", " : format ( "%+.4f, ", ( vel.lon / 15.0 ).toArcsec() );
+	csv += isnan ( vel.lat ) ? ", " : format ( "%+.3f, ", vel.lat.toArcsec() );
 	
 	csv += isinf ( _Vmag ) ? ", " : format ( "%+.2f, ", _Vmag );
-	csv += isinf ( _Bmag )  ? ", " : format ( "%+.2f, ", _Bmag );
+	csv += isinf ( _Bmag ) ? ", " : format ( "%+.2f, ", _Bmag );
 	
 	csv += isinf ( _parallax ) ? ", " : format ( "%.4f, ", _parallax );
 	csv += isinf ( _radvel ) ? ", " : format ( "%+.1f, ", _radvel * SSDynamics::kLightKmPerSec );

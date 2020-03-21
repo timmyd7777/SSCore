@@ -17,12 +17,15 @@
 
 typedef multimap<int,SSIdentifier> HIPMap;
 typedef map<int,SSStar> SSStarMap;
+typedef map<int,string> HIPNameMap;
 
 SSStarMap importHIC ( const char *filename );
 void importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2 );
 HIPMap importHIPtoHRMap ( const char *filename );
 HIPMap importHIPtoBayerFlamsteedMap ( const char *filename );
 HIPMap importHIPtoVarMap ( const char *filename );
+HIPNameMap importHIPNameMap ( const char *filename );
+HIPNameMap importIAUNameMap ( const char *filename );
 SSStarMap importHIP2 ( const char *filename );
 
 int main ( int argc, char *argv[] )
@@ -31,13 +34,15 @@ int main ( int argc, char *argv[] )
 	
 	cout << id.toString() << endl;
 	
-	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
+//	HIPNameMap mapHIPtoIAUName = importIAUNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
+	HIPNameMap mapHIPtoHIPName = importHIPNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC" );
+/*	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
 	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
 	SSStarMap mapHIP2 = importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
 	importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2 );
-
+*/
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );
@@ -184,17 +189,6 @@ int main ( int argc, char *argv[] )
     printf ( "%lf %lf %lf\n", i.m20, i.m21, i.m22 );
 */
 	
-}
-
-string trim ( string str )
-{
-    auto start = str.find_first_not_of ( " \t\r\n" );
-    auto end = str.find_last_not_of ( " \t\r\n" );
-
-    if ( start == string::npos )
-        return string ( "" );
-    else
-        return str.substr ( start, ( end - start ) + 1 );
 }
 
 SSStarMap importHIC ( const char *filename )
@@ -575,4 +569,69 @@ SSStarMap importHIP2 ( const char *hip2_filename )
 	}
 	
 	return mapHIP2;
+}
+
+HIPNameMap importHIPNameMap ( const char *filename )
+{
+	HIPNameMap hipNameMap;
+	
+	ifstream file ( filename );
+	if ( ! file )
+	{
+		cout << "Failure: can't open " << filename << endl;
+		return hipNameMap;
+	}
+
+	string line = "";
+	int linecount = 0;
+
+	while ( getline ( file, line ) )
+	{
+		string strHIP = trim ( line.substr ( 17, 6 ) );
+		string strName = trim ( line.substr ( 0, 16 ) );
+		
+		int hip = strtoint ( strHIP );
+		if ( ! hip )
+			continue;
+		
+		hipNameMap.insert ( { hip, strName } );
+		linecount++;
+		cout << hip << "," << strName << endl;
+	}
+
+	return hipNameMap;
+}
+
+HIPNameMap importIAUNameMap ( const char *filename )
+{
+	HIPNameMap hipNameMap;
+	
+	ifstream file ( filename );
+	if ( ! file )
+	{
+		cout << "Failure: can't open " << filename << endl;
+		return hipNameMap;
+	}
+
+	string line = "";
+	int linecount = 0;
+
+	while ( getline ( file, line ) )
+	{
+		if ( line.length() < 96 )
+			continue;
+		
+		string strHIP = trim ( line.substr ( 91, 6 ) );
+		string strName = trim ( line.substr ( 0, 18 ) );
+		
+		int hip = strtoint ( strHIP );
+		if ( ! hip )
+			continue;
+		
+		hipNameMap.insert ( { hip, strName } );
+		linecount++;
+		cout << hip << "," << strName << endl;
+	}
+
+	return hipNameMap;
 }

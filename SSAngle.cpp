@@ -21,6 +21,96 @@ string format ( const char *fmt, ... )
 	return string ( buf );
 }
 
+// Returns a C++ string which has leading and trailing whitespace
+// trimmed from the input string (does not modify input string).
+
+string trim ( string str )
+{
+    auto start = str.find_first_not_of ( " \t\r\n" );
+    auto end = str.find_last_not_of ( " \t\r\n" );
+
+    if ( start == string::npos )
+        return string ( "" );
+    else
+        return str.substr ( start, ( end - start ) + 1 );
+}
+
+// Converts string to 32-bit signed integer.
+// Returns zero if string cannot be converted.
+
+int strtoint ( string str )
+{
+	int i;
+	
+	try
+	{
+		i = stoi ( str );
+	}
+	catch ( ... )
+	{
+		i = 0;
+	}
+	
+	return i;
+}
+
+// Converts string to 64-bit signed integer.
+// Returns zero if string cannot be converted.
+
+int64_t strtoint64 ( string str )
+{
+	int64_t i;
+	
+	try
+	{
+		i = stoll ( str );
+	}
+	catch ( ... )
+	{
+		i = 0;
+	}
+	
+	return i;
+}
+
+// Converts string to 32-bit single precision floating point value.
+// Returns zero if string cannot be converted.
+
+float strtofloat ( string str )
+{
+	float f;
+	
+	try
+	{
+		f = stof ( str );
+	}
+	catch ( ... )
+	{
+		f = 0.0;
+	}
+	
+	return f;
+}
+
+// Converts string to 64-bit double precision floating point value.
+// Returns zero if string cannot be converted.
+
+double strtofloat64 ( string str )
+{
+	double d;
+	
+	try
+	{
+		d = stof ( str );
+	}
+	catch ( ... )
+	{
+		d = 0.0;
+	}
+	
+	return d;
+}
+
 // Constructs an angular value in degrees, minutes, seconds with the given sign.
 
 SSDegMinSec::SSDegMinSec ( char sign, short deg, short min, double sec )
