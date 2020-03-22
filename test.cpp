@@ -17,31 +17,32 @@
 
 typedef multimap<int,SSIdentifier> HIPMap;
 typedef multimap<int,string> HIPNameMap;
+typedef map<SSIdentifier,string> SSStarNameMap;
 typedef map<int,SSStar> SSStarMap;
 
 SSStarMap importHIC ( const char *filename );
-SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2, HIPNameMap mapNames );
+SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2, SSStarNameMap mapNames );
 HIPMap importHIPtoHRMap ( const char *filename );
 HIPMap importHIPtoBayerFlamsteedMap ( const char *filename );
 HIPMap importHIPtoVarMap ( const char *filename );
 HIPNameMap importHIPNameMap ( const char *filename );
-HIPNameMap importIAUNameMap ( const char *filename );
+SSStarNameMap importIAUStarNames ( const char *filename );
 SSStarMap importHIP2 ( const char *filename );
-vector<SSStar> importSKYMAP ( const char *filename );
+vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap );
 
 int main ( int argc, char *argv[] )
 {
-/*
- 	HIPNameMap mapHIPtoIAUName = importIAUNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
+	SSStarNameMap nameMap = importIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
 	HIPNameMap mapHIPtoHIPName = importHIPNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC" );
+
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
 	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
 	SSStarMap mapHIP2 = importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
-	SSStarMap mapHIP = importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2, mapHIPtoIAUName );
-*/
-	vector<SSStar> skymap = importSKYMAP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat" );
+	SSStarMap mapHIP = importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2, nameMap );
+
+	vector<SSStar> skymap = importSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", nameMap );
 	
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
@@ -200,6 +201,83 @@ void addIdentifier ( vector<SSIdentifier> &identVec, SSIdentifier ident )
 		identVec.push_back ( ident );
 }
 
+// Imports IAU official star name table from Working Group on Star Names
+// from http://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt
+// Assumes names are unique (i.e. only one name per identifier);
+// discards additional names beyond the first for any given identifier.
+// Returns map of name strings indexed by identifier.
+
+SSStarNameMap importIAUStarNames ( const char *filename )
+{
+	SSStarNameMap nameMap;
+	
+	// Open file; report error and return empty map on failure.
+
+	ifstream file ( filename );
+	if ( ! file )
+	{
+		cout << "Failure: can't open " << filename << endl;
+		return nameMap;
+	}
+
+	// Read file line-by-line until we reach end-of-file
+
+	string line = "";
+	int linecount = 0;
+
+	while ( getline ( file, line ) )
+	{
+		linecount++;
+		if ( line.length() < 96 )
+			continue;
+		
+		// Extract main identifier, Hipparcos number, and name
+		
+		string strIdent = trim ( line.substr ( 36, 13 ) );
+		string strHIP = trim ( line.substr ( 91, 6 ) );
+		string strName = trim ( line.substr ( 0, 18 ) );
+		
+		// Construct identifier from main ident string, or HIP number if that fails.
+		
+		SSIdentifier ident = SSIdentifier::fromString ( strIdent );
+		if ( ! ident )
+		{
+			int hip = strtoint ( strHIP );
+			if ( hip )
+				ident = SSIdentifier ( kCatHIP, hip );
+		}
+		
+		// If successful, iInsert identifier and name into map; display warning on failure.
+		
+		if ( ident )
+			nameMap.insert ( { ident, strName } );
+		else
+			cout << "Warning: can't convert " << strIdent << " for " << strName << endl;
+	}
+
+	// Return fully-imported name map.
+	
+	return nameMap;
+}
+
+// Given a vector of identifiers, returns vector of all corresponding name strings
+// from the input star name map.  If no names correspond to any identifiers,
+// returns a zero-length vector.
+
+vector<string> getStarNames ( vector<SSIdentifier> &idents, SSStarNameMap nameMap )
+{
+	vector<string> names ( 0 );
+
+	for ( SSIdentifier ident : idents )
+	{
+		string name = nameMap[ ident ];
+		if ( name.length() > 0 )
+			names.push_back ( name );
+	}
+
+	return names;
+}
+
 // Cleans up some oddball conventions in the Hipparcos star name identification tables
 // for Bayer, Flamsteed, and variable star names so SSIdentifier understands them.
 // Returns cleaned-up name string, does not modify input string.
@@ -353,10 +431,10 @@ SSStarMap importHIC ( const char *filename )
 // Adds HR, Bayer/Flamsteed, and GCVS identifiers from auxiliary identification tables (mapHIPtoHR, mapHIPtoBF, mapHIPtoVar).
 // Adds SAO identifiers and radial velocity from Hipparcos Input Catalog (mapHIC).
 // Uses position and proper motion with values from Hippacos New Reduction (mapHIP2) if possible.
-// Adds star name strings from a mapping of HIP numbers to names (mapHIPNames).
+// Adds star name strings from a mapping of identifiers to names (nameMap).
 // Returns map of SSStar objects indexed by HIP number, which should contain 118218 entries if successful.
 
-SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2, HIPNameMap mapHIPNames )
+SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2, SSStarNameMap nameMap )
 {
 	SSStarMap starmap;
 	ifstream file ( filename );
@@ -458,13 +536,13 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		if ( ! strCP.empty() )
 			addIdentifier ( idents, SSIdentifier::fromString ( "CP " + strCP ) );
 
-		// Add HR identification (if present) from Bright Star ident table.
+		// Add HR identification (if present) from Bright Star identification table.
 		
 		auto rangeHR = mapHIPtoHR.equal_range ( hip );
 		for ( auto i = rangeHR.first; i != rangeHR.second; i++ )
 			addIdentifier ( idents, i->second );
 
-		// Add Bayer and Flamsteed identifier(s) (if present) from Bayer ident table.
+		// Add Bayer and Flamsteed identifier(s) (if present) from Bayer identification table.
 
 		auto rangeBF = mapHIPtoBF.equal_range ( hip );
 		for ( auto i = rangeBF.first; i != rangeBF.second; i++ )
@@ -500,16 +578,14 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 			
 			velocity.rad = hicStar.getRadVel();
 		}
-		
-		// Add names(s) from HIP number to name map.
 
-		auto rangeNames = mapHIPNames.equal_range ( hip );
-		for ( auto i = rangeNames.first; i != rangeNames.second; i++ )
-			names.push_back ( i->second );
-
-		// Sert identifier vector.  Construct star and insert into star map object.
+		// Sert identifier vector.  Add names(s) from identifier-to-name map.
 		
-		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+		sort ( idents.begin(), idents.end() ); // , compareSSIdentifiers );
+		names = getStarNames ( idents, nameMap );
+		
+		// Construct star and insert into star map object.
+
 		SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
 		cout << star.toCSV() << endl;
 		starmap.insert ( { hip, star } );
@@ -815,54 +891,11 @@ HIPNameMap importHIPNameMap ( const char *filename )
 	return hipNameMap;
 }
 
-// Imports IAU official star name table from Working Group on Star Names
-// from http://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt
-// Returns map of name strings identifiers indexed by HIP number,
-// which should contain 410 entries if successful.
-
-HIPNameMap importIAUNameMap ( const char *filename )
-{
-	HIPNameMap hipNameMap;
-	
-	// Open file; report error and return empty map on failure.
-
-	ifstream file ( filename );
-	if ( ! file )
-	{
-		cout << "Failure: can't open " << filename << endl;
-		return hipNameMap;
-	}
-
-	// Read file line-by-line until we reach end-of-file
-
-	string line = "";
-	int linecount = 0;
-
-	while ( getline ( file, line ) )
-	{
-		linecount++;
-		if ( line.length() < 96 )
-			continue;
-		
-		string strHIP = trim ( line.substr ( 91, 6 ) );
-		string strName = trim ( line.substr ( 0, 18 ) );
-		
-		int hip = strtoint ( strHIP );
-		if ( ! hip )
-			continue;
-		
-		// cout << hip << "," << strName << endl;
-		hipNameMap.insert ( { hip, strName } );
-	}
-
-	return hipNameMap;
-}
-
 // Imports SKY2000 Master Star Catalog v5.
-// Returns vector of SSStar objects which should contain
-// 299460 entries if successful.
+// Inserts name strings from nameNap;
+// Returns vector of SSStar objects which should contain 299460 entries if successful.
 
-vector<SSStar> importSKYMAP ( const char *filename )
+vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 {
 	vector<SSStar> starVec;
 	
@@ -1024,9 +1057,12 @@ vector<SSStar> importSKYMAP ( const char *filename )
 		if ( ! strDM.empty() )
 			addIdentifier ( idents, SSIdentifier::fromString ( strDM ) );
 		
-		// Sert identifier vector.  Construct star and insert into star map object.
+		// Sert identifier vector.  Get name string(s) corresponding to identifier(s).
+		// Construct star and insert into star vector.
 		
 		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+		names = getStarNames ( idents, nameMap );
+		
 		SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
 		cout << star.toCSV() << endl;
 		starVec.push_back ( star );

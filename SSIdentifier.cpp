@@ -461,7 +461,7 @@ string SSIdentifier::toString ( void )
 	return str;
 }
 
-bool compareSSIdentifiers ( SSIdentifier id1, SSIdentifier id2 )
+bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 )
 {
 	return id1 < id2;
 }

@@ -58,7 +58,7 @@ public:
 	bool operator > ( SSIdentifier other ) { return _id > other._id; }
 	bool operator < ( SSIdentifier &other ) const { return _id < other._id; }
 	bool operator == ( SSIdentifier other ) { return _id == other._id; }
-	operator bool() { return _id != 0; }
+	operator int64_t() const { return _id; }
 	
 	static SSIdentifier fromBayer ( string s );
 	static SSIdentifier fromFlamsteed ( string s );
@@ -77,6 +77,6 @@ public:
 	static SSIdentifier fromIC ( string s );
 };
 
-bool compareSSIdentifiers ( SSIdentifier id1, SSIdentifier id2 );
+bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
 
 #endif /* SSIdentifier_hpp */
