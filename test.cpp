@@ -27,10 +27,12 @@ HIPMap importHIPtoVarMap ( const char *filename );
 HIPNameMap importHIPNameMap ( const char *filename );
 HIPNameMap importIAUNameMap ( const char *filename );
 SSStarMap importHIP2 ( const char *filename );
+vector<SSStar> importSKYMAP ( const char *filename );
 
 int main ( int argc, char *argv[] )
 {
-	HIPNameMap mapHIPtoIAUName = importIAUNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
+/*
+ 	HIPNameMap mapHIPtoIAUName = importIAUNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
 	HIPNameMap mapHIPtoHIPName = importHIPNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC" );
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
@@ -38,7 +40,9 @@ int main ( int argc, char *argv[] )
 	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
 	SSStarMap mapHIP2 = importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
 	SSStarMap mapHIP = importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2, mapHIPtoIAUName );
-
+*/
+	vector<SSStar> skymap = importSKYMAP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat" );
+	
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );
@@ -327,6 +331,7 @@ SSStarMap importHIC ( const char *filename )
 // Adds SAO identifiers and radial velocity from Hipparcos Input Catalog (mapHIC).
 // Uses position and proper motion with values from Hippacos New Reduction (mapHIP2) if possible.
 // Adds star name strings from a mapping of HIP numbers to names (mapHIPNames).
+// Returns map of SSStar objects indexed by HIP number, which should contain 118218 entries if successful.
 
 SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2, HIPNameMap mapHIPNames )
 {
@@ -338,6 +343,8 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		cout << "Failure: can't open " << filename << endl;
 		return starmap;
 	}
+
+	// Read file line-by-line until we reach end-of-file
 
 	string line = "";
 	int linecount = 0;
@@ -495,18 +502,25 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 	return starmap;
 }
 
+// Imports Hipparcos HR (Bright Star) identifier table (IDENT3.DOC).
+// Returns map of HR identifiers indexed by HIP number,
+// which should contain 9077 entries if successful.
+
 HIPMap importHIPtoHRMap ( const char *filename )
 {
 	HIPMap mapHIPtoHR;
 	
-	ifstream file ( filename );
+	// Open file; report error and return empty map on failure.
 	
+	ifstream file ( filename );
 	if ( ! file )
 	{
 		cout << "Failure: can't open " << filename << endl;
 		return mapHIPtoHR;
 	}
 	
+	// Read file line-by-line until we reach end-of-file
+
 	string line ( "" );
 	int linecount = 0;
 	
@@ -532,10 +546,16 @@ HIPMap importHIPtoHRMap ( const char *filename )
 	return mapHIPtoHR;
 }
 
+// Imports Hipparcos Bayer/Flamsteed identifier table (IDENT4.DOC).
+// Returns map of Bayer/Flamsteed identifiers indexed by HIP number,
+// which should contain 4440 entries if successful.
 
 HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 {
 	HIPMap mapHIPtoBF;
+	
+	// Open file; report error and return empty map on failure.
+
 	ifstream file ( filename );
 	if ( ! file )
 	{
@@ -543,6 +563,8 @@ HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 		return mapHIPtoBF;
 	}
 	
+	// Read file line-by-line until we reach end-of-file
+
 	string line = "";
 	int linecount = 0;
 
@@ -557,7 +579,10 @@ HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 		SSIdentifier id = SSIdentifier::fromString ( strBF );
 		
 		// cout << hip << "," << id.toString() << endl;
-		mapHIPtoBF.insert ( { hip, id } );
+		if ( id )
+			mapHIPtoBF.insert ( { hip, id } );
+		else
+			cout << "Warning: con't convert " << strBF << " for HIP " << hip << endl;
 	}
 
 	// Report success or failure.  Return identifier map object.
@@ -570,9 +595,16 @@ HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 	return mapHIPtoBF;
 }
 
+// Imports Hipparcos variable star identifier table (IDENT5.DOC).
+// Returns map of GCVS identifiers indexed by HIP number,
+// which should contain 6390 entries if successful.
+
 HIPMap importHIPtoVarMap ( const char *filename )
 {
 	HIPMap mapHIPtoVar;
+
+	// Open file; report error and return empty map on failure.
+
 	ifstream file ( filename );
 	if ( ! file )
 	{
@@ -580,6 +612,8 @@ HIPMap importHIPtoVarMap ( const char *filename )
 		return mapHIPtoVar;
 	}
 	
+	// Read file line-by-line until we reach end-of-file
+
 	string line = "";
 	int linecount = 0;
 	
@@ -593,7 +627,11 @@ HIPMap importHIPtoVarMap ( const char *filename )
 		strVar = cleanHIPNameString ( strVar );
 		SSIdentifier id = SSIdentifier::fromString ( strVar );
 		// cout << hip << "," << id.toString() << endl;
-		mapHIPtoVar.insert ( { hip, id } );
+		
+		if ( id )
+			mapHIPtoVar.insert ( { hip, id } );
+		else
+			cout << "Warning: con't convert " << strVar << " for HIP " << hip << endl;
 	}
 
 	// Report success or failure.  Return identifier map object.
@@ -607,17 +645,23 @@ HIPMap importHIPtoVarMap ( const char *filename )
 }
 
 // Imports Hipparcos New Reduction 2007 star catalog.
+// Returns map of SSStar objects indexed by Hipparcos number.
+// If successful, map should contain 117955 entries.
 
 SSStarMap importHIP2 ( const char *filename )
 {
 	SSStarMap mapHIP2;
 	
+	// Open file; report error and return empty map on failure.
+
 	ifstream file ( filename );
 	if ( ! file )
 	{
 		cout << "Failure: can't open " << filename << endl;
 		return mapHIP2;
 	}
+
+	// Read file line-by-line until we reach end-of-file
 
 	string line = "";
 	int linecount = 0;
@@ -709,16 +753,24 @@ SSStarMap importHIP2 ( const char *filename )
 	return mapHIP2;
 }
 
+// Imports Hipparcos star name identification table (IDENT6.DOC).
+// Returns map of name strings identifiers indexed by HIP number,
+// which should contain 96 entries if successful.
+
 HIPNameMap importHIPNameMap ( const char *filename )
 {
 	HIPNameMap hipNameMap;
 	
+	// Open file; report error and return empty map on failure.
+
 	ifstream file ( filename );
 	if ( ! file )
 	{
 		cout << "Failure: can't open " << filename << endl;
 		return hipNameMap;
 	}
+
+	// Read file line-by-line until we reach end-of-file
 
 	string line = "";
 	int linecount = 0;
@@ -740,16 +792,25 @@ HIPNameMap importHIPNameMap ( const char *filename )
 	return hipNameMap;
 }
 
+// Imports IAU official star name table from Working Group on Star Names
+// from http://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt
+// Returns map of name strings identifiers indexed by HIP number,
+// which should contain 410 entries if successful.
+
 HIPNameMap importIAUNameMap ( const char *filename )
 {
 	HIPNameMap hipNameMap;
 	
+	// Open file; report error and return empty map on failure.
+
 	ifstream file ( filename );
 	if ( ! file )
 	{
 		cout << "Failure: can't open " << filename << endl;
 		return hipNameMap;
 	}
+
+	// Read file line-by-line until we reach end-of-file
 
 	string line = "";
 	int linecount = 0;
@@ -772,4 +833,84 @@ HIPNameMap importIAUNameMap ( const char *filename )
 	}
 
 	return hipNameMap;
+}
+
+// Imports SKY2000 Master Star Catalog v4.
+// Returns vector of SSStar objects which should contain
+// 299460 entries if successful.
+
+vector<SSStar> importSKYMAP ( const char *filename )
+{
+	vector<SSStar> starVec;
+	
+	// Open file; report error and return empty map on failure.
+
+	ifstream file ( filename );
+	if ( ! file )
+	{
+		cout << "Failure: can't open " << filename << endl;
+		return starVec;
+	}
+
+	// Read file line-by-line until we reach end-of-file
+
+	string line = "";
+	int linecount = 0;
+
+	while ( getline ( file, line ) )
+	{
+		linecount++;
+		if ( line.length() < 96 )
+			continue;
+		
+		string strHD = trim ( line.substr ( 35, 6 ) );
+		string strSAO = trim ( line.substr ( 43, 6 ) );
+		string strDM = trim ( line.substr ( 50, 11 ) );
+		string strHR = trim ( line.substr ( 63, 4 ) );
+		string strWDS = trim ( line.substr ( 67, 12 ) );
+		string strBF = trim ( line.substr ( 98, 10 ) );
+		string strVar = trim ( line.substr ( 108, 10 ) );
+
+		string strRAh = trim ( line.substr ( 118, 2 ) );
+		string strRAm = trim ( line.substr ( 120, 2 ) );
+		string strRAs = trim ( line.substr ( 122, 7 ) );
+		
+		string strDecd = trim ( line.substr ( 129, 3 ) );
+		string strDecm = trim ( line.substr ( 132, 2 ) );
+		string strDecs = trim ( line.substr ( 134, 6 ) );
+
+		string strPMRA = trim ( line.substr ( 149, 8 ) );
+		string strPMDec = trim ( line.substr ( 157, 8 ) );
+		
+		string strRV = trim ( line.substr ( 167, 6 ) );
+		string strPlx = trim ( line.substr ( 175, 8 ) );
+		string strPlxErr = trim ( line.substr ( 183, 8 ) );
+		
+		string strMag = trim ( line.substr ( 232, 6 ) );
+		if ( strMag.empty() )
+			strMag = trim ( line.substr ( 238, 5 ) );
+		
+		string strBmV = trim ( line.substr ( 258, 6 ) );
+
+		string strSpec = trim ( line.substr ( 304, 30 ) );
+		if ( strSpec.empty() )
+			strSpec = trim ( line.substr ( 336, 3 ) );
+		
+		string strDblSep = trim ( line.substr ( 341, 7 ) );
+		string strDblMag = trim ( line.substr ( 348, 5 ) );
+		string strDblPA = trim ( line.substr ( 360, 3 ) );
+		string strDblPAyr = trim ( line.substr ( 363, 7 ) );
+		string strDblComp = trim ( line.substr ( 77, 5 ) );
+
+		string strVarMax = trim ( line.substr ( 411, 5 ) );
+		string strVarMin = trim ( line.substr ( 416, 5 ) );
+		string strVarPer = trim ( line.substr ( 427, 8 ) );
+		string strVarEpoch = trim ( line.substr ( 435, 8 ) );
+		string strVarType = trim ( line.substr ( 443, 3 ) );
+
+		// cout << hip << "," << strName << endl;
+		// starmap.push_back ( star );
+	}
+
+	return starVec;
 }
