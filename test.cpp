@@ -191,21 +191,44 @@ int main ( int argc, char *argv[] )
 	
 }
 
+// Adds a new identifier to a vector of identifiers,
+// if the new identifier is valid and not already present in the vector.
+
+void addIdentifier ( vector<SSIdentifier> &identVec, SSIdentifier ident )
+{
+	if ( ident && find ( identVec.begin(), identVec.end(), ident ) == identVec.end() )
+		identVec.push_back ( ident );
+}
+
 // Cleans up some oddball conventions in the Hipparcos star name identification tables
 // for Bayer, Flamsteed, and variable star names so SSIdentifier understands them.
 // Returns cleaned-up name string, does not modify input string.
 
 string cleanHIPNameString ( string str )
 {
+	// Change abbreviation for "alpha" from "alf" to "alp"
+	
 	if ( str.find ( "alf" ) == 0 )
 		str.replace ( 0, 3, "alp" );
+	
+	// Change abbreviation for "xi" from "ksi"
 	
 	if ( str.find ( "ksi" ) == 0 )
 		str.replace ( 0, 3, "xi." );
 	
+	// Remove "." after "mu", "nu", "xi"
+	
 	size_t idx = str.find ( "." );
 	if ( idx != string::npos )
 		str.erase ( idx, 1 );
+	
+	// Remove multiple star designations "_A", "_B", "_C" etc. after constellation
+	
+	size_t len = str.length();
+	if ( str[ len - 2 ] == '_' )
+		str.erase ( len - 2, 2 );
+	
+	// Convert remaining underscores to whitespace.
 	
 	idx = str.find ( "_" );
 	if ( idx != string::npos )
@@ -282,36 +305,36 @@ SSStarMap importHIC ( const char *filename )
         position.lon = SSHourMinSec ( strRA );
         position.lat = SSDegMinSec ( strDec );
 		
-		float plx = strPlx.empty() ? 0.0 : stof ( strPlx );
+		float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
 		if ( plx > 0.0 )
         	position.rad = 1000.0 / plx;
         
 		if ( ! strPMRA.empty() )
-        	velocity.lon = SSAngle::fromArcsec ( stof ( strPMRA ) ) / cos ( position.lat );
+        	velocity.lon = SSAngle::fromArcsec ( strtofloat ( strPMRA ) ) / cos ( position.lat );
 		
 		if ( ! strPMDec.empty() )
-        	velocity.lat = SSAngle::fromArcsec ( stof ( strPMDec ) );
+        	velocity.lat = SSAngle::fromArcsec ( strtofloat ( strPMDec ) );
 		
 		if ( ! strRV.empty() )
-        	velocity.rad = stof ( strRV ) / SSDynamics::kLightKmPerSec;
+        	velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
         
-        float vmag = strMag.empty() ? HUGE_VAL : stof ( strMag );
-        float bmag = strBmV.empty() ? HUGE_VAL : vmag - stof ( strBmV );
+        float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
+        float bmag = strBmV.empty() ? HUGE_VAL : vmag - strtofloat ( strBmV );
         
-		vector<SSIdentifier> ids ( 0 );
+		vector<SSIdentifier> idents ( 0 );
 		vector<string> names ( 0 );
 		
 		if ( ! strHD.empty() )
-			ids.push_back ( SSIdentifier ( kCatHD, stoi ( strHD ) ) );
+			addIdentifier ( idents, SSIdentifier ( kCatHD, strtoint ( strHD ) ) );
 
 		if ( ! strSAO.empty() )
-			ids.push_back ( SSIdentifier ( kCatSAO, stoi ( strSAO ) ) );
+			addIdentifier ( idents, SSIdentifier ( kCatSAO, strtoint ( strSAO ) ) );
 
 		if ( ! strHIP.empty() )
-			ids.push_back ( SSIdentifier ( kCatHIP, stoi ( strHIP ) ) );
+			addIdentifier ( idents, SSIdentifier ( kCatHIP, strtoint ( strHIP ) ) );
 		
-		int hip = stoi ( strHIP );
-        SSStar star ( kStar, names, ids, position, velocity, vmag, bmag, strSpec );
+		int hip = strtoint ( strHIP );
+        SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
 		// cout << star.toCSV() << endl;
 		starmap.insert ( { hip, star } );
 	}
@@ -373,26 +396,26 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		// Get right ascension and convert to radians
 		
 		if ( ! strRA.empty() )
-			position.lon = SSAngle::fromDegrees ( stof ( strRA ) );
+			position.lon = SSAngle::fromDegrees ( strtofloat ( strRA ) );
 		else
 			position.lon = SSHourMinSec ( trim ( line.substr ( 17, 11 ) ) );
 		
 		// Get declination and convert to radians
 		
 		if ( ! strDec.empty() )
-			position.lat = SSAngle::fromDegrees ( stof ( strDec ) );
+			position.lat = SSAngle::fromDegrees ( strtofloat ( strDec ) );
 		else
 			position.lat = SSDegMinSec ( trim ( line.substr ( 29, 11 ) ) );
 		
 		// Get proper motion in RA and convert to radians per year
 		
 		if ( ! strPMRA.empty() )
-        	velocity.lon = SSAngle::fromArcsec ( stof ( strPMRA ) / 1000.0 ) / cos ( position.lat );
+        	velocity.lon = SSAngle::fromArcsec ( strtofloat ( strPMRA ) / 1000.0 ) / cos ( position.lat );
 		
 		// Get proper motion in Dec and convert to radians per year
 		
 		if ( ! strPMDec.empty() )
-        	velocity.lat = SSAngle::fromArcsec ( stof ( strPMDec ) / 1000.0 );
+        	velocity.lat = SSAngle::fromArcsec ( strtofloat ( strPMDec ) / 1000.0 );
 		
 		// If proper motion is valid, use it to update position and proper motion from J1991.25 to J2000.
 		
@@ -401,51 +424,51 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		
 		// Get Johnson V magnitude, and (if present) get B-V color index then compute Johnson B magnitude.
 		
-        float vmag = strMag.empty() ? HUGE_VAL : stof ( strMag );
-        float bmag = strBmV.empty() ? HUGE_VAL : vmag - stof ( strBmV );
+        float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
+        float bmag = strBmV.empty() ? HUGE_VAL : vmag - strtofloat ( strBmV );
 
 		// If we have a parallax > 1 milliarcsec, use it to compute distance in parsecs.
 		
-		float plx = strPlx.empty() ? 0.0 : stof ( strPlx );
+		float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
 		if ( plx > 0.0 )
         	position.rad = 1000.0 / plx;
         
 		// Set up name and identifier vectors.
 
-		vector<SSIdentifier> ids ( 0 );
+		vector<SSIdentifier> idents ( 0 );
 		vector<string> names ( 0 );
 
 		// Parse HIP catalog number and add Hipparcos identifier.
 
 		int hip = strtoint ( strHIP );
 		SSIdentifier hipID = SSIdentifier ( kCatHIP, hip );
-		ids.push_back ( hipID );
+		addIdentifier ( idents, hipID );
 
 		// Add Henry Draper and Durchmusterung identifiers.
 		
 		if ( ! strHD.empty() )
-			ids.push_back ( SSIdentifier ( kCatHD, stoi ( strHD ) ) );
+			addIdentifier ( idents, SSIdentifier ( kCatHD, strtoint ( strHD ) ) );
 
 		if ( ! strBD.empty() )
-			ids.push_back ( SSIdentifier::fromString ( "BD " + strBD ) );
+			addIdentifier ( idents, SSIdentifier::fromString ( "BD " + strBD ) );
 		
 		if ( ! strCD.empty() )
-			ids.push_back ( SSIdentifier::fromString ( "CD " + strCD ) );
+			addIdentifier ( idents, SSIdentifier::fromString ( "CD " + strCD ) );
 
 		if ( ! strCP.empty() )
-			ids.push_back ( SSIdentifier::fromString ( "CP " + strCP ) );
+			addIdentifier ( idents, SSIdentifier::fromString ( "CP " + strCP ) );
 
 		// Add HR identification (if present) from Bright Star ident table.
 		
 		auto rangeHR = mapHIPtoHR.equal_range ( hip );
 		for ( auto i = rangeHR.first; i != rangeHR.second; i++ )
-			ids.push_back ( i->second );
+			addIdentifier ( idents, i->second );
 
 		// Add Bayer and Flamsteed identifier(s) (if present) from Bayer ident table.
 
 		auto rangeBF = mapHIPtoBF.equal_range ( hip );
 		for ( auto i = rangeBF.first; i != rangeBF.second; i++ )
-			ids.push_back ( i->second );
+			addIdentifier ( idents, i->second );
 		
 		// Add GCVS identifier(s) from the variable star ident table.
 		// Don't add GCVS identifiers which are Bayer/Flamsteed letters!
@@ -453,7 +476,7 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		auto rangeVar = mapHIPtoVar.equal_range ( hip );
 		for ( auto i = rangeVar.first; i != rangeVar.second; i++ )
 			if ( i->second.catalog() == kCatGCVS )
-				ids.push_back ( i->second );
+				addIdentifier ( idents, i->second );
 
 		// If we found a matching Hipparcos New Reduction star,
 		// replace position and velocity with newer values.
@@ -473,7 +496,7 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		{
 			SSIdentifier saoID = hicStar.getIdentifier ( kCatSAO );
 			if ( saoID )
-				ids.push_back ( saoID );
+				addIdentifier ( idents, saoID );
 			
 			velocity.rad = hicStar.getRadVel();
 		}
@@ -486,8 +509,8 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 
 		// Sert identifier vector.  Construct star and insert into star map object.
 		
-		sort ( ids.begin(), ids.end(), compareSSIdentifiers );
-		SSStar star ( kStar, names, ids, position, velocity, vmag, bmag, strSpec );
+		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+		SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
 		cout << star.toCSV() << endl;
 		starmap.insert ( { hip, star } );
 	}
@@ -529,9 +552,9 @@ HIPMap importHIPtoHRMap ( const char *filename )
 		linecount++;
 		string strHR = trim ( line.substr ( 0, 6 ) );
 		string strHIP = trim ( line.substr ( 7, 6 ) );
-		int hip = stoi ( strHIP );
+		int hip = strtoint ( strHIP );
 
-		SSIdentifier id = SSIdentifier ( kCatHR, stoi ( strHR ) );
+		SSIdentifier id = SSIdentifier ( kCatHR, strtoint ( strHR ) );
 		// cout << hip << "," << id.toString() << "," << endl;
 		mapHIPtoHR.insert ( { hip, id } );
 	}
@@ -573,7 +596,7 @@ HIPMap importHIPtoBayerFlamsteedMap ( const char *filename )
 		linecount++;
 		string strBF = trim ( line.substr ( 0, 11 ) );
 		string strHIP = trim ( line.substr ( 12, 6 ) );
-		int hip = stoi ( strHIP );
+		int hip = strtoint ( strHIP );
 
 		strBF = cleanHIPNameString ( strBF );
 		SSIdentifier id = SSIdentifier::fromString ( strBF );
@@ -622,7 +645,7 @@ HIPMap importHIPtoVarMap ( const char *filename )
 		linecount++;
 		string strVar = trim ( line.substr ( 0, 11 ) );
 		string strHIP = trim ( line.substr ( 12, 6 ) );
-		int hip = stoi ( strHIP );
+		int hip = strtoint ( strHIP );
 
 		strVar = cleanHIPNameString ( strVar );
 		SSIdentifier id = SSIdentifier::fromString ( strVar );
@@ -730,15 +753,15 @@ SSStarMap importHIP2 ( const char *filename )
 		
 		// Add single Hipparcos identifier and empty name string.
 		
-		vector<SSIdentifier> ids ( 0 );
+		vector<SSIdentifier> idents ( 0 );
 		vector<string> names ( 0 );
 
-		int hip = stoi ( strHIP );
-		ids.push_back ( SSIdentifier ( kCatHIP, hip ) );
+		int hip = strtoint ( strHIP );
+		addIdentifier ( idents, SSIdentifier ( kCatHIP, hip ) );
 		
 		// Construct star and insert into map.
 		
-        SSStar star ( kStar, names, ids, position, velocity, vmag, bmag, "" );
+        SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, "" );
 		// cout << star.toCSV() << endl;
 		mapHIP2.insert ( { hip, star } );
 	}
@@ -865,12 +888,35 @@ vector<SSStar> importSKYMAP ( const char *filename )
 		
 		string strHD = trim ( line.substr ( 35, 6 ) );
 		string strSAO = trim ( line.substr ( 43, 6 ) );
-		string strDM = trim ( line.substr ( 50, 11 ) );
+		string strDM = trim ( line.substr ( 50, 5 ) ) + " " + trim ( line.substr ( 55, 5 ) );
 		string strHR = trim ( line.substr ( 63, 4 ) );
 		string strWDS = trim ( line.substr ( 67, 12 ) );
-		string strBF = trim ( line.substr ( 98, 10 ) );
+		
+		// Extract Bayer/Flamsteed names like "21alp And" and "kap1Scl"; ignore AG catalog numbers.
+		
+		string strBay = "";
+		string strFlm = "";
+		string strName = line.substr ( 98, 10 );
+		if ( strName.find ( "AG" ) != 0 )
+		{
+			string strCon = trim ( line.substr ( 105, 3 ) );
+			if ( ! strCon.empty() )
+			{
+				strFlm = trim ( line.substr ( 98, 3 ) );
+				strBay = trim ( line.substr ( 101, 4 ) );
+				
+				if ( ! strFlm.empty() )
+					strFlm = strFlm + " " + strCon;
+				
+				if ( ! strBay.empty() )
+					strBay = strBay + " " + strCon;
+			}
+		}
+		
 		string strVar = trim ( line.substr ( 108, 10 ) );
 
+		// Extract RA and Dec, adding whitespace to separate hour/deg, min, sec
+		
 		string strRA = trim ( line.substr ( 118, 2 ) ) + " "
                      + trim ( line.substr ( 120, 2 ) ) + " "
                      + trim ( line.substr ( 122, 7 ) );
@@ -880,15 +926,21 @@ vector<SSStar> importSKYMAP ( const char *filename )
                       + trim ( line.substr ( 132, 2 ) ) + " "
 		              + trim ( line.substr ( 134, 6 ) );
 
+		// Extract proper motion, removing whitepace after sign of PM in Dec.
+		
 		string strPMRA = trim ( line.substr ( 149, 8 ) );
 		string strPMDec = trim ( line.substr ( 157, 1 ) )
                         + trim ( line.substr ( 158, 7 ) );
+		
+		// Extract radial velocity, removing whitespace after sign
 		
 		string strRV = trim ( line.substr ( 167, 1 ) )
                      + trim ( line.substr ( 168, 5 ) );
         
 		string strPlx = trim ( line.substr ( 175, 8 ) );
 		string strPlxErr = trim ( line.substr ( 183, 8 ) );
+		
+		// Extract Johnson V magnitude.  Get observed V if present; otherwise get derived V.
 		
 		string strMag = trim ( line.substr ( 232, 6 ) );
 		if ( strMag.empty() )
@@ -900,6 +952,9 @@ vector<SSStar> importSKYMAP ( const char *filename )
 		if ( strSpec.empty() )
 			strSpec = trim ( line.substr ( 336, 3 ) );
 		
+		// Extract separation and magnitude difference between components,
+		// position angle, year of measurement, and component identifiers.
+
 		string strDblSep = trim ( line.substr ( 341, 7 ) );
 		string strDblMag = trim ( line.substr ( 348, 5 ) );
 		string strDblPA = trim ( line.substr ( 360, 3 ) );
@@ -917,11 +972,11 @@ vector<SSStar> importSKYMAP ( const char *filename )
         
         double pmRA = HUGE_VAL;
         if ( ! strPMRA.empty() )
-            pmRA = SSAngle::fromArcsec ( stof ( strPMRA ) );
+            pmRA = SSAngle::fromArcsec ( strtofloat ( strPMRA ) );
         
         double pmDec = HUGE_VAL;
         if ( ! strPMDec.empty() )
-            pmDec = SSAngle::fromArcsec ( stof ( strPMDec ) );
+            pmDec = SSAngle::fromArcsec ( strtofloat ( strPMDec ) );
         
         SSSpherical position ( ra, dec, HUGE_VAL );
         SSSpherical velocity ( pmRA, pmDec, HUGE_VAL );
@@ -937,14 +992,42 @@ vector<SSStar> importSKYMAP ( const char *filename )
         if ( ! strMag.empty() )
             vmag = strtofloat ( strMag );
         
+		// Get Johnson B magnitude from color index
+		
         float bmag = HUGE_VAL;
         if ( ! strBmV.empty() )
-            bmag = strtofloat ( strBmV );
+            bmag = strtofloat ( strBmV ) + vmag;
         
+		// Set up name and identifier vectors.
+
         vector<SSIdentifier> idents ( 0 );
         vector<string> names ( 0 );
         
-        SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
+		if ( ! strBay.empty() )
+			addIdentifier ( idents, SSIdentifier::fromString ( strBay ) );
+		
+		if ( ! strFlm.empty() )
+			addIdentifier ( idents, SSIdentifier::fromString ( strFlm ) );
+		
+		if ( ! strVar.empty() )
+			addIdentifier ( idents, SSIdentifier::fromString ( strVar ) );
+
+		if ( ! strHR.empty() )
+			addIdentifier ( idents, SSIdentifier ( kCatHR, strtoint ( strHR ) ) );
+
+		if ( ! strHD.empty() )
+			addIdentifier ( idents, SSIdentifier ( kCatHD, strtoint ( strHD ) ) );
+		
+		if ( ! strSAO.empty() )
+			addIdentifier ( idents, SSIdentifier ( kCatSAO, strtoint ( strSAO ) ) );
+
+		if ( ! strDM.empty() )
+			addIdentifier ( idents, SSIdentifier::fromString ( strDM ) );
+		
+		// Sert identifier vector.  Construct star and insert into star map object.
+		
+		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+		SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
 		cout << star.toCSV() << endl;
 		starVec.push_back ( star );
 	}

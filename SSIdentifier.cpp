@@ -317,9 +317,10 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatHIP, stoi ( str.substr ( pos, len - pos ) ) );
 	}
 
-	// if string begins with "BD", attempt to parse a Bonner Durchmusterung catalog identifier
+	// if string begins with "BD" or "SD", attempt to parse a Bonner Durchmusterung catalog identifier
+	// Note: "SD" is abbrevieation for Southern Durchmusterung, found in SKY2000 Master Star Catalog.
 	
-	if ( str.find ( "BD" ) == 0 )
+	if ( str.find ( "BD" ) == 0 || str.find ( "SD" ) == 0 )
 	{
 		size_t pos = str.find_first_of ( "+-" );
 		if ( pos != string::npos )
@@ -344,12 +345,12 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatCP, string_to_dm ( str.substr ( pos, len - pos ) ) );
 	}
 
-	// parse constellation abbreviation
+	// parse constellation abbreviation from last 3 characters of string
 	
 	string constr = "";
 	size_t consep = str.find_first_of ( " " );
-	if ( consep != string::npos && consep + 3 <= str.length() )
-		constr = str.substr ( consep + 1, 3 );
+	if ( len >= 3 )
+		constr = str.substr ( len - 3, 3 );
 	
 	// get constellation number; return unknown id if abbreviation not recognized
 	

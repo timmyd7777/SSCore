@@ -116,27 +116,27 @@ string SSStar::toCSV ( void )
 	SSHourMinSec ra = pos.lon;
 	SSDegMinSec dec = pos.lat;
 	
-	string csv = "S, ";
+	string csv = "S,";
 	
-	csv += ra.toString() + ", ";
-	csv += dec.toString() + ", ";
+	csv += ra.toString() + ",";
+	csv += dec.toString() + ",";
 	
-	csv += isnan ( vel.lon ) ? ", " : format ( "%+.4f, ", ( vel.lon / 15.0 ).toArcsec() );
-	csv += isnan ( vel.lat ) ? ", " : format ( "%+.3f, ", vel.lat.toArcsec() );
+	csv += isnan ( vel.lon ) ? "        ," : format ( "%+8.5f,", ( vel.lon / 15.0 ).toArcsec() );
+	csv += isnan ( vel.lat ) ? "        ," : format ( "%+7.4f,", vel.lat.toArcsec() );
 	
-	csv += isinf ( _Vmag ) ? ", " : format ( "%+.2f, ", _Vmag );
-	csv += isinf ( _Bmag ) ? ", " : format ( "%+.2f, ", _Bmag );
+	csv += isinf ( _Vmag ) ? "      ," : format ( "%+6.2f,", _Vmag );
+	csv += isinf ( _Bmag ) ? "      ," : format ( "%+6.2f,", _Bmag );
 	
-	csv += isinf ( _parallax ) ? ", " : format ( "%.4f, ", _parallax );
-	csv += isinf ( _radvel ) ? ", " : format ( "%+.1f, ", _radvel * SSDynamics::kLightKmPerSec );
+	csv += isinf ( _parallax ) ? "      ," : format ( "%6.4f,", _parallax );
+	csv += isinf ( _radvel )   ? "      ," : format ( "%+6.1f,", _radvel * SSDynamics::kLightKmPerSec );
 	
-	csv += _spectrum + ", ";
+	csv += _spectrum + ",";
 	
 	for ( int i = 0; i < _names.size(); i++ )
-		csv += _names[i] + ", ";
+		csv += _names[i] + ",";
 
 	for ( int i = 0; i < _ids.size(); i++ )
-		csv += _ids[i].toString() + ", ";
+		csv += _ids[i].toString() + ",";
 		
 	return csv;
 }
