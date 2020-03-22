@@ -835,7 +835,7 @@ HIPNameMap importIAUNameMap ( const char *filename )
 	return hipNameMap;
 }
 
-// Imports SKY2000 Master Star Catalog v4.
+// Imports SKY2000 Master Star Catalog v5.
 // Returns vector of SSStar objects which should contain
 // 299460 entries if successful.
 
@@ -871,18 +871,22 @@ vector<SSStar> importSKYMAP ( const char *filename )
 		string strBF = trim ( line.substr ( 98, 10 ) );
 		string strVar = trim ( line.substr ( 108, 10 ) );
 
-		string strRAh = trim ( line.substr ( 118, 2 ) );
-		string strRAm = trim ( line.substr ( 120, 2 ) );
-		string strRAs = trim ( line.substr ( 122, 7 ) );
+		string strRA = trim ( line.substr ( 118, 2 ) ) + " "
+                     + trim ( line.substr ( 120, 2 ) ) + " "
+                     + trim ( line.substr ( 122, 7 ) );
 		
-		string strDecd = trim ( line.substr ( 129, 3 ) );
-		string strDecm = trim ( line.substr ( 132, 2 ) );
-		string strDecs = trim ( line.substr ( 134, 6 ) );
+        string strDec = trim ( line.substr ( 129, 1 ) )
+		              + trim ( line.substr ( 130, 2 ) ) + " "
+                      + trim ( line.substr ( 132, 2 ) ) + " "
+		              + trim ( line.substr ( 134, 6 ) );
 
 		string strPMRA = trim ( line.substr ( 149, 8 ) );
-		string strPMDec = trim ( line.substr ( 157, 8 ) );
+		string strPMDec = trim ( line.substr ( 157, 1 ) )
+                        + trim ( line.substr ( 158, 7 ) );
 		
-		string strRV = trim ( line.substr ( 167, 6 ) );
+		string strRV = trim ( line.substr ( 167, 1 ) )
+                     + trim ( line.substr ( 168, 5 ) );
+        
 		string strPlx = trim ( line.substr ( 175, 8 ) );
 		string strPlxErr = trim ( line.substr ( 183, 8 ) );
 		
@@ -908,8 +912,41 @@ vector<SSStar> importSKYMAP ( const char *filename )
 		string strVarEpoch = trim ( line.substr ( 435, 8 ) );
 		string strVarType = trim ( line.substr ( 443, 3 ) );
 
-		// cout << hip << "," << strName << endl;
-		// starmap.push_back ( star );
+        SSHourMinSec ra ( strRA );
+        SSDegMinSec dec ( strDec );
+        
+        double pmRA = HUGE_VAL;
+        if ( ! strPMRA.empty() )
+            pmRA = SSAngle::fromArcsec ( stof ( strPMRA ) );
+        
+        double pmDec = HUGE_VAL;
+        if ( ! strPMDec.empty() )
+            pmDec = SSAngle::fromArcsec ( stof ( strPMDec ) );
+        
+        SSSpherical position ( ra, dec, HUGE_VAL );
+        SSSpherical velocity ( pmRA, pmDec, HUGE_VAL );
+        
+        double plx = strtofloat ( strPlx );
+        if ( plx > 0.001 )
+            position.rad = 1.0 / plx;
+        
+        if ( ! strRV.empty() )
+            velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+        
+        float vmag = HUGE_VAL;
+        if ( ! strMag.empty() )
+            vmag = strtofloat ( strMag );
+        
+        float bmag = HUGE_VAL;
+        if ( ! strBmV.empty() )
+            bmag = strtofloat ( strBmV );
+        
+        vector<SSIdentifier> idents ( 0 );
+        vector<string> names ( 0 );
+        
+        SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
+		cout << star.toCSV() << endl;
+		starVec.push_back ( star );
 	}
 
 	return starVec;
