@@ -69,6 +69,7 @@ public:
 };
 
 typedef shared_ptr<SSObject> SSObjectPtr;
+typedef vector<SSObjectPtr> SSObjectVec;
 
 SSObjectPtr SSNewObject ( SSObjectType type );
 

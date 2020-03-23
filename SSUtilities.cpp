@@ -34,6 +34,27 @@ string format ( const char *fmt, ... )
     return string ( buf );
 }
 
+// Splits a string into a vector of token strings separated by the specified delimiter.
+// Two adjacent delimiters generate an empty token string.
+// The original string is not modified.
+
+vector<string> split ( string str, string delim )
+{
+    vector<string> tokens;
+	
+    size_t start = 0;
+    size_t end = str.find ( delim );
+    while ( end != std::string::npos )
+    {
+        tokens.push_back ( str.substr ( start, end - start ) );
+        start = end + delim.length();
+        end = str.find ( delim, start );
+    }
+
+    tokens.push_back ( str.substr ( start, end ) );
+	return tokens;
+}
+
 // Converts string to 32-bit signed integer.
 // Returns zero if string cannot be converted.
 
