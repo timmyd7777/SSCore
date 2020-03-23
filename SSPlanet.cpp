@@ -9,7 +9,7 @@
 #include "SSDynamics.hpp"
 #include "SSPlanet.hpp"
 
-SSPlanet::SSPlanet ( void ) : SSPlanet ( kTypePlanet, kSun )
+SSPlanet::SSPlanet ( SSObjectType type ) : SSPlanet ( type, kSun )
 {
 	
 }
@@ -30,4 +30,12 @@ void SSPlanet::computeEphemeris ( SSDynamics &dyn )
 
     dyn.getPlanetPositionVelocity ( _id, dyn.jde - lt, _position, _velocity );
     _direction = ( _position - dyn.obsPos ).normalize ( _distance );
+}
+
+// Downcasts generic SSObject pointer to SSPlanet pointer.
+// Returns nullptr if input pointer is not an instance of SSPlanet!
+
+SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr )
+{
+    return dynamic_cast<SSPlanet *> ( ptr.get() );
 }

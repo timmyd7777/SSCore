@@ -12,6 +12,10 @@
 
 #pragma pack ( push, 1 )
 
+// This subclass of SSObject stores basic data for stars.
+// Its subclasses store double and variable star data,
+// and deep sky object data.
+
 class SSStar : public SSObject
 {
 protected:
@@ -65,6 +69,43 @@ public:
 	virtual string toCSV ( void );
 };
 
+// This subclass of SSStar stores data for double stars
+// in addition to the basic stellar data in the base class.
+
+class SSDoubleStar : virtual public SSStar
+{
+protected:
+
+    string _comps;              // component string, e.g. "A" for primary, "B" for secondary, "AB" for primary-secondary pair, etc.; empty if unknown
+    float _magDelta;            // magnitude difference between components; infinite if unknown
+    float _sep;                 // angular separation between components in radians; infinite if unknown
+    float _PA;                  // position angle from brighter to fainter component in fundamental mean J2000 equatorial frame; infinite if unknown
+    float _PAyr;                // Julian year of position angle measurement; infinite if unknown
+    
+    string toCSVD ( void );     // returns CSV string from double-star data (but not SStar base class).
+
+public:
+    
+    SSDoubleStar ( void );
+    
+    void setComponents ( string comps ) { _comps = comps; }
+    void setMagnitudeDelta ( float delta ) { _magDelta = delta; }
+    void setSeparation ( float sep ) { _sep = sep; }
+    void setPositionAngle ( float pa ) { _PA = pa; }
+    void setPositionAngleYear ( float year ) { _PAyr = year; }
+    
+    string getComponents ( void ) { return _comps; }
+    float getMagnitudeDelta ( void ) { return _magDelta; }
+    float getSeparation ( void ) { return _sep; }
+    float getPositionAngle ( void ) { return _PA; }
+    float getPositionAngleYear ( void ) { return _PAyr; }
+
+    virtual string toCSV ( void );
+};
+
+// This subclass of SSStar stores data for variable stars
+// in addition to the basic stellar data in the base class.
+
 class SSVariableStar : virtual public SSStar
 {
 protected:
@@ -96,36 +137,8 @@ public:
 	virtual string toCSV ( void );
 };
 
-class SSDoubleStar : virtual public SSStar
-{
-protected:
-
-	string _comps;			// component string, e.g. "A" for primary, "B" for secondary, "AB" for primary-secondary pair, etc.; empty if unknown
-	float _magDelta;		// magnitude difference between components; infinite if unknown
-	float _sep;				// angular separation between components in radians; infinite if unknown
-	float _PA;				// position angle from brighter to fainter component in fundamental mean J2000 equatorial frame; infinite if unknown
-	float _PAyr;			// Julian year of position angle measurement; infinite if unknown
-	
-	string toCSVD ( void );	// returns CSV string from double-star data (but not SStar base class).
-
-public:
-	
-	SSDoubleStar ( void );
-	
-	void setComponents ( string comps ) { _comps = comps; }
-	void setMagnitudeDelta ( float delta ) { _magDelta = delta; }
-	void setSeparation ( float sep ) { _sep = sep; }
-	void setPositionAngle ( float pa ) { _PA = pa; }
-	void setPositionAngleYear ( float year ) { _PAyr = year; }
-	
-	string getComponents ( void ) { return _comps; }
-	float getMagnitudeDelta ( void ) { return _magDelta; }
-	float getSeparation ( void ) { return _sep; }
-	float getPositionAngle ( void ) { return _PA; }
-	float getPositionAngleYear ( void ) { return _PAyr; }
-
-	virtual string toCSV ( void );
-};
+// This subclass of SSStar inherits from both SSDoubleStar and SSVariableStar,
+// and stores data for stars which are both double and variable.
 
 class SSDoubleVariableStar : public SSDoubleStar, public SSVariableStar
 {
@@ -136,14 +149,46 @@ public:
 	virtual string toCSV ( void );
 };
 
+// This subclass of SSStar stores data for star clusters, nebulae, and galaxies.
+
+class SSDeepSky : public SSStar
+{
+protected:
+    
+    float _majAxis;     // apparent size major axis, in radians; infinite if unknown
+    float _minAxis;     // apparent size minor axis, in radians; infinite if unknown
+    float _PA;          // position angle of major axis from north in fundamental mean J2000 equatorial frame; infinite if unknown
+
+public:
+    
+    SSDeepSky ( SSObjectType type );
+    
+    void setMajorAxis ( float maj ) { _majAxis = maj; }
+    void setMinorAxis ( float min ) { _minAxis = min; }
+    void setPositionAngle ( float pa ) { _PA = pa; }
+    void setGalaxyType ( string type ) { _spectrum = type; }
+    
+    float getMajorAxis ( void ) { return _majAxis; }
+    float getMinorAxis ( void ) { return _minAxis; }
+    float getPostionAngle ( void ) { return _PA; }
+    string getGalaxyType ( void ) { return _spectrum; }
+};
+
 #pragma pack ( pop )
+
+// convenient aliases for pointers to various subclasses of SSStar
 
 typedef SSStar *SSStarPtr;
 typedef SSDoubleStar *SSDoubleStarPtr;
 typedef SSVariableStar *SSVariableStarPtr;
+typedef SSDeepSky *SSDeepSkyPtr;
+
+// These functions downcast a pointer from the SSObject base class to its various SSStar subclasses.
+// They all return null pointers if the input object pointer is not an instance of the expected derived class.
 
 SSStarPtr SSGetStarPtr ( SSObjectPtr ptr );
 SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr );
 SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr );
+SSDeepSkyPtr SSGetDeepSkyPtr ( SSObjectPtr ptr );
 
 #endif /* SSStar_hpp */

@@ -18,6 +18,9 @@
 		A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */; };
 		A3462BF724184A5900A7519A /* SSDynamics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3462BF524184A5900A7519A /* SSDynamics.cpp */; };
 		A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A358D99B24147D3E009078A6 /* SSOrbit.cpp */; };
+		A35D2B4A24293BF80092DEA5 /* SSUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A35D2B4824293BF80092DEA5 /* SSUtilities.cpp */; };
+		A35D2B4D242941B80092DEA5 /* SSHIpparcos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A35D2B4B242941B80092DEA5 /* SSHIpparcos.cpp */; };
+		A35D2B50242951D30092DEA5 /* SSSKY2000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A35D2B4E242951D30092DEA5 /* SSSKY2000.cpp */; };
 		A36F9198240979770038FE04 /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36F9196240979770038FE04 /* SSCoords.cpp */; };
 		A3DBB4B3240EADE80035011E /* AAPlanet.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB491240EADE80035011E /* AAPlanet.c */; };
 		A3DBB4B4240EADE80035011E /* VFPlanet.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB492240EADE80035011E /* VFPlanet.c */; };
@@ -81,6 +84,12 @@
 		A3462BF624184A5900A7519A /* SSDynamics.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSDynamics.hpp; sourceTree = "<group>"; };
 		A358D99B24147D3E009078A6 /* SSOrbit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSOrbit.cpp; sourceTree = "<group>"; };
 		A358D99C24147D3E009078A6 /* SSOrbit.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSOrbit.hpp; sourceTree = "<group>"; };
+		A35D2B4824293BF80092DEA5 /* SSUtilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSUtilities.cpp; sourceTree = "<group>"; };
+		A35D2B4924293BF80092DEA5 /* SSUtilities.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSUtilities.hpp; sourceTree = "<group>"; };
+		A35D2B4B242941B80092DEA5 /* SSHIpparcos.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSHIpparcos.cpp; sourceTree = "<group>"; };
+		A35D2B4C242941B80092DEA5 /* SSHIpparcos.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSHIpparcos.hpp; sourceTree = "<group>"; };
+		A35D2B4E242951D30092DEA5 /* SSSKY2000.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSSKY2000.cpp; sourceTree = "<group>"; };
+		A35D2B4F242951D30092DEA5 /* SSSKY2000.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSSKY2000.hpp; sourceTree = "<group>"; };
 		A36F9196240979770038FE04 /* SSCoords.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSCoords.cpp; sourceTree = SOURCE_ROOT; };
 		A36F9197240979770038FE04 /* SSCoords.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSCoords.hpp; sourceTree = SOURCE_ROOT; };
 		A3DBB491240EADE80035011E /* AAPlanet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AAPlanet.c; sourceTree = "<group>"; };
@@ -152,6 +161,8 @@
 				A36F9197240979770038FE04 /* SSCoords.hpp */,
 				4703A87C2404EEEA00BDD11C /* SSAngle.cpp */,
 				4703A87B2404EEEA00BDD11C /* SSAngle.hpp */,
+				A35D2B4824293BF80092DEA5 /* SSUtilities.cpp */,
+				A35D2B4924293BF80092DEA5 /* SSUtilities.hpp */,
 				4703A87E2404EF0800BDD11C /* SSVector.cpp */,
 				4703A87F2404EF0800BDD11C /* SSVector.hpp */,
 				4703A8822404EF3800BDD11C /* SSMatrix.cpp */,
@@ -166,6 +177,10 @@
 				A30545C4241EE07900197F8A /* SSPlanet.hpp */,
 				A30545C6241EF45000197F8A /* SSStar.cpp */,
 				A30545C7241EF45000197F8A /* SSStar.hpp */,
+				A35D2B4B242941B80092DEA5 /* SSHIpparcos.cpp */,
+				A35D2B4C242941B80092DEA5 /* SSHIpparcos.hpp */,
+				A35D2B4E242951D30092DEA5 /* SSSKY2000.cpp */,
+				A35D2B4F242951D30092DEA5 /* SSSKY2000.hpp */,
 			);
 			name = SSCore;
 			sourceTree = "<group>";
@@ -270,6 +285,7 @@
 				A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */,
 				A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */,
 				A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */,
+				A35D2B4D242941B80092DEA5 /* SSHIpparcos.cpp in Sources */,
 				A3DBB4C4240EADE80035011E /* JupiMoon.c in Sources */,
 				A3DBB4C3240EADE80035011E /* CoordSys.c in Sources */,
 				A3DBB4BF240EADE80035011E /* MarsMoon.c in Sources */,
@@ -283,12 +299,14 @@
 				A3DBB4C6240EADE80035011E /* NeptMoon.c in Sources */,
 				4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */,
 				A3DBB4C9240EADE80035011E /* AAMoon.c in Sources */,
+				A35D2B4A24293BF80092DEA5 /* SSUtilities.cpp in Sources */,
 				A3DBB4B5240EADE80035011E /* AAPluto.c in Sources */,
 				A3DBB4CD240EADE80035011E /* Matrix.c in Sources */,
 				A3DBB4C8240EADE80035011E /* SatuMoon.c in Sources */,
 				A3DBB4C7240EADE80035011E /* SpaceTrk.c in Sources */,
 				A3DBB4B9240EADE80035011E /* Orbit.c in Sources */,
 				A3DBB4BD240EADE80035011E /* Physical.c in Sources */,
+				A35D2B50242951D30092DEA5 /* SSSKY2000.cpp in Sources */,
 				A3DBB4BC240EADE80035011E /* ELP2000.c in Sources */,
 				A3DBB4C2240EADE80035011E /* Time.c in Sources */,
 				A3DBB4B7240EADE80035011E /* PLUTO95.c in Sources */,

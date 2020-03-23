@@ -79,5 +79,6 @@ public:
 };
 
 bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
+void addIdentifier ( vector<SSIdentifier> &identVec, SSIdentifier ident );
 
 #endif /* SSIdentifier_hpp */

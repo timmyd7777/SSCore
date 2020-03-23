@@ -508,3 +508,12 @@ bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 )
 {
 	return id1 < id2;
 }
+
+// Adds a new identifier to a vector of identifiers,
+// if the new identifier is valid and not already present in the vector.
+
+void addIdentifier ( vector<SSIdentifier> &identVec, SSIdentifier ident )
+{
+    if ( ident && find ( identVec.begin(), identVec.end(), ident ) == identVec.end() )
+        identVec.push_back ( ident );
+}

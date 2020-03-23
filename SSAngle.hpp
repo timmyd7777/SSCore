@@ -1,16 +1,16 @@
-//  SSAngle.hpp
-//  SSCore
+// SSAngle.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 2/24/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//  Classes for converting angular values from radians to degress/hours, minutes, seconds; and vice-versa
+// Created by Tim DeBenedictis on 2/24/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+//
+// Classes for converting angular values from radians
+// to degress/hours, minutes, seconds; and vice-versa.
 
 #ifndef SSAngle_hpp
 #define SSAngle_hpp
 
-#include <string>
-
-using namespace std;
+#include "SSUtilities.hpp"
 
 // Represents an angular value expressed in degrees, minutes, seconds
 
@@ -50,7 +50,7 @@ class SSAngle
 {
 protected:
     
-    double _rad;      // angular value in radians
+    double _rad;      // angular value in radians; infinite if unknown/undefined.
     
 public:
 
@@ -102,13 +102,5 @@ public:
     
     static SSAngle atan2Pi ( double y, double x );
 };
-
-int strtoint ( string str );
-int64_t strtoint64 ( string str );
-float strtofloat ( string str );
-double strtofloat64 ( string str );
-
-string format ( const char *fmt, ... );
-string trim ( string str );
 
 #endif /* SSAngle_hpp */

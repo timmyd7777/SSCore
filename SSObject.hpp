@@ -70,7 +70,7 @@ public:
 
 typedef shared_ptr<SSObject> SSObjectPtr;
 
-SSObjectPtr SSObjectMake ( SSObjectType type );
+SSObjectPtr SSNewObject ( SSObjectType type );
 
 #pragma pack ( pop )
 

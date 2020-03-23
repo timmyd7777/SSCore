@@ -9,6 +9,10 @@
 #include "SSDynamics.hpp"
 #include "SSStar.hpp"
 
+// Constructs single star with a specific object type code.
+// All fields except type code are set to empty strings or infinity,
+// signifying unknown/undefined values.
+
 SSStar::SSStar ( SSObjectType type ) : SSObject ( type )
 {
 	_names = vector<string> ( 0 );
@@ -23,8 +27,8 @@ SSStar::SSStar ( SSObjectType type ) : SSObject ( type )
 	_spectrum = "";
 }
 
-// Constructs single star with all fields except type code
-// set to empty strings or infinity, signifying "unknown".
+// Constructs single star with type code set to indicate "single star".
+// All other fields set to values, signifying unknown/undefined.
 
 SSStar::SSStar ( void ) : SSStar ( kTypeStar )
 {
@@ -61,6 +65,16 @@ SSDoubleStar::SSDoubleStar ( void ) : SSStar ( kTypeDoubleStar )
 SSDoubleVariableStar::SSDoubleVariableStar ( void ) : SSDoubleStar(), SSVariableStar()
 {
 	_type = kTypeDoubleVariableStar;
+}
+
+// Constructs deep sky object with the specified type code;
+// all other fields are set to unknown/undefined values.
+
+SSDeepSky::SSDeepSky ( SSObjectType type ) : SSStar ( type )
+{
+    _majAxis = HUGE_VAL;
+    _minAxis = HUGE_VAL;
+    _PA = HUGE_VAL;
 }
 
 // Returns this star's identifier in a specific catalog.
@@ -291,7 +305,7 @@ string SSDoubleVariableStar::toCSV ( void )
 }
 
 // Downcasts generic SSObject pointer to SSStar pointer.
-// Returns nullptr if SSObject is not an SSStar!
+// Returns nullptr if pointer is not an instance of SSStar!
 
 SSStarPtr SSGetStarPtr ( SSObjectPtr ptr )
 {
@@ -299,7 +313,8 @@ SSStarPtr SSGetStarPtr ( SSObjectPtr ptr )
 }
 
 // Downcasts generic SSObject pointer to SSDoubleStar pointer.
-// Returns nullptr if SSObject is not an SSDoubleStar or SSDoubleVariableStar!
+// Returns nullptr if pointer is not an instance of SSDoubleStar
+// or SSDoubleVariableStar!
 
 SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr )
 {
@@ -307,9 +322,18 @@ SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr )
 }
 
 // Downcasts generic SSObject pointer to SSVariableStar pointer.
-// Returns nullptr if SSObject is not an SSVariableStar or SSDoubleVariableStar!
+// Returns nullptr if pointer is not an instance of SSVariableStar
+// or SSDoubleVariableStar!
 
 SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr )
 {
 	return dynamic_cast<SSVariableStarPtr> ( ptr.get() );
+}
+
+// Downcasts generic SSObject pointer to SSDeepSkyStar pointer.
+// Returns nullptr if pointer is not an instance of SSDeepSky!
+
+SSDeepSkyPtr SSGetDeepSkyPtr ( SSObjectPtr ptr )
+{
+    return dynamic_cast<SSDeepSkyPtr> ( ptr.get() );
 }
