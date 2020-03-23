@@ -412,7 +412,15 @@ SSStarMap importHIC ( const char *filename )
 			addIdentifier ( idents, SSIdentifier ( kCatHIP, strtoint ( strHIP ) ) );
 		
 		int hip = strtoint ( strHIP );
-        SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
+		SSStar star;
+		
+		star.setNames ( names );
+		star.setIdentifiers ( idents );
+		star.setFundamentalMotion ( position, velocity );
+		star.setVMagnitude ( vmag );
+		star.setBMagnitude ( bmag );
+		star.setSpectralType ( strSpec );
+		
 		// cout << star.toCSV() << endl;
 		starmap.insert ( { hip, star } );
 	}
@@ -562,8 +570,8 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		SSStar hip2Star = mapHIP2[ hip ];
 		if ( hip2Star.getIdentifier ( kCatHIP ) == hipID )
 		{
-			position = hip2Star.getFundamentalPosition();
-			velocity = hip2Star.getFundamentalProperMotion();
+			position = hip2Star.getFundamentalCoords();
+			velocity = hip2Star.getFundamentalMotion();
 		}
 
 		// If we found a matching Hipparcos Input Catalog star,
@@ -586,8 +594,16 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
 		
 		// Construct star and insert into star map object.
 
-		SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
-		cout << star.toCSV() << endl;
+		SSStar star;
+		
+		star.setNames ( names );
+		star.setIdentifiers ( idents );
+		star.setFundamentalMotion ( position, velocity );
+		star.setVMagnitude ( vmag );
+		star.setBMagnitude ( bmag );
+		star.setSpectralType ( strSpec );
+		
+		//cout << star.toCSV() << endl;
 		starmap.insert ( { hip, star } );
 	}
 
@@ -837,7 +853,14 @@ SSStarMap importHIP2 ( const char *filename )
 		
 		// Construct star and insert into map.
 		
-        SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, "" );
+		SSStar star;
+		
+		star.setNames ( names );
+		star.setIdentifiers ( idents );
+		star.setFundamentalMotion ( position, velocity );
+		star.setVMagnitude ( vmag );
+		star.setBMagnitude ( bmag );
+
 		// cout << star.toCSV() << endl;
 		mapHIP2.insert ( { hip, star } );
 	}
@@ -1063,10 +1086,25 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
 		names = getStarNames ( idents, nameMap );
 		
-		SSStar star ( kStar, names, idents, position, velocity, vmag, bmag, strSpec );
-		cout << star.toCSV() << endl;
+		SSStar star;
+		
+		star.setNames ( names );
+		star.setIdentifiers ( idents );
+		star.setFundamentalMotion ( position, velocity );
+		star.setVMagnitude ( vmag );
+		star.setBMagnitude ( bmag );
+		star.setSpectralType ( strSpec );
+		
+		//cout << star.toCSV() << endl;
 		starVec.push_back ( star );
 	}
+
+	// Report success or failure.  Return star map object.
+
+	if ( linecount == starVec.size() )
+		cout << "Success: " << filename << " linecount " << linecount << " == starVec.size() " << starVec.size() << endl;
+	else
+		cout << "Failure: " << filename << " linecount " << linecount << " != starVec.size() " << starVec.size() << endl;
 
 	return starVec;
 }
