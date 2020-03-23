@@ -1047,24 +1047,29 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 		string strHR = trim ( line.substr ( 63, 4 ) );
 		string strWDS = trim ( line.substr ( 67, 12 ) );
 		
-		// Extract Bayer/Flamsteed names like "21alp And" and "kap1Scl"; ignore AG catalog numbers.
+		// Extract Bayer/Flamsteed names like "21alp And", "1pi 3Ori", and "kap1Scl"; ignore AG catalog numbers.
 		
 		string strBay = "";
+		string strNum = "";
 		string strFlm = "";
 		string strName = line.substr ( 98, 10 );
+		if ( strName.find ( "  1pi 3Ori") == 0 )
+			strName = strName;
+		
 		if ( strName.find ( "AG" ) != 0 )
 		{
 			string strCon = trim ( line.substr ( 105, 3 ) );
 			if ( ! strCon.empty() )
 			{
 				strFlm = trim ( line.substr ( 98, 3 ) );
-				strBay = trim ( line.substr ( 101, 4 ) );
+				strBay = trim ( line.substr ( 101, 3 ) );
+				strNum = trim ( line.substr ( 104, 1 ) );
 				
 				if ( ! strFlm.empty() )
 					strFlm = strFlm + " " + strCon;
 				
 				if ( ! strBay.empty() )
-					strBay = strBay + " " + strCon;
+					strBay = strBay + strNum + " " + strCon;
 			}
 		}
 		
