@@ -31,11 +31,12 @@ enum SSCatalog
 	kCatCD = 17,			// Cordoba Durchmusterung star catalog
 	kCatCP = 18,			// Cape Photographic Durchmusterung star catalog
 	kCatHIP = 19,			// Hipparcos star catalog
+	kCatWDS = 20,			// Washington Double Star catalog
 	
-	kCatMessier = 20,		// Messier deep sky objects
-	kCatCaldwell = 21,		// Caldwell deep sky objects
-	kCatNGC = 22,			// New General Catalog of deep sky objects
-	kCatIC = 23				// Index Catalog of deep sky objects
+	kCatMessier = 30,		// Messier deep sky objects
+	kCatCaldwell = 31,		// Caldwell deep sky objects
+	kCatNGC = 32,			// New General Catalog of deep sky objects
+	kCatIC = 33				// Index Catalog of deep sky objects
 };
 
 class SSIdentifier

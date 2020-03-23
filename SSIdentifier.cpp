@@ -86,7 +86,7 @@ static string bayer_to_string ( int64_t bay )
 		return _bayvec[ bay - 1 ];
 }
 
-static int64_t string_to_variable ( string str )
+static int64_t string_to_gcvs ( string str )
 {
 	size_t len = str.length();
 	int n1 = 0, n2 = 0;
@@ -130,13 +130,13 @@ static int64_t string_to_variable ( string str )
 		
 	if ( len > 3 && str[0] == 'V' && str[1] >= '0' && str[1] <= '9' )
 	{
-		return stoi ( str.substr ( 1, len - 1 ) );
+		return strtoint ( str.substr ( 1, len - 1 ) );
 	}
 		
 	return 0;
 }
 
-string variable_to_string ( int64_t n )
+string gcvs_to_string ( int64_t n )
 {
 	int64_t n0 = 0, n1 = 0, n2 = 0;
 	
@@ -244,6 +244,38 @@ string dm_to_string ( int64_t dm )
     	return format ( "%c%02d %d", sign, zone, num );
 }
 
+int64_t string_to_wds ( string str )
+{
+	char	sign = 0;
+	int		ra = 0, dec = 0;
+	
+	sscanf ( str.c_str(), "%d%c%d", &ra, &sign, &dec );
+	
+	if ( sign == '+' )
+		sign = 1;
+	else
+		sign = 0;
+		
+	if ( ra >= 0 && ra < 24000 && dec >= 0 && dec < 9000 )
+		return ra * 100000 + sign * 10000 + dec;
+	else
+		return 0;
+}
+
+string wds_to_string ( int64_t wds )
+{
+	int64_t ra = wds / 100000;
+	int64_t sign = ( wds - ra * 100000 ) / 10000;
+	int64_t dec = wds - ra * 100000 - sign * 10000;
+	
+	if ( sign )
+		sign = '+';
+	else
+		sign = '-';
+
+	return format ( "%05d%c%04d", ra, sign, dec );
+}
+
 static void mapinit ( void )
 {
 	for ( int i = 0; i < _bayvec.size(); i++ )
@@ -261,7 +293,6 @@ SSIdentifier::SSIdentifier ( void )
 SSIdentifier::SSIdentifier ( SSCatalog catalog, int64_t ident )
 {
 	_id = catalog * 10000000000000000LL + ident;
-//	_id = ( (int64_t) catalog ) << 56 | ( id & 0x00ffffffffffffff );
 }
 
 SSCatalog SSIdentifier::catalog ( void )
@@ -345,6 +376,13 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatCP, string_to_dm ( str.substr ( pos, len - pos ) ) );
 	}
 
+	// if string begins with "WDS", attempt to parse a Washington Double Star catalog identifier
+	
+	if ( str.find ( "WDS" ) == 0 && len > 3 )
+	{
+		return SSIdentifier ( kCatWDS, string_to_wds ( str.substr ( 3, len - 3 ) ) );
+	}
+	
 	// parse constellation abbreviation from last 3 characters of string
 	
 	string constr = "";
@@ -361,7 +399,7 @@ SSIdentifier SSIdentifier::fromString ( string str )
 	// try parsing prefix as a variable star designation; return GCVS identifier if successful.
 	
 	string varstr = str.substr ( 0, consep );
-	int64_t var = string_to_variable ( varstr );
+	int64_t var = string_to_gcvs ( varstr );
 	if ( var > 0 )
 		return SSIdentifier ( kCatGCVS, var * 100 + con );
 	
@@ -428,7 +466,7 @@ string SSIdentifier::toString ( void )
 	{
 		int64_t num = id / 100;
 		int64_t con = id % 100;
-		str = variable_to_string ( num ) + " " + _convec[con - 1];
+		str = gcvs_to_string ( num ) + " " + _convec[con - 1];
 	}
 	else if ( cat == kCatHR )
 	{
@@ -458,6 +496,11 @@ string SSIdentifier::toString ( void )
 	{
 		str = "CP " + dm_to_string ( id );
 	}
+	else if ( cat == kCatWDS )
+	{
+		str = "WDS " + wds_to_string ( id );
+	}
+	
 	return str;
 }
 

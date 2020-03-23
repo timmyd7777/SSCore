@@ -207,7 +207,9 @@ string SSStar::toCSV1 ( void )
 	csv += isinf ( _parallax ) ? "      ," : format ( "%6.4f,", _parallax );
 	csv += isinf ( _radvel )   ? "      ," : format ( "%+6.1f,", _radvel * SSDynamics::kLightKmPerSec );
 	
-	csv += _spectrum + ",";
+	// If spectrum contains a comma, put it in quotes.
+	
+	csv += _spectrum.find ( "," ) == string::npos ? _spectrum + "," : "\"" + _spectrum + "\",";
 	
 	return csv;
 }
@@ -241,10 +243,10 @@ string SSDoubleStar::toCSVD ( void )
 	string csv = "";
 	
 	csv += _comps + ",";
-	csv += isinf ( _magDelta ) ? "      ," : format ( "%+6.2f", _magDelta );
-	csv += isinf ( _sep ) ? "      ," : format ( "%6.1f", _sep * SSAngle::kArcsecPerRad );
-	csv += isinf ( _PA ) ? "     ," : format ( "%5.1f", _PA * SSAngle::kDegPerRad );
-	csv += isinf ( _PAyr ) ? "       ," : format ( "%7.2f", _PAyr );
+	csv += isinf ( _magDelta ) ? "      ," : format ( "%+6.2f,", _magDelta );
+	csv += isinf ( _sep ) ? "      ," : format ( "%6.1f,", _sep * SSAngle::kArcsecPerRad );
+	csv += isinf ( _PA ) ? "     ," : format ( "%5.1f,", _PA * SSAngle::kDegPerRad );
+	csv += isinf ( _PAyr ) ? "       ," : format ( "%7.2f,", _PAyr );
 
 	return csv;
 }
@@ -264,10 +266,10 @@ string SSVariableStar::toCSVV ( void )
 	string csv = "";
 	
 	csv += _varType + ",";
-	csv += isinf ( _varMinMag ) ? "      ," : format ( "%+6.2f", _varMinMag );
-	csv += isinf ( _varMaxMag ) ? "      ," : format ( "%+6.2f", _varMaxMag );
-	csv += isinf ( _varPeriod ) ? "       ," : format ( "%7.2f", _varPeriod );
-	csv += isinf ( _varEpoch )  ? "         ," : format ( "%9.2f", _varEpoch );
+	csv += isinf ( _varMinMag ) ? "      ," : format ( "%+6.2f,", _varMinMag );
+	csv += isinf ( _varMaxMag ) ? "      ," : format ( "%+6.2f,", _varMaxMag );
+	csv += isinf ( _varPeriod ) ? "       ," : format ( "%7.2f,", _varPeriod );
+	csv += isinf ( _varEpoch )  ? "         ," : format ( "%9.2f,", _varEpoch );
 
 	return csv;
 }

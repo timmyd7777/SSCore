@@ -936,6 +936,83 @@ HIPNameMap importHIPNameMap ( const char *filename )
 	return hipNameMap;
 }
 
+// Converts SKY2000 integer variable star type codes to GCVS variable star type strings.
+// Returns empty string if input type code is not recognized.
+
+string SKY2000VariableTypeString ( int type )
+{
+	static map<int,string> vartypes =
+	{
+		{ 111, "DCEP" },
+		{ 112, "CW" },
+		{ 113, "CEP" },
+		{ 114, "CEP(B)" },
+		{ 115, "DCEPS" },
+		{ 120, "RR" },
+		{ 121, "RRAB" },
+		{ 122, "RRC" },
+		{ 123, "RR(B)" },
+		{ 130, "RV" },
+		{ 131, "RVA" },
+		{ 132, "RVB" },
+		{ 133, "ACYG" },
+		{ 134, "SXPHE" },
+		{ 140, "BCEP" },
+		{ 141, "BCEPS" },
+		{ 150, "DSCT" },
+		{ 160, "ACV" },
+		{ 161, "ACVO" },
+		{ 170, "L" },
+		{ 171, "LB" },
+		{ 172, "LC" },
+		{ 180, "M" },
+		{ 181, "PVTEL" },
+		{ 190, "SR" },
+		{ 191, "SRA" },
+		{ 192, "SRC" },
+		{ 193, "SRD" },
+		{ 194, "SRB" },
+		{ 200, "IA" },
+		{ 201, "WR" },
+		{ 210, "INT" },
+		{ 220, "UV" },
+		{ 221, "UVN" },
+		{ 230, "RCB" },
+		{ 240, "UG" },
+		{ 241, "UGSS" },
+		{ 242, "UGSU" },
+		{ 243, "UGZ" },
+		{ 244, "ZAND" },
+		{ 245, "ZZC" },
+		{ 260, "N" },
+		{ 261, "NA" },
+		{ 262, "NB" },
+		{ 263, "NR" },
+		{ 264, "GCAS" },
+		{ 265, "SN" },
+		{ 266, "NC" },
+		{ 267, "NI" },
+		{ 270, "I" },
+		{ 271, "IN" },
+		{ 272, "XI" },
+		{ 273, "RS" },
+		{ 274, "IS" },
+		{ 275, "S" },
+		{ 300, "E" },
+		{ 310, "EA" },
+		{ 320, "EB" },
+		{ 330, "EW" },
+		{ 340, "ELL" },
+		{ 350, "SDOR" },
+		{ 410, "FKCOM" },
+		{ 420, "SXARI" },
+		{ 430, "ELL" },
+		{ 440, "BY" }
+	};
+	
+	return vartypes[ type ];
+};
+
 // Imports SKY2000 Master Star Catalog v5.
 // Inserts name strings from nameNap;
 // Returns vector of SSStar objects which should contain 299460 entries if successful.
@@ -961,7 +1038,7 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 	while ( getline ( file, line ) )
 	{
 		linecount++;
-		if ( line.length() < 96 )
+		if ( line.length() < 521 )
 			continue;
 		
 		string strHD = trim ( line.substr ( 35, 6 ) );
@@ -1039,12 +1116,16 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 		string strDblPAyr = trim ( line.substr ( 363, 7 ) );
 		string strDblComp = trim ( line.substr ( 77, 5 ) );
 
+		// Extract variability data: magnitude at maximum and minimum light,
+		// period, epoch; convert numeric variability type code to GCVS type string.
+		
 		string strVarMax = trim ( line.substr ( 411, 5 ) );
 		string strVarMin = trim ( line.substr ( 416, 5 ) );
 		string strVarPer = trim ( line.substr ( 427, 8 ) );
 		string strVarEpoch = trim ( line.substr ( 435, 8 ) );
 		string strVarType = trim ( line.substr ( 443, 3 ) );
-
+		strVarType = SKY2000VariableTypeString ( strtoint ( strVarType ) );
+		
         SSHourMinSec ra ( strRA );
         SSDegMinSec dec ( strDec );
         
@@ -1102,14 +1183,17 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 		if ( ! strDM.empty() )
 			addIdentifier ( idents, SSIdentifier::fromString ( strDM ) );
 		
+		if ( ! strWDS.empty() )
+			addIdentifier ( idents, SSIdentifier::fromString ( "WDS " + strWDS ) );
+		
 		// Sert identifier vector.  Get name string(s) corresponding to identifier(s).
 		// Construct star and insert into star vector.
 		
 		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
 		names = getStarNames ( idents, nameMap );
 		
-		bool isVar = ! ( strVar.empty() && strVarType.empty() && strVarMax.empty() && strVarPer.empty() );
-		bool isDbl = ! ( strWDS.empty() && strDblMag.empty() && strDblSep.empty() && strDblPA.empty() && strDblPAyr.empty() );
+		bool isVar = ! ( strVarType.empty() && strVarMax.empty() && strVarMax.empty() && strVarPer.empty() );
+		bool isDbl = ! ( strWDS.empty() && strDblMag.empty() && strDblSep.empty() );
 
 		SSObjectType type = kTypeUnknown;
 
@@ -1138,18 +1222,24 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 		SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
 		if ( pVar != nullptr )
 		{
+			// Minimum magnitude is magnitude at maximum light, and vice-vera!
+			
 			if ( ! strVarMin.empty() )
-				pVar->setMinimumMagnitude ( strtofloat ( strVarMin ) );
+				pVar->setMinimumMagnitude ( strtofloat ( strVarMax ) );
 
 			if ( ! strVarMax.empty() )
-				pVar->setMaximumMagnitude ( strtofloat ( strVarMax ) );
+				pVar->setMaximumMagnitude ( strtofloat ( strVarMin ) );
 
+			// Get variability period in days and convert epoch to Julian Date.
+			
 			if ( ! strVarPer.empty() )
 				pVar->setPeriod ( strtofloat ( strVarPer ) );
 
 			if ( ! strVarEpoch.empty() )
-				pVar->setEpoch ( strtofloat ( strVarPer ) + 2400000.0 );
+				pVar->setEpoch ( strtofloat ( strVarEpoch ) + 2400000.0 );
 
+			// Store variability type
+			
 			if ( ! strVarType.empty() )
 				pVar->setVariableType ( strVarType );
 		}
