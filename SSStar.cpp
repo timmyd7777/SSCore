@@ -4,13 +4,12 @@
 //  Created by Tim DeBenedictis on 3/15/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <map>
+
 #include "SSDynamics.hpp"
 #include "SSStar.hpp"
 
-// Constructs single star with all fields except type code
-// set to empty strings or infinity, signifying "unknown".
-
-SSStar::SSStar ( void ) : SSObject ( kStar )
+SSStar::SSStar ( SSObjectType type ) : SSObject ( type )
 {
 	_names = vector<string> ( 0 );
 	_idents = vector<SSIdentifier> ( 0 );
@@ -24,13 +23,19 @@ SSStar::SSStar ( void ) : SSObject ( kStar )
 	_spectrum = "";
 }
 
+// Constructs single star with all fields except type code
+// set to empty strings or infinity, signifying "unknown".
+
+SSStar::SSStar ( void ) : SSStar ( kTypeStar )
+{
+
+}
+
 // Constructs variable star with all fields except type code
 // set to empty strings or infinity, signifying "unknown".
 
-SSVariableStar::SSVariableStar ( void ) : SSStar()
+SSVariableStar::SSVariableStar ( void ) : SSStar ( kTypeVariableStar )
 {
-	_type = kVariableStar;
-	
 	_varType = "";
 	_varMaxMag = HUGE_VAL;
 	_varMinMag = HUGE_VAL;
@@ -41,10 +46,8 @@ SSVariableStar::SSVariableStar ( void ) : SSStar()
 // Constructs double star with all fields except type code
 // set to empty strings or infinity, signifying "unknown".
 
-SSDoubleStar::SSDoubleStar ( void ) : SSStar()
+SSDoubleStar::SSDoubleStar ( void ) : SSStar ( kTypeDoubleStar )
 {
-	_type = kDoubleStar;
-	
 	_comps = "";
 	_magDelta = HUGE_VAL;
 	_sep = HUGE_VAL;
@@ -57,7 +60,7 @@ SSDoubleStar::SSDoubleStar ( void ) : SSStar()
 
 SSDoubleVariableStar::SSDoubleVariableStar ( void ) : SSDoubleStar(), SSVariableStar()
 {
-	_type = kDoubleVariableStar;
+	_type = kTypeDoubleVariableStar;
 }
 
 // Returns this star's identifier in a specific catalog.
@@ -72,7 +75,7 @@ SSIdentifier SSStar::getIdentifier ( SSCatalog cat )
 	return SSIdentifier();
 }
 
-void SSStar::computeEphemeris ( SSDynamics dyn )
+void SSStar::computeEphemeris ( SSDynamics &dyn )
 {
     if ( _parallax > 0.0 )
     {
@@ -156,15 +159,41 @@ SSSpherical SSStar::getFundamentalMotion ( void )
 	return motion;
 }
 
-string SSStar::toCSV ( void )
+typedef map<SSObjectType,string> SSTypeStringMap;
+
+SSTypeStringMap _typeStrings =
 {
+	{ kTypeStar, "SS" },
+	{ kTypeDoubleStar, "DS" },
+	{ kTypeVariableStar, "VS" },
+	{ kTypeDoubleVariableStar, "DV" },
+	{ kTypeOpenCluster, "OC" },
+	{ kTypeGlobularCluster, "GC" },
+	{ kTypeBrightNebula, "BN" },
+	{ kTypeDarkNebula, "DN" },
+	{ kTypePlanetaryNebula, "PN" },
+	{ kTypeGalaxy, "GX" },
+	{ kTypePlanet, "PL" },
+	{ kTypeMoon, "MN" },
+	{ kTypeAsteroid, "MP" },
+	{ kTypeComet, "CM" },
+	{ kTypeSatellite, "SA" },
+	{ kTypeSpacecraft, "SC" }
+};
+
+// Returns CSV string from base data (excluding names and identifiers).
+
+string SSStar::toCSV1 ( void )
+{
+	string csv = "";
+	
 	SSSpherical pos = _position.toSpherical();
 	SSSpherical vel = _position.toSphericalVelocity( _velocity );
 	
 	SSHourMinSec ra = pos.lon;
 	SSDegMinSec dec = pos.lat;
 	
-	string csv = "S,";
+	csv += _typeStrings[ _type ] + ",";
 	
 	csv += ra.toString() + ",";
 	csv += dec.toString() + ",";
@@ -180,11 +209,105 @@ string SSStar::toCSV ( void )
 	
 	csv += _spectrum + ",";
 	
+	return csv;
+}
+
+// Returns CSV string from names and identifiers (excluding base data).
+
+string SSStar::toCSV2 ( void )
+{
+	string csv = "";
+	
 	for ( int i = 0; i < _names.size(); i++ )
 		csv += _names[i] + ",";
 
 	for ( int i = 0; i < _idents.size(); i++ )
 		csv += _idents[i].toString() + ",";
-		
+	
 	return csv;
+}
+
+// Returns CSV string including base star data plus names and identifiers.
+
+string SSStar::toCSV ( void )
+{
+	return toCSV1() + toCSV2();
+}
+
+// Returns CSV string from double-star data (but not SStar base class).
+
+string SSDoubleStar::toCSVD ( void )
+{
+	string csv = "";
+	
+	csv += _comps + ",";
+	csv += isinf ( _magDelta ) ? "      ," : format ( "%+6.2f", _magDelta );
+	csv += isinf ( _sep ) ? "      ," : format ( "%6.1f", _sep * SSAngle::kArcsecPerRad );
+	csv += isinf ( _PA ) ? "     ," : format ( "%5.1f", _PA * SSAngle::kDegPerRad );
+	csv += isinf ( _PAyr ) ? "       ," : format ( "%7.2f", _PAyr );
+
+	return csv;
+}
+
+// Returns CSV string including base star data, double-star data,
+// plus names and identifiers. Overrides SSStar::toCSV().
+
+string SSDoubleStar::toCSV ( void )
+{
+	return toCSV1() + toCSVD() + toCSV2();
+}
+
+// Returns CSV string from variable-star data (but not SStar base class).
+
+string SSVariableStar::toCSVV ( void )
+{
+	string csv = "";
+	
+	csv += _varType + ",";
+	csv += isinf ( _varMinMag ) ? "      ," : format ( "%+6.2f", _varMinMag );
+	csv += isinf ( _varMaxMag ) ? "      ," : format ( "%+6.2f", _varMaxMag );
+	csv += isinf ( _varPeriod ) ? "       ," : format ( "%7.2f", _varPeriod );
+	csv += isinf ( _varEpoch )  ? "         ," : format ( "%9.2f", _varEpoch );
+
+	return csv;
+}
+
+// Returns CSV string including base star data, variable-star data, plus names and identifiers.
+// Overrides SSStar::toCSV().
+
+string SSVariableStar::toCSV ( void )
+{
+	return toCSV1() + toCSVV() + toCSV2();
+}
+
+// Returns CSV string including base star data, double-star data, variable-star data,
+// plus names and identifiers.  Overrides SSStar::toCSV().
+
+string SSDoubleVariableStar::toCSV ( void )
+{
+	return toCSV1() + toCSVD() + toCSVV() + toCSV2();
+}
+
+// Downcasts generic SSObject pointer to SSStar pointer.
+// Returns nullptr if SSObject is not an SSStar!
+
+SSStarPtr SSGetStarPtr ( SSObjectPtr ptr )
+{
+	return dynamic_cast<SSStarPtr> ( ptr.get() );
+}
+
+// Downcasts generic SSObject pointer to SSDoubleStar pointer.
+// Returns nullptr if SSObject is not an SSDoubleStar or SSDoubleVariableStar!
+
+SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr )
+{
+	return dynamic_cast<SSDoubleStarPtr> ( ptr.get() );
+}
+
+// Downcasts generic SSObject pointer to SSVariableStar pointer.
+// Returns nullptr if SSObject is not an SSVariableStar or SSDoubleVariableStar!
+
+SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr )
+{
+	return dynamic_cast<SSVariableStarPtr> ( ptr.get() );
 }

@@ -6,6 +6,12 @@
 //  Base class for all objects in the database (stars, planets, etc.)
 
 #include "SSObject.hpp"
+#include "SSDynamics.hpp"
+
+SSObject::SSObject ( void ) : SSObject ( kTypeUnknown )
+{
+
+}
 
 SSObject::SSObject ( SSObjectType type )
 {
@@ -22,4 +28,9 @@ string SSObject::getName ( int i )
         return _names[i];
     else
         return string ( "" );
+}
+
+void SSObject::computeEphemeris ( SSDynamics &dyn )
+{
+	
 }

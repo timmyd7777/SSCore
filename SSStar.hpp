@@ -10,6 +10,8 @@
 
 #include "SSObject.hpp"
 
+#pragma pack ( push, 1 )
+
 class SSStar : public SSObject
 {
 protected:
@@ -27,6 +29,10 @@ protected:
 
     string  _spectrum;      // Spectral type string
     
+	SSStar ( SSObjectType type );	// constructs a star with a specific type code
+	string toCSV1 ( void );	// returns CSV string from base data (excluding names and identifiers).
+	string toCSV2 ( void );	// returns CSV string from names and identifiers (excluding base data).
+
 public:
     
 	SSStar ( void );
@@ -54,9 +60,9 @@ public:
 	float getParallax ( void ) { return _parallax; }
 	float getRadVel ( void ) { return _radvel; }
 	
-    void computeEphemeris ( SSDynamics dyn );
+    void computeEphemeris ( SSDynamics &dyn );
 	
-	string toCSV ( void );
+	virtual string toCSV ( void );
 };
 
 class SSVariableStar : virtual public SSStar
@@ -69,6 +75,8 @@ protected:
 	double _varPeriod;			// Variability period, in days; infinite if unknown
 	double _varEpoch;			// Variability epoch, as Julian Date; infinite if unknown
 	
+	string toCSVV ( void );		// returns CSV string from variable-star data (but not SStar base class).
+
 public:
 	
 	SSVariableStar ( void );
@@ -84,6 +92,8 @@ public:
 	float getMinimumMagnitude ( void ) { return _varMinMag; }
 	double getPeriod ( void ) { return _varPeriod; }
 	double getEpoch ( void ) { return _varEpoch; }
+	
+	virtual string toCSV ( void );
 };
 
 class SSDoubleStar : virtual public SSStar
@@ -96,6 +106,8 @@ protected:
 	float _PA;				// position angle from brighter to fainter component in fundamental mean J2000 equatorial frame; infinite if unknown
 	float _PAyr;			// Julian year of position angle measurement; infinite if unknown
 	
+	string toCSVD ( void );	// returns CSV string from double-star data (but not SStar base class).
+
 public:
 	
 	SSDoubleStar ( void );
@@ -111,13 +123,27 @@ public:
 	float getSeparation ( void ) { return _sep; }
 	float getPositionAngle ( void ) { return _PA; }
 	float getPositionAngleYear ( void ) { return _PAyr; }
+
+	virtual string toCSV ( void );
 };
 
-class SSDoubleVariableStar : public SSDoubleStar, SSVariableStar
+class SSDoubleVariableStar : public SSDoubleStar, public SSVariableStar
 {
 public:
 	
 	SSDoubleVariableStar ( void );
+
+	virtual string toCSV ( void );
 };
+
+#pragma pack ( pop )
+
+typedef SSStar *SSStarPtr;
+typedef SSDoubleStar *SSDoubleStarPtr;
+typedef SSVariableStar *SSVariableStarPtr;
+
+SSStarPtr SSGetStarPtr ( SSObjectPtr ptr );
+SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr );
+SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr );
 
 #endif /* SSStar_hpp */

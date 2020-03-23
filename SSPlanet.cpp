@@ -9,6 +9,11 @@
 #include "SSDynamics.hpp"
 #include "SSPlanet.hpp"
 
+SSPlanet::SSPlanet ( void ) : SSPlanet ( kTypePlanet, kSun )
+{
+	
+}
+
 SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSObject ( type )
 {
     _id = id;
@@ -16,7 +21,7 @@ SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSObject ( type )
     _position = _velocity = SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
 }
 
-void SSPlanet::computeEphemeris ( SSDynamics dyn )
+void SSPlanet::computeEphemeris ( SSDynamics &dyn )
 {
     double lt = 0.0;
     

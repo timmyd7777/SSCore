@@ -9,6 +9,7 @@
 #include "SSCoords.hpp"
 #include "SSOrbit.hpp"
 #include "SSDynamics.hpp"
+#include "SSPlanet.hpp"
 #include "SSStar.hpp"
 
 #include <iostream>
@@ -33,15 +34,15 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap );
 int main ( int argc, char *argv[] )
 {
 	SSStarNameMap nameMap = importIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
+/*
 	HIPNameMap mapHIPtoHIPName = importHIPNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC" );
-
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
 	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
 	SSStarMap mapHIP2 = importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
 	SSStarMap mapHIP = importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2, nameMap );
-
+*/
 	vector<SSStar> skymap = importSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", nameMap );
 	
     SSAngle zero = 0.0;
@@ -144,7 +145,7 @@ int main ( int argc, char *argv[] )
     
     for ( SSPlanetID id : planetIDs )
     {
-        SSPlanet planet ( kPlanet, id );
+        SSPlanet planet ( kTypePlanet, id );
         planet.computeEphemeris ( dyn );
         
         SSSpherical equ ( dyn.coords.toEquatorial ( planet.getDirection() ) );
@@ -190,6 +191,27 @@ int main ( int argc, char *argv[] )
     printf ( "%lf %lf %lf\n", i.m20, i.m21, i.m22 );
 */
 	
+}
+
+SSObjectPtr SSObject ( SSObjectType type )
+{
+	if ( type == kTypeStar )
+		return shared_ptr<SSStar> ( new SSStar );
+	else if ( type == kTypeDoubleStar )
+		return shared_ptr<SSDoubleStar> ( new SSDoubleStar );
+	else if ( type == kTypeVariableStar )
+		return shared_ptr<SSVariableStar> ( new SSVariableStar );
+	else if ( type == kTypeDoubleVariableStar )
+		return shared_ptr<SSDoubleVariableStar> ( new SSDoubleVariableStar );
+	else if ( type == kTypePlanet )
+		return shared_ptr<SSPlanet> ( new SSPlanet );
+	else
+		return shared_ptr<class SSObject> ( nullptr );
+}
+
+SSPlanet *SSPlanetPtr ( SSObjectPtr ptr )
+{
+	return dynamic_cast<SSPlanet *> ( ptr.get() );
 }
 
 // Adds a new identifier to a vector of identifiers,
@@ -1086,17 +1108,73 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
 		names = getStarNames ( idents, nameMap );
 		
-		SSStar star;
+		bool isVar = ! ( strVar.empty() && strVarType.empty() && strVarMax.empty() && strVarPer.empty() );
+		bool isDbl = ! ( strWDS.empty() && strDblMag.empty() && strDblSep.empty() && strDblPA.empty() && strDblPAyr.empty() );
+
+		SSObjectType type = kTypeUnknown;
+
+		if ( isDbl && isVar )
+			type = kTypeDoubleVariableStar;
+		else if ( isDbl )
+			type = kTypeDoubleStar;
+		else if ( isVar )
+			type = kTypeVariableStar;
+		else
+			type = kTypeStar;
+
+		SSObjectPtr pObj = SSObject ( type );
+		SSStarPtr pStar = SSGetStarPtr ( pObj );
 		
-		star.setNames ( names );
-		star.setIdentifiers ( idents );
-		star.setFundamentalMotion ( position, velocity );
-		star.setVMagnitude ( vmag );
-		star.setBMagnitude ( bmag );
-		star.setSpectralType ( strSpec );
+		if ( pStar != nullptr )
+		{
+			pStar->setNames ( names );
+			pStar->setIdentifiers ( idents );
+			pStar->setFundamentalMotion ( position, velocity );
+			pStar->setVMagnitude ( vmag );
+			pStar->setBMagnitude ( bmag );
+			pStar->setSpectralType ( strSpec );
+		}
 		
-		//cout << star.toCSV() << endl;
-		starVec.push_back ( star );
+		SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
+		if ( pVar != nullptr )
+		{
+			if ( ! strVarMin.empty() )
+				pVar->setMinimumMagnitude ( strtofloat ( strVarMin ) );
+
+			if ( ! strVarMax.empty() )
+				pVar->setMaximumMagnitude ( strtofloat ( strVarMax ) );
+
+			if ( ! strVarPer.empty() )
+				pVar->setPeriod ( strtofloat ( strVarPer ) );
+
+			if ( ! strVarEpoch.empty() )
+				pVar->setEpoch ( strtofloat ( strVarPer ) + 2400000.0 );
+
+			if ( ! strVarType.empty() )
+				pVar->setVariableType ( strVarType );
+		}
+		
+		SSDoubleStarPtr pDbl = SSGetDoubleStarPtr ( pObj );
+		if ( pDbl != nullptr )
+		{
+			if ( ! strDblComp.empty() )
+				pDbl->setComponents ( strDblComp );
+			
+			if ( ! strDblMag.empty() )
+				pDbl->setMagnitudeDelta ( strtofloat ( strDblMag ) );
+			
+			if ( ! strDblSep.empty() )
+				pDbl->setSeparation ( SSAngle::fromArcsec ( strtofloat ( strDblSep ) ) );
+			
+			if ( ! strDblPA.empty() )
+				pDbl->setPositionAngle( SSAngle::fromDegrees ( strtofloat ( strDblPA ) ) );
+			
+			if ( ! strDblPAyr.empty() )
+				pDbl->setPositionAngleYear ( strtofloat ( strDblPAyr ) );
+		}
+		
+		cout << pStar->toCSV() << endl;
+//		starVec.push_back ( star );
 	}
 
 	// Report success or failure.  Return star map object.

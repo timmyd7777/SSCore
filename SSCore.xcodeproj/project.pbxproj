@@ -163,9 +163,9 @@
 				A30545C0241EDBB400197F8A /* SSObject.cpp */,
 				A30545C1241EDBB400197F8A /* SSObject.hpp */,
 				A30545C3241EE07900197F8A /* SSPlanet.cpp */,
+				A30545C4241EE07900197F8A /* SSPlanet.hpp */,
 				A30545C6241EF45000197F8A /* SSStar.cpp */,
 				A30545C7241EF45000197F8A /* SSStar.hpp */,
-				A30545C4241EE07900197F8A /* SSPlanet.hpp */,
 			);
 			name = SSCore;
 			sourceTree = "<group>";

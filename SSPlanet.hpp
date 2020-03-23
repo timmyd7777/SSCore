@@ -69,8 +69,9 @@ protected:
 
 public:
     
+	SSPlanet ( void );
     SSPlanet ( SSObjectType type, SSPlanetID id );
-    void computeEphemeris ( SSDynamics dyn );
+    void computeEphemeris ( SSDynamics &dyn );
 };
 
 #endif /* SSPlanet_hpp */
