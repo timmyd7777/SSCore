@@ -21,6 +21,7 @@
 		A35D2B4A24293BF80092DEA5 /* SSUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A35D2B4824293BF80092DEA5 /* SSUtilities.cpp */; };
 		A35D2B4D242941B80092DEA5 /* SSHipparcos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A35D2B4B242941B80092DEA5 /* SSHipparcos.cpp */; };
 		A35D2B50242951D30092DEA5 /* SSSKY2000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A35D2B4E242951D30092DEA5 /* SSSKY2000.cpp */; };
+		A36E2195242A7CF6005C9699 /* SSMPC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36E2193242A7CF6005C9699 /* SSMPC.cpp */; };
 		A36F9198240979770038FE04 /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36F9196240979770038FE04 /* SSCoords.cpp */; };
 		A3AAE7B3242972E70035E668 /* SSNGCIC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3AAE7B1242972E70035E668 /* SSNGCIC.cpp */; };
 		A3DBB4B3240EADE80035011E /* AAPlanet.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB491240EADE80035011E /* AAPlanet.c */; };
@@ -91,6 +92,8 @@
 		A35D2B4C242941B80092DEA5 /* SSHipparcos.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSHipparcos.hpp; sourceTree = "<group>"; };
 		A35D2B4E242951D30092DEA5 /* SSSKY2000.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSSKY2000.cpp; sourceTree = "<group>"; };
 		A35D2B4F242951D30092DEA5 /* SSSKY2000.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSSKY2000.hpp; sourceTree = "<group>"; };
+		A36E2193242A7CF6005C9699 /* SSMPC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSMPC.cpp; sourceTree = "<group>"; };
+		A36E2194242A7CF6005C9699 /* SSMPC.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSMPC.hpp; sourceTree = "<group>"; };
 		A36F9196240979770038FE04 /* SSCoords.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSCoords.cpp; sourceTree = SOURCE_ROOT; };
 		A36F9197240979770038FE04 /* SSCoords.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSCoords.hpp; sourceTree = SOURCE_ROOT; };
 		A3AAE7B1242972E70035E668 /* SSNGCIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSNGCIC.cpp; sourceTree = "<group>"; };
@@ -184,6 +187,8 @@
 				A35D2B4C242941B80092DEA5 /* SSHipparcos.hpp */,
 				A35D2B4E242951D30092DEA5 /* SSSKY2000.cpp */,
 				A35D2B4F242951D30092DEA5 /* SSSKY2000.hpp */,
+				A36E2193242A7CF6005C9699 /* SSMPC.cpp */,
+				A36E2194242A7CF6005C9699 /* SSMPC.hpp */,
 				A3AAE7B1242972E70035E668 /* SSNGCIC.cpp */,
 				A3AAE7B2242972E70035E668 /* SSNGCIC.hpp */,
 			);
@@ -314,6 +319,7 @@
 				A35D2B50242951D30092DEA5 /* SSSKY2000.cpp in Sources */,
 				A3DBB4BC240EADE80035011E /* ELP2000.c in Sources */,
 				A3AAE7B3242972E70035E668 /* SSNGCIC.cpp in Sources */,
+				A36E2195242A7CF6005C9699 /* SSMPC.cpp in Sources */,
 				A3DBB4C2240EADE80035011E /* Time.c in Sources */,
 				A3DBB4B7240EADE80035011E /* PLUTO95.c in Sources */,
 				4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */,

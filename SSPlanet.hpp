@@ -64,6 +64,9 @@ protected:
 
     SSOrbit     _orbit;     // current orbital elements
     
+	float		_Hmag;		// absolute magnitude
+	float		_Gmag;		// magnitude slope parameter
+	
     SSVector    _position;  // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;  // current heliocentric velocity in fundamental frame in AU per day
 
@@ -71,6 +74,15 @@ public:
     
 	SSPlanet ( SSObjectType type );
     SSPlanet ( SSObjectType type, SSPlanetID id );
+	
+	void setOrbit ( SSOrbit orbit ) { _orbit = orbit; }
+	void setHMagnitude ( float hmag ) { _Hmag = hmag; }
+	void setGMagnitude ( float gmag ) { _Gmag = gmag; }
+
+	SSOrbit getOrbit ( void ) { return _orbit; }
+	float getHMagnitude ( void ) { return _Hmag; }
+	float getGMagnitude ( void ) { return _Gmag; }
+
     void computeEphemeris ( SSDynamics &dyn );
 };
 

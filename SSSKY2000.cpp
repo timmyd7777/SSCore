@@ -167,6 +167,7 @@ string SKY2000VariableTypeString ( int type )
 // Imports SKY2000 Master Star Catalog v5.
 // Inserts name strings from nameNap;
 // Returns vector of SSStar objects which should contain 299460 entries if successful.
+// TODO: add HIP numbers and add'l Bayer letters from Hipparcos. Add nearby stars from RECONS.
 
 vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
 {

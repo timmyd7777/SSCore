@@ -15,7 +15,7 @@
 // Stores Keplerian orbital elements.  For heliocentric orbits, the reference plane
 // is usually the J2000 ecliptic, and the periapse distance is measured in AU.
 
-class SSOrbit
+struct SSOrbit
 {
 	double		t;		// epoch of orbital elements as Julian Ephemeris Date
 	double		q;		// periapse distance in astronomical units
@@ -26,20 +26,18 @@ class SSOrbit
 	double		m;		// mean anomaly at epoch in radians
 	double		mm;		// mean motion, radians per day
 
-public:
+	static constexpr double	kGaussGravHelio = 0.01720209895;		// Gaussian gravitational constant for heliocentric orbits with time in days and distance in AU
+	static constexpr double	kGaussGravGeo = 0.0743669161;			// Gaussian gravitational constant for geocentric orbits with time in minutes and distance in Earth-radii
 	
-	static const int	kMaxIterations = 1000;		// Maximum number of iterations for solving Kepler's equation
-	static constexpr double	kTolerance = 1.0e-9;	// Tolerance for solving Kepler's eqn is about 0.0002 arcsec
-	static constexpr double	kGaussianGravityConstant = 1.0;
-//	static double	mu = kGaussianGravityConstant;
-
     SSOrbit ( void );
 	SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm );
+
+	static double meanMotion ( double e, double q, double g = kGaussGravHelio );
+	static double periapseDistance ( double e, double mm, double g = kGaussGravHelio );
+	static double gravityConstant ( double e, double q, double mm );
 	
 	void solveKeplerEquation ( double jde, double &nu, double &r );
-	void inverseKeplerEquation ( double nu, double r );
-	
-	static SSOrbit fromPositionVelocity ( double jde, double mu, SSVector pos, SSVector vel );
+	static SSOrbit fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double g = kGaussGravHelio );
 	void toPositionVelocity ( double jde, SSVector &pos, SSVector &vel );
 
 	static SSOrbit getMercuryOrbit ( double jde );

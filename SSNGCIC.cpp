@@ -18,7 +18,8 @@
 // This is an Excel file; convert it to tab-delimited text first.
 // Inserts name strings from nameNap; if empty, no names will be added.
 // Stores results in vector of SSObjects (objects).
-// TODO: add Caldwell numbers; add M 45, Hyades, LMC.
+// TODO: add Caldwell numbers; add Pleiades, Hyades, LMC, M 40, M 73.
+// TODO: fix NGC-IC objects classified as stars!
 
 void importNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects )
 {

@@ -10,6 +10,9 @@
 #include "SSOrbit.hpp"
 #include "SSTime.hpp"
 
+static const int	kMaxIterations = 1000;		// Maximum number of iterations for solving Kepler's equation
+static constexpr double	kTolerance = 1.0e-9;	// Tolerance for solving Kepler's eqn is about 0.0002 arcsec
+
 double sindeg ( double deg )
 {
 	return sin ( deg * SSAngle::kRadPerDeg );
@@ -50,6 +53,87 @@ SSOrbit::SSOrbit ( double t, double q, double e, double i, double w, double n, d
 	this->m = m;
 	this->mm = mm;
 }
+
+// Computes mean motion of an object in a Keplerian orbit in radians per time unit
+// from periapse distance (q), eccentricity (e), and Gaussian gravity constant (g).
+
+double SSOrbit::meanMotion ( double e, double q, double g )
+{
+	double mm = 0.0, a = 0.0;
+	
+	if ( e < 1.0 )
+	{
+		a = q / ( 1.0 - e );
+		mm = g / sqrt ( a * a * a );
+	}
+	else if ( e == 1.0 )
+	{
+		mm = g * 3.0 / sqrt ( 2.0 * q * q * q );
+	}
+	else // ( e > 1.0 )
+	{
+		a = q / ( e - 1.0 );
+		mm = g / sqrt ( a * a * a );
+	}
+    
+	return ( mm );
+}
+
+// Computes periapse distance of an object in a Keplerian orbit from eccentricity (e),
+// mean motion in radians per time unit (mm), and Gaussian gravity constant (g).
+
+double SSOrbit::periapseDistance ( double e, double mm, double g )
+{
+    double mu = g * g, q = 0.0, a = 0.0;
+	
+    if ( e < 1.0 )
+    {
+	    a = pow ( mu / ( mm * mm ), 1.0 / 3.0 );
+	    q = a * ( 1.0 - e );
+    }
+    else if ( e == 1.0 )
+    {
+	    q = pow ( mu / ( 2.0 * ( mm * 3.0 ) * ( mm * 3.0 ) ), 1.0 / 3.0 );
+    }
+    else if ( e > 1.0 )
+    {
+	    a = pow ( mu / ( mm * mm ), 1.0 / 3.0 );
+	    q = a / ( e - 1.0 );
+    }
+    
+    return ( q );
+}
+
+// Computes Gaussian gravity constant from eccentricity (e), periapse distance (q),
+// and mean motion (mm) in radians per time unit of an object in a Keplerian orbit.
+
+double SSOrbit::gravityConstant ( double e, double q, double mm )
+{
+	double g = 0.0, a = 0.0;
+	
+	if ( e < 1.0 )	// Elliptical orbits
+	{
+    	a = q / ( 1.0 - e );
+    	g = mm * sqrt ( a * a * a );
+  	}
+	else if ( e == 1.0 )	// Parabolic orbits
+	{
+		g = mm * sqrt ( 2.0 * q * q * q ) / 3.0;
+	}
+	else 	// e > 1.0, Hyperbolic orbits
+	{
+		a = q / ( e - 1.0 );
+		g = mm * sqrt ( a * a * a );
+	}
+
+	return ( g );
+}
+
+// Solves Kepler's equation for elliptical, parabolic, and hyperbolic orbits.
+// For the given Julian Ephemeris Date (jde), computes true anomaly (nu) in radians
+// and distance from primary (r) in same units as orbit periapse.
+// For elliptical orbits, true anomaly is always returned in the range 0 to kTwoPi radians.
+// For parabolic and hyperbolic orbits, true anomaly may have any positive or negative value.
 
 void SSOrbit::solveKeplerEquation ( double jde, double &nu, double &r )
 {
@@ -132,59 +216,13 @@ void SSOrbit::solveKeplerEquation ( double jde, double &nu, double &r )
 	}
 }
 
-void SSOrbit::inverseKeplerEquation ( double nu, double r )
-{
-	double ea, s, ha;
-	
-	// Elliptical Orbits
-	
-	if ( e < 1.0 )
-	{
-		ea = 2.0 * atan ( sqrt ( ( 1.0 - e ) / ( 1.0 + e ) ) * tan ( nu / 2.0 ) );
-		m = ea - e * sin ( ea );
-		q = r * ( 1.0 + e * cos ( nu ) ) / ( 1.0 + e );
-	}
-
-	// Parabolic orbits
-	
-	if ( e == 1.0 )
-	{
-		s = tan ( nu / 2.0 );
-		m = s * s * s + 3.0 * s;
-		q = r / ( 1.0 + s * s );
-	}
-
-	// Hyperbolic orbits
-	
-	if ( e > 1.0 )
-	{
-		ha = 2.0 * atanh ( sqrt ( ( e - 1.0 ) / ( e + 1.0 ) ) * tan ( nu / 2.0 ) );
-		m = e * sinh ( ha ) - ha;
-		q = r * ( 1.0 + e * cos ( nu ) ) / ( 1.0 + e );
-	}
-}
-
 void SSOrbit::toPositionVelocity ( double jde, SSVector &pos, SSVector &vel )
 {
-	double a, nu, mu, r, p, h, dnu, dr;
-	double u, cu, su, ci, si, cn, sn;
+	double nu, mu, r, p, h, dnu, dr;
+	double cu, su, ci, si, cn, sn, u;
 
 	solveKeplerEquation ( jde, nu, r );
-
-	if ( e < 1.0 )	// Elliptical orbits
-	{
-    	a = q / ( 1.0 - e );
-    	mu = a * a * a * mm * mm;
-  	}
-	else if ( e == 1.0 )	// Parabolic orbits
-	{
-		mu = 2.0 * q * q * q * mm * mm / 9.0;
-	}
-	else 	// e > 1.0, Hyperbolic orbits
-	{
-		a = q / ( e - 1.0 );
-		mu = a * a * a * mm * mm;
-	}
+	mu = gravityConstant ( e, q, mm );
 
 	p = q * ( 1.0 + e );
 	h = sqrt ( mu * p );
@@ -208,7 +246,7 @@ void SSOrbit::toPositionVelocity ( double jde, SSVector &pos, SSVector &vel )
 	vel.z = pos.z * dr / r + r * dnu * ( cu * si );
 }
 
-SSOrbit SSOrbit::fromPositionVelocity ( double jde, double mu, SSVector pos, SSVector vel )
+SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double mu )
 {
 	double hx = pos.y * vel.z - pos.z * vel.y;
 	double hy = pos.z * vel.x - pos.x * vel.z;
@@ -450,15 +488,15 @@ SSOrbit SSOrbit::getJupiterOrbit ( double jde )
 		e  =     0.04853590 + 0.00018026 * t;
 		i  =     1.29861416 - 0.00322699 * t;
 		l  =    34.33479152 + 3034.90371757 * t
-						    - 0.00012452 * t * t
-		                    + 0.06064060 * cosdeg ( 38.35125 * t )
-						    - 0.35635438 * sindeg ( 38.35125 * t );
+					      - 0.00012452 * t * t
+	                      + 0.06064060 * cosdeg ( 38.35125 * t )
+					      - 0.35635438 * sindeg ( 38.35125 * t );
 		p  =    14.27495244 + 0.18199196 * t;
 		n  =   100.29282564 + 0.13024619 * t;
 		mm =  3034.90371757 - 0.18199196
-						    - 0.00012452 * 2 * t
-						    - 0.06064060 * ksinkdeg ( 38.35125, t )
-						    - 0.35635438 * kcoskdeg ( 38.35125, t );
+					      - 0.00012452 * 2 * t
+					      - 0.06064060 * ksinkdeg ( 38.35125, t )
+					      - 0.35635438 * kcoskdeg ( 38.35125, t );
 	}
 	
 	return SSOrbit ( jde,
@@ -496,15 +534,15 @@ SSOrbit SSOrbit::getSaturnOrbit ( double jde )
 		e  =     0.05550825 -    0.00032044 * t;
 		i  =     2.49424192 +    0.00451969 * t;
 		l  =    50.07571329 + 1222.11494724 * t
-						    +    0.00025899 * t * t
-						    -    0.13434469 * cosdeg ( 38.35125 * t )
-						    +    0.87320147 * sindeg ( 38.35125 * t );
+					      +    0.00025899 * t * t
+					      -    0.13434469 * cosdeg ( 38.35125 * t )
+					      +    0.87320147 * sindeg ( 38.35125 * t );
 		p  =    92.86136063 +    0.54179478 * t;
 		n  =   113.63998702 -    0.25015002 * t;
 		mm =  1222.11494724 -    0.54179478
-						    +    0.00025899 * 2 * t
-						    +    0.13434469 * ksinkdeg ( 38.35125, t )
-						    +    0.87320147 * kcoskdeg ( 38.35125, t );
+					      +    0.00025899 * 2 * t
+					      +    0.13434469 * ksinkdeg ( 38.35125, t )
+					      +    0.87320147 * kcoskdeg ( 38.35125, t );
 	}
 
 	return SSOrbit ( jde,
@@ -542,15 +580,15 @@ SSOrbit SSOrbit::getUranusOrbit ( double jde )
 		e  =    0.04685740 -   0.00001550 * t;
 		i  =    0.77298127 -   0.00180155 * t;
 		l  =  314.20276625 + 428.49512595 * t
-						   +   0.00058331 * t * t
-						   -   0.97731848 * cosdeg ( 7.67025 * t )
-						   +   0.17689245 * sindeg ( 7.67025 * t );
+					     +   0.00058331 * t * t
+					     -   0.97731848 * cosdeg ( 7.67025 * t )
+					     +   0.17689245 * sindeg ( 7.67025 * t );
 		p  =  172.43404441 +   0.09266985 * t;
 		n  =   73.96250215 +   0.05739699 * t;
 		mm =  428.49512595 -   0.09266985
-						   +   0.00058331 * 2 * t
-						   +   0.97731848 * ksinkdeg ( 7.67025, t )
-						   +   0.17689245 * kcoskdeg ( 7.67025, t );
+					     +   0.00058331 * 2 * t
+					     +   0.97731848 * ksinkdeg ( 7.67025, t )
+					     +   0.17689245 * kcoskdeg ( 7.67025, t );
 	}
 
 	return SSOrbit ( jde,
@@ -588,15 +626,15 @@ SSOrbit SSOrbit::getNeptuneOrbit ( double jde )
 		e  =   0.00895439 +   0.00000818 * t;
 		i  =   1.77005520 +   0.00022400 * t;
 		l  = 304.22289287 + 218.46515314 * t
-						  -   0.00041348 * t * t
-						  +   0.68346318 * cosdeg ( 7.67025 * t )
-						  -   0.10162547 * sindeg ( 7.67025 * t );
+					    -   0.00041348 * t * t
+					    +   0.68346318 * cosdeg ( 7.67025 * t )
+					    -   0.10162547 * sindeg ( 7.67025 * t );
 		p  =  46.68158724 +   0.01009938 * t;
 		n  = 131.78635853 -   0.00606302 * t;
 		mm = 218.46515314 -   0.01009938
-						  -   0.00041348 * 2 * t
-						  -   0.68346318 * ksinkdeg ( 7.67025, t )
-						  -   0.10162547 * kcoskdeg ( 7.67025, t );
+					    -   0.00041348 * 2 * t
+					    -   0.68346318 * ksinkdeg ( 7.67025, t )
+					    -   0.10162547 * kcoskdeg ( 7.67025, t );
 	}
 
 	return SSOrbit ( jde,

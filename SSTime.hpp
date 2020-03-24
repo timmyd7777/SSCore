@@ -13,6 +13,8 @@
 #include <math.h>
 #include <time.h>
 
+#include "SSAngle.hpp"
+
 using namespace std;
 
 // Identifers for the calendar systems used in SSDate and SSTime.
@@ -65,6 +67,8 @@ class SSTime
 	static constexpr double		kSiderealPerSolarDays = 1.00273790934;	// Sidereal days per Solar day
 	static constexpr double		kSolarPerSiderealDays = 0.99726957;		// Days per Sidereal Day
 
+	operator double () { return jd; }
+	
 	SSTime ( void );
 	SSTime ( double jd );
 	SSTime ( double jd, double zone );

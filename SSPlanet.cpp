@@ -18,6 +18,7 @@ SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSObject ( type )
 {
     _id = id;
     _orbit = SSOrbit();
+	_Hmag = _Gmag = HUGE_VAL;
     _position = _velocity = SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
 }
 
