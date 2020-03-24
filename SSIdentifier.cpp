@@ -276,6 +276,37 @@ string wds_to_string ( int64_t wds )
 	return format ( "%05d%c%04d", ra, sign, dec );
 }
 
+int64_t string_to_ngcic ( string str )
+{
+	int		num = 0;
+	char	ext = 0;
+
+	sscanf ( str.c_str(), "%d%c", &num, &ext );
+	
+	if ( ext >= 'A' && ext <= 'I' )
+		ext = ext - 'A' + 1;
+	else if ( ext >= 'a' && ext <= 'i' )
+		ext = ext - 'a' + 1;
+	else
+		ext = 0;
+			
+    if ( num >= 0 && num <= 7840 )
+    	return num * 10 + ext;
+    else
+    	return 0;
+}
+
+string ngcic_to_string ( int64_t ngcic )
+{
+	int64_t		num = ngcic / 10;
+	int64_t		ext = num - ngcic * 10;
+	
+	if ( ext > 0 )
+		return format ( "%d%c", num, ext + 'A' - 1 );
+	else
+		return format ( "%d", num );
+}
+
 static void mapinit ( void )
 {
 	for ( int i = 0; i < _bayvec.size(); i++ )
@@ -311,6 +342,42 @@ SSIdentifier SSIdentifier::fromString ( string str )
 	
 	if ( _conmap.size() == 0 || _baymap.size() == 0 )
 		mapinit();
+
+	// if string begins with "M", attempt to parse a Messier number
+	
+	if ( str.find ( "M" ) == 0 && len > 1 )
+	{
+		int64_t m = strtoint ( str.substr ( 1, len - 1 ) );
+		if ( m > 0 && m <= 110 )
+			return SSIdentifier ( kCatMessier, m );
+	}
+
+	// if string begins with "C", attempt to parse a Caldwell number
+	
+	if ( str.find ( "C" ) == 0 && len > 1 )
+	{
+		int64_t c = strtoint ( str.substr ( 1, len - 1 ) );
+		if ( c > 0 && c <= 109 )
+			return SSIdentifier ( kCatCaldwell, c );
+	}
+
+	// if string begins with "NGC", attempt to parse a New General Catalog identifier
+	
+	if ( str.find ( "NGC" ) == 0 && len > 3 )
+	{
+		int64_t ngc = string_to_ngcic ( str.substr ( 3, len - 3 ) );
+		if ( ngc )
+			return SSIdentifier ( kCatNGC, ngc );
+	}
+
+	// if string begins with "ICC", attempt to parse an Index Catalog identifier
+	
+	if ( str.find ( "IC" ) == 0 && len > 2 )
+	{
+		int64_t ic = string_to_ngcic ( str.substr ( 2, len - 2 ) );
+		if ( ic )
+			return SSIdentifier ( kCatIC, ic );
+	}
 
 	// if string begins with "HR", attempt to parse a Harvard Revised (Bright Star) catalog identifier
 	
@@ -380,7 +447,9 @@ SSIdentifier SSIdentifier::fromString ( string str )
 	
 	if ( str.find ( "WDS" ) == 0 && len > 3 )
 	{
-		return SSIdentifier ( kCatWDS, string_to_wds ( str.substr ( 3, len - 3 ) ) );
+		int64_t wds = string_to_wds ( str.substr ( 3, len - 3 ) );
+		if ( wds )
+			return SSIdentifier ( kCatWDS, wds );
 	}
 	
 	// parse constellation abbreviation from last 3 characters of string
@@ -500,7 +569,23 @@ string SSIdentifier::toString ( void )
 	{
 		str = "WDS " + wds_to_string ( id );
 	}
-	
+	else if ( cat == kCatMessier )
+	{
+		str = "M " + to_string ( id );
+	}
+	else if ( cat == kCatCaldwell )
+	{
+		str = "C " + to_string ( id );
+	}
+	else if ( cat == kCatNGC )
+	{
+		str = "NGC " + ngcic_to_string ( id );
+	}
+	else if ( cat == kCatIC )
+	{
+		str = "IC " + ngcic_to_string ( id );
+	}
+
 	return str;
 }
 

@@ -13,10 +13,13 @@
 #include "SSStar.hpp"
 #include "SSHipparcos.hpp"
 #include "SSSKY2000.hpp"
+#include "SSNGCIC.hpp"
 
 int main ( int argc, char *argv[] )
 {
-	vector<string> tokens = split ( "Hello,Tim!", ",," );
+	SSObjectVec objects;
+	
+	importNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", objects );
 	
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );

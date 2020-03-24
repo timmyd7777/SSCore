@@ -204,9 +204,7 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         string strNum = "";
         string strFlm = "";
         string strName = line.substr ( 98, 10 );
-        if ( strName.find ( "  1pi 3Ori") == 0 )
-            strName = strName;
-        
+ 
         if ( strName.find ( "AG" ) != 0 )
         {
             string strCon = trim ( line.substr ( 105, 3 ) );

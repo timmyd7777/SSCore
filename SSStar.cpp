@@ -201,25 +201,26 @@ string SSStar::toCSV1 ( void )
 {
 	string csv = "";
 	
-	SSSpherical pos = _position.toSpherical();
-	SSSpherical vel = _position.toSphericalVelocity( _velocity );
+	SSSpherical coords = getFundamentalCoords();
+	SSSpherical motion = getFundamentalMotion();
 	
-	SSHourMinSec ra = pos.lon;
-	SSDegMinSec dec = pos.lat;
+	SSHourMinSec ra = coords.lon;
+	SSDegMinSec dec = coords.lat;
+	double distance = coords.rad;
 	
 	csv += _typeStrings[ _type ] + ",";
 	
 	csv += ra.toString() + ",";
 	csv += dec.toString() + ",";
 	
-	csv += isnan ( vel.lon ) ? "        ," : format ( "%+8.5f,", ( vel.lon / 15.0 ).toArcsec() );
-	csv += isnan ( vel.lat ) ? "        ," : format ( "%+7.4f,", vel.lat.toArcsec() );
+	csv += isnan ( motion.lon ) ? "," : format ( "%+.5f,", ( motion.lon / 15.0 ).toArcsec() );
+	csv += isnan ( motion.lat ) ? "," : format ( "%+.4f,", motion.lat.toArcsec() );
 	
-	csv += isinf ( _Vmag ) ? "      ," : format ( "%+6.2f,", _Vmag );
-	csv += isinf ( _Bmag ) ? "      ," : format ( "%+6.2f,", _Bmag );
+	csv += isinf ( _Vmag ) ? "," : format ( "%+.2f,", _Vmag );
+	csv += isinf ( _Bmag ) ? "," : format ( "%+.2f,", _Bmag );
 	
-	csv += isinf ( _parallax ) ? "      ," : format ( "%6.4f,", _parallax );
-	csv += isinf ( _radvel )   ? "      ," : format ( "%+6.1f,", _radvel * SSDynamics::kLightKmPerSec );
+	csv += isinf ( distance ) ? "," : format ( "%.3E,", distance );
+	csv += isinf ( _radvel ) ? "," : format ( "%+.1f,", _radvel * SSDynamics::kLightKmPerSec );
 	
 	// If spectrum contains a comma, put it in quotes.
 	
@@ -257,10 +258,10 @@ string SSDoubleStar::toCSVD ( void )
 	string csv = "";
 	
 	csv += _comps + ",";
-	csv += isinf ( _magDelta ) ? "      ," : format ( "%+6.2f,", _magDelta );
-	csv += isinf ( _sep ) ? "      ," : format ( "%6.1f,", _sep * SSAngle::kArcsecPerRad );
-	csv += isinf ( _PA ) ? "     ," : format ( "%5.1f,", _PA * SSAngle::kDegPerRad );
-	csv += isinf ( _PAyr ) ? "       ," : format ( "%7.2f,", _PAyr );
+	csv += isinf ( _magDelta ) ? "," : format ( "%+.2f,", _magDelta );
+	csv += isinf ( _sep ) ? "," : format ( "%.1f,", _sep * SSAngle::kArcsecPerRad );
+	csv += isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
+	csv += isinf ( _PAyr ) ? "," : format ( "%.2f,", _PAyr );
 
 	return csv;
 }
@@ -280,10 +281,10 @@ string SSVariableStar::toCSVV ( void )
 	string csv = "";
 	
 	csv += _varType + ",";
-	csv += isinf ( _varMinMag ) ? "      ," : format ( "%+6.2f,", _varMinMag );
-	csv += isinf ( _varMaxMag ) ? "      ," : format ( "%+6.2f,", _varMaxMag );
-	csv += isinf ( _varPeriod ) ? "       ," : format ( "%7.2f,", _varPeriod );
-	csv += isinf ( _varEpoch )  ? "         ," : format ( "%9.2f,", _varEpoch );
+	csv += isinf ( _varMinMag ) ? "," : format ( "%+.2f,", _varMinMag );
+	csv += isinf ( _varMaxMag ) ? "," : format ( "%+.2f,", _varMaxMag );
+	csv += isinf ( _varPeriod ) ? "," : format ( "%.2f,", _varPeriod );
+	csv += isinf ( _varEpoch )  ? "," : format ( "%.2f,", _varEpoch );
 
 	return csv;
 }
@@ -302,6 +303,27 @@ string SSVariableStar::toCSV ( void )
 string SSDoubleVariableStar::toCSV ( void )
 {
 	return toCSV1() + toCSVD() + toCSVV() + toCSV2();
+}
+
+// Returns CSV string from deep sky object data (but not SStar base class).
+
+string SSDeepSky::toCSVDS ( void )
+{
+	string csv = "";
+
+	csv += isinf ( _majAxis ) ? "," : format ( "%.2f,", _majAxis * SSAngle::kArcminPerRad );
+	csv += isinf ( _minAxis ) ? "," : format ( "%.2f,", _minAxis * SSAngle::kArcminPerRad );
+	csv += isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
+
+	return csv;
+}
+
+// Returns CSV string including base star data, double-star data,
+// plus names and identifiers. Overrides SSStar::toCSV().
+
+string SSDeepSky::toCSV ( void )
+{
+	return toCSV1() + toCSVDS() + toCSV2();
 }
 
 // Downcasts generic SSObject pointer to SSStar pointer.

@@ -159,6 +159,8 @@ protected:
     float _minAxis;     // apparent size minor axis, in radians; infinite if unknown
     float _PA;          // position angle of major axis from north in fundamental mean J2000 equatorial frame; infinite if unknown
 
+	string toCSVDS ( void );		// returns CSV string from deep sky object data (but not SStar base class).
+
 public:
     
     SSDeepSky ( SSObjectType type );
@@ -172,6 +174,8 @@ public:
     float getMinorAxis ( void ) { return _minAxis; }
     float getPostionAngle ( void ) { return _PA; }
     string getGalaxyType ( void ) { return _spectrum; }
+
+	virtual string toCSV ( void );
 };
 
 #pragma pack ( pop )

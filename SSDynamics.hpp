@@ -49,6 +49,9 @@ class SSDynamics
     
     SSVector addAberration ( SSVector funDir );
     SSVector subtractAberration ( SSVector aberrFunDir );
+	
+	static double redshiftToRadVel ( double );
+	static double radVelToRedshift ( double );
 };
 
 #endif /* SSDynamics_hpp */

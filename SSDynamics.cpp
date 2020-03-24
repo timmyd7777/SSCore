@@ -75,6 +75,24 @@ SSVector SSDynamics::subtractAberration ( SSVector aberrFunDir )
     return aberrFunDir.subtract ( obsVel.divideBy ( kLightAUPerDay ) ).normalize();
 }
 
+double SSDynamics::redshiftToRadVel ( double z )
+{
+	double z12 = ( z + 1.0 ) * ( z + 1.0 );
+	double rv = ( z12 - 1.0 ) / ( z12 + 1.0 );
+	
+	if ( z < 0.0 )
+		z = z;
+	
+	return ( rv );
+}
+
+double SSDynamics::radVelToRedshift ( double rv )
+{
+	double z = sqrt ( ( 1.0 + rv ) / ( 1.0 - rv ) ) - 1.0;
+	
+	return ( z );
+}
+
 void SSDynamics::getPlanetPositionVelocity ( SSPlanetID id, double jde, SSVector &pos, SSVector &vel )
 {
     SSOrbit orb;
