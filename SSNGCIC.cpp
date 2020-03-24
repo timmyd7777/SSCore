@@ -12,6 +12,14 @@
 #include <iostream>
 #include <fstream>
 
+// Imports Wolfgang Steinicke's Revised NGC-IC Catalogs, obtained from:
+// http://www.klima-luft.de/steinicke/index_e.htm with data files here:
+// http://www.klima-luft.de/steinicke/ngcic/rev2000/NI2019.zip
+// This is an Excel file; convert it to tab-delimited text first.
+// Inserts name strings from nameNap; if empty, no names will be added.
+// Stores results in vector of SSObjects (objects).
+// TODO: add Caldwell numbers; add M 45, Hyades, LMC.
+
 void importNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects )
 {
     // Open file; report error and return empty map on failure.
@@ -231,6 +239,5 @@ vector<string> getNamesFromIdentifiers ( vector<SSIdentifier> &idents, SSIdentif
     }
 
     return names;
-
 }
 
