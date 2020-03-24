@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 
-void importNGCIC ( const char *filename, SSObjectVec &objects )
+void importNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects )
 {
     // Open file; report error and return empty map on failure.
 
@@ -134,9 +134,15 @@ void importNGCIC ( const char *filename, SSObjectVec &objects )
 			if ( ! tokens[k].empty() )
 				addIdentifier ( idents, SSIdentifier::fromString ( tokens[k] ) );
 		
+		// get names from identifiers.  Sort identifier list.
+		
+		vector<string> names = getNamesFromIdentifiers( idents, nameMap );
+        sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+
 		SSDeepSkyPtr pDeepSkyObj = SSGetDeepSkyPtr ( pObject );
 		if ( pDeepSkyObj != nullptr )
 		{
+			pDeepSkyObj->setNames ( names );
 			pDeepSkyObj->setIdentifiers ( idents );
 			pDeepSkyObj->setFundamentalMotion ( coords, motion );
 			pDeepSkyObj->setVMagnitude ( vmag );
@@ -150,3 +156,81 @@ void importNGCIC ( const char *filename, SSObjectVec &objects )
 		}
 	}
 }
+
+// Reads identifier-to-name map from filename and stores results in nameMap.
+// If successful, nameMap will contain identifier-to-name pairs;
+// on failure, nothing will be read into nameMap.
+
+void importNGCICNameMap ( const char *filename, SSIdentifierNameMap &nameMap )
+{
+    // Open file; report error and return empty map on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+    {
+        cout << "Failure: can't open " << filename << endl;
+        return;
+    }
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int linecount = 0;
+	int paircount = 0;
+	
+    while ( getline ( file, line ) )
+    {
+		linecount++;
+
+		// Split line into tokens separated by commas.
+		// Require at least 2 tokens.  First token is name.
+		
+		vector<string> tokens = split ( line, "," );
+		if ( tokens.size() < 2 )
+			continue;
+		
+		// For each token after the first, attempt to generate an identifier.
+		// If successful, insert an identifier-name pair into the map.
+		
+		for ( int k = 1; k < tokens.size(); k++ )
+		{
+			SSIdentifier ident = SSIdentifier::fromString ( tokens[k] );
+			if ( ident )
+			{
+				nameMap.insert ( { ident, tokens[0] } );
+				paircount++;
+			}
+			else
+			{
+				cout << "Warning: can't convert " << tokens[k] << " for " << tokens[0] << endl;
+			}
+		}
+	}
+	
+	cout << "Success: imported " << paircount << " identifier-name pairs." << endl;
+}
+
+// Given a vector of identifiers, returns vector of all corresponding name strings
+// from the input identifier-to-name map.  If no names correspond to any identifier,
+// returns a zero-length vector.
+
+vector<string> getNamesFromIdentifiers ( vector<SSIdentifier> &idents, SSIdentifierNameMap &nameMap )
+{
+    vector<string> names;
+
+    for ( SSIdentifier ident : idents )
+    {
+		auto nameRange = nameMap.equal_range ( ident );
+		for ( auto i = nameRange.first; i != nameRange.second; i++ )
+		{
+			string name = i->second;
+			
+			if ( name.length() > 0 && find ( names.begin(), names.end(), name ) == names.end() )
+				names.push_back ( name );
+		}
+    }
+
+    return names;
+
+}
+

@@ -8,8 +8,14 @@
 #ifndef SSNGCIC_hpp
 #define SSNGCIC_hpp
 
+#include <map>
 #include "SSStar.hpp"
 
-void importNGCIC ( const char *filename, SSObjectVec &objects );
+typedef multimap<SSIdentifier,string> SSIdentifierNameMap;
+
+void importNGCICNameMap ( const char *filename, SSIdentifierNameMap &nameMap );
+vector<string> getNamesFromIdentifiers ( vector<SSIdentifier> &idents, SSIdentifierNameMap &nameMap );
+
+void importNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects );
 
 #endif /* SSNGCIC_hpp */

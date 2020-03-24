@@ -299,7 +299,7 @@ int64_t string_to_ngcic ( string str )
 string ngcic_to_string ( int64_t ngcic )
 {
 	int64_t		num = ngcic / 10;
-	int64_t		ext = num - ngcic * 10;
+	int64_t		ext = ngcic - num * 10;
 	
 	if ( ext > 0 )
 		return format ( "%d%c", num, ext + 'A' - 1 );
