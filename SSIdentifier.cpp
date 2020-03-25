@@ -343,7 +343,25 @@ SSIdentifier SSIdentifier::fromString ( string str )
 	if ( _conmap.size() == 0 || _baymap.size() == 0 )
 		mapinit();
 
-	// if string begins with "M", attempt to parse a Messier number
+    // if string is a number inside paratheses, attempt to parse as an asteroid number
+    
+    if ( str[0] == '(' && str[len - 1] == ')' )
+    {
+        int64_t n = strtoint ( str.substr ( 1, len - 2 ) );
+        if ( n > 0 )
+            return SSIdentifier ( kCatAstNum, n );
+    }
+    
+    // if string is a number followed by "P", parse as a periodic comet number
+    
+    if ( str.find ( "P" ) != string::npos )
+    {
+        int64_t n = strtoint ( str.substr ( 0, str.find ( "P" ) ) );
+        if ( n > 0 )
+            return SSIdentifier ( kCatComNum, n );
+    }
+
+    // if string begins with "M", attempt to parse a Messier number
 	
 	if ( str.find ( "M" ) == 0 && len > 1 )
 	{
@@ -585,7 +603,19 @@ string SSIdentifier::toString ( void )
 	{
 		str = "IC " + ngcic_to_string ( id );
 	}
-
+    else if ( cat == kCatAstNum )
+    {
+        str = "(" + to_string ( id ) + ")";
+    }
+    else if ( cat == kCatComNum )
+    {
+        str = to_string ( id ) + "P";
+    }
+    else if ( cat == kCatNORADSat )
+    {
+        str = to_string (id);
+    }
+    
 	return str;
 }
 

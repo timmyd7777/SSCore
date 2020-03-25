@@ -37,14 +37,10 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
         if ( line.length() < 160 )
             continue;
 		
-		// col 1-4: periodic or interstellar comet number,
-		// denoted with 'P' or 'I' in column 5.
-		
+		// col 1-4: periodic or interstellar comet number, denoted with 'P' or 'I' in column 5.
+        // col 6-12: provisional designation. Both currently unused.
+
 		string field = line.substr ( 0, 4 );
-		int number = line[5] == 'P' ? strtoint ( field ) : 0;
-		
-		// col 6-12: provisional designation
-		
 		field = line.substr ( 5, 7 );
 		
 		// col 15-18: year/month/day of perihelion passage (TDT)
@@ -108,12 +104,44 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 		field = trim ( line.substr ( 96, 5 ) );
 		float gmag = field.empty() ? HUGE_VAL : strtofloat ( field );
 
-		// col 103 - 159: name
+		// col 103 - 159: name including provisional desingation and/or periodic comet number
 		
 		vector<string> names;
 		field = trim ( line.substr ( 102, 56 ) );
-		if ( ! field.empty() )
-			names.push_back ( field );
+        SSIdentifier number = SSIdentifier::fromString ( field );
+        
+        // for numbered periodic comets, extract name following slash.
+        
+        if ( number )
+        {
+            size_t pos = field.find ( "P/" );
+            string name = ( pos == string::npos ) ? field : field.substr ( pos + 2, string::npos );
+            if ( ! name.empty() )
+                names.push_back ( name );
+        }
+        else
+        {
+            // extract name in parantheses (if any), preceded by provisional designation
+            
+            size_t pos1 = field.find ( "(" );
+            size_t pos2 = field.find ( ")" );
+            
+            if ( pos1 == string::npos || pos2 == string::npos )
+            {
+                names.push_back ( field );
+            }
+            else
+            {
+                string name1 = trim ( field.substr ( 0, pos1 - 1 ) );
+                string name2 = trim ( field.substr ( pos1 + 1, pos2 - pos1 - 1 ) );
+                
+                if ( ! name1.empty() )
+                    names.push_back ( name1 );
+                
+                if ( ! name2.empty() )
+                    names.push_back ( name2 );
+            }
+        }
 
         // Allocate new comet object with default values
         
@@ -131,7 +159,7 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 		SSOrbit orbit ( t, q, e, i, w, n, m, mdm );
 		
 		if ( number )
-			pComet->setIdentifier ( SSIdentifier ( kCatComNum, number ) );
+			pComet->setIdentifier ( number );
 
 		pComet->setNames ( names );
 		pComet->setOrbit ( orbit );
@@ -260,11 +288,8 @@ int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
         
         // col 167-254: asteroid number (may be blank)
         
-        field = line.substr ( 166, 8 );
-        size_t pos = field.find ( "(" );
-        int number = 0;
-        if ( pos != string::npos )
-            number = strtoint ( field.substr ( pos, field.find ( ")" ) - pos ) );
+        field = trim ( line.substr ( 166, 8 ) );
+        SSIdentifier number = SSIdentifier::fromString ( field );
         
         // col 167-254: Name or provisional designation
 
@@ -282,7 +307,8 @@ int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
         SSOrbit orbit ( epoch, a * ( 1.0 - e ), e, i, w, n, m, mm );
 
         if ( number )
-            pAsteroid->setIdentifier ( SSIdentifier ( kCatAstNum, number ) );
+            pAsteroid->setIdentifier ( number );
+        
         pAsteroid->setNames ( names );
         pAsteroid->setOrbit ( orbit );
         pAsteroid->setHMagnitude ( hmag );

@@ -59,6 +59,9 @@ string SSPlanet::toCSV ( void )
 	csv += isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
 	csv += isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
 	
+    if ( _id )
+        csv += _id.toString() + ",";
+        
 	for ( int i = 0; i < _names.size(); i++ )
 		csv += _names[i] + ",";
 
