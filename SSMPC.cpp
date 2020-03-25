@@ -29,11 +29,11 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
-    int linecount = 0, numcomets = 0;
+    int numLines = 0, numComets = 0;
 
     while ( getline ( file, line ) )
     {
-        linecount++;
+        numLines++;
         if ( line.length() < 160 )
             continue;
 		
@@ -73,22 +73,22 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 		// col 52-59: argument of perihelion, J2000.0 (degrees)
 		
 		field = line.substr ( 51, 8 );
-		double w = SSAngle::fromDegrees ( strtofloat64 ( field ) );
-		if ( w <= 0.0 || w > SSAngle::kTwoPi )
+		double w = degtorad ( strtofloat64 ( field ) );
+		if ( w <= 0.0 || w > M_2PI )
 			continue;
 		
 		// col 62-69: longitude of ascending node, J2000.0 (degrees)
 		
 		field = line.substr ( 61, 8 );
-		double n = SSAngle::fromDegrees ( strtofloat64 ( field ) );
-		if ( n <= 0.0 || n > SSAngle::kTwoPi )
+		double n = degtorad ( strtofloat64 ( field ) );
+		if ( n <= 0.0 || n > M_2PI )
 			continue;
 		
 		// col 72-79: inclination, J2000.0 (degrees)
 		
 		field = line.substr ( 71, 8 );
-		double i = SSAngle::fromDegrees ( strtofloat64 ( field ) );
-		if ( i <= 0.0 || i > SSAngle::kPi )
+		double i = degtorad ( strtofloat64 ( field ) );
+		if ( i <= 0.0 || i > M_PI )
 			continue;
 		
 		// col 82-85: epoch for perturbed solution - may be blank
@@ -115,6 +115,8 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 		if ( ! field.empty() )
 			names.push_back ( field );
 
+        // Allocate new comet object with default values
+        
 		SSPlanetPtr pComet = new SSPlanet ( kTypeComet );
 		if ( pComet == nullptr )
 			continue;
@@ -138,10 +140,10 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 		
 		cout << pComet->toCSV() << endl;
 		comets.push_back ( shared_ptr<SSObject> ( pComet ) );
-		numcomets++;
+		numComets++;
 	}
 	
-	return numcomets;
+	return numComets;
 }
 
 // Read asteroid data from a Minor Planet Center asteroid orbit export file:
@@ -153,5 +155,143 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 
 int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
 {
-	return 0;
+    // Open file; report error and return empty map on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+    {
+        cout << "Failure: can't open " << filename << endl;
+        return ( 0 );
+    }
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int numLines = 0, numAsteroids = 0;
+
+    while ( getline ( file, line ) )
+    {
+        numLines++;
+        if ( line.length() < 195 )
+            continue;
+
+        // col 9-13: absolute magnitude
+        
+        string field = trim ( line.substr ( 8, 5 ) );
+        float hmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        
+        // col 15-19: magnitude slope parameter
+        
+        field = line.substr ( 14, 5 );
+        float gmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        
+        // col 21-25: epoch in packed form
+        
+        field = line.substr ( 20, 5 );
+        int year = 100 * ( 20 + toupper ( field[0] ) - 'K' );  // century
+        year += strtoint ( field.substr ( 1, 2 ) );
+        
+        int month = 0;
+        if ( field[3] >= '1' && field[3] <= '9' )
+            month = 1 + field[3] - '1';
+        else if ( toupper( field[3] ) >= 'A' && toupper( field[3] ) <= 'C' )
+            month = 10 + toupper ( field[3] ) - 'A';
+        else
+            continue;
+        
+        double day = 0.0;
+        if ( field[4] >= '1' && field[4] <= '9' )
+            day = 1 + field[4] - '1';
+        else if ( toupper ( field[4] ) >= 'A' && toupper ( field[4] ) <= 'V' )
+            day = 10 + toupper ( field[4] ) - 'A';
+        else
+            continue;
+        
+        double epoch = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
+        
+        // col 27-35: Mean anomaly in degrees
+        
+        field = line.substr ( 26, 9 );
+        double m = degtorad ( strtofloat64 ( field ) );
+        if ( m <= 0.0 || m > M_2PI )
+            continue;
+        
+        // col 38-46: Argument of perihelion in degrees
+        
+        field = line.substr ( 37, 9 );
+        double w = degtorad ( strtofloat64 ( field ) );
+        if ( w <= 0.0 || w > M_2PI )
+            continue;
+        
+        // col 49-57: Longitude of ascending node in degrees
+        
+        field = line.substr ( 48, 9 );
+        double n = degtorad ( strtofloat64 ( field ) );
+        if ( n <= 0.0 || n > M_2PI )
+            continue;
+        
+        // col 60-68: Inclination in degrees
+        
+        field = line.substr ( 59, 9 );
+        double i = degtorad ( strtofloat64 ( field ) );
+        if ( i <= 0.0 || i > M_PI )
+            continue;
+        
+        // col 71-79: Eccentricity
+        
+        field = line.substr ( 70, 9 );
+        double e = strtofloat64 ( field );
+        if ( e <= 0.0 || e >= 1.0 )
+            continue;
+        
+        // col 81-91: Mean motion in degrees per day
+        
+        field = line.substr ( 80, 11 );
+        double mm = degtorad ( strtofloat64 ( field ) );
+        if ( mm <= 0.0 || mm >= M_2PI )
+            continue;
+        
+        // col 93-103: Semimajor axis in AU.  If not found, compute from mean motion.
+        
+        field = line.substr ( 92, 11 );
+        double a = strtofloat64 ( field );
+        if ( a <= 0.0 )
+            a = pow ( SSOrbit::kGaussGravHelio / ( mm * mm ), 1.0 / 3.0 );
+        
+        // col 167-254: asteroid number (may be blank)
+        
+        field = line.substr ( 166, 8 );
+        size_t pos = field.find ( "(" );
+        int number = 0;
+        if ( pos != string::npos )
+            number = strtoint ( field.substr ( pos, field.find ( ")" ) - pos ) );
+        
+        // col 167-254: Name or provisional designation
+
+        vector<string> names;
+        field = trim ( line.substr ( 175, 19 ) );
+        if ( ! field.empty() )
+            names.push_back ( field );
+        
+        // Allocate new asteroid object with default values
+        
+        SSPlanetPtr pAsteroid = new SSPlanet ( kTypeAsteroid );
+        if ( pAsteroid == nullptr )
+            continue;
+        
+        SSOrbit orbit ( epoch, a * ( 1.0 - e ), e, i, w, n, m, mm );
+
+        if ( number )
+            pAsteroid->setIdentifier ( SSIdentifier ( kCatAstNum, number ) );
+        pAsteroid->setNames ( names );
+        pAsteroid->setOrbit ( orbit );
+        pAsteroid->setHMagnitude ( hmag );
+        pAsteroid->setGMagnitude ( gmag );
+
+        cout << pAsteroid->toCSV() << endl;
+        asteroids.push_back ( shared_ptr<SSObject> ( pAsteroid ) );
+        numAsteroids++;
+    }
+
+    return numAsteroids;
 }

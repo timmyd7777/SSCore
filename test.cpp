@@ -5,6 +5,8 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
 #include <stdio.h>
+#include <iostream>
+
 #include "AstroLib.h"
 #include "SSCoords.hpp"
 #include "SSOrbit.hpp"
@@ -21,8 +23,14 @@ int main ( int argc, char *argv[] )
 	SSObjectVec objects;
 	SSIdentifierNameMap ngcicNameMap;
 	
-	importMPCComets ( "/Users/timmyd/Desktop/CometEls.txt", objects );
-	
+    SSObjectVec comets;
+	int numcom = importMPCComets ( "/Users/timmyd/Desktop/CometEls.txt", comets );
+    cout << "Imported " << numcom << " MPC comets" << endl;
+    
+    SSObjectVec asteroids;
+    int numast = importMPCAsteroids ( "/Users/timmyd/Desktop/MPCORB.DAT", asteroids );
+    cout << "Imported " << numast << " MPC asteroids" << endl;
+
 	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NINames.csv", ngcicNameMap );
 	importNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
 	
