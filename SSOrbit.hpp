@@ -12,8 +12,9 @@
 #include <stdio.h>
 #include "SSVector.hpp"
 
-// Stores Keplerian orbital elements.  For heliocentric orbits, the reference plane
-// is usually the J2000 ecliptic, and the periapse distance is measured in AU.
+// Stores Keplerian orbital elements, solves Kepler's equation, and computes position/velocity
+// at a given time; also computes orbit from position & velocity.
+// For heliocentric orbits, the reference plane is usually the J2000 ecliptic, and periapse distance is measured in AU.
 
 struct SSOrbit
 {

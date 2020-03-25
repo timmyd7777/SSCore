@@ -121,7 +121,7 @@ double strtofloat64 ( string str )
     
     try
     {
-        d = stof ( str );
+        d = stod ( str );
     }
     catch ( ... )
     {

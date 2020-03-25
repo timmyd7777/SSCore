@@ -59,12 +59,19 @@ public:
 	SSObject ( void );
     SSObject ( SSObjectType type );       // constuctor: takes type code
     
+	void setNames ( vector<string> names ) { _names = names; }
+
+	vector<string> getNames ( void ) { return _names; }
+
     SSObjectType    getType ( void ) { return _type; }
     SSVector        getDirection ( void ) { return _direction; }
     double          getDistance ( void ) { return _distance; }
     float           getMagnitude ( void ) { return _magnitude; }
     
-    virtual string getName ( int i );  // returns copy of i-th name string
+	static string typeToCode ( SSObjectType type );
+	static SSObjectType codeToType ( string );
+
+	virtual string getName ( int i );  // returns copy of i-th name string
     virtual void computeEphemeris ( class SSDynamics &dyn );     // computes direction, distance, magnitude for the given dynamical state
 };
 

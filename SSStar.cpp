@@ -173,34 +173,10 @@ SSSpherical SSStar::getFundamentalMotion ( void )
 	return motion;
 }
 
-typedef map<SSObjectType,string> SSTypeStringMap;
-
-SSTypeStringMap _typeStrings =
-{
-	{ kTypeStar, "SS" },
-	{ kTypeDoubleStar, "DS" },
-	{ kTypeVariableStar, "VS" },
-	{ kTypeDoubleVariableStar, "DV" },
-	{ kTypeOpenCluster, "OC" },
-	{ kTypeGlobularCluster, "GC" },
-	{ kTypeBrightNebula, "BN" },
-	{ kTypeDarkNebula, "DN" },
-	{ kTypePlanetaryNebula, "PN" },
-	{ kTypeGalaxy, "GX" },
-	{ kTypePlanet, "PL" },
-	{ kTypeMoon, "MN" },
-	{ kTypeAsteroid, "MP" },
-	{ kTypeComet, "CM" },
-	{ kTypeSatellite, "SA" },
-	{ kTypeSpacecraft, "SC" }
-};
-
 // Returns CSV string from base data (excluding names and identifiers).
 
 string SSStar::toCSV1 ( void )
 {
-	string csv = "";
-	
 	SSSpherical coords = getFundamentalCoords();
 	SSSpherical motion = getFundamentalMotion();
 	
@@ -208,7 +184,7 @@ string SSStar::toCSV1 ( void )
 	SSDegMinSec dec = coords.lat;
 	double distance = coords.rad;
 	
-	csv += _typeStrings[ _type ] + ",";
+	string csv = SSObject::typeToCode ( _type ) + ",";
 	
 	csv += ra.toString() + ",";
 	csv += dec.toString() + ",";

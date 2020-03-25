@@ -14,11 +14,14 @@
 #include "SSHipparcos.hpp"
 #include "SSSKY2000.hpp"
 #include "SSNGCIC.hpp"
+#include "SSMPC.hpp"
 
 int main ( int argc, char *argv[] )
 {
 	SSObjectVec objects;
 	SSIdentifierNameMap ngcicNameMap;
+	
+	importMPCComets ( "/Users/timmyd/Desktop/CometEls.txt", objects );
 	
 	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NINames.csv", ngcicNameMap );
 	importNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );

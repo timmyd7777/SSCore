@@ -41,7 +41,6 @@ public:
     
 	SSStar ( void );
 
-	void setNames ( vector<string> names ) { _names = names; }
 	void setIdentifiers ( vector<SSIdentifier> idents ) { _idents = idents; }
 	void setFundamentalPosition ( SSVector pos ) { _position = pos; }
 	void setFundamentalVelocity ( SSVector vel ) { _velocity = vel; }

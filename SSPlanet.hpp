@@ -56,34 +56,39 @@ enum SSPlanetID
     kCharon = 901
 };
 
+// This subclass of SSObject stores data for all solar system objects:
+// major planets, moons, asteroids, comets, and artificial satellites,
+// with a special subclass SSSatellite for the latter.
+
 class SSPlanet : public SSObject
 {
 protected:
 
-    SSPlanetID      _id;    // planet/moon identifier
-
-    SSOrbit     _orbit;     // current orbital elements
-    
-	float		_Hmag;		// absolute magnitude
-	float		_Gmag;		// magnitude slope parameter
-	
-    SSVector    _position;  // current heliocentric position in fundamental frame in AU
-    SSVector    _velocity;  // current heliocentric velocity in fundamental frame in AU per day
+    SSIdentifier _id;    		// planet/moon/asteroid/comet/satellite identifier
+    SSOrbit     _orbit;     	// current orbital elements
+	float		_Hmag;			// absolute magnitude
+	float		_Gmag;			// magnitude slope parameter
+    SSVector    _position;  	// current heliocentric position in fundamental frame in AU
+    SSVector    _velocity;  	// current heliocentric velocity in fundamental frame in AU per day
 
 public:
     
 	SSPlanet ( SSObjectType type );
     SSPlanet ( SSObjectType type, SSPlanetID id );
 	
+	void setIdentifier ( SSIdentifier ident ) { _id = ident; }
 	void setOrbit ( SSOrbit orbit ) { _orbit = orbit; }
 	void setHMagnitude ( float hmag ) { _Hmag = hmag; }
 	void setGMagnitude ( float gmag ) { _Gmag = gmag; }
 
+	SSIdentifier getIdentifier ( SSIdentifier ident ) { return _id; }
 	SSOrbit getOrbit ( void ) { return _orbit; }
 	float getHMagnitude ( void ) { return _Hmag; }
 	float getGMagnitude ( void ) { return _Gmag; }
 
     void computeEphemeris ( SSDynamics &dyn );
+	
+	string toCSV ( void );
 };
 
 // convenient aliases for pointers to various subclasses of SSPlanet
