@@ -7,7 +7,6 @@
 #include <math.h>
 #include "SSAngle.hpp"
 
-
 // Constructs an angular value in degrees, minutes, seconds with the given sign.
 
 SSDegMinSec::SSDegMinSec ( char sign, short deg, short min, double sec )
@@ -150,41 +149,19 @@ SSAngle SSAngle::fromHours ( double hours )
 
 SSAngle SSAngle::mod2Pi ( void )
 {
-    return SSAngle ( _rad - kTwoPi * floor ( _rad / kTwoPi ) );
+    return SSAngle ( mod2pi ( _rad ) );
 }
 
 // Reduces an angle in radians to the range -kPi to +kPi.
 
 SSAngle SSAngle::modPi ( void )
 {
-    SSAngle x = mod2Pi();
-    
-    if ( x > kPi )
-        x -= kTwoPi;
-
-    return x;
+    return SSAngle ( modpi ( _rad ) );
 }
 
 // Returns arctangent of y / x in radians in the range 0 to kTwoPi.
 
 SSAngle SSAngle::atan2Pi ( double y, double x )
 {
-	if ( y < 0.0 )
-		return SSAngle ( atan2 ( y, x ) + kTwoPi );
-	else
-		return SSAngle ( atan2 ( y, x ) );
-}
-
-// Converts an angle in radians to degrees
-
-double toDegrees ( double rad )
-{
-	return rad * SSAngle::kDegPerRad;
-}
-
-// Converts an angle in degrees to radians
-
-double toRadians ( double deg )
-{
-	return deg * SSAngle::kRadPerDeg;
+	return SSAngle ( atan2pi ( y, x ) );
 }

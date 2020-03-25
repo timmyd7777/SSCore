@@ -54,22 +54,22 @@ protected:
     
 public:
 
-    static constexpr double kPi  = 3.141592653589793;
-    static constexpr double kTwoPi = 6.283185307179586;
-    static constexpr double kHalfPi = 1.570796326794897;
+	static constexpr double kPi  = M_PI; 							// 3.141592653589793
+	static constexpr double kTwoPi = M_2PI; 						// 6.283185307179586
+	static constexpr double kHalfPi = M_PI_2; 						// 1.570796326794897
     
-    static constexpr double kArcsecPerRad = 206264.806247096355156;
-    static constexpr double kRadPerArcsec = 1.0 / kArcsecPerRad;
+	static constexpr double kDegPerRad = 180.0 / kPi;				// 57.295779513082321
+    static constexpr double kRadPerDeg = 1.0 / kDegPerRad;			//  0.017453292519943
     
-    static constexpr double kArcminPerRad = 3437.746770784939253;
-    static constexpr double kRadPerArcmin = 1.0 / kArcminPerRad;
+    static constexpr double kHourPerRad = kDegPerRad / 15.0;		// 3.819718634205488
+    static constexpr double kRadPerHour = 1.0 / kHourPerRad;		// 0.261799387799149
 
-    static constexpr double kDegPerRad = 57.295779513082321;
-    static constexpr double kRadPerDeg = 1.0 / kDegPerRad;
-    
-    static constexpr double kHourPerRad = kDegPerRad / 15.0;
-    static constexpr double kRadPerHour = 1.0 / kHourPerRad;
+	static constexpr double kArcminPerRad = 60.0 * kDegPerRad;		// 3437.746770784939253
+    static constexpr double kRadPerArcmin = 1.0 / kArcminPerRad;	//    0.000290888208666
 
+	static constexpr double kArcsecPerRad = 3600 * kDegPerRad; 		// 206264.806247096355156
+    static constexpr double kRadPerArcsec = 1.0 / kArcsecPerRad;	//      0.000004848136811
+    
     SSAngle ( void );
     SSAngle ( double rad );
 	SSAngle ( SSDegMinSec dms );

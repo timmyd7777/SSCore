@@ -130,3 +130,114 @@ double strtofloat64 ( string str )
     
     return d;
 }
+
+// Converts angle in degrees to radians.
+
+double degtorad ( double deg )
+{
+	return deg * M_PI / 180.0;
+}
+
+// Converts angle in radians to degrees.
+
+double radtodeg ( double rad )
+{
+	return rad * 180.0 / M_PI;
+}
+
+// Returns sine of angle in degrees.
+
+double sindeg ( double deg )
+{
+	return sin ( degtorad ( deg ) );
+}
+
+// Returns cosine of angle in degrees.
+
+double cosdeg ( double deg )
+{
+	return cos ( degtorad ( deg ) );
+}
+
+// Returns tangent of angle in degrees.
+
+double tandeg ( double deg )
+{
+	return tan ( degtorad ( deg ) );
+}
+
+// Returns arcsine in degrees.
+
+double asindeg ( double y )
+{
+	return radtodeg ( asin ( y ) );
+}
+
+// Returns arccosine in degrees.
+
+double acosdeg ( double x )
+{
+	return radtodeg ( acos ( x ) );
+}
+
+// Returns arctangent in degrees.
+
+double atandeg ( double x )
+{
+	return radtodeg ( atan ( x ) );
+}
+
+// Returns arctangent of y / x in radians in the range 0 to 2.0 * M_PI.
+
+double atan2pi ( double y, double x )
+{
+	if ( y < 0.0 )
+		return atan2 ( y, x ) + 2.0 * M_PI;
+	else
+		return atan2 ( y, x );
+}
+
+// Returns arctangent of y / x in degress in the range 0 to 360.
+
+double atan2pideg ( double y, double x )
+{
+	return radtodeg ( atan2pi ( y, x ) );
+}
+
+// Reduces an angle in degrees to the range 0 to 2.0 * M_PI.
+
+double mod2pi ( double rad )
+{
+    return rad - M_2PI * floor ( rad / M_2PI );
+}
+
+// Reduces an angle in degrees to the range -M_PI to +M_PI.
+
+double modpi ( double rad )
+{
+    rad = mod2pi ( rad );
+    
+    if ( rad > M_PI )
+        rad -= M_2PI;
+
+    return rad;
+}
+
+// Reduces an angle in degrees to the range 0 to 360.
+
+double mod360 ( double deg )
+{
+    return deg - 360 * floor ( deg / 360 );
+}
+
+// Reduces an angle in degrees to the range -180 to +180.
+
+double mod180 ( double deg )
+{
+    deg = mod360 ( deg );
+    
+    if ( deg > 180 )
+        deg -= 360;
+
+    return deg;
+}

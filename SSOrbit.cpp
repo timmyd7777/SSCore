@@ -13,16 +13,6 @@
 static const int	kMaxIterations = 1000;		// Maximum number of iterations for solving Kepler's equation
 static constexpr double	kTolerance = 1.0e-9;	// Tolerance for solving Kepler's eqn is about 0.0002 arcsec
 
-double sindeg ( double deg )
-{
-	return sin ( deg * SSAngle::kRadPerDeg );
-}
-
-double cosdeg ( double deg )
-{
-	return cos ( deg * SSAngle::kRadPerDeg );
-}
-
 double ksinkdeg ( double k, double deg )
 {
 	return SSAngle::kRadPerDeg * k * sin ( k * deg * SSAngle::kRadPerDeg );
