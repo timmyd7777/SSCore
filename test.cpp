@@ -13,6 +13,7 @@
 #include "SSDynamics.hpp"
 #include "SSPlanet.hpp"
 #include "SSStar.hpp"
+#include "SSConstellation.hpp"
 #include "SSHipparcos.hpp"
 #include "SSSKY2000.hpp"
 #include "SSNGCIC.hpp"
@@ -23,12 +24,16 @@ int main ( int argc, char *argv[] )
 	SSObjectVec objects;
 	SSIdentifierNameMap ngcicNameMap;
 	
-    SSObjectVec comets;
-	int numcom = importMPCComets ( "/Users/timmyd/Desktop/CometEls.txt", comets );
+	SSObjectVec constellations;
+	int numcon = SSImportConstellations( "/Users/timmyd/Projects/SouthernStars/Projects/Constellations/Constellations.csv", constellations );
+    cout << "Imported " << numcon << " IAU constellations" << endl;
+
+	SSObjectVec comets;
+	int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
     cout << "Imported " << numcom << " MPC comets" << endl;
     
     SSObjectVec asteroids;
-    int numast = importMPCAsteroids ( "/Users/timmyd/Desktop/MPCORB.DAT", asteroids );
+    int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
 
 	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NINames.csv", ngcicNameMap );
@@ -195,7 +200,9 @@ int main ( int argc, char *argv[] )
 
 SSObjectPtr SSNewObject ( SSObjectType type )
 {
-	if ( type == kTypeStar )
+	if ( type >= kTypePlanet && type <= kTypeSpacecraft )
+		return shared_ptr<SSPlanet> ( new SSPlanet ( type ) );
+	else if ( type == kTypeStar )
 		return shared_ptr<SSStar> ( new SSStar );
 	else if ( type == kTypeDoubleStar )
 		return shared_ptr<SSDoubleStar> ( new SSDoubleStar );
@@ -205,8 +212,8 @@ SSObjectPtr SSNewObject ( SSObjectType type )
 		return shared_ptr<SSDoubleVariableStar> ( new SSDoubleVariableStar );
     else if ( type >= kTypeOpenCluster && type <= kTypeGalaxy )
         return shared_ptr<SSDeepSky> ( new SSDeepSky ( type ) );
-	else if ( type >= kTypePlanet && type <= kTypeSpacecraft )
-		return shared_ptr<SSPlanet> ( new SSPlanet ( type ) );
+    else if ( type >= kTypeConstellation && type <= kTypeAsterism )
+        return shared_ptr<SSConstellation> ( new SSConstellation ( type ) );
 	else
 		return shared_ptr<class SSObject> ( nullptr );
 }

@@ -12,8 +12,8 @@
 
 // Reads comet data from a Minor Planet Center comet orbit export file:
 // https://www.minorplanetcenter.net/iau/MPCORB/CometEls.txt
-// Returns number of comets successfully imported. Imported comet data
-// is appended to the input vector of SSObjects (comets).
+// Imported data is appended to the input vector of SSObjects (comets).
+// Returns number of comets successfully imported.
 
 int importMPCComets ( const char *filename, SSObjectVec &comets )
 {
@@ -175,11 +175,9 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 }
 
 // Read asteroid data from a Minor Planet Center asteroid orbit export file:
-// https://minorplanetcenter.net/iau/Ephemerides/Bright/2018/Soft00Bright.txt (bright asteroids at opposition in 2018)
-// https://minorplanetcenter.net/iau/Ephemerides/Bright/2018/Soft00Bright.txt (bright asteroids at opposition in 2018)
-// https://minorplanetcenter.net/iau/Ephemerides/Unusual/Soft00Unusual.txt (unusual objects including NEOs)
-// https://minorplanetcenter.net/iau/Ephemerides/Distant/Soft00Distant.txt (distant objects including KBOs)
-// Returned comet data is appended to the input vector of SSObjects (asteroids).
+// https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT
+// Imported data is appended to the input vector of SSObjects (asteroids).
+// Returns number of asteroids successfully imported.
 
 int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
 {

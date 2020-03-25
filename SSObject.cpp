@@ -15,6 +15,12 @@ typedef map<string,SSObjectType> SSStringTypeMap;
 
 SSTypeStringMap _typeStrings =
 {
+	{ kTypePlanet, "PL" },
+	{ kTypeMoon, "MN" },
+	{ kTypeAsteroid, "AS" },
+	{ kTypeComet, "CM" },
+	{ kTypeSatellite, "ST" },
+	{ kTypeSpacecraft, "SC" },
 	{ kTypeStar, "SS" },
 	{ kTypeDoubleStar, "DS" },
 	{ kTypeVariableStar, "VS" },
@@ -25,16 +31,18 @@ SSTypeStringMap _typeStrings =
 	{ kTypeDarkNebula, "DN" },
 	{ kTypePlanetaryNebula, "PN" },
 	{ kTypeGalaxy, "GX" },
-	{ kTypePlanet, "PL" },
-	{ kTypeMoon, "MN" },
-	{ kTypeAsteroid, "MP" },
-	{ kTypeComet, "CM" },
-	{ kTypeSatellite, "SA" },
-	{ kTypeSpacecraft, "SC" }
+	{ kTypeConstellation, "CN" },
+	{ kTypeAsterism, "AM" }
 };
 
 SSStringTypeMap _stringTypes =
 {
+	{ "PL", kTypePlanet },
+	{ "MN", kTypeMoon },
+	{ "AS", kTypeAsteroid },
+	{ "CM", kTypeComet },
+	{ "ST", kTypeSatellite },
+	{ "SC", kTypeSpacecraft },
 	{ "SS", kTypeStar },
 	{ "DS", kTypeDoubleStar },
 	{ "VS", kTypeVariableStar },
@@ -45,12 +53,8 @@ SSStringTypeMap _stringTypes =
 	{ "DN", kTypeDarkNebula },
 	{ "PN", kTypePlanetaryNebula },
 	{ "GX", kTypeGalaxy },
-	{ "PL", kTypePlanet },
-	{ "MN", kTypeMoon },
-	{ "MP", kTypeAsteroid },
-	{ "CM", kTypeComet },
-	{ "SA", kTypeSatellite },
-	{ "SC", kTypeSpacecraft }
+	{ "CN", kTypeConstellation },
+	{ "AM", kTypeAsterism },
 };
 
 string SSObject::typeToCode ( SSObjectType type )

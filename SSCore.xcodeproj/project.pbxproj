@@ -24,6 +24,7 @@
 		A36E2195242A7CF6005C9699 /* SSMPC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36E2193242A7CF6005C9699 /* SSMPC.cpp */; };
 		A36F9198240979770038FE04 /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36F9196240979770038FE04 /* SSCoords.cpp */; };
 		A3AAE7B3242972E70035E668 /* SSNGCIC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3AAE7B1242972E70035E668 /* SSNGCIC.cpp */; };
+		A3BFC838242BEDB2001CBE62 /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */; };
 		A3DBB4B3240EADE80035011E /* AAPlanet.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB491240EADE80035011E /* AAPlanet.c */; };
 		A3DBB4B4240EADE80035011E /* VFPlanet.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB492240EADE80035011E /* VFPlanet.c */; };
 		A3DBB4B5240EADE80035011E /* AAPluto.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB493240EADE80035011E /* AAPluto.c */; };
@@ -98,6 +99,8 @@
 		A36F9197240979770038FE04 /* SSCoords.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSCoords.hpp; sourceTree = SOURCE_ROOT; };
 		A3AAE7B1242972E70035E668 /* SSNGCIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSNGCIC.cpp; sourceTree = "<group>"; };
 		A3AAE7B2242972E70035E668 /* SSNGCIC.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSNGCIC.hpp; sourceTree = "<group>"; };
+		A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSConstellation.cpp; sourceTree = "<group>"; };
+		A3BFC837242BEDB2001CBE62 /* SSConstellation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSConstellation.hpp; sourceTree = "<group>"; };
 		A3DBB491240EADE80035011E /* AAPlanet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AAPlanet.c; sourceTree = "<group>"; };
 		A3DBB492240EADE80035011E /* VFPlanet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = VFPlanet.c; sourceTree = "<group>"; };
 		A3DBB493240EADE80035011E /* AAPluto.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AAPluto.c; sourceTree = "<group>"; };
@@ -179,6 +182,8 @@
 				A3462BF624184A5900A7519A /* SSDynamics.hpp */,
 				A30545C0241EDBB400197F8A /* SSObject.cpp */,
 				A30545C1241EDBB400197F8A /* SSObject.hpp */,
+				A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */,
+				A3BFC837242BEDB2001CBE62 /* SSConstellation.hpp */,
 				A30545C3241EE07900197F8A /* SSPlanet.cpp */,
 				A30545C4241EE07900197F8A /* SSPlanet.hpp */,
 				A30545C6241EF45000197F8A /* SSStar.cpp */,
@@ -293,6 +298,7 @@
 				4703A8852404EF5700BDD11C /* test.cpp in Sources */,
 				A3DBB4B6240EADE80035011E /* Angle.c in Sources */,
 				A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */,
+				A3BFC838242BEDB2001CBE62 /* SSConstellation.cpp in Sources */,
 				A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */,
 				A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */,
 				A35D2B4D242941B80092DEA5 /* SSHipparcos.cpp in Sources */,

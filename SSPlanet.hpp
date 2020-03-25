@@ -95,10 +95,8 @@ public:
 
 typedef SSPlanet *SSPlanetPtr;
 
-// Downcasts a pointer from the base SSObject class to its various SSPlanet subclasses.
-// They all return a null pointer if the input object pointer is not actually an instance
-// of the expected derived class. If the input object is an instance of SSDoubleVariableStar,
-// then SSGetDoubleStarPtrPtr and SSGetVariableStarPtr() will both return valid pointers.
+// Downcasts a pointer from SSObject base class to SSPlanet subclass.
+// Returns nullptr if input object pointer is not actually an SSPlanet.
 
 SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr );
 
