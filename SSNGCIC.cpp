@@ -468,6 +468,6 @@ static map<string,int> _caldmap =
 	{ "NGC 104",  106 },	// 47 Tucanae
 	{ "NGC 6101", 107 },
 	{ "NGC 4372", 108 },
-	{ "NGC 3195", 109 },
+	{ "NGC 3195", 109 }
 };
 

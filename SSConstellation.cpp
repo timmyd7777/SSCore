@@ -221,7 +221,7 @@ int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constel
 			continue;
 		
 		// Convert spherical coordinates to rectangular unit vector.
-		// Appemd vertex to current boundary, increment vertex counter.
+		// Append vertex to current boundary, increment vertex counter.
 		
 		SSVector vertex ( SSSpherical ( ra, dec, 1.0 ) );
 		boundary.push_back ( vertex );
@@ -239,4 +239,87 @@ int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constel
 	}
 
 	return numVerts;
+}
+
+// Reads constellation shape data from CSV-formatted text file.
+// Imported data is stored in input vector of SSConstellations (constellations).
+// Assumes constellations in input vector are sorted by constellation name alphabetically,
+// i.e. constellation[0] is Andromeda, [1] is Antlia, ... [87] is Vulpecula.
+// Returns number of shape lines successfully imported (should be 765).
+
+int SSImportConstellationShapes ( const char *filename, SSObjectVec &constellations )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return ( 0 );
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "", abbr = "", lastAbbr = "And";
+    int numLines = 0;
+	vector<int> shape ( 0 );
+	SSConstellationPtr pCon = SSGetConstellationPtr ( constellations[0] );
+
+    while ( getline ( file, line ) )
+    {
+		// Require 3 fields per line; skip if we don't have enough.
+		
+		vector<string> fields = split ( line, "," );
+		if ( fields.size() < 3 )
+			continue;
+		
+		// Get constellation abbreviation. Skip line if abbreviation not recognized.
+		
+		abbr = fields[0];
+		int index = SSConstellation::abbreviationToIndex ( abbr );
+		if ( index < 1 )
+			continue;
+		
+		// If different than the previous vertex abbreviation...
+		
+		if ( abbr.compare ( lastAbbr ) != 0 )
+		{
+			// Store current boundary in current constellation
+			
+			if ( pCon != nullptr && shape.size() > 0 )
+			{
+				pCon->setFigure ( shape );
+				cout << "Imported " << shape.size() / 2 << " shape lines for " << lastAbbr << endl;
+			}
+
+			// Get pointer to new constellation, and start new boundary vertex.
+			
+			if ( index > 0 && index <= constellations.size() )
+				pCon = SSGetConstellationPtr( constellations[index - 1] );
+
+			shape.clear();
+		}
+		
+		// Extract shape line endpoint star HR numbers; skip if either are zero.
+		
+		int hr1 = strtoint ( fields[1]);
+		int hr2 = strtoint ( fields[2]);
+		if ( hr1 == 0 || hr2 == 0 )
+			continue;
+		
+		// Append line endpoints to current shape, increment line counter.
+		
+		shape.push_back ( hr1 );
+		shape.push_back ( hr2 );
+		
+		lastAbbr = abbr;
+		numLines++;
+	}
+	
+	// After we reach end of file, add final shape to last constellation.
+	
+	if ( pCon != nullptr && shape.size() > 0 )
+	{
+		pCon->setFigure ( shape );
+		cout << "Imported " << shape.size() / 2 << " shape lines for " << lastAbbr << endl;
+	}
+
+	return numLines;
 }

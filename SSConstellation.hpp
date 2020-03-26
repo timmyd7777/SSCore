@@ -64,8 +64,12 @@ SSConstellationPtr SSGetConstellationPtr ( SSObjectPtr ptr );
 
 int SSImportConstellations ( const char *filename, SSObjectVec &constellations );
 
-// Imports constellation boundaries from CSV-format text file into vector of SSObjectPtr.
+// Imports constellation boundaries from CSV-format text file into vector of SSContellationPtr.
 
 int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constellations );
+
+// Imports constellation shapes from CSV-rormat text file into vector of SSContellationPtr.
+
+int SSImportConstellationShapes ( const char *filename, SSObjectVec &constellations );
 
 #endif /* SSConstellation_hpp */
