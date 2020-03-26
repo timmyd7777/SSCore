@@ -15,6 +15,7 @@ typedef map<string,SSObjectType> SSStringTypeMap;
 
 SSTypeStringMap _typeStrings =
 {
+	{ kTypeNonexistent, "NO" },
 	{ kTypePlanet, "PL" },
 	{ kTypeMoon, "MN" },
 	{ kTypeAsteroid, "AS" },
@@ -37,6 +38,7 @@ SSTypeStringMap _typeStrings =
 
 SSStringTypeMap _stringTypes =
 {
+	{ "NO", kTypeNonexistent },
 	{ "PL", kTypePlanet },
 	{ "MN", kTypeMoon },
 	{ "AS", kTypeAsteroid },
@@ -67,7 +69,7 @@ SSObjectType SSObject::codeToType ( string code )
 	return _stringTypes[ code ];
 }
 
-SSObject::SSObject ( void ) : SSObject ( kTypeUnknown )
+SSObject::SSObject ( void ) : SSObject ( kTypeNonexistent )
 {
 
 }
@@ -89,7 +91,42 @@ string SSObject::getName ( int i )
         return string ( "" );
 }
 
+// Default implementation of getIdentifer; overridden by subclasses.
+
+SSIdentifier SSObject::getIdentifier ( SSCatalog cat )
+{
+	return SSIdentifier();
+}
+
+// Default implementation of toCSV; overridden by subclasses.
+
+string SSObject::toCSV ( void )
+{
+	return "";
+}
+
+// Default implementation of compteEphemeris; overridden by subclasses.
+
 void SSObject::computeEphemeris ( SSDynamics &dyn )
 {
+}
+
+SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat )
+{
+	SSObjectMap map;
 	
+	for ( int i = 0; i < objects.size(); i++ )
+	{
+		SSObject *ptr = objects[i].get();
+		if ( ptr == nullptr )
+			continue;
+		
+		SSIdentifier ident = ptr->getIdentifier ( cat );
+		if ( ! ident )
+			continue;
+		
+		map.insert ( { ident, i + 1 } );
+	}
+	
+	return map;
 }

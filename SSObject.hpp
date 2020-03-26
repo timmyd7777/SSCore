@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "SSVector.hpp"
 #include "SSIdentifier.hpp"
@@ -23,25 +24,25 @@ using namespace std;
 
 enum SSObjectType
 {
-    kTypeUnknown = 0,
-    kTypePlanet = 1,
-    kTypeMoon = 2,
-    kTypeAsteroid = 3,
-    kTypeComet = 4,
-    kTypeSatellite = 5,
-    kTypeSpacecraft = 6,
-    kTypeStar = 10,
-    kTypeDoubleStar = 12,
-    kTypeVariableStar = 13,
-    kTypeDoubleVariableStar = 14,
-    kTypeOpenCluster = 20,
-    kTypeGlobularCluster = 21,
-    kTypeBrightNebula = 22,
-    kTypeDarkNebula = 23,
-    kTypePlanetaryNebula = 24,
-    kTypeGalaxy = 25,
-    kTypeConstellation = 30,
-    kTypeAsterism = 31,
+    kTypeNonexistent = 0,				// Nonexistent/unknown object or erroneous catalog entry
+    kTypePlanet = 1,					// Major planet (Mercury, Venus, etc.)
+    kTypeMoon = 2,						// Natural satellite (Moon, Io, Europa, etc.)
+    kTypeAsteroid = 3,					// Minor planet (Ceres, Pallas, etc.)
+    kTypeComet = 4,						// Comet (Halley, Encke, etc.)
+    kTypeSatellite = 5,					// Artificial satellite (ISS, HST, etc.)
+    kTypeSpacecraft = 6,				// Interplanetary spacecraft (Voyager, Cassini, etc.)
+    kTypeStar = 10,						// Single star (Canopus, Vega, etc.)
+    kTypeDoubleStar = 12,				// Double star (Alpha Cen, Sirius, etc.)
+    kTypeVariableStar = 13,				// Variable single star (Mira, etc.)
+    kTypeDoubleVariableStar = 14,		// Double star with variable component (Betelgeuse, Algol, etc.)
+    kTypeOpenCluster = 20,				// Open star cluster (M45, Hyades, etc.)
+    kTypeGlobularCluster = 21,			// Globular star cluster (M13, etc.)
+    kTypeBrightNebula = 22,				// Emission, reflection nebula or supernova remnant (M42, M78, M1, etc.)
+    kTypeDarkNebula = 23,				// Dark nebula (Coalsack, Horsehead, etc.)
+    kTypePlanetaryNebula = 24,			// Planetary nebula (M57, M27, etc.)
+    kTypeGalaxy = 25,					// Galaxy (M31, LMC, SMC, etc.)
+    kTypeConstellation = 30,			// Constellation officially recognized by IAU (Andromeda, Antlia, etc.)
+    kTypeAsterism = 31,					// Common but informally recognized star pattern (Big Dipper, Summer Triangle, etc.)
 };
 
 #pragma pack ( push, 1 )
@@ -85,14 +86,19 @@ public:
 	static string typeToCode ( SSObjectType type );
 	static SSObjectType codeToType ( string );
 
-	virtual string getName ( int i );  // returns copy of i-th name string
-    virtual void computeEphemeris ( class SSDynamics &dyn );     // computes direction, distance, magnitude for the given dynamical state
+	virtual string getName ( int i );  							// returns copy of i-th name string
+	virtual SSIdentifier getIdentifier ( SSCatalog cat );		// returns identifier in the specified catalog, or null identifier if object has none in that catalog.
+    virtual void computeEphemeris ( class SSDynamics &dyn );    // computes direction, distance, magnitude for the given dynamical state
+
+	virtual string toCSV ( void );
 };
 
 typedef shared_ptr<SSObject> SSObjectPtr;
 typedef vector<SSObjectPtr> SSObjectVec;
+typedef map<SSIdentifier,int> SSObjectMap;
 
 SSObjectPtr SSNewObject ( SSObjectType type );
+SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat );
 
 #pragma pack ( pop )
 

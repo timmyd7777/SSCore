@@ -388,13 +388,49 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatNGC, ngc );
 	}
 
-	// if string begins with "ICC", attempt to parse an Index Catalog identifier
+	// if string begins with "IC", attempt to parse an Index Catalog identifier
 	
 	if ( str.find ( "IC" ) == 0 && len > 2 )
 	{
 		int64_t ic = string_to_ngcic ( str.substr ( 2, len - 2 ) );
 		if ( ic )
 			return SSIdentifier ( kCatIC, ic );
+	}
+
+	// if string begins with "Mel", attempt to parse a Melotte open cluster identifier
+	
+	if ( str.find ( "Mel" ) == 0 && len > 3 )
+	{
+		int64_t mel = strtoint ( str.substr ( 3, len - 3 ) );
+		if ( mel )
+			return SSIdentifier ( kCatMel, mel );
+	}
+
+	// if string begins with "PGC", attempt to parse a Principal Galaxy Catalog identifier
+	
+	if ( str.find ( "PGC" ) == 0 && len > 3 )
+	{
+		int64_t pgc = strtoint ( str.substr ( 3, len - 3 ) );
+		if ( pgc )
+			return SSIdentifier ( kCatPGC, pgc );
+	}
+
+	// if string begins with "UGCA", attempt to parse a Uppsala Galaxy Catalog Appendix identifier
+	
+	if ( str.find ( "UGCA" ) == 0 && len > 4 )
+	{
+		int64_t ugca = strtoint ( str.substr ( 4, len - 4 ) );
+		if ( ugca )
+			return SSIdentifier ( kCatUGCA, ugca );
+	}
+	
+	// if string begins with "UGC", attempt to parse a Uppsala Galaxy Catalog identifier
+	
+	if ( str.find ( "UGC" ) == 0 && len > 3 )
+	{
+		int64_t ugc = strtoint ( str.substr ( 3, len - 3 ) );
+		if ( ugc )
+			return SSIdentifier ( kCatUGC, ugc );
 	}
 
 	// if string begins with "HR", attempt to parse a Harvard Revised (Bright Star) catalog identifier
@@ -602,6 +638,22 @@ string SSIdentifier::toString ( void )
 	else if ( cat == kCatIC )
 	{
 		str = "IC " + ngcic_to_string ( id );
+	}
+	else if ( cat == kCatMel )
+	{
+		str = "Mel " + to_string ( id );
+	}
+	else if ( cat == kCatPGC )
+	{
+		str = "PGC " + to_string ( id );
+	}
+	else if ( cat == kCatUGC )
+	{
+		str = "UGC " + to_string ( id );
+	}
+	else if ( cat == kCatUGCA )
+	{
+		str = "UGCA " + to_string ( id );
 	}
     else if ( cat == kCatAstNum )
     {

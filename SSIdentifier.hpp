@@ -36,7 +36,11 @@ enum SSCatalog
 	kCatMessier = 30,		// Messier deep sky objects
 	kCatCaldwell = 31,		// Caldwell deep sky objects
 	kCatNGC = 32,			// New General Catalog of deep sky objects
-	kCatIC = 33				// Index Catalog of deep sky objects
+	kCatIC = 33,			// Index Catalog of deep sky objects
+	kCatMel = 34,			// Melotte Catalog of open clusters
+	kCatPGC = 35,			// Principal Galaxy Catalog
+	kCatUGC = 36,			// Uppsala Galaxy Catalog
+	kCatUGCA = 37			// Uppsala Galaxy Catalog Appendix
 };
 
 class SSIdentifier

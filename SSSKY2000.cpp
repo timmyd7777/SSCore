@@ -350,7 +350,7 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         bool isVar = ! ( strVarType.empty() && strVarMax.empty() && strVarMax.empty() && strVarPer.empty() );
         bool isDbl = ! ( strWDS.empty() && strDblMag.empty() && strDblSep.empty() );
 
-        SSObjectType type = kTypeUnknown;
+        SSObjectType type = kTypeNonexistent;
 
         if ( isDbl && isVar )
             type = kTypeDoubleVariableStar;

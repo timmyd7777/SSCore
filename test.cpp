@@ -19,11 +19,26 @@
 #include "SSNGCIC.hpp"
 #include "SSMPC.hpp"
 
+void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
+{
+	SSObjectMap map = SSMakeObjectMap ( objects, cat );
+
+	for ( int n = first; n <= last; n++ )
+	{
+		int i = map[ SSIdentifier ( cat, n ) ];
+		if ( i > 0 )
+		{
+			SSObjectPtr pObj = objects[ i - 1 ];
+			cout << pObj.get()->toCSV() << endl;
+		}
+	}
+}
+
 int main ( int argc, char *argv[] )
 {
 	SSObjectVec objects;
 	SSIdentifierNameMap ngcicNameMap;
-
+/*
 	SSObjectVec constellations;
 	int numcon = SSImportConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
     cout << "Imported " << numcon << " IAU constellations" << endl;
@@ -33,7 +48,7 @@ int main ( int argc, char *argv[] )
 
 	int numlines = SSImportConstellationShapes ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Shapes.csv", constellations );
     cout << "Imported " << numlines << " IAU constellation shape lines" << endl;
-/*
+
 	SSObjectVec comets;
 	int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
     cout << "Imported " << numcom << " MPC comets" << endl;
@@ -41,10 +56,27 @@ int main ( int argc, char *argv[] )
     SSObjectVec asteroids;
     int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
+*/
+	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
+	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
+    cout << "Imported " << numobj << " NGC-IC objects" << endl;
+//	for ( int i = 0; i < objects.size(); i++ )
+//		cout << SSGetDeepSkyPtr ( objects[i] )->toCSV() << endl;
+	
+	exportCatalog ( objects, kCatMessier, 1, 110 );
+	exportCatalog ( objects, kCatCaldwell, 1, 110 );
 
-	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NINames.csv", ngcicNameMap );
-	importNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
-
+	SSObjectMap map = SSMakeObjectMap ( objects, kCatMessier );
+	for ( int m = 1; m <= 110; m++ )
+	{
+		int i = map[ SSIdentifier ( kCatMessier, m ) ];
+		if ( i > 0 )
+		{
+			SSDeepSkyPtr pDeep = SSGetDeepSkyPtr ( objects[ i - 1 ] );
+			cout << pDeep->toCSV() << endl;
+		}
+	}
+/*
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
