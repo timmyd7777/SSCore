@@ -302,28 +302,27 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 			if ( strtoint ( tokens[3] ) > 1 )
 				continue;
 		
-		// Get object type. Type 7 and 8 are duplicates of other objects;
-		// skip them.  Type 9 (stars) and 10 (not found) are unknown/nonexistent objects.
+		// Get object type from status. Status 7 and 8 are duplicates of other objects; skip them.
+		// Status 9 indicates stars and status 10 (not found) are unknown/nonexistent objects.
 		
-		int type = strtoint ( tokens[5] );
-		SSDeepSkyPtr pObject = nullptr;
+		int status = strtoint ( tokens[5] );
+		SSObjectType type = kTypeNonexistent;
 		
-		if ( type == 1 )
-			pObject = new SSDeepSky ( kTypeGalaxy );
-		else if ( type == 2 || type == 6 )
-			pObject = new SSDeepSky ( kTypeBrightNebula );
-		else if ( type == 3 )
-			pObject = new SSDeepSky ( kTypePlanetaryNebula );
-		else if ( type == 4 )
-			pObject = new SSDeepSky ( kTypeOpenCluster );
-		else if ( type == 5 )
-			pObject = new SSDeepSky ( kTypeGlobularCluster );
-		else if ( type == 9 )
-			pObject = new SSDeepSky ( kTypeStar );
-		else if ( type == 10 )
-			pObject = new SSDeepSky ( kTypeNonexistent );
-		
-		if ( pObject == nullptr )
+		if ( status == 1 )
+			type = kTypeGalaxy;
+		else if ( status == 2 || status == 6 )
+			type = kTypeBrightNebula;
+		else if ( status == 3 )
+			type = kTypePlanetaryNebula;
+		else if ( status == 4 )
+			type = kTypeOpenCluster;
+		else if ( status == 5 )
+			type = kTypeGlobularCluster;
+		else if ( status == 9 )
+			type = kTypeStar;
+		else if ( status == 10 )
+			type = kTypeNonexistent;
+		else if ( status == 7 || status == 8 )
 			continue;
 		
 		// If RA hours or Dec degrees are missing, skip invalid record.
@@ -402,6 +401,12 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 		
 		vector<string> names = getNamesFromIdentifiers( idents, nameMap );
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+
+		SSDeepSky *pObject = new SSDeepSky ( type );
+		if ( pObject == nullptr )
+			continue;
+		
+		// Allocate new deep sky object and store values if successful
 
 		pObject->setNames ( names );
 		pObject->setIdentifiers ( idents );
@@ -596,5 +601,115 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 		numClusters++;
 	}
 	
+	return numClusters;
+}
+
+// Imports William Harris "Globular Clusters in the Milky Way" catalog:
+// http://physwww.mcmaster.ca/~harris/mwgc.dat
+// Note this file is in three parts; this function assumes that
+// consolidated information for each object on a single line,
+// so you'll need to manually rearrange the original Harris file!
+// This function adds names from input deep sky object name table,
+// and adds Messier and Caldwell numbers when possible.
+// Returns total number of clusters imported (should be 157).
+
+int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return ( 0 );
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int numClusters = 0;
+
+    while ( getline ( file, line ) )
+    {
+		// Get R.A. and Dec; convert to radians
+		
+		string strRA = line.substr ( 24, 11 );
+		string strDec = line.substr ( 37, 11 );
+		
+		SSHourMinSec ra ( strRA );
+		SSDegMinSec dec ( strDec );
+		
+		SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
+		SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+
+		// Get V magnitude
+		
+		string strVmag = trim ( line.substr ( 126, 5 ) );
+		float vmag = strVmag.empty() ? HUGE_VAL : strtofloat ( strVmag );
+		
+		// Get B magnitude from color index
+		
+		string strBmV = trim ( line.substr ( 147, 4 ) );
+		float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
+			
+		// Get radial velocity in km/sec and convert to light speed
+		
+		string strRV = trim ( line.substr ( 177, 6 ) );
+        if ( ! strRV.empty() )
+            motion.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+
+		// Get distance in kiloparsecs
+
+		string strDist = trim ( line.substr ( 67, 5 ) );
+		if ( ! strDist.empty() )
+			coords.rad = 1000.0 * strtofloat ( strDist );
+		
+		// Get half-light radius in arcmin and convert to diameter in radians
+		
+		string strRad = trim ( line.substr ( 230, 4 ) );
+		float diam = strRad.empty() ? HUGE_VAL : 2.0 * degtorad ( strtofloat ( strRad ) / 60.0 );
+
+		// Get spectral type
+		
+		string specStr = trim ( line.substr ( 165, 4 ) );
+
+		// Get name. Attempt to parse identifier from it.  If we recognize the name
+		// as an identifier, add Messier and Caldwell numbers; get names from identifiers,
+		// sort identifier list. If we can't parse name as an identifier, use it verbatim as name.
+
+		vector<string> names;
+		vector<SSIdentifier> idents;
+
+		string name = trim ( line.substr ( 0, 9 ) );
+		SSIdentifier ident = SSIdentifier::fromString ( name );
+
+		if ( ident )
+		{
+			idents.push_back ( ident );
+			addMCIdentifiers ( idents, name );
+			names = getNamesFromIdentifiers ( idents, nameMap );
+			sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+		}
+		else
+		{
+			names.push_back ( name );
+		}
+
+		// Allocate new deep sky object and store values if successful
+		
+		SSDeepSky *pObject = new SSDeepSky ( kTypeGlobularCluster );
+		if ( pObject == nullptr )
+			continue;
+		
+		pObject->setNames ( names );
+		pObject->setIdentifiers ( idents );
+		pObject->setFundamentalMotion ( coords, motion );
+		pObject->setVMagnitude ( vmag );
+		pObject->setBMagnitude ( bmag );
+		pObject->setMajorAxis ( diam );
+		pObject->setSpectralType ( specStr );
+		
+		cout << pObject->toCSV() << endl;
+		clusters.push_back ( shared_ptr<SSObject> ( pObject ) );
+		numClusters++;
+	}
+
 	return numClusters;
 }

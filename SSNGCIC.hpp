@@ -18,5 +18,6 @@ vector<string> getNamesFromIdentifiers ( vector<SSIdentifier> &idents, SSIdentif
 
 int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects );
 int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters );
+int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters );
 
 #endif /* SSNGCIC_hpp */

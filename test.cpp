@@ -61,27 +61,20 @@ int main ( int argc, char *argv[] )
 	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
 
 	SSObjectVec clusters;
-	int numOC = SSImportDAML02 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Open Clusters/Dias 2016/clusters.txt", ngcicNameMap, clusters );
-    cout << "Imported " << numOC << " open clusters" << endl;
+	int numClus = SSImportDAML02 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Open Clusters/Dias 2016/clusters.txt", ngcicNameMap, clusters );
+    cout << "Imported " << numClus << " open clusters" << endl;
 
-//	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
-//   cout << "Imported " << numobj << " NGC-IC objects" << endl;
-//	for ( int i = 0; i < objects.size(); i++ )
-//		cout << SSGetDeepSkyPtr ( objects[i] )->toCSV() << endl;
+	SSObjectVec globulars;
+	int numGlobs = SSImportMWGC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Globular Clusters/Harris 2010/mwgc.original.txt", ngcicNameMap, globulars );
+    cout << "Imported " << numGlobs << " globular clusters" << endl;
+
+	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
+   	cout << "Imported " << numobj << " NGC-IC objects" << endl;
+	for ( int i = 0; i < objects.size(); i++ )
+		cout << SSGetDeepSkyPtr ( objects[i] )->toCSV() << endl;
 	
 	exportCatalog ( objects, kCatMessier, 1, 110 );
 	exportCatalog ( objects, kCatCaldwell, 1, 110 );
-
-	SSObjectMap map = SSMakeObjectMap ( objects, kCatMessier );
-	for ( int m = 1; m <= 110; m++ )
-	{
-		int i = map[ SSIdentifier ( kCatMessier, m ) ];
-		if ( i > 0 )
-		{
-			SSDeepSkyPtr pDeep = SSGetDeepSkyPtr ( objects[ i - 1 ] );
-			cout << pDeep->toCSV() << endl;
-		}
-	}
 /*
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
