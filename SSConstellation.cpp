@@ -208,7 +208,7 @@ int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constel
 			// Get pointer to new constellation, and start new boundary vertex.
 			
 			if ( index > 0 && index <= constellations.size() )
-				pCon = SSGetConstellationPtr( constellations[index] );
+				pCon = SSGetConstellationPtr( constellations[index - 1] );
 
 			boundary.clear();
 		}

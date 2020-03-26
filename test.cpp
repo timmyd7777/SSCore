@@ -28,7 +28,7 @@ int main ( int argc, char *argv[] )
 	int numcon = SSImportConstellations( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
     cout << "Imported " << numcon << " IAU constellations" << endl;
 	
-	int numverts = SSImportConstellationBoundaries( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Boundaries.csv", constellations );
+	int numverts = SSImportConstellationBoundaries ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Boundaries.csv", constellations );
     cout << "Imported " << numverts << " IAU constellation boundary vertices" << endl;
 
 	SSObjectVec comets;
