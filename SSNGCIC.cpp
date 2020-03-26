@@ -265,6 +265,16 @@ static map<string,int> _messmap =
 	{ "NGC 6613",  18 },
 	{ "NGC 6273",  19 },
 	{ "NGC 6514",  20 },	// Trifid Nebula
+	{ "NGC 6531",  21 },
+	{ "NGC 6656",  22 },
+	{ "NGC 6494",  23 },
+	{ "IC 4715",   24 },	// Sagittarius Star Cloud
+	{ "IC 4725",   25 },
+	{ "NGC 6694",  26 },
+	{ "NGC 6853",  27 },	// Dumbbell Nebula
+	{ "NGC 6626",  28 },
+	{ "NGC 6913",  29 },
+	{ "NGC 7099",  30 },
 };
 
 static map<string,int> _caldmap =
@@ -289,5 +299,15 @@ static map<string,int> _caldmap =
 	{ "NGC 185",   18 },
 	{ "IC 5146",   19 },
 	{ "NGC 7000",  20 },	// North America Nebula
+	{ "NGC 4449",  21 },
+	{ "NGC 7662",  22 },	// Blue Snowball
+	{ "NGC 891",   23 },
+	{ "NGC 1275",  24 },	// Perseus A
+	{ "NGC 2419",  25 },
+	{ "NGC 4244",  26 },
+	{ "NGC 6888",  27 },	// Crescent Nebula
+	{ "NGC 752",   28 },
+	{ "NGC 5005",  29 },
+	{ "NGC 7331",  30 }
 };
 
