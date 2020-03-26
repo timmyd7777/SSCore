@@ -401,9 +401,9 @@ SSIdentifier SSIdentifier::fromString ( string str )
 	
 	if ( str.find ( "Mel" ) == 0 && len > 3 )
 	{
-		int64_t mel = strtoint ( str.substr ( 3, len - 3 ) );
-		if ( mel )
-			return SSIdentifier ( kCatMel, mel );
+		size_t pos = str.find_first_of ( "0123456789" );
+		if ( pos != string::npos )
+			return SSIdentifier ( kCatMel, stoi ( str.substr ( pos, len - pos ) ) );
 	}
 
 	// if string begins with "PGC", attempt to parse a Principal Galaxy Catalog identifier

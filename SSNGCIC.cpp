@@ -61,7 +61,7 @@ static map<string,int> _messmap =
 	{ "NGC 1976",  42 },	// Orion Nebula
 	{ "NGC 1982",  43 },
 	{ "NGC 2632",  44 },	// Beehive Cluster
-	{ "Mel 22",    45 },	// Pleaiades
+	{ "Melotte 22",45 },	// Pleaiades
 	{ "NGC 2437",  46 },
 	{ "NGC 2422",  47 },
 	{ "NGC 2548",  48 },
@@ -148,7 +148,7 @@ static map<string,int> _caldmap =
 	{ "NGC 7635",  11 },	// Bubble Nebula
 	{ "NGC 6946",  12 },	// Fireworks Galaxy
 	{ "NGC 457",   13 },	// Owl Cluster
-	{ "NGC 868",   14 },	// Double Cluster
+	{ "NGC 869",   14 },	// Double Cluster
 	{ "NGC 884",   14 },	// Double Cluster
 	{ "NGC 6826",  15 },	// Blinking Planetary
 	{ "NGC 7243",  17 },
@@ -175,7 +175,7 @@ static map<string,int> _caldmap =
 	{ "NGC 4565",  38 },	// Needle Galaxy
 	{ "NGC 2392",  39 },	// Eskimo Nebula
 	{ "NGC 3626",  40 },
-	{ "Mel 25",    41 },	// Hyades
+	{ "Melotte 25",41 },	// Hyades
 	{ "NGC 7006",  42 },
 	{ "NGC 7814",  43 },
 	{ "NGC 7479",  44 },
@@ -246,6 +246,20 @@ static map<string,int> _caldmap =
 	{ "NGC 3195", 109 }
 };
 
+// Add Messier and Caldwell numbers to a vector of identifiers
+// from NGC-IC string mappings.
+
+void addMCIdentifiers ( vector<SSIdentifier> &idents, string ngcicStr )
+{
+	int messNum = _messmap[ ngcicStr ];
+	int caldNum = _caldmap[ ngcicStr ];
+
+	if ( messNum > 0 )
+		addIdentifier ( idents, SSIdentifier ( kCatMessier, messNum ) );
+
+	if ( caldNum > 0 )
+		addIdentifier ( idents, SSIdentifier ( kCatCaldwell, caldNum ) );
+}
 
 // Imports Wolfgang Steinicke's Revised NGC-IC Catalogs, obtained from:
 // http://www.klima-luft.de/steinicke/index_e.htm with data files here:
@@ -254,8 +268,6 @@ static map<string,int> _caldmap =
 // Inserts name strings from nameNap; if empty, no names will be added.
 // Stores results in vector of SSObjects (objects).
 // Returns number of NGC-IC objects imported.
-// TODO: add Caldwell numbers; add Pleiades, Hyades, LMC, M 40, M 73.
-// TODO: fix NGC-IC objects classified as stars!
 
 int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects )
 {
@@ -298,9 +310,9 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 		
 		if ( type == 1 )
 			pObject = new SSDeepSky ( kTypeGalaxy );
-		else if ( type == 2 )
+		else if ( type == 2 || type == 6 )
 			pObject = new SSDeepSky ( kTypeBrightNebula );
-		else if ( type == 3 || type == 6 )
+		else if ( type == 3 )
 			pObject = new SSDeepSky ( kTypePlanetaryNebula );
 		else if ( type == 4 )
 			pObject = new SSDeepSky ( kTypeOpenCluster );
@@ -362,9 +374,9 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 			continue;
 		
 		// Generate main NGC or IC identifier
+		// Add Messier and Caldwell identifiers from NGC-IC string mappings
 
 		vector<SSIdentifier> idents;
-		
 		string ngcicStr = "";
 		
 		if ( tokens[0][0] == 'N' )
@@ -373,17 +385,7 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 			ngcicStr = "IC " + tokens[1] + tokens[2];
 
 		addIdentifier ( idents, SSIdentifier::fromString ( ngcicStr ) );
-
-		// Add Messier and Caldwell identifiers from NGC-IC string mappings
-		
-		int messNum = _messmap[ ngcicStr ];
-		int caldNum = _caldmap[ ngcicStr ];
-		
-		if ( messNum > 0 )
-			addIdentifier ( idents, SSIdentifier ( kCatMessier, messNum ) );
-
-		if ( caldNum > 0 )
-			addIdentifier ( idents, SSIdentifier ( kCatCaldwell, caldNum ) );
+		addMCIdentifiers ( idents, ngcicStr );
 
 		// Get Principal Galaxy Catalog number, if any.
 		
@@ -493,4 +495,106 @@ vector<string> getNamesFromIdentifiers ( vector<SSIdentifier> &idents, SSIdentif
     }
 
     return names;
+}
+
+// Imports Wilton Dias "Open Cluster and Galactic Structure" catalog:
+// https://wilton.unifei.edu.br/ocdb/clusters.txt
+// Adds names from input deep sky object name table.
+// Adds Messier and Caldwell numbers when possible.
+// Returns total number of clusters imported (should be 2167).
+
+int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return ( 0 );
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int numClusters = 0;
+
+    while ( getline ( file, line ) )
+    {
+		// Get R.A. and Dec; convert to radians
+		
+		string strRA = line.substr ( 18, 8 );
+		string strDec = line.substr ( 28, 9 );
+		
+		SSHourMinSec ra ( strRA );
+		SSDegMinSec dec ( strDec );
+		
+		SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
+		SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+
+		// Get proper motion in R.A. and convert to radians/year
+
+		string strPMRA = trim ( line.substr ( 84, 6 ) );
+        if ( ! strPMRA.empty() )
+            motion.lon = SSAngle::fromArcsec ( strtofloat ( strPMRA ) / 1000.0 ) / cos ( coords.lat );
+
+		// Get proper motion in Dec. and convert to radians/year
+
+		string strPMDec = trim ( line.substr ( 100, 6 ) );
+        if ( ! strPMDec.empty() )
+            motion.lat = SSAngle::fromArcsec ( strtofloat ( strPMDec ) / 1000.0 );
+
+		// Get radial velocity in km/sec and convert to light speed
+		
+		string strRV = trim ( line.substr ( 127, 6 ) );
+        if ( ! strRV.empty() )
+            motion.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+
+		// Get distance in parsecs
+
+		string strDist = trim ( line.substr ( 55, 5 ) );
+		if ( ! strDist.empty() )
+			coords.rad = strtofloat ( strDist );
+		
+		// Get angular diameter in arcmin and convert to radians
+		
+		string strDiam = trim ( line.substr ( 46, 5 ) );
+		float diam = strDiam.empty() ? HUGE_VAL : degtorad ( strtofloat ( strDiam ) / 60.0 );
+
+		// Get name. Attempt to parse identifier from it.  If we recognize the name
+		// as an identifier, add Messier and Caldwell numbers; get names from identifiers,
+		// sort identifier list. If we can't parse name as an identifier, use it verbatim as name.
+
+		vector<string> names;
+		vector<SSIdentifier> idents;
+		
+		string name = trim ( line.substr ( 0, 18 ) );
+		SSIdentifier ident = SSIdentifier::fromString ( name );
+		
+		if ( ident )
+		{
+			idents.push_back ( ident );
+			addMCIdentifiers ( idents, name );
+			names = getNamesFromIdentifiers ( idents, nameMap );
+			sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+		}
+		else
+		{
+			names.push_back ( name );
+		}
+
+		// Allocate new deep sky object and store values if successful
+		
+		SSDeepSky *pObject = new SSDeepSky ( kTypeOpenCluster );
+		if ( pObject == nullptr )
+			continue;
+		
+		pObject->setNames ( names );
+		pObject->setIdentifiers ( idents );
+		pObject->setFundamentalMotion ( coords, motion );
+		pObject->setMajorAxis ( diam );
+
+		cout << pObject->toCSV() << endl;
+		clusters.push_back ( shared_ptr<SSObject> ( pObject ) );
+		numClusters++;
+	}
+	
+	return numClusters;
 }

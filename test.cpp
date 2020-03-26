@@ -37,7 +37,6 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 int main ( int argc, char *argv[] )
 {
 	SSObjectVec objects;
-	SSIdentifierNameMap ngcicNameMap;
 /*
 	SSObjectVec constellations;
 	int numcon = SSImportConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
@@ -57,9 +56,16 @@ int main ( int argc, char *argv[] )
     int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
 */
+
+	SSIdentifierNameMap ngcicNameMap;
 	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
-	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
-    cout << "Imported " << numobj << " NGC-IC objects" << endl;
+
+	SSObjectVec clusters;
+	int numOC = SSImportDAML02 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Open Clusters/Dias 2016/clusters.txt", ngcicNameMap, clusters );
+    cout << "Imported " << numOC << " open clusters" << endl;
+
+//	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
+//   cout << "Imported " << numobj << " NGC-IC objects" << endl;
 //	for ( int i = 0; i < objects.size(); i++ )
 //		cout << SSGetDeepSkyPtr ( objects[i] )->toCSV() << endl;
 	

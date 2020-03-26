@@ -17,5 +17,6 @@ void importNGCICNameMap ( const char *filename, SSIdentifierNameMap &nameMap );
 vector<string> getNamesFromIdentifiers ( vector<SSIdentifier> &idents, SSIdentifierNameMap &nameMap );
 
 int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects );
+int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters );
 
 #endif /* SSNGCIC_hpp */
