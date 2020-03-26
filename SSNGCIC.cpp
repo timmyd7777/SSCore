@@ -161,7 +161,8 @@ void importNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
 			pDeepSkyObj->setMinorAxis ( sizeY );
 			pDeepSkyObj->setPositionAngle ( pa );
 
-			cout << pDeepSkyObj->toCSV() << endl;
+			if ( pDeepSkyObj->getIdentifier ( kCatMessier ) )
+				cout << pDeepSkyObj->toCSV() << endl;
 		}
 	}
 }
@@ -241,4 +242,52 @@ vector<string> getNamesFromIdentifiers ( vector<SSIdentifier> &idents, SSIdentif
 
     return names;
 }
+
+static map<string,int> _messmap =
+{
+	{ "NGC 1951",	1 },	// Crab Nebula
+	{ "NGC 7089",	2 },
+	{ "NGC 5272",	3 },
+	{ "NGC 6121",	4 },
+	{ "NGC 5904", 	5 },
+	{ "NGC 6405", 	6 },	// Butterfly Cluster
+	{ "NGC 6475", 	7 },	// Ptolemy's Cluster
+	{ "NGC 6523", 	8 },	// Lagoon Nebula
+	{ "NGC 6333",   9 },
+	{ "NGC 6254",  10 },
+	{ "NGC 6705",  11 },	// Wild Duck Cluster
+	{ "NGC 6218",  12 },
+	{ "NGC 6205",  13 },	// Hercules Cluster
+	{ "NGC 6402",  14 },
+	{ "NGC 7078",  15 },
+	{ "NGC 6611",  16 },	// Eagle Nebula
+	{ "NGC 6618",  17 },	// Omega Nebula
+	{ "NGC 6613",  18 },
+	{ "NGC 6273",  19 },
+	{ "NGC 6514",  20 },	// Trifid Nebula
+};
+
+static map<string,int> _caldmap =
+{
+	{ "NGC 188",	1 },
+	{ "NGC 40",		2 },	// Bow-Tie Nebula
+	{ "NGC 4236",	3 },
+	{ "NGC 7023",	4 },	// Iris Nebula
+	{ "IC 342", 	5 },
+	{ "NGC 6543", 	6 },	// Cat Eye Nebula
+	{ "NGC 2403", 	7 },
+	{ "NGC 559", 	8 },
+	{ "Sh2 155",    9 },	// Cave Nebula
+	{ "NGC 663",   10 },
+	{ "NGC 7635",  11 },	// Bubble Nebula
+	{ "NGC 6946",  12 },	// Fireworks Galaxy
+	{ "NGC 457",   13 },	// Owl Cluster
+	{ "NGC 868",   14 },	// Double Cluster
+	{ "NGC 884",   14 },	// Double Cluster
+	{ "NGC 6826",  15 },	// Blinking Planetary
+	{ "NGC 7243",  17 },
+	{ "NGC 185",   18 },
+	{ "IC 5146",   19 },
+	{ "NGC 7000",  20 },	// North America Nebula
+};
 

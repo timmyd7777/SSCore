@@ -23,7 +23,7 @@ int main ( int argc, char *argv[] )
 {
 	SSObjectVec objects;
 	SSIdentifierNameMap ngcicNameMap;
-	
+/*
 	SSObjectVec constellations;
 	int numcon = SSImportConstellations( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
     cout << "Imported " << numcon << " IAU constellations" << endl;
@@ -38,10 +38,10 @@ int main ( int argc, char *argv[] )
     SSObjectVec asteroids;
     int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
-
+*/
 	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NINames.csv", ngcicNameMap );
 	importNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
-	
+/*
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
@@ -49,7 +49,7 @@ int main ( int argc, char *argv[] )
 	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
 	SSStarMap mapHIP2 = importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
 	SSStarMap mapHIP = importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2, mapHIPNames );
-
+*/
     SSStarNameMap nameMap = importIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
     vector<SSStar> skymap = importSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", nameMap );
 	
