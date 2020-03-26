@@ -275,6 +275,87 @@ static map<string,int> _messmap =
 	{ "NGC 6626",  28 },
 	{ "NGC 6913",  29 },
 	{ "NGC 7099",  30 },
+	{ "NGC 224",   31 },	// Andromeda Galaxy
+	{ "NGC 221",   32 },
+	{ "NGC 598",   33 },	// Triangulum Galaxy
+	{ "NGC 1039",  34 },
+	{ "NGC 2168",  35 },
+	{ "NGC 1960",  36 },
+	{ "NGC 2099",  37 },
+	{ "NGC 1912",  38 },
+	{ "NGC 7092",  39 },
+	{ "WNC 4",     40 },	// Winnecke 4
+	{ "NGC 2287",  41 },
+	{ "NGC 1976",  42 },	// Orion Nebula
+	{ "NGC 1982",  43 },
+	{ "NGC 2632",  44 },	// Beehive Cluster
+	{ "Mel 22",    45 },	// Pleaiades
+	{ "NGC 2437",  46 },
+	{ "NGC 2422",  47 },
+	{ "NGC 2548",  48 },
+	{ "NGC 4472",  49 },
+	{ "NGC 2323",  50 },
+	{ "NGC 5194",  51 },	// Whirlpool Galaxy
+	{ "NGC 7654",  52 },
+	{ "NGC 5024",  53 },
+	{ "NGC 6715",  54 },
+	{ "NGC 6809",  55 },
+	{ "NGC 6779",  56 },
+	{ "NGC 6720",  57 },	// Ring Nebula
+	{ "NGC 4579",  58 },
+	{ "NGC 4621",  59 },
+	{ "NGC 4649",  60 },
+	{ "NGC 4303",  61 },
+	{ "NGC 6266",  62 },
+	{ "NGC 5055",  63 },	// Sunflower Galaxy
+	{ "NGC 4826",  64 },	// Black Eye Galaxy
+	{ "NGC 3623",  65 },
+	{ "NGC 3627",  66 },
+	{ "NGC 2682",  67 },
+	{ "NGC 4590",  68 },
+	{ "NGC 6637",  69 },
+	{ "NGC 6681",  70 },
+	{ "NGC 6838",  71 },
+	{ "NGC 6981",  72 },
+	{ "NGC 6994",  73 },
+	{ "NGC 628",   74 },
+	{ "NGC 6864",  75 },
+	{ "NGC 650",   76 },	// Little Dumbbell Nebula
+	{ "NGC 651",   76 },	// Little Dumbbell Nebula
+	{ "NGC 1068",  77 },	// Cetus A
+	{ "NGC 2068",  78 },
+	{ "NGC 1904",  79 },
+	{ "NGC 6093",  80 },
+	{ "NGC 3031",  81 },	// Bode's Galaxy
+	{ "NGC 3034",  82 },	// Cigar Galaxy
+	{ "NGC 5236",  83 },
+	{ "NGC 4374",  84 },	// Markarian's Chain
+	{ "NGC 4382",  85 },
+	{ "NGC 4406",  86 },	// Markarian's Chain
+	{ "NGC 4486",  87 },	// Virgo A
+	{ "NGC 4501",  88 },
+	{ "NGC 4552",  89 },
+	{ "NGC 4569",  90 },
+	{ "NGC 4548",  91 },
+	{ "NGC 6341",  92 },
+	{ "NGC 2447",  93 },
+	{ "NGC 4736",  94 },
+	{ "NGC 3351",  95 },
+	{ "NGC 3368",  96 },
+	{ "NGC 3587",  97 },	// Owl Nebula
+	{ "NGC 4192",  98 },
+	{ "NGC 4254",  99 },
+	{ "NGC 4321", 100 },
+	{ "NGC 5457", 101 },	// Pinwheel Galaxy
+	{ "NGC 5866", 102 },
+	{ "NGC 581",  103 },
+	{ "NGC 4594", 104 },	// Sombrero Galaxy
+	{ "NGC 3379", 105 },
+	{ "NGC 4258", 106 },
+	{ "NGC 6171", 107 },
+	{ "NGC 3556", 108 },
+	{ "NGC 3992", 109 },
+	{ "NGC 205",  110 }
 };
 
 static map<string,int> _caldmap =
@@ -308,6 +389,85 @@ static map<string,int> _caldmap =
 	{ "NGC 6888",  27 },	// Crescent Nebula
 	{ "NGC 752",   28 },
 	{ "NGC 5005",  29 },
-	{ "NGC 7331",  30 }
+	{ "NGC 7331",  30 },
+	{ "IC 405",    31 },	// Flaming Star Nebula
+	{ "NGC 4631",  32 },	// Whale Galaxy
+	{ "NGC 6992",  33 },	// Eastern Veil Nebula
+	{ "NGC 6960",  34 },	// Western Veil Nebula
+	{ "NGC 4889",  35 },
+	{ "NGC 4559",  36 },
+	{ "NGC 6885",  37 },
+	{ "NGC 4565",  38 },	// Needle Galaxy
+	{ "NGC 2392",  39 },	// Eskimo Nebula
+	{ "NGC 3626",  40 },
+	{ "Mel 25",    41 },	// Hyades
+	{ "NGC 7006",  42 },
+	{ "NGC 7814",  43 },
+	{ "NGC 7479",  44 },
+	{ "NGC 5248",  45 },
+	{ "NGC 2261",  46 },	// Hubble's Variable Nebula
+	{ "NGC 6934",  47 },
+	{ "NGC 2775",  48 },
+	{ "NGC 2237",  49 },	// Rosette Nebula
+	{ "NGC 2244",  50 },
+	{ "IC 1613",   51 },
+	{ "NGC 4697",  52 },
+	{ "NGC 3115",  53 },	// Spindle Galaxy
+	{ "NGC 2506",  54 },
+	{ "NGC 7009",  55 },	// Saturn Nebula
+	{ "NGC 246",   56 },
+	{ "NGC 6822",  57 },	// Barnard's Galaxy
+	{ "NGC 2360",  58 },
+	{ "NGC 3242",  59 },	// Ghost of Jupiter
+	{ "NGC 4038",  60 },	// Antennae Galaxies
+	{ "NGC 4039",  61 },	// Antennae Galaxies
+	{ "NGC 247",   62 },
+	{ "NGC 7293",  63 },	// Helix Nebula
+	{ "NGC 2362",  64 },
+	{ "NGC 253",   65 },	// Sculptor Galaxy
+	{ "NGC 5694",  66 },
+	{ "NGC 1097",  67 },
+	{ "NGC 6729",  68 },
+	{ "NGC 6302",  69 },	// Bug Nebula
+	{ "NGC 300",   70 },
+	{ "NGC 2477",  71 },
+	{ "NGC 55",    72 },
+	{ "NGC 1851",  73 },
+	{ "NGC 3132",  74 },	// Eight Burst Nebula
+	{ "NGC 6124",  75 },
+	{ "NGC 6231",  76 },
+	{ "NGC 5128",  77 },	// Centaurus A
+	{ "NGC 6541",  78 },
+	{ "NGC 3201",  79 },
+	{ "NGC 5139",  80 },	// Omega Centauri
+	{ "NGC 6352",  81 },
+	{ "NGC 6193",  82 },
+	{ "NGC 4945",  83 },
+	{ "NGC 5286",  84 },
+	{ "IC 2391",   85 },	// Omicron Velorum Cluster
+	{ "NGC 6397",  86 },
+	{ "NGC 1261",  87 },
+	{ "NGC 5823",  88 },
+	{ "NGC 6087",  89 },
+	{ "NGC 2867",  90 },
+	{ "NGC 3532",  91 },	// Wishing Well Cluster
+	{ "NGC 3372",  92 },	// Eta Carinae Nebula
+	{ "NGC 6752",  93 },
+	{ "NGC 4755",  94 },	// Jewel Box
+	{ "NGC 6025",  95 },
+	{ "NGC 2516",  96 },
+	{ "NGC 3766",  97 },	// Pearl Cluster
+	{ "NGC 4609",  98 },
+	{ "Coalsack",  99 },	// Coalsack
+	{ "IC 2944",  100 },	// Lambda Centauri Nebula
+	{ "NGC 6744", 101 },
+	{ "IC 2602",  102 },	// Southern Pleiades
+	{ "NGC 2070", 103 },	// Tarantula Nebula
+	{ "NGC 362",  104 },
+	{ "NGC 4833", 105 },
+	{ "NGC 104",  106 },	// 47 Tucanae
+	{ "NGC 6101", 107 },
+	{ "NGC 4372", 108 },
+	{ "NGC 3195", 109 },
 };
 
