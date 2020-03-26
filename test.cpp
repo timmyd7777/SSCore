@@ -25,8 +25,11 @@ int main ( int argc, char *argv[] )
 	SSIdentifierNameMap ngcicNameMap;
 	
 	SSObjectVec constellations;
-	int numcon = SSImportConstellations( "/Users/timmyd/Projects/SouthernStars/Projects/Constellations/Constellations.csv", constellations );
+	int numcon = SSImportConstellations( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
     cout << "Imported " << numcon << " IAU constellations" << endl;
+	
+	int numverts = SSImportConstellationBoundaries( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Boundaries.csv", constellations );
+    cout << "Imported " << numverts << " IAU constellation boundary vertices" << endl;
 
 	SSObjectVec comets;
 	int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );

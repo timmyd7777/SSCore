@@ -40,6 +40,11 @@ public:
 	void setBoundary ( vector<SSVector> bounds ) { _bounds = bounds; }
 	void setFigure ( vector<int> figure ) { _figures = figure; }
 
+	// converts IAU abbreviation ("And", "Ant", ... "Vul") to index number (1, 2, ... 88) and vice-versa.
+	
+	static int abbreviationToIndex ( string abbrev );
+	static string indexToAbbreviation ( int index );
+	
 	// imports/exports from/to CSV-format text string
 	
 	static SSConstellation *fromCSV ( string csv );
@@ -58,5 +63,9 @@ SSConstellationPtr SSGetConstellationPtr ( SSObjectPtr ptr );
 // Imports constellations from CSV-format text file into vector of SSObjectPtr.
 
 int SSImportConstellations ( const char *filename, SSObjectVec &constellations );
+
+// Imports constellation boundaries from CSV-format text file into vector of SSObjectPtr.
+
+int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constellations );
 
 #endif /* SSConstellation_hpp */
