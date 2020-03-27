@@ -307,6 +307,51 @@ string ngcic_to_string ( int64_t ngcic )
 		return format ( "%d", num );
 }
 
+int64_t string_to_pngpk ( string str )
+{
+	double	lon = 0, lat = 0;
+	int		londec = 0, latdec = 0;
+	char	sign = 0;
+	
+	// Comvert whitespace in penultimate position to period.
+	
+	size_t pos = str.length() - 2;
+	if ( str[pos] == ' ' )
+		str[pos] = '.';
+	
+	sscanf ( str.c_str(), "%lf%c%lf", &lon, &sign, &lat );
+
+	londec = lon * 10.0 + 0.1;
+	latdec = lat * 10.0 + 0.1;
+	
+    if ( sign == '+' )
+    	sign = 1;
+    else
+    	sign = 0;
+    
+    if ( londec >= 0 && londec < 3600 && latdec >= 0 && latdec < 900 )
+    	return londec * 10000 + sign * 1000 + latdec;
+    else
+    	return 0;
+}
+
+string pngpk_to_string ( int64_t pngpk, SSCatalog cat )
+{
+	int64_t londec = pngpk / 10000;
+	int64_t	sign = ( pngpk - londec * 10000 ) / 1000;
+	int64_t	latdec = pngpk - londec * 10000 - sign * 1000;
+	
+	if ( sign )
+		sign = '+';
+	else
+		sign = '-';
+	
+	if ( cat == kCatPNG )
+		return format ( "%05.1f%c%04.1f", londec / 10.0, sign, latdec / 10.0 );
+	else // kCatPK
+		return format ( "%03.0f%c%04.1f", londec / 10.0, sign, latdec / 10.0 );
+}
+
 static void mapinit ( void )
 {
 	for ( int i = 0; i < _bayvec.size(); i++ )
@@ -404,6 +449,24 @@ SSIdentifier SSIdentifier::fromString ( string str )
 		size_t pos = str.find_first_of ( "0123456789" );
 		if ( pos != string::npos )
 			return SSIdentifier ( kCatMel, stoi ( str.substr ( pos, len - pos ) ) );
+	}
+
+	// if string begins with "PNG", attempt to parse a Galactic Planetary Nebula number
+	
+	if ( str.find ( "PNG" ) == 0 && len > 3 )
+	{
+		int64_t png = string_to_pngpk ( str.substr ( 3, len - 3 ) );
+		if ( png )
+			return SSIdentifier ( kCatPNG, png );
+	}
+
+	// if string begins with "PK", attempt to parse a Perek-Kohoutek planetary nebula number
+	
+	if ( str.find ( "PK" ) == 0 && len > 2 )
+	{
+		int64_t pk = string_to_pngpk ( str.substr ( 2, len - 2 ) );
+		if ( pk )
+			return SSIdentifier ( kCatPK, pk );
 	}
 
 	// if string begins with "PGC", attempt to parse a Principal Galaxy Catalog identifier
@@ -642,6 +705,14 @@ string SSIdentifier::toString ( void )
 	else if ( cat == kCatMel )
 	{
 		str = "Mel " + to_string ( id );
+	}
+	else if ( cat == kCatPNG )
+	{
+		str = "PNG " + pngpk_to_string ( id, cat );
+	}
+	else if ( cat == kCatPK )
+	{
+		str = "PK " + pngpk_to_string ( id, cat );
 	}
 	else if ( cat == kCatPGC )
 	{

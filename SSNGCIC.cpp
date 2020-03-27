@@ -773,3 +773,87 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
 
 	return numClusters;
 }
+
+// Imports Strasbourg-ESO catalog of Galactic Planetary Nebulae:
+// https://cdsarc.unistra.fr/ftp/V/84
+// https://cdsarc.unistra.fr/ftp/V/84/main.dat.gz
+// Adds names from input deep sky object name table.
+// Adds Messier and Caldwell numbers when possible.
+// Returns total number of nebule imported (should be 1143).
+
+int SSImportPNG ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &nebulae )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return ( 0 );
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int numNebulae = 0;
+
+    while ( getline ( file, line ) )
+    {
+		// Get B1950 R.A. and Dec; convert to radians.
+		// TODO: precess to J2000!
+		
+		string strRA = line.substr ( 12, 11 );
+		string strDec = line.substr ( 23, 11 );
+		
+		SSHourMinSec ra ( strRA );
+		SSDegMinSec dec ( strDec );
+		
+		SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
+		SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+
+		// Get PNG and PK identifiers
+		
+		vector<string> names;
+		vector<SSIdentifier> idents;
+		
+		string strPNG = trim ( line.substr ( 0, 10 ) );
+		string strPK = trim ( line.substr ( 59, 9 ) );
+		
+		if ( ! strPNG.empty()  )
+			idents.push_back ( SSIdentifier::fromString ( "PNG " + strPNG ) );
+	
+		if ( ! strPK.empty() )
+			idents.push_back ( SSIdentifier::fromString ( "PK " + strPK ) );
+
+		// Get name. If it's an NGC-IC, parse identifier from it, add Messier and Caldwell numbers;
+		// get names from identifiers, sort identifier list. Otherwise, use name verbatim.
+
+		string name = trim ( line.substr ( 45, 13 ) );
+		
+		if ( name.find ( "NGC" ) == 0 || name.find ( "IC" ) == 0 )
+		{
+			SSIdentifier ident = SSIdentifier::fromString ( name );
+			idents.push_back ( ident );
+			addMCIdentifiers ( idents, name );
+			names = getNamesFromIdentifiers ( idents, nameMap );
+			sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+		}
+		else
+		{
+			names.push_back ( name );
+		}
+
+		// Allocate new deep sky object and store values if successful
+		
+		SSDeepSky *pObject = new SSDeepSky ( kTypePlanetaryNebula );
+		if ( pObject == nullptr )
+			continue;
+		
+		pObject->setNames ( names );
+		pObject->setIdentifiers ( idents );
+		pObject->setFundamentalMotion ( coords, motion );
+
+		cout << pObject->toCSV() << endl;
+		nebulae.push_back ( shared_ptr<SSObject> ( pObject ) );
+		numNebulae++;
+	}
+	
+	return numNebulae;
+}

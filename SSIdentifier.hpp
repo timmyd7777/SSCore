@@ -38,9 +38,11 @@ enum SSCatalog
 	kCatNGC = 32,			// New General Catalog of deep sky objects
 	kCatIC = 33,			// Index Catalog of deep sky objects
 	kCatMel = 34,			// Melotte Catalog of open clusters
-	kCatPGC = 35,			// Principal Galaxy Catalog
-	kCatUGC = 36,			// Uppsala Galaxy Catalog
-	kCatUGCA = 37			// Uppsala Galaxy Catalog Appendix
+	kCatPNG = 35,			// Galactic Planetary Nebulae (Strasbourg-ESO)
+	kCatPK = 36,			// Perek-Kohoutek Catalog (planetary nebulae)
+	kCatPGC = 37,			// Principal Galaxy Catalog
+	kCatUGC = 38,			// Uppsala Galaxy Catalog
+	kCatUGCA = 39			// Uppsala Galaxy Catalog Appendix
 };
 
 class SSIdentifier

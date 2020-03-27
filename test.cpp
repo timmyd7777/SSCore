@@ -68,6 +68,10 @@ int main ( int argc, char *argv[] )
 	int numGlobs = SSImportMWGC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Globular Clusters/Harris 2010/mwgc.original.txt", ngcicNameMap, globulars );
     cout << "Imported " << numGlobs << " globular clusters" << endl;
 
+	SSObjectVec planebs;
+	int numPlanebs = SSImportPNG ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/main.dat", ngcicNameMap, planebs );
+    cout << "Imported " << numPlanebs << " planetary nebulae" << endl;
+
 	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
    	cout << "Imported " << numobj << " NGC-IC objects" << endl;
 

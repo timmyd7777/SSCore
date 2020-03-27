@@ -20,5 +20,6 @@ void addNGCICClusterData ( SSObjectVec &clusters, SSObjectVec &objects );
 int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects );
 int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters );
 int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters );
+int SSImportPNG ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &planebs );
 
 #endif /* SSNGCIC_hpp */
