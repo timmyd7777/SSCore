@@ -989,7 +989,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
 		pObject->setFundamentalMotion ( coords, motion );
 		pObject->setMajorAxis ( diam );
 		
-		cout << pObject->toCSV() << endl;
+		// cout << pObject->toCSV() << endl;
 		nebulae.push_back ( shared_ptr<SSObject> ( pObject ) );
 		numNebulae++;
 	}

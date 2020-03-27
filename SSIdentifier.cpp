@@ -451,6 +451,15 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatMel, stoi ( str.substr ( pos, len - pos ) ) );
 	}
 
+	// if string begins with "LBN", attempt to parse a Lynds Bright Nebula cluster identifier
+	
+	if ( str.find ( "LBN" ) == 0 && len > 3 )
+	{
+		int64_t lbn = strtoint ( str.substr ( 3, len - 2 ) );
+		if ( lbn > 0 )
+			return SSIdentifier ( kCatLBN, lbn );
+	}
+
 	// if string begins with "PNG", attempt to parse a Galactic Planetary Nebula number
 	
 	if ( str.find ( "PNG" ) == 0 && len > 3 )
@@ -705,6 +714,10 @@ string SSIdentifier::toString ( void )
 	else if ( cat == kCatMel )
 	{
 		str = "Mel " + to_string ( id );
+	}
+	else if ( cat == kCatLBN )
+	{
+		str = "LBN " + to_string ( id );
 	}
 	else if ( cat == kCatPNG )
 	{
