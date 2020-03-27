@@ -70,7 +70,11 @@ int main ( int argc, char *argv[] )
 
 	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
    	cout << "Imported " << numobj << " NGC-IC objects" << endl;
-	for ( int i = 0; i < objects.size(); i++ )
+
+    addNGCICClusterData ( clusters, objects );
+    addNGCICClusterData ( globulars, objects );
+
+    for ( int i = 0; i < objects.size(); i++ )
 		cout << SSGetDeepSkyPtr ( objects[i] )->toCSV() << endl;
 	
 	exportCatalog ( objects, kCatMessier, 1, 110 );

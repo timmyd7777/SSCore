@@ -426,6 +426,66 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 	return numObjects;
 }
 
+// Adds distances and radial velocities from open and globular
+// star cluster catalogs to NGC-IC object data.
+// Adds spectral types for globular clusters,
+
+void addNGCICClusterData ( SSObjectVec &clusters, SSObjectVec &objects )
+{
+    SSObjectMap ngcMap = SSMakeObjectMap ( clusters, kCatNGC );
+    SSObjectMap icMap = SSMakeObjectMap ( clusters, kCatIC );
+
+    // For each NGC-IC object...
+    
+    for ( int i = 0; i < objects.size(); i++ )
+    {
+        // Find index k of corresponding object in star cluster vector.
+        
+        int k = 0;
+        SSIdentifier ident = objects[i]->getIdentifier ( kCatNGC );
+        if ( ident )
+        {
+            k = ngcMap[ ident ];
+        }
+        else
+        {
+            ident = objects[i]->getIdentifier ( kCatIC );
+            if ( ident )
+                k = icMap[ ident ];
+        }
+        
+        if ( k == 0 )
+            continue;
+        
+        // If we found a cluster index, get pointers
+        // to NGC-IC object and to cluster.
+        
+        SSDeepSkyPtr pObject = SSGetDeepSkyPtr ( objects[i] );
+        if ( pObject == nullptr )
+            continue;
+        
+        SSDeepSkyPtr pCluster = SSGetDeepSkyPtr ( clusters[k - 1] );
+        if ( pCluster == nullptr )
+            continue;
+        
+        // Get NGC-IC object coordinates, and cluster coordinates and motion.
+        
+        SSSpherical objCoords = pObject->getFundamentalCoords();
+        SSSpherical clusCoords = pCluster->getFundamentalCoords();
+        SSSpherical clusMotion = pCluster->getFundamentalMotion();
+
+        // Copy cluster distance, proper motion, and radial velocity
+        // into NGC-IC object.  For globular clusters also copy spectral type.
+        
+        objCoords.rad = clusCoords.rad;
+        pObject->setFundamentalMotion ( objCoords, clusMotion );
+        
+        if ( pObject->getType() == kTypeGlobularCluster )
+            if ( pCluster->getType() == kTypeGlobularCluster )
+                pObject->setSpectralType ( pCluster->getSpectralType() );
+    }
+}
+
 // Reads identifier-to-name map from filename and stores results in nameMap.
 // If successful, nameMap will contain identifier-to-name pairs;
 // on failure, nothing will be read into nameMap.
@@ -596,7 +656,7 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 		pObject->setFundamentalMotion ( coords, motion );
 		pObject->setMajorAxis ( diam );
 
-		cout << pObject->toCSV() << endl;
+		// cout << pObject->toCSV() << endl;
 		clusters.push_back ( shared_ptr<SSObject> ( pObject ) );
 		numClusters++;
 	}
@@ -706,7 +766,7 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
 		pObject->setMajorAxis ( diam );
 		pObject->setSpectralType ( specStr );
 		
-		cout << pObject->toCSV() << endl;
+		// cout << pObject->toCSV() << endl;
 		clusters.push_back ( shared_ptr<SSObject> ( pObject ) );
 		numClusters++;
 	}
