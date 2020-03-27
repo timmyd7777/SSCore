@@ -777,25 +777,146 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
 // Imports Strasbourg-ESO catalog of Galactic Planetary Nebulae:
 // https://cdsarc.unistra.fr/ftp/V/84
 // https://cdsarc.unistra.fr/ftp/V/84/main.dat.gz
-// Adds names from input deep sky object name table.
-// Adds Messier and Caldwell numbers when possible.
-// Returns total number of nebule imported (should be 1143).
+// This catalog contains a main file with identifiers and B1950 coordinates;
+// distances, diameters, and velocities are in auxiliary files.
+// This function blends them all (but only main file is required);
+// it adds names from input deep sky object name table,
+// and adds Messier and Caldwell numbers when possible.
+// Returns total number of planetary nebule imported (should be 1143).
 
-int SSImportPNG ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &nebulae )
+int SSImportPNG ( const char *main_filename, const char *dist_filename, const char *diam_filename, const char *vel_filename, SSIdentifierNameMap &nameMap, SSObjectVec &nebulae )
 {
-    // Open file; return on failure.
+    string line = "";
+	map<SSIdentifier,float> distMap;
+	map<SSIdentifier,float> diamMap;
+	map<SSIdentifier,float> velMap;
 
-    ifstream file ( filename );
-    if ( ! file )
-        return ( 0 );
+	// First open distance distance file.
+	// If successful create mapping of PNG identifiers to distances.
+	
+	ifstream file ( dist_filename );
+    if ( file )
+	{
+		int n = 0;
+		SSIdentifier lastIdent ( kCatUnknown, 0 );
+		
+		// Read file line-by-line until we reach end-of-file
+		
+		while ( getline ( file, line ) )
+		{
+			if ( line.length() < 28 )
+				continue;
 
+			// Get PNG identifier
+			
+			string strPNG = trim ( line.substr ( 0, 10 ) );
+			SSIdentifier ident = SSIdentifier::fromString ( "PNG " + strPNG );
+			if ( ! ident )
+				continue;
+			
+			// Get distance in kiloparsecs
+			
+			string distStr = trim ( line.substr ( 22, 6 ) );
+			float dist = distStr.empty() ? HUGE_VAL : strtofloat ( distStr ) * 1000.0;
+			if ( isinf ( dist ) )
+				continue;
+			
+			// Distance file contains multiple distance estimates for each object on consecutive lines;
+			// we average them into a single estimate for each individual PNG object.
+
+			if ( ident == lastIdent )
+			{
+				distMap[ident] = ( distMap[ident] * n + dist ) / ( n + 1 );
+				n++;
+			}
+			else
+			{
+				distMap[ident] = dist;
+				n = 1;
+			}
+			
+			lastIdent = ident;
+		}
+	}
+
+	// Close previous file; open diameter file.
+	// If successful create mapping of PNG identifiers to angular diameters.
+
+	file.close();
+    file.open ( diam_filename );
+	if ( file )
+	{
+		// Read file line-by-line until we reach end-of-file
+		
+		while ( getline ( file, line ) )
+		{
+			if ( line.length() < 18 )
+				continue;
+			
+			// Get PNG identifier
+			
+			string strPNG = trim ( line.substr ( 0, 10 ) );
+			SSIdentifier ident = SSIdentifier::fromString ( "PNG " + strPNG );
+			if ( ! ident )
+				continue;
+			
+			// Get angular diameter in arcsec and convert to radians
+			// If nonzero, store diameter in mapping of PNG identifiers
+
+			string diamStr = trim ( line.substr ( 12, 6 ) );
+			float diam = strtofloat ( diamStr ) * SSAngle::kRadPerArcsec;
+			if ( diam != 0.0 )
+				diamMap[ident] = diam;
+		}
+	}
+
+	// Close previous file; open velocity file.
+	// If successful create mapping of PNG identifiers to radial velocities.
+
+	file.close();
+    file.open ( vel_filename );
+	if ( file )
+	{
+		// Read file line-by-line until we reach end-of-file
+		
+		while ( getline ( file, line ) )
+		{
+			if ( line.length() < 18 )
+				continue;
+
+			// Get PNG identifier
+			
+			string strPNG = trim ( line.substr ( 1, 10 ) );
+			SSIdentifier ident = SSIdentifier::fromString ( "PNG " + strPNG );
+			if ( ! ident )
+				continue;
+			
+			// Get radial velocity in km/sec and convert to light speed
+			// If valid, store radial velocity in mapping of PNG identifiers
+
+			string velStr = trim ( line.substr ( 12, 6 ) );
+			float radVel = strtofloat ( velStr ) / SSDynamics::kLightKmPerSec;
+			if ( radVel != 0.0 )
+				velMap[ident] = radVel;
+		}
+	}
+
+	// Close previous file; open main file and return on failure.
+
+	file.close();
+    file.open ( main_filename );
+	if ( ! file )
+		return 0;
+	
     // Read file line-by-line until we reach end-of-file
 
-    string line = "";
     int numNebulae = 0;
 
     while ( getline ( file, line ) )
     {
+		if ( line.length() < 58 )
+			continue;
+
 		// Get B1950 R.A. and Dec; convert to radians.
 		// TODO: precess to J2000!
 		
@@ -814,13 +935,30 @@ int SSImportPNG ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVe
 		vector<SSIdentifier> idents;
 		
 		string strPNG = trim ( line.substr ( 0, 10 ) );
-		string strPK = trim ( line.substr ( 59, 9 ) );
-		
-		if ( ! strPNG.empty()  )
+		if ( ! strPNG.empty() )
 			idents.push_back ( SSIdentifier::fromString ( "PNG " + strPNG ) );
 	
+		string strPK = trim ( line.substr ( 59, 9 ) );
 		if ( ! strPK.empty() )
 			idents.push_back ( SSIdentifier::fromString ( "PK " + strPK ) );
+
+		// Use distance from PNG-identifier-to-distance mapping created above, if nonzero.
+		
+		float dist = distMap[ idents[0] ];
+		if ( dist != 0.0 )
+			coords.rad = dist;
+		
+		// Use angular diameter from PNG-identifier-to-distance mapping created above, if nonzero.
+		
+		float diam = diamMap[ idents[0] ];
+		if ( diam == 0.0 )
+			diam = HUGE_VAL;
+
+		// Use radial velocity from PNG-identifier-to-velocity mapping created above, if nonzero.
+		
+		float radVel = velMap[ idents[0] ];
+		if ( radVel != 0.0 )
+			motion.rad = radVel;
 
 		// Get name. If it's an NGC-IC, parse identifier from it, add Messier and Caldwell numbers;
 		// get names from identifiers, sort identifier list. Otherwise, use name verbatim.
@@ -849,7 +987,8 @@ int SSImportPNG ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVe
 		pObject->setNames ( names );
 		pObject->setIdentifiers ( idents );
 		pObject->setFundamentalMotion ( coords, motion );
-
+		pObject->setMajorAxis ( diam );
+		
 		cout << pObject->toCSV() << endl;
 		nebulae.push_back ( shared_ptr<SSObject> ( pObject ) );
 		numNebulae++;
