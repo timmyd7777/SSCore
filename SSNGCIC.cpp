@@ -151,7 +151,8 @@ static map<string,int> _caldmap =
 	{ "NGC 869",   14 },	// Double Cluster
 	{ "NGC 884",   14 },	// Double Cluster
 	{ "NGC 6826",  15 },	// Blinking Planetary
-	{ "NGC 7243",  17 },
+	{ "NGC 7243",  16 },
+	{ "NGC 147",   17 },
 	{ "NGC 185",   18 },
 	{ "IC 5146",   19 },
 	{ "NGC 7000",  20 },	// North America Nebula
@@ -175,6 +176,7 @@ static map<string,int> _caldmap =
 	{ "NGC 4565",  38 },	// Needle Galaxy
 	{ "NGC 2392",  39 },	// Eskimo Nebula
 	{ "NGC 3626",  40 },
+	{ "NGC 3632",  40 },	// duplicate of NGC 3626
 	{ "Melotte 25",41 },	// Hyades
 	{ "NGC 7006",  42 },
 	{ "NGC 7814",  43 },
@@ -418,7 +420,7 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 		pObject->setMinorAxis ( sizeY );
 		pObject->setPositionAngle ( pa );
 		
-		// cout << pDeepSkyObj->toCSV() << endl;
+		// cout << pObject->toCSV() << endl;
 		objects.push_back ( shared_ptr<SSObject> ( pObject ) );
 		numObjects++;
 	}
@@ -474,16 +476,21 @@ void addNGCICClusterData ( SSObjectVec &clusters, SSObjectVec &objects )
         SSSpherical clusCoords = pCluster->getFundamentalCoords();
         SSSpherical clusMotion = pCluster->getFundamentalMotion();
 
-        // Copy cluster distance, proper motion, and radial velocity
-        // into NGC-IC object.  For globular clusters also copy spectral type.
+        // Copy cluster distance, proper motion, and radial velocity into NGC-IC object.
         
         objCoords.rad = clusCoords.rad;
         pObject->setFundamentalMotion ( objCoords, clusMotion );
         
-        if ( pObject->getType() == kTypeGlobularCluster )
-            if ( pCluster->getType() == kTypeGlobularCluster )
-                pObject->setSpectralType ( pCluster->getSpectralType() );
-    }
+		// For globular clusters also copy spectral type.
+		
+		if ( pCluster->getType() == kTypeGlobularCluster )
+			pObject->setSpectralType ( pCluster->getSpectralType() );
+
+		// For planetary nebulae, add PNG identifiers.
+		
+		if ( pCluster->getType() == kTypePlanetaryNebula )
+			pObject->addIdentifier ( pCluster->getIdentifier ( kCatPNG ) );
+	}
 }
 
 // Reads identifier-to-name map from filename and stores results in nameMap.

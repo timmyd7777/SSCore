@@ -89,6 +89,11 @@ SSIdentifier SSStar::getIdentifier ( SSCatalog cat )
 	return SSIdentifier();
 }
 
+bool SSStar::addIdentifier ( SSIdentifier ident )
+{
+	return ::addIdentifier ( _idents, ident );
+}
+
 void SSStar::computeEphemeris ( SSDynamics &dyn )
 {
     if ( _parallax > 0.0 )
@@ -205,18 +210,18 @@ string SSStar::toCSV1 ( void )
 	return csv;
 }
 
-// Returns CSV string from names and identifiers (excluding base data).
+// Returns CSV string from identifiers and names (excluding base data).
 
 string SSStar::toCSV2 ( void )
 {
 	string csv = "";
 	
-	for ( int i = 0; i < _names.size(); i++ )
-		csv += _names[i] + ",";
-
 	for ( int i = 0; i < _idents.size(); i++ )
 		csv += _idents[i].toString() + ",";
 	
+	for ( int i = 0; i < _names.size(); i++ )
+		csv += _names[i] + ",";
+
 	return csv;
 }
 

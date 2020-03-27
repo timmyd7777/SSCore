@@ -98,6 +98,13 @@ SSIdentifier SSObject::getIdentifier ( SSCatalog cat )
 	return SSIdentifier();
 }
 
+// Default implementation of addIdentifer; overridden by subclasses.
+
+bool SSObject::addIdentifier ( SSIdentifier ident )
+{
+	return false;
+}
+
 // Default implementation of toCSV; overridden by subclasses.
 
 string SSObject::toCSV ( void )

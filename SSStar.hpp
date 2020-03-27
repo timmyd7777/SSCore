@@ -50,6 +50,7 @@ public:
 	void setBMagnitude ( float bmag ) { _Bmag = bmag; }
 	void setSpectralType ( string spectrum ) { _spectrum = spectrum; }
 	
+	bool addIdentifier ( SSIdentifier ident );
 	SSIdentifier getIdentifier ( SSCatalog cat );
 	vector<SSIdentifier> getIdentifiers ( void ) { return _idents; }
 	

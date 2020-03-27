@@ -19,6 +19,12 @@
 #include "SSNGCIC.hpp"
 #include "SSMPC.hpp"
 
+void exportCatalog ( SSObjectVec objects )
+{
+    for ( int i = 0; i < objects.size(); i++ )
+		cout << objects[i].get()->toCSV() << endl;
+}
+
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
 	SSObjectMap map = SSMakeObjectMap ( objects, cat );
@@ -76,14 +82,17 @@ int main ( int argc, char *argv[] )
     cout << "Imported " << numPlanebs << " planetary nebulae" << endl;
 
 	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
-   	cout << "Imported " << numobj << " NGC-IC objects" << endl;
+	cout << "Imported " << numobj << " NGC-IC objects" << endl;
 
     addNGCICClusterData ( clusters, objects );
     addNGCICClusterData ( globulars, objects );
+    addNGCICClusterData ( planebs, objects );
 
-    for ( int i = 0; i < objects.size(); i++ )
-		cout << SSGetDeepSkyPtr ( objects[i] )->toCSV() << endl;
-	
+	exportCatalog ( clusters );
+	exportCatalog ( globulars );
+	exportCatalog ( planebs );
+	exportCatalog ( objects );
+
 	exportCatalog ( objects, kCatMessier, 1, 110 );
 	exportCatalog ( objects, kCatCaldwell, 1, 110 );
 /*
