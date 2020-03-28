@@ -114,11 +114,11 @@ void SSStar::computeEphemeris ( SSDynamics &dyn )
 // Sets this star's spherical coordinates in the fundamental frame,
 // i.e. the star's mean equatorial J2000 coordinates at epoch 2000.
 // The star's RA (coords.lon) and Dec (coords.lat) are in radians.
-// The star's distance in parsecs (coords.rad) may be infinite if unknown.
+// The star's distance in light years (coords.rad) may be infinite if unknown.
 
 void SSStar::setFundamentalCoords ( SSSpherical coords )
 {
-	_parallax = isinf ( coords.rad ) ? 0.0 : 1.0 / coords.rad;
+	_parallax = isinf ( coords.rad ) ? 0.0 : SSDynamics::kLYPerParsec / coords.rad;
 
 	if ( _parallax <= 0.0 || isinf ( coords.rad ) )
 		coords.rad = 1.0;
@@ -130,15 +130,15 @@ void SSStar::setFundamentalCoords ( SSSpherical coords )
 // i.e. the star's mean equatorial J2000 coordinates and proper motion at epoch 2000.
 // The star's RA (coords.lon) and Dec (coords.lat) are in radians.
 // The stars proper motion in RA (motion.ra) and dec (motion.dec) are in radians per Julian year.
-// The star's distance in parsecs (coords.rad) may be infinite if unknown.
+// The star's distance in light years (coords.rad) may be infinite if unknown.
 // The star's radial velocity in light years per year (motion.rad) may be infinite if unknown.
 // Mathematically, both coordinates and motion are required to compute the star's rectangular
 // heliocentric position and motion; practically, if you have its motion you'll also have its position,
-// so we pass them both here.  You can extract them separately (see below.)
+// so we pass them both here.  You can extract them separately (see below).
 
 void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 {
-	_parallax = isinf ( coords.rad ) ? 0.0 : 1.0 / coords.rad;
+	_parallax = isinf ( coords.rad ) ? 0.0 : SSDynamics::kLYPerParsec / coords.rad;
 	_radvel = motion.rad;
 
 	if ( _parallax <= 0.0 )
@@ -156,13 +156,13 @@ void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 
 // Returns this star's heliocentric spherical coordinates in the fundamental
 // J2000 mean equatorial frame at epoch J2000.  The star's RA (coords.lon)
-// and Dec (coords.lat) are in radians.  Its distance (coords.rad) is in
-// parsecs and will be infinite if unknown.
+// and Dec (coords.lat) are in radians.  Its distance in light years (coords.rad)
+// will be infinite if unknown.
 
 SSSpherical SSStar::getFundamentalCoords ( void )
 {
 	SSSpherical coords = _position.toSpherical();
-	coords.rad = isinf ( _parallax ) || _parallax == 0.0 ? HUGE_VAL : 1.0 / _parallax;
+	coords.rad = ( isinf ( _parallax ) || _parallax == 0.0 ) ? HUGE_VAL : SSDynamics::kLYPerParsec / _parallax;
 	return coords;
 }
 
@@ -200,7 +200,7 @@ string SSStar::toCSV1 ( void )
 	csv += isinf ( _Vmag ) ? "," : format ( "%+.2f,", _Vmag );
 	csv += isinf ( _Bmag ) ? "," : format ( "%+.2f,", _Bmag );
 	
-	csv += isinf ( distance ) ? "," : format ( "%.3E,", distance );
+	csv += isinf ( distance ) ? "," : format ( "%.3E,", distance * SSDynamics::kParsecPerLY );
 	csv += isinf ( _radvel ) ? "," : format ( "%+.1f,", _radvel * SSDynamics::kLightKmPerSec );
 	
 	// If spectrum contains a comma, put it in quotes.

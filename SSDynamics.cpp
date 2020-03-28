@@ -75,22 +75,25 @@ SSVector SSDynamics::subtractAberration ( SSVector aberrFunDir )
     return aberrFunDir.subtract ( obsVel.divideBy ( kLightAUPerDay ) ).normalize();
 }
 
-double SSDynamics::redshiftToRadVel ( double z )
+// Given a positive or negative red shift (z), returns the equivalent radial velocity
+// as a fraction of light speed (rv) using relativistic formula.
+// Redshifts > 1.0 return radial velocities < 1.0.
+
+double SSDynamics::redShiftToRadVel ( double z )
 {
 	double z12 = ( z + 1.0 ) * ( z + 1.0 );
 	double rv = ( z12 - 1.0 ) / ( z12 + 1.0 );
 	
-	if ( z < 0.0 )
-		z = z;
-	
 	return ( rv );
 }
 
-double SSDynamics::radVelToRedshift ( double rv )
+// Given positive or negative radial velocity as a fraction of light speed (rv),
+// returns the equivalent red shift (z) using relativistic formula.
+// Radial velocity must be < 1.0 but may return redshift > 1.0.
+
+double SSDynamics::radVelToRedShift ( double rv )
 {
-	double z = sqrt ( ( 1.0 + rv ) / ( 1.0 - rv ) ) - 1.0;
-	
-	return ( z );
+	return sqrt ( ( 1.0 + rv ) / ( 1.0 - rv ) ) - 1.0;
 }
 
 void SSDynamics::getPlanetPositionVelocity ( SSPlanetID id, double jde, SSVector &pos, SSVector &vel )

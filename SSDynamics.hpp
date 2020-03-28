@@ -35,8 +35,8 @@ class SSDynamics
     static constexpr double kParsecPerAU = 1.0 / kAUPerParsec;                      // Parsecs per astronomical unit
     static constexpr double kAUPerLY = kLightAUPerDay * 365.25;                     // Astronomical units per light year = 63241.077084 (assuming Julian year of exactly 365.25 days)
     static constexpr double kLYPerAU = 1.0 / kAUPerLY;                              // Light years per astronomical unit
-    static constexpr double kLYPerParsec = kAUPerLY / kAUPerParsec;                 // Light years per parsec = 3.261563777179643
-    static constexpr double kParsecPerLY = kAUPerParsec / kAUPerLY;                 // Parsecs per light year
+    static constexpr double kLYPerParsec = kAUPerParsec / kAUPerLY;                 // Light years per parsec = 3.261563777179643
+    static constexpr double kParsecPerLY = kAUPerLY / kAUPerParsec;                 // Parsecs per light year
 
     
     SSDynamics ( double jd, double lon, double lat );
@@ -50,8 +50,8 @@ class SSDynamics
     SSVector addAberration ( SSVector funDir );
     SSVector subtractAberration ( SSVector aberrFunDir );
 	
-	static double redshiftToRadVel ( double );
-	static double radVelToRedshift ( double );
+	static double redShiftToRadVel ( double );
+	static double radVelToRedShift ( double );
 };
 
 #endif /* SSDynamics_hpp */

@@ -82,9 +82,6 @@ int SSImportGJ ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec
         double ra = degtorad ( strtodeg ( strRA ) * 15.0 );
         double dec = degtorad ( strtodeg ( strDec ) );
         		
-		if ( strGJ.compare ( "699" ) == 0 )
-			int i = 1;
-		
 		// Get B1950 proper motion and position angle;
         // if both present convert to proper motion in R.A and Dec.
 
@@ -93,7 +90,7 @@ int SSImportGJ ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec
         {
             double pm = SSAngle::fromArcsec ( strtofloat64 ( strPM ) );
             double pa = SSAngle::fromDegrees ( strtofloat64 ( strPA ) );
-            pm_pa_to_pmra_pmdec ( pm, 0.0, dec, pmRA, pmDec );
+            pm_pa_to_pmra_pmdec ( pm, pa, dec, pmRA, pmDec );
         }
         
 		// Precess B1950 position and proper motion to J2000
@@ -106,8 +103,8 @@ int SSImportGJ ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec
         // Get parallax in milliarcsec and convert to distance if > 1 mas.
         
         float plx = strtofloat ( strPlx );
-        if ( plx > 1.000 )
-            coords.rad = 1000.0 / plx;
+        if ( plx > 1.0 )
+            coords.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
         
         // Get radial velocity in km/sec and convert to light speed.
         

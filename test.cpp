@@ -111,11 +111,12 @@ int main ( int argc, char *argv[] )
     SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNameMap );
 
     SSObjectVec nearbyStars;
-    int numStars = SSImportGJ ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNameMap, nearbyStars );
+    int numStars = SSImportGJ ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/barnard.dat", starNameMap, nearbyStars );
     cout << "Imported " << numStars << " nearby stars" << endl;
     
 //	exportCatalog ( nearbyStars );
-	
+
+/*
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );
@@ -238,7 +239,6 @@ int main ( int argc, char *argv[] )
     printf ( "Moon Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
     printf ( "Moon Dist = %f ER\n", equ.rad * SSDynamics::kKmPerAU );
 
-/*
 	SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );
     SSVector v3;
@@ -261,7 +261,6 @@ int main ( int argc, char *argv[] )
     printf ( "%lf %lf %lf\n", i.m10, i.m11, i.m12 );
     printf ( "%lf %lf %lf\n", i.m20, i.m21, i.m22 );
 */
-	
 }
 
 SSObjectPtr SSNewObject ( SSObjectType type )

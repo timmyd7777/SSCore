@@ -167,21 +167,29 @@ SSStarMap importHIC ( const char *filename )
         position.lon = SSHourMinSec ( strRA );
         position.lat = SSDegMinSec ( strDec );
         
+		// If we have a parallax, use it to compute distance in light years
+		
         float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
         if ( plx > 0.0 )
-            position.rad = 1000.0 / plx;
+            position.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
         
+		// Convert proper motion to radians per year
+		
         if ( ! strPMRA.empty() )
             velocity.lon = SSAngle::fromArcsec ( strtofloat ( strPMRA ) ) / cos ( position.lat );
         
         if ( ! strPMDec.empty() )
             velocity.lat = SSAngle::fromArcsec ( strtofloat ( strPMDec ) );
         
+		// Convert radial velocity from km/sec to fraction of light speed
+		
         if ( ! strRV.empty() )
             velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
         
+		// Get Johnson V magnitude; get B magnitude from B-V color index.
+		
         float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
-        float bmag = strBmV.empty() ? HUGE_VAL : vmag - strtofloat ( strBmV );
+        float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
         
         vector<SSIdentifier> idents ( 0 );
         vector<string> names ( 0 );
@@ -297,11 +305,11 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
         float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
         float bmag = strBmV.empty() ? HUGE_VAL : vmag - strtofloat ( strBmV );
 
-        // If we have a parallax > 1 milliarcsec, use it to compute distance in parsecs.
+        // If we have a parallax > 1 milliarcsec, use it to compute distance in light years.
         
         float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
         if ( plx > 0.0 )
-            position.rad = 1000.0 / plx;
+            position.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
         
         // Set up name and identifier vectors.
 
@@ -621,13 +629,13 @@ SSStarMap importHIP2 ( const char *filename )
             bmag = vmag + bmv;
         }
         
-        // If we have a parallax greater than 1 milliarcec, use it to compute distance in parsecs
+        // If we have a parallax greater than 1 milliarcec, use it to compute distance in light years
         
         if ( ! strPlx.empty() )
         {
             float plx = strtofloat ( strPlx );
             if ( plx > 1.0 )
-                position.rad = 1000.0 / plx;
+                position.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
         }
         
         // Add single Hipparcos identifier and empty name string.

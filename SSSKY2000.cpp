@@ -304,13 +304,13 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         SSSpherical position ( ra, dec, HUGE_VAL );
         SSSpherical velocity ( pmRA, pmDec, HUGE_VAL );
         
-        // Get parallax in arcsec and convert to distance if > 1 mas.
+        // Get parallax in arcsec and if > 1 mas convert to distance in light years.
         
         double plx = strtofloat ( strPlx );
         if ( plx > 0.001 )
-            position.rad = 1.0 / plx;
+            position.rad = SSDynamics::kLYPerParsec / plx;
         
-        // Get radial velocity in km/sec and convert to light speed.
+        // Get radial velocity in km/sec and convert to fraction of light speed (light years per year).
         
         if ( ! strRV.empty() )
             velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
@@ -321,7 +321,7 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         if ( ! strMag.empty() )
             vmag = strtofloat ( strMag );
         
-        // Get Johnson B magnitude from color index
+        // Get Johnson B magnitude from B-V color index
         
         float bmag = HUGE_VAL;
         if ( ! strBmV.empty() )

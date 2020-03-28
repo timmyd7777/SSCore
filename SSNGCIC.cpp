@@ -355,16 +355,16 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 		float sizeY = tokens[20].empty() ? HUGE_VAL : strtofloat ( tokens[20] ) * SSAngle::kRadPerArcmin;
 		float pa = tokens[21].empty() ? HUGE_VAL : strtofloat ( tokens[21] ) * SSAngle::kRadPerDeg;
 
-		// Get redshift and convert to radial velocity
+		// Get redshift and convert to radial velocity as fraction of light speed.
 		
-		motion.rad = tokens[23].empty() ? HUGE_VAL : SSDynamics::redshiftToRadVel ( strtofloat ( tokens[23] ) );
+		motion.rad = tokens[23].empty() ? HUGE_VAL : SSDynamics::redShiftToRadVel ( strtofloat ( tokens[23] ) );
 		
-		// Get distance in parsecs.  Prefer metric over redshift-derived.
+		// Get distance in megaparsecs and convert to light years.  Prefer metric distance over redshift-derived.
 		
 		if ( ! tokens[25].empty() )
-			coords.rad = strtofloat ( tokens[25] ) * 1.0e6;
+			coords.rad = strtofloat ( tokens[25] ) * 1.0e6 * SSDynamics::kLYPerParsec;
 		else if ( ! tokens[24].empty() )
-			coords.rad = strtofloat ( tokens[24] ) * 1.0e6;
+			coords.rad = strtofloat ( tokens[24] ) * 1.0e6 * SSDynamics::kLYPerParsec;
 		
 		// Get Hubble morphological type
 		
@@ -538,17 +538,17 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         if ( ! strPMDec.empty() )
             motion.lat = SSAngle::fromArcsec ( strtofloat ( strPMDec ) / 1000.0 );
 
-		// Get radial velocity in km/sec and convert to light speed
+		// Get radial velocity in km/sec and convert to fraction of light speed
 		
 		string strRV = trim ( line.substr ( 127, 6 ) );
         if ( ! strRV.empty() )
             motion.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
 
-		// Get distance in parsecs
+		// Get distance in parsecs and convert to light years
 
 		string strDist = trim ( line.substr ( 55, 5 ) );
 		if ( ! strDist.empty() )
-			coords.rad = strtofloat ( strDist );
+			coords.rad = strtofloat ( strDist ) * SSDynamics::kLYPerParsec;
 		
 		// Get angular diameter in arcmin and convert to radians
 		
@@ -641,17 +641,17 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
 		string strBmV = trim ( line.substr ( 147, 4 ) );
 		float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
 			
-		// Get radial velocity in km/sec and convert to light speed
+		// Get radial velocity in km/sec and convert to fraction of light speed
 		
 		string strRV = trim ( line.substr ( 177, 6 ) );
         if ( ! strRV.empty() )
             motion.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
 
-		// Get distance in kiloparsecs
+		// Get distance in kiloparsecs and convert to light years
 
 		string strDist = trim ( line.substr ( 67, 5 ) );
 		if ( ! strDist.empty() )
-			coords.rad = 1000.0 * strtofloat ( strDist );
+			coords.rad = strtofloat ( strDist ) * 1000.0 * SSDynamics::kLYPerParsec;
 		
 		// Get half-light radius in arcmin and convert to diameter in radians
 		
@@ -746,10 +746,10 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
 			if ( ! ident )
 				continue;
 			
-			// Get distance in kiloparsecs
+			// Get distance in kiloparsecs and convert to light years
 			
 			string distStr = trim ( line.substr ( 22, 6 ) );
-			float dist = distStr.empty() ? HUGE_VAL : strtofloat ( distStr ) * 1000.0;
+			float dist = distStr.empty() ? HUGE_VAL : strtofloat ( distStr ) * 1000.0 * SSDynamics::kLYPerParsec;
 			if ( isinf ( dist ) )
 				continue;
 			
@@ -823,7 +823,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
 			if ( ! ident )
 				continue;
 			
-			// Get radial velocity in km/sec and convert to light speed
+			// Get radial velocity in km/sec and convert to fraction of light speed
 			// If valid, store radial velocity in mapping of PNG identifiers
 
 			string velStr = trim ( line.substr ( 12, 6 ) );
