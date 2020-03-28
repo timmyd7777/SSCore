@@ -47,6 +47,7 @@ SSSpherical::SSSpherical ( SSVector vec )
 // Inputs are this spherical coordinate object whose (lon,lat) are in radians
 // are radial distance from the origin (rad) is in arbitrary distance units.
 // Returns x,y,z position vector in same units as input radial distance.
+// Based on formulae from http://www.astrosurf.com/jephem/library/li110spherCart_en.htm
 
 SSVector SSSpherical::toVectorPosition ( void )
 {
@@ -61,22 +62,19 @@ SSVector SSSpherical::toVectorPosition ( void )
 // Inputs are spherical coordinates (this object) and velocity (vsph) whose (lon,lat)
 // are motion in radians/time unit and whose (rad) is radial velocity in distance/time unit.
 // Returns x,y,z velocity vector in same distance/time unit as input radial velocity.
+// Based on formulae from http://www.astrosurf.com/jephem/library/li110spherCart_en.htm
 
-SSVector SSSpherical::toVectorVelocity ( SSSpherical vsph )
+SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
 {
-    double coslon = cos ( lon );
-    double sinlon = sin ( lon );
-    double coslat = cos ( lat );
-    double sinlat = sin ( lat );
-    double vlon = vsph.lon;
-    double vlat = vsph.lat;
-    double vrad = vsph.rad;
-    
-    double vx = rad * ( -coslat * sinlon * vlon - coslon * sinlat * vlat ) + coslon * coslat * vrad;
-    double vy = rad * (  coslon * coslat * vlon - sinlon * sinlat * vlat ) + coslon * sinlon * vrad;
-    double vz = rad * coslat * vlat + sinlat * vrad;
-    
-    return SSVector ( vx, vy, vz );
+    double x = rad * cos ( lat ) * cos ( lon );
+    double y = rad * cos ( lat ) * sin ( lon );
+    double z = rad * sin ( lat );
+	
+	double vx = vel.rad * x / rad + y * vel.lon + z * vel.lat * cos ( lon );
+	double vy = vel.rad * y / rad - x * vel.lon + z * vel.lat * sin ( lon );
+	double vz = vel.rad * z / rad - rad * vel.lat * cos ( lat );
+	
+	return SSVector ( vx, vy, vz );
 }
 
 // Returns angular separation in radians from this point in a spherical coordinate system
@@ -233,6 +231,7 @@ SSSpherical SSVector::toSpherical ( void )
 // Returns spherical velocity whose (lon,lat) are in radians per time unit
 // and whose rad is radial distance per time unit; Distance & time units
 // are the same in returned spherical coordinates as for input x,y,z vectors.
+// Based on formulae from http://www.astrosurf.com/jephem/library/li110spherCart_en.htm
 
 SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
 {
@@ -243,10 +242,15 @@ SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
     }
     else
     {
-        double lat = asin ( z / r );
-        double vrad = dotProduct ( vvec ) / r;
-        double vlon = ( x * vvec.y - y * vvec.x ) / ( x * x + y * y );
-        double vlat = ( r * vvec.z - z * vrad ) / ( r * r * cos ( lat ) );
+		double x2 = x * x;
+		double y2 = y * y;
+		double vx = vvec.x;
+		double vy = vvec.y;
+		double vz = vvec.z;
+		
+        double vrad = ( x * vx + y * vy + z * vz ) / r;
+        double vlon = ( y * vx - x * vy ) / ( x2 + y2 );
+        double vlat = ( z * ( x * vx + y * vy ) - vz * ( x2 + y2 ) ) / ( r * r * sqrt ( x2 + y2 ) );
 
         return SSSpherical ( vlon, vlat, vrad );
     }

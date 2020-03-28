@@ -203,7 +203,10 @@ SSStarMap importHIC ( const char *filename )
         if ( ! strHIP.empty() )
             addIdentifier ( idents, SSIdentifier ( kCatHIP, strtoint ( strHIP ) ) );
         
-        int hip = strtoint ( strHIP );
+		if ( strHIP.compare ( "87937" ) == 0 )
+			strHIP = strHIP;
+		
+		int hip = strtoint ( strHIP );
         SSStar star;
         
         star.setNames ( names );
@@ -213,7 +216,7 @@ SSStarMap importHIC ( const char *filename )
         star.setBMagnitude ( bmag );
         star.setSpectralType ( strSpec );
         
-        // cout << star.toCSV() << endl;
+        cout << star.toCSV() << endl;
         starmap.insert ( { hip, star } );
     }
     
@@ -303,7 +306,7 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
         // Get Johnson V magnitude, and (if present) get B-V color index then compute Johnson B magnitude.
         
         float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
-        float bmag = strBmV.empty() ? HUGE_VAL : vmag - strtofloat ( strBmV );
+        float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
 
         // If we have a parallax > 1 milliarcsec, use it to compute distance in light years.
         
@@ -362,7 +365,7 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
         for ( auto i = nameRange.first; i != nameRange.second; i++ )
             names.push_back ( i->second );
 
-        // If we found a matching Hipparcos New Reduction star,
+		// If we found a matching Hipparcos New Reduction star,
         // replace position and velocity with newer values.
         
         SSStar hip2Star = mapHIP2[ hip ];
