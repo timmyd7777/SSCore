@@ -131,7 +131,7 @@ void SSStar::setFundamentalCoords ( SSSpherical coords )
 // The star's RA (coords.lon) and Dec (coords.lat) are in radians.
 // The stars proper motion in RA (motion.ra) and dec (motion.dec) are in radians per Julian year.
 // The star's distance in parsecs (coords.rad) may be infinite if unknown.
-// The star's radial velocity in parsecs per year (motion.rad) may be infinite if unknown.
+// The star's radial velocity in light years per year (motion.rad) may be infinite if unknown.
 // Mathematically, both coordinates and motion are required to compute the star's rectangular
 // heliocentric position and motion; practically, if you have its motion you'll also have its position,
 // so we pass them both here.  You can extract them separately (see below.)
@@ -169,7 +169,7 @@ SSSpherical SSStar::getFundamentalCoords ( void )
 // Returns this star's heliocentric proper motion in the fundamental J2000
 // mean equatorial frame at epoch J2000.  The proper motion in RA (motion.lon)
 // and Dec (motion.lat) are both in radians per year.  Its radial velocity
-// (motion.rad) is in parsecs per year and will be infinite if unknown.
+// (motion.rad) is in light years per year and will be infinite if unknown.
 
 SSSpherical SSStar::getFundamentalMotion ( void )
 {

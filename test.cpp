@@ -114,6 +114,8 @@ int main ( int argc, char *argv[] )
     int numStars = SSImportGJ ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNameMap, nearbyStars );
     cout << "Imported " << numStars << " nearby stars" << endl;
     
+//	exportCatalog ( nearbyStars );
+	
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );

@@ -269,7 +269,7 @@ string gj_to_string ( int64_t gj )
 	int64_t	d = gj - n * 10;
 
 	if ( d > 0 )
-		return format ( ")%d.%d", n, d );
+		return format ( "%d.%d", n, d );
 	else
 		return format ( "%d", n );
 }

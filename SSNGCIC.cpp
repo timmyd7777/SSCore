@@ -7,6 +7,7 @@
 //
 
 #include "SSDynamics.hpp"
+#include "SSHipparcos.hpp"
 #include "SSNGCIC.hpp"
 
 #include <iostream>
@@ -839,8 +840,10 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
 	if ( ! file )
 		return 0;
 	
-    // Read file line-by-line until we reach end-of-file
+	// Set up matrix for precessing B1950 coordinates and proper motion to J2000.
+    // Read file line-by-line until we reach end-of-file.
 
+	SSMatrix precession = SSCoords::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
     int numNebulae = 0;
 
     while ( getline ( file, line ) )
@@ -849,7 +852,6 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
 			continue;
 
 		// Get B1950 R.A. and Dec; convert to radians.
-		// TODO: precess to J2000!
 		
 		string strRA = line.substr ( 12, 11 );
 		string strDec = line.substr ( 23, 11 );
@@ -857,8 +859,12 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
 		SSHourMinSec ra ( strRA );
 		SSDegMinSec dec ( strDec );
 		
+		// Precess B1950 coords and motion to J2000!
+
 		SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
 		SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+
+		SSUpdateStarCoordsMotion ( 2000.0, &precession, coords, motion );
 
 		// Get PNG and PK identifiers
 		

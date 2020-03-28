@@ -10,6 +10,42 @@
 #include "SSDynamics.hpp"
 #include "SSHipparcos.hpp"
 
+// Updates star coordinates and motion for space velocity from the input julian year (jyear) to 2000.0
+// and for precession from an input equinox to J2000, using a rotation matrix (pMatrix) as returned by
+// SSCoords::getPrecessionMatrxx() - but use transpose of matrix returned by that function!
+// Pass null pointer for pMatrix if coords and motion alread refer to equinox J2000.
+// This function uses a rigorous transformation which is accurate in all parts of the sky.
+
+void SSUpdateStarCoordsMotion ( double jyear, SSMatrix *pMatrix, SSSpherical &coords, SSSpherical &motion )
+{
+    double rad = coords.rad;
+    double radvel = motion.rad;
+    
+    coords.rad = 1.0;
+    motion.rad = 0.0;
+    
+    SSVector position = coords.toVectorPosition();
+    SSVector velocity = coords.toVectorVelocity ( motion );
+    
+	if ( jyear != 2000.0 )
+	{
+    	position += velocity * ( 2000.0 - jyear );
+		position = position.normalize();
+	}
+	
+	if ( pMatrix != nullptr )
+	{
+		position = *pMatrix * position;
+		velocity = *pMatrix * velocity;
+	}
+	
+    coords = position.toSpherical();
+    motion = position.toSphericalVelocity ( velocity );
+    
+    coords.rad = rad;
+    motion.rad = radvel;
+}
+
 // Imports Hipparcos star name identification table (IDENT6.DOC).
 // Returns map of name strings identifiers indexed by HIP number,
 // which should contain 96 entries if successful.
@@ -84,29 +120,6 @@ string cleanHIPNameString ( string str )
         str.replace ( idx, 1, " " );
     
     return str;
-}
-
-// Updates star position and proper motion from the Hipparcos epoch J1991.25 to J2000.
-// Uses a rigorous transformation which is accurate in all parts of the sky.
-
-void updateHIPStarPositionVelocity ( SSSpherical &position, SSSpherical &velocity )
-{
-    double rad = position.rad;
-    double radvel = velocity.rad;
-    
-    position.rad = 1.0;
-    velocity.rad = 0.0;
-    
-    SSVector pos = position.toVectorPosition();
-    SSVector vel = position.toVectorVelocity ( velocity );
-    
-    pos += vel * ( 2000.0 - 1991.25 );
-    
-    position = pos.toSpherical();
-    velocity = pos.toSphericalVelocity ( vel );
-    
-    position.rad = rad;
-    velocity.rad = radvel;
 }
 
 // Imports the Hipparcos Input Catalog, version 2.
@@ -277,7 +290,7 @@ SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF
         // If proper motion is valid, use it to update position and proper motion from J1991.25 to J2000.
         
         if ( ! isinf ( velocity.lon ) && ! isinf ( velocity.lat ) )
-            updateHIPStarPositionVelocity ( position, velocity );
+            SSUpdateStarCoordsMotion ( 1991.25, nullptr, position, velocity );
         
         // Get Johnson V magnitude, and (if present) get B-V color index then compute Johnson B magnitude.
         
@@ -590,7 +603,7 @@ SSStarMap importHIP2 ( const char *filename )
         // If proper motion is valid, use it to bring position from J1991.25 to J2000
         
         if ( ! isinf ( velocity.lon ) && ! isinf ( velocity.lat ) )
-            updateHIPStarPositionVelocity ( position, velocity );
+            SSUpdateStarCoordsMotion ( 1991.25, nullptr, position, velocity );
         
         // Get Hipparcos magnitude
         

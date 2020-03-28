@@ -27,6 +27,7 @@ int64_t strtoint64 ( string str );
 float strtofloat ( string str );
 double strtofloat64 ( string str );
 
+double strtodeg ( string str );
 double degtorad ( double deg );
 double radtodeg ( double rad );
 double sindeg ( double deg );

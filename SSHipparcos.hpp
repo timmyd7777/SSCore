@@ -19,6 +19,8 @@ typedef multimap<int,SSIdentifier> HIPMap;
 typedef multimap<int,string> HIPNameMap;
 typedef map<int,SSStar> SSStarMap;
 
+void SSUpdateStarCoordsMotion ( double jyear, SSMatrix *pMatrix, SSSpherical &position, SSSpherical &velocity );
+
 SSStarMap importHIC ( const char *filename );
 SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2, HIPNameMap mapNames );
 HIPMap importHIPtoHRMap ( const char *filename );
