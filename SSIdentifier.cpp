@@ -262,6 +262,28 @@ int64_t string_to_wds ( string str )
 		return 0;
 }
 
+string gj_to_string ( int64_t gj )
+{
+	int64_t n = gj / 10;
+	int64_t	d = gj - n * 10;
+
+	if ( d > 0 )
+		return format ( ")%d.%d", n, d );
+	else
+		return format ( "%d", n );
+}
+
+int64_t string_to_gj ( string str )
+{
+	int n = 0, d = 0;
+
+	sscanf ( str.c_str(), "%d.%d", &n, &d );
+	if ( n >= 0 && n <= 9999 && d >= 0 && d <= 9 )
+		 return n * 10 + d;
+	else
+		 return 0;
+}
+
 string wds_to_string ( int64_t wds )
 {
 	int64_t ra = wds / 100000;
@@ -578,6 +600,15 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatWDS, wds );
 	}
 	
+	// if string begins with "GJ", attempt to parse a Gliese-Jahreiss Nearby Star Catalog identifier
+	
+	if ( str.find ( "GJ" ) == 0 && len > 2 )
+	{
+		int64_t gj = string_to_gj ( str.substr ( 2, len - 2 ) );
+		if ( gj )
+			return SSIdentifier ( kCatGJ, gj );
+	}
+
 	// parse constellation abbreviation from last 3 characters of string
 	
 	string constr = "";
@@ -694,6 +725,10 @@ string SSIdentifier::toString ( void )
 	else if ( cat == kCatWDS )
 	{
 		str = "WDS " + wds_to_string ( id );
+	}
+	else if ( cat == kCatGJ )
+	{
+		str = "GJ " + gj_to_string ( id );
 	}
 	else if ( cat == kCatMessier )
 	{

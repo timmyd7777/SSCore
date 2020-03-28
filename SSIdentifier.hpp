@@ -32,6 +32,7 @@ enum SSCatalog
 	kCatCP = 18,			// Cape Photographic Durchmusterung star catalog
 	kCatHIP = 19,			// Hipparcos star catalog
 	kCatWDS = 20,			// Washington Double Star catalog
+	kCatGJ = 21,			// Gliese-Jahreiss Catalog of Nearby Stars
 	
 	kCatMessier = 30,		// Messier deep sky objects
 	kCatCaldwell = 31,		// Caldwell deep sky objects
