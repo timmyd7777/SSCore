@@ -49,6 +49,7 @@
 		A3DBB4CB240EADE80035011E /* GSC.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB4AF240EADE80035011E /* GSC.c */; };
 		A3DBB4CC240EADE80035011E /* FITS.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB4B1240EADE80035011E /* FITS.c */; };
 		A3DBB4CD240EADE80035011E /* Matrix.c in Sources */ = {isa = PBXBuildFile; fileRef = A3DBB4B2240EADE80035011E /* Matrix.c */; };
+		A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -128,6 +129,8 @@
 		A3DBB4B0240EADE80035011E /* Numerics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Numerics.h; sourceTree = "<group>"; };
 		A3DBB4B1240EADE80035011E /* FITS.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FITS.c; sourceTree = "<group>"; };
 		A3DBB4B2240EADE80035011E /* Matrix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Matrix.c; sourceTree = "<group>"; };
+		A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportGJ.cpp; sourceTree = "<group>"; };
+		A3F759A7242EEB9300FCDE16 /* SSImportGJ.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSImportGJ.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,6 +199,8 @@
 				A36E2194242A7CF6005C9699 /* SSMPC.hpp */,
 				A3AAE7B1242972E70035E668 /* SSNGCIC.cpp */,
 				A3AAE7B2242972E70035E668 /* SSNGCIC.hpp */,
+				A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */,
+				A3F759A7242EEB9300FCDE16 /* SSImportGJ.hpp */,
 			);
 			name = SSCore;
 			sourceTree = "<group>";
@@ -335,6 +340,7 @@
 				A3462BF724184A5900A7519A /* SSDynamics.cpp in Sources */,
 				A3DBB4CA240EADE80035011E /* Astrom.c in Sources */,
 				A3DBB4CB240EADE80035011E /* GSC.c in Sources */,
+				A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

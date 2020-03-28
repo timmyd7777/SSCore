@@ -18,6 +18,7 @@
 #include "SSSKY2000.hpp"
 #include "SSNGCIC.hpp"
 #include "SSMPC.hpp"
+#include "SSImportGJ.hpp"
 
 void exportCatalog ( SSObjectVec objects )
 {
@@ -61,7 +62,6 @@ int main ( int argc, char *argv[] )
     SSObjectVec asteroids;
     int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
-*/
 
 	SSIdentifierNameMap ngcicNameMap;
 	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
@@ -95,7 +95,7 @@ int main ( int argc, char *argv[] )
 
 	exportCatalog ( objects, kCatMessier, 1, 110 );
 	exportCatalog ( objects, kCatCaldwell, 1, 110 );
-/*
+
 	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
 	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
 	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
@@ -107,6 +107,13 @@ int main ( int argc, char *argv[] )
     SSStarNameMap nameMap = importIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
     vector<SSStar> skymap = importSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", nameMap );
 */
+    SSIdentifierNameMap starNameMap;
+    SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNameMap );
+
+    SSObjectVec nearbyStars;
+    int numStars = SSImportGJ ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNameMap, nearbyStars );
+    cout << "Imported " << numStars << " nearby stars" << endl;
+    
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );

@@ -247,10 +247,13 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         string strRV = trim ( line.substr ( 167, 1 ) )
                      + trim ( line.substr ( 168, 5 ) );
         
+        // Extract parallax and standard error of parallax.
+        
         string strPlx = trim ( line.substr ( 175, 8 ) );
         string strPlxErr = trim ( line.substr ( 183, 8 ) );
         
-        // Extract Johnson V magnitude.  Get observed V if present; otherwise get derived V.
+        // Extract Johnson V magnitude and B-V color index.
+        // Get observed V if present; otherwise get derived V.
         
         string strMag = trim ( line.substr ( 232, 6 ) );
         if ( strMag.empty() )
@@ -258,6 +261,9 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         
         string strBmV = trim ( line.substr ( 258, 6 ) );
 
+        // Extract spectral type. Prefer full two-dimensional MK spectral type;
+        // use one-dimensional HD spectral type if MK is missing. ***/
+        
         string strSpec = trim ( line.substr ( 304, 30 ) );
         if ( strSpec.empty() )
             strSpec = trim ( line.substr ( 336, 3 ) );
@@ -281,6 +287,9 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         string strVarType = trim ( line.substr ( 443, 3 ) );
         strVarType = SKY2000VariableTypeString ( strtoint ( strVarType ) );
         
+        // Get J2000 Right Ascension and Declination
+        // and J2000 proper in R.A and Dec.
+        
         SSHourMinSec ra ( strRA );
         SSDegMinSec dec ( strDec );
         
@@ -295,12 +304,18 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         SSSpherical position ( ra, dec, HUGE_VAL );
         SSSpherical velocity ( pmRA, pmDec, HUGE_VAL );
         
+        // Get parallax in arcsec and convert to distance if > 1 mas.
+        
         double plx = strtofloat ( strPlx );
         if ( plx > 0.001 )
             position.rad = 1.0 / plx;
         
+        // Get radial velocity in km/sec and convert to light speed.
+        
         if ( ! strRV.empty() )
             velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+        
+        // Get Johnson V magnitude
         
         float vmag = HUGE_VAL;
         if ( ! strMag.empty() )

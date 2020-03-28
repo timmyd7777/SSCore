@@ -9,6 +9,7 @@
 #define SSIdentifier_hpp
 
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -85,6 +86,11 @@ public:
 	static SSIdentifier fromNGC ( string s );
 	static SSIdentifier fromIC ( string s );
 };
+
+typedef multimap<SSIdentifier,string> SSIdentifierNameMap;
+
+int SSImportIdentifierNameMap ( const char *filename, SSIdentifierNameMap &nameMap );
+vector<string> SSIdentifiersToNames ( vector<SSIdentifier> &idents, SSIdentifierNameMap &nameMap );
 
 bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
 bool addIdentifier ( vector<SSIdentifier> &identVec, SSIdentifier ident );
