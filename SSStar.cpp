@@ -91,7 +91,7 @@ SSIdentifier SSStar::getIdentifier ( SSCatalog cat )
 
 bool SSStar::addIdentifier ( SSIdentifier ident )
 {
-	return ::addIdentifier ( _idents, ident );
+	return SSAddIdentifier ( ident, _idents );
 }
 
 void SSStar::computeEphemeris ( SSDynamics &dyn )

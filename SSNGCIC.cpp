@@ -258,10 +258,10 @@ void addMCIdentifiers ( vector<SSIdentifier> &idents, string ngcicStr )
 	int caldNum = _caldmap[ ngcicStr ];
 
 	if ( messNum > 0 )
-		addIdentifier ( idents, SSIdentifier ( kCatMessier, messNum ) );
+		SSAddIdentifier ( SSIdentifier ( kCatMessier, messNum ), idents );
 
 	if ( caldNum > 0 )
-		addIdentifier ( idents, SSIdentifier ( kCatCaldwell, caldNum ) );
+		SSAddIdentifier ( SSIdentifier ( kCatCaldwell, caldNum ), idents );
 }
 
 // Imports Wolfgang Steinicke's Revised NGC-IC Catalogs, obtained from:
@@ -386,19 +386,19 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 		else if ( tokens[0][0] == 'I' )
 			ngcicStr = "IC " + tokens[1] + tokens[2];
 
-		addIdentifier ( idents, SSIdentifier::fromString ( ngcicStr ) );
+		SSAddIdentifier ( SSIdentifier::fromString ( ngcicStr ), idents );
 		addMCIdentifiers ( idents, ngcicStr );
 
 		// Get Principal Galaxy Catalog number, if any.
 		
 		if ( ! tokens[26].empty() )
-			addIdentifier ( idents, SSIdentifier ( kCatPGC, strtoint ( tokens[26] ) ) );
+			SSAddIdentifier ( SSIdentifier ( kCatPGC, strtoint ( tokens[26] ) ), idents );
 
 		// Get additional identifiers from remaining tokens.
 		
 		for ( int k = 27; k < tokens.size(); k++ )
 			if ( ! tokens[k].empty() )
-				addIdentifier ( idents, SSIdentifier::fromString ( tokens[k] ) );
+				SSAddIdentifier ( SSIdentifier::fromString ( tokens[k] ), idents );
 		
 		// get names from identifiers.  Sort identifier list.
 		
@@ -426,6 +426,8 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 		numObjects++;
 	}
 
+	// Return number of objects imported.  File closed automatically.
+	
 	return numObjects;
 }
 
@@ -864,7 +866,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
 		SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
 		SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
 
-		SSUpdateStarCoordsMotion ( 2000.0, &precession, coords, motion );
+		SSUpdateStarCoordsAndMotion ( 2000.0, &precession, coords, motion );
 
 		// Get PNG and PK identifiers
 		

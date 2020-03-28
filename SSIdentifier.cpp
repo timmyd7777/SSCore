@@ -796,21 +796,6 @@ bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 )
 	return id1 < id2;
 }
 
-// Adds a new identifier to a vector of identifiers,
-// if the new identifier is valid and not already present in the vector.
-// Returns true if identifier was added, false otherwise;
-
-bool addIdentifier ( vector<SSIdentifier> &identVec, SSIdentifier ident )
-{
-    if ( ident && find ( identVec.begin(), identVec.end(), ident ) == identVec.end() )
-	{
-   		identVec.push_back ( ident );
-		return true;
-	}
-	
-	return false;
-}
-
 // Reads identifier-to-name map from filename and stores results in nameMap.
 // Returns number of identifer-to-name pairs inserted into nameMap.
 
@@ -857,7 +842,7 @@ int SSImportIdentifierNameMap ( const char *filename, SSIdentifierNameMap &nameM
 // from the input identifier-to-name map.  If no names correspond to any identifier,
 // returns a zero-length vector.
 
-vector<string> SSIdentifiersToNames ( vector<SSIdentifier> &idents, SSIdentifierNameMap &nameMap )
+vector<string> SSIdentifiersToNames ( SSIdentifierVec &idents, SSIdentifierNameMap &nameMap )
 {
     vector<string> names;
 
@@ -874,4 +859,36 @@ vector<string> SSIdentifiersToNames ( vector<SSIdentifier> &idents, SSIdentifier
     }
 
     return names;
+}
+
+// Adds a new identifier to a vector of identifiers,
+// if the new identifier is valid and not already present in the vector.
+// Returns true if identifier was added, false otherwise;
+
+bool SSAddIdentifier ( SSIdentifier ident, SSIdentifierVec &identVec )
+{
+    if ( ident && find ( identVec.begin(), identVec.end(), ident ) == identVec.end() )
+	{
+   		identVec.push_back ( ident );
+		return true;
+	}
+	
+	return false;
+}
+
+// Given a key identifier (key) and a mapping of identifiers to other identifiers (map),
+// adds other idenfiers corresponding to key to a vector of identifiers (idents)
+// Adds identifiers only if valid and not already present in the vector.
+// Returns number of new identifiers added to idents vector.
+
+int SSAddIdentifiers ( SSIdentifier key, SSIdentifierMap &map, SSIdentifierVec &idents )
+{
+	int n = 0;
+	
+	auto range = map.equal_range ( key );
+	for ( auto i = range.first; i != range.second; i++ )
+		if ( SSAddIdentifier ( i->second, idents ) )
+			n++;
+	
+	return n;
 }

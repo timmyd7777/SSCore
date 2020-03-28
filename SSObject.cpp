@@ -118,6 +118,10 @@ void SSObject::computeEphemeris ( SSDynamics &dyn )
 {
 }
 
+// Given a vector of smart pointers to SSObject, creates a mapping of SSIdentifiers
+// in a particular catalog (cat) to index number within the vector.
+// Useful for fast object retrieval by identifier (see SSIdentifierToObject()).
+
 SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat )
 {
 	SSObjectMap map;
@@ -136,4 +140,19 @@ SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat )
 	}
 	
 	return map;
+}
+
+// Given a catalog identifier (ident), a mapping of identifiers to object indices (map),
+// and a vector of smart pointers to objects (objects), this function returns a smart pointer
+// to the first object in the vector which matches ident.  If the identifier does not map to
+// any object in the vector, this function returns a smart pointer to null!
+
+SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjectVec &objects )
+{
+	int k = map[ ident ];
+
+	if ( k > 0 )
+		return objects[ k - 1 ];
+	else
+		return SSObjectPtr ( nullptr );
 }

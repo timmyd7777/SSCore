@@ -96,27 +96,51 @@ int main ( int argc, char *argv[] )
 	exportCatalog ( objects, kCatMessier, 1, 110 );
 	exportCatalog ( objects, kCatCaldwell, 1, 110 );
 */
-	HIPMap mapHIPtoHR = importHIPtoHRMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC" );
-	HIPMap mapHIPtoBF = importHIPtoBayerFlamsteedMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC" );
-	HIPMap mapHIPtoVar = importHIPtoVarMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC" );
-    HIPNameMap mapHIPNames = importHIPNameMap ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC" );
-	SSStarMap mapHIC = importHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat" );
-	SSStarMap mapHIP2 = importHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat" );
-	SSStarMap mapHIP = importHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", mapHIPtoHR, mapHIPtoBF, mapHIPtoVar, mapHIC, mapHIP2, mapHIPNames );
+	SSIdentifierMap hipHRMap;
+	int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
+    cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
 
-//	exportCatalog ( );
+	SSIdentifierMap hipBayMap;
+	n = SSImportHIPBayerIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC", hipBayMap );
+    cout << "Imported " << n << " Hipparcos Bayer/Flamsteed identifiers." << endl;
+
+	SSIdentifierMap hipGCVSMap;
+	n = SSImportHIPGCVSIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC", hipGCVSMap );
+    cout << "Imported " << n << " Hipparcos GCVS identifiers." << endl;
+
+	SSIdentifierNameMap hipNames;
+	n = SSImportHIPNames ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC", hipNames );
+    cout << "Imported " << n << " Hipparcos star names." << endl;
 	
-//    SSStarNameMap nameMap = importIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt" );
-//    vector<SSStar> skymap = importSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", nameMap );
+	SSObjectVec hicStars;
+	n = SSImportHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat", hicStars );
+    cout << "Imported " << n << " Hipparcos Input Catalog stars." << endl;
 
-    SSIdentifierNameMap starNameMap;
-    SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNameMap );
+	SSObjectVec hip2Stars;
+	n = SSImportHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat", hip2Stars );
+    cout << "Imported " << n << " Hipparcos New Reduction stars." << endl;
+
+	SSObjectVec hipStars;
+	n = SSImportHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", hipHRMap, hipBayMap, hipGCVSMap, hipNames, hicStars, hip2Stars, hipStars );
+    cout << "Imported " << n << " Hipparcos stars." << endl;
+
+	SSIdentifierNameMap iauNames;
+	n = SSImportIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt", iauNames );
+	cout << "Imported " << n << " IAU star names." << endl;
+
+	SSObjectVec skyStars;
+	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, skyStars );
+	cout << "Imported " << n << " SKY2000 Master Star Catalog stars." << endl;
+	exportCatalog ( skyStars );
+
+    SSIdentifierNameMap starNames;
+    SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNames );
+	cout << "Imported " << n << " star names." << endl;
 
     SSObjectVec nearbyStars;
-    int numStars = SSImportGJ ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/barnard.dat", starNameMap, nearbyStars );
+    int numStars = SSImportGJ ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, nearbyStars );
     cout << "Imported " << numStars << " nearby stars" << endl;
-    
-//	exportCatalog ( nearbyStars );
+	exportCatalog ( nearbyStars );
 
 /*
     SSAngle zero = 0.0;

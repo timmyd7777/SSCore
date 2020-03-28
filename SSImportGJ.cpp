@@ -20,6 +20,17 @@ void pm_pa_to_pmra_pmdec ( double pm, double pa, double dec, double &pmra, doubl
     pmdec = pm * cos ( pa );
 }
 
+// Comverts proper motion in R.A. (pmra) and proper motion in Dec. (pmdec), and declination (dec)
+// to total proper motion (pm) and position angle of motion (pa). All angles in radians.
+// TODO: NEEDS TESTING!
+
+void pmra_pmdec_to_pm_pa ( double pmra, double pmdec, double dec, double &pm, double &pa )
+{
+	pmra *= cos ( dec );
+	pm = sqrt ( pmra * pmra + pmdec * pmdec );
+	pa = atan2pi ( pmra, pmdec );
+}
+
 int SSImportGJ ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &stars )
 {
     // Open file; return on failure.
@@ -98,7 +109,7 @@ int SSImportGJ ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec
         SSSpherical coords ( ra, dec, 1.0 );
         SSSpherical motion ( pmRA, pmDec, 0.0 );
         
-//		SSUpdateStarCoordsMotion ( 1950.0, &precession, coords, motion );
+		SSUpdateStarCoordsAndMotion ( 1950.0, &precession, coords, motion );
 
         // Get parallax in milliarcsec and convert to distance if > 1 mas.
         
@@ -129,17 +140,18 @@ int SSImportGJ ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec
         vector<string> names ( 0 );
 
         if ( ! strGJ.empty() )
-            addIdentifier ( idents, SSIdentifier::fromString ( "GJ " + strGJ ) );
+            SSAddIdentifier ( SSIdentifier::fromString ( "GJ " + strGJ ), idents );
 
         if ( ! strHD.empty() )
-            addIdentifier ( idents, SSIdentifier ( kCatHD, strtoint ( strHD ) ) );
+            SSAddIdentifier ( SSIdentifier ( kCatHD, strtoint ( strHD ) ), idents );
         
         if ( ! strDM.empty() )
-            addIdentifier ( idents, SSIdentifier::fromString ( strDM ) );
+            SSAddIdentifier ( SSIdentifier::fromString ( strDM ), idents );
 
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
 
+		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
         SSObjectType type = kTypeStar;
         
         SSObjectPtr pObj = SSNewObject ( type );
@@ -154,11 +166,13 @@ int SSImportGJ ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec
             pStar->setBMagnitude ( bmag );
             pStar->setSpectralType ( strSpec );
 
-			cout << pStar->toCSV() << endl;
+			// cout << pStar->toCSV() << endl;
 			stars.push_back ( pObj );
 			numStars++;
 		}
     }
     
-    return numStars;
+	// Return imported star count; file is closed automatically.
+
+	return numStars;
 }

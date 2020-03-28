@@ -12,31 +12,24 @@
 
 // Imports IAU official star name table from Working Group on Star Names
 // from http://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt
-// Assumes names are unique (i.e. only one name per identifier);
-// discards additional names beyond the first for any given identifier.
-// Returns map of name strings indexed by identifier.
+// Stores imported pairs of names and identifiers in nameMap.
+// Returns total number of paris added to map.
 
-SSStarNameMap importIAUStarNames ( const char *filename )
+int SSImportIAUStarNames ( const char *filename, SSIdentifierNameMap &nameMap )
 {
-    SSStarNameMap nameMap;
-    
-    // Open file; report error and return empty map on failure.
+    // Open file; return on failure.
 
     ifstream file ( filename );
     if ( ! file )
-    {
-        cout << "Failure: can't open " << filename << endl;
-        return nameMap;
-    }
+		return 0;
 
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
-    int linecount = 0;
+    int count = 0;
 
     while ( getline ( file, line ) )
     {
-        linecount++;
         if ( line.length() < 96 )
             continue;
         
@@ -56,35 +49,21 @@ SSStarNameMap importIAUStarNames ( const char *filename )
                 ident = SSIdentifier ( kCatHIP, hip );
         }
         
-        // If successful, iInsert identifier and name into map; display warning on failure.
+        // If successful, insert identifier and name into map; display warning on failure.
         
-        if ( ident )
-            nameMap.insert ( { ident, strName } );
-        else
+        if ( ! ident )
+		{
             cout << "Warning: can't convert " << strIdent << " for " << strName << endl;
+			continue;
+		}
+		
+        nameMap.insert ( { ident, strName } );
+		count++;
     }
 
-    // Return fully-imported name map.
+    // Return fully-imported name map.  File closed automatically.
     
-    return nameMap;
-}
-
-// Given a vector of identifiers, returns vector of all corresponding name strings
-// from the input star name map.  If no names correspond to any identifiers,
-// returns a zero-length vector.
-
-vector<string> getStarNames ( vector<SSIdentifier> &idents, SSStarNameMap nameMap )
-{
-    vector<string> names ( 0 );
-
-    for ( SSIdentifier ident : idents )
-    {
-        string name = nameMap[ ident ];
-        if ( name.length() > 0 )
-            names.push_back ( name );
-    }
-
-    return names;
+    return count;
 }
 
 // Converts SKY2000 integer variable star type codes to GCVS variable star type strings.
@@ -166,30 +145,25 @@ string SKY2000VariableTypeString ( int type )
 
 // Imports SKY2000 Master Star Catalog v5.
 // Inserts name strings from nameNap;
-// Returns vector of SSStar objects which should contain 299460 entries if successful.
+// Returns number of stars imported (299460 if successful).
+
 // TODO: add HIP numbers and add'l Bayer letters from Hipparcos. Add nearby stars from RECONS.
 
-vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
+int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &stars )
 {
-    vector<SSStar> starVec;
-    
-    // Open file; report error and return empty map on failure.
+    // Open file; return on failure.
 
     ifstream file ( filename );
     if ( ! file )
-    {
-        cout << "Failure: can't open " << filename << endl;
-        return starVec;
-    }
+        return 0;
 
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
-    int linecount = 0;
+    int numStars = 0;
 
     while ( getline ( file, line ) )
     {
-        linecount++;
         if ( line.length() < 521 )
             continue;
         
@@ -333,34 +307,34 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
         vector<string> names ( 0 );
         
         if ( ! strBay.empty() )
-            addIdentifier ( idents, SSIdentifier::fromString ( strBay ) );
+            SSAddIdentifier ( SSIdentifier::fromString ( strBay ), idents );
         
         if ( ! strFlm.empty() )
-            addIdentifier ( idents, SSIdentifier::fromString ( strFlm ) );
+            SSAddIdentifier ( SSIdentifier::fromString ( strFlm ), idents );
         
         if ( ! strVar.empty() )
-            addIdentifier ( idents, SSIdentifier::fromString ( strVar ) );
+            SSAddIdentifier ( SSIdentifier::fromString ( strVar ), idents );
 
         if ( ! strHR.empty() )
-            addIdentifier ( idents, SSIdentifier ( kCatHR, strtoint ( strHR ) ) );
+            SSAddIdentifier ( SSIdentifier ( kCatHR, strtoint ( strHR ) ), idents );
 
         if ( ! strHD.empty() )
-            addIdentifier ( idents, SSIdentifier ( kCatHD, strtoint ( strHD ) ) );
+            SSAddIdentifier ( SSIdentifier ( kCatHD, strtoint ( strHD ) ), idents );
         
         if ( ! strSAO.empty() )
-            addIdentifier ( idents, SSIdentifier ( kCatSAO, strtoint ( strSAO ) ) );
+            SSAddIdentifier ( SSIdentifier ( kCatSAO, strtoint ( strSAO ) ), idents );
 
         if ( ! strDM.empty() )
-            addIdentifier ( idents, SSIdentifier::fromString ( strDM ) );
+            SSAddIdentifier ( SSIdentifier::fromString ( strDM ), idents );
         
         if ( ! strWDS.empty() )
-            addIdentifier ( idents, SSIdentifier::fromString ( "WDS " + strWDS ) );
+            SSAddIdentifier ( SSIdentifier::fromString ( "WDS " + strWDS ), idents );
         
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
         
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        names = getStarNames ( idents, nameMap );
+        names = SSIdentifiersToNames ( idents, nameMap );
         
         bool isVar = ! ( strVarType.empty() && strVarMax.empty() && strVarMax.empty() && strVarPer.empty() );
         bool isDbl = ! ( strWDS.empty() && strDblMag.empty() && strDblSep.empty() );
@@ -433,16 +407,12 @@ vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap )
                 pDbl->setPositionAngleYear ( strtofloat ( strDblPAyr ) );
         }
         
-        cout << pStar->toCSV() << endl;
-//        starVec.push_back ( star );
-    }
+        // cout << pStar->toCSV() << endl;
+		stars.push_back ( pObj );
+		numStars++;
+	}
 
-    // Report success or failure.  Return star map object.
-
-    if ( linecount == starVec.size() )
-        cout << "Success: " << filename << " linecount " << linecount << " == starVec.size() " << starVec.size() << endl;
-    else
-        cout << "Failure: " << filename << " linecount " << linecount << " != starVec.size() " << starVec.size() << endl;
-
-    return starVec;
+	// Return imported star count; file is closed automatically.
+	
+	return numStars;
 }

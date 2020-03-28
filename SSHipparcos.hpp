@@ -15,18 +15,15 @@
 
 #include "SSStar.hpp"
 
-typedef multimap<int,SSIdentifier> HIPMap;
-typedef multimap<int,string> HIPNameMap;
-typedef map<int,SSStar> SSStarMap;
+void SSUpdateStarCoordsAndMotion ( double jyear, SSMatrix *pMatrix, SSSpherical &position, SSSpherical &velocity );
 
-void SSUpdateStarCoordsMotion ( double jyear, SSMatrix *pMatrix, SSSpherical &position, SSSpherical &velocity );
+int SSImportHIPHRIdentifiers ( const char *filename, SSIdentifierMap &map );
+int SSImportHIPBayerIdentifiers ( const char *filename, SSIdentifierMap &map );
+int SSImportHIPGCVSIdentifiers ( const char *filename, SSIdentifierMap &map );
+int SSImportHIPNames ( const char *filename, SSIdentifierNameMap &nameMap );
 
-SSStarMap importHIC ( const char *filename );
-SSStarMap importHIP ( const char *filename, HIPMap mapHIPtoHR, HIPMap mapHIPtoBF, HIPMap mapHIPtoVar, SSStarMap mapHIC, SSStarMap mapHIP2, HIPNameMap mapNames );
-HIPMap importHIPtoHRMap ( const char *filename );
-HIPMap importHIPtoBayerFlamsteedMap ( const char *filename );
-HIPMap importHIPtoVarMap ( const char *filename );
-HIPNameMap importHIPNameMap ( const char *filename );
-SSStarMap importHIP2 ( const char *filename );
+int SSImportHIC ( const char *filename, SSObjectVec &stars );
+int SSImportHIP2 ( const char *filename, SSObjectVec &stars );
+int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap &bayMap, SSIdentifierMap &varMap, SSIdentifierNameMap &nameMap, SSObjectVec &hicStars, SSObjectVec &hip2Stars, SSObjectVec &stars );
 
 #endif /* SSHipparcos_hpp */

@@ -87,12 +87,16 @@ public:
 	static SSIdentifier fromIC ( string s );
 };
 
+typedef vector<SSIdentifier> SSIdentifierVec;
+typedef multimap<SSIdentifier,SSIdentifier> SSIdentifierMap;
 typedef multimap<SSIdentifier,string> SSIdentifierNameMap;
 
 int SSImportIdentifierNameMap ( const char *filename, SSIdentifierNameMap &nameMap );
-vector<string> SSIdentifiersToNames ( vector<SSIdentifier> &idents, SSIdentifierNameMap &nameMap );
+vector<string> SSIdentifiersToNames ( SSIdentifierVec &idents, SSIdentifierNameMap &nameMap );
 
 bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
-bool addIdentifier ( vector<SSIdentifier> &identVec, SSIdentifier ident );
+
+bool SSAddIdentifier ( SSIdentifier ident, vector<SSIdentifier> &identVec );
+int SSAddIdentifiers ( SSIdentifier ident, SSIdentifierMap &map, SSIdentifierVec &idents );
 
 #endif /* SSIdentifier_hpp */

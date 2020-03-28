@@ -100,6 +100,7 @@ typedef map<SSIdentifier,int> SSObjectMap;
 
 SSObjectPtr SSNewObject ( SSObjectType type );
 SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat );
+SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjectVec &objects );
 
 #pragma pack ( pop )
 

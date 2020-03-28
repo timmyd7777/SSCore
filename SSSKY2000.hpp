@@ -15,11 +15,7 @@
 
 #include "SSStar.hpp"
 
-typedef map<SSIdentifier,string> SSStarNameMap;
-
-SSStarNameMap importIAUStarNames ( const char *filename );
-vector<string> getStarNames ( vector<SSIdentifier> &idents, SSStarNameMap nameMap );
-
-vector<SSStar> importSKY2000 ( const char *filename, SSStarNameMap &nameMap );
+int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &stars );
+int SSImportIAUStarNames ( const char *filename, SSIdentifierNameMap &nameMap );
 
 #endif /* SSSKY2000_hpp */
