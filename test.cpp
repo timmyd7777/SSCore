@@ -129,7 +129,7 @@ int main ( int argc, char *argv[] )
 	cout << "Imported " << n << " IAU star names." << endl;
 
     SSIdentifierNameMap starNames;
-    SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNames );
+    n = SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNames );
 	cout << "Imported " << n << " star names." << endl;
 
     SSObjectVec gjACStars;

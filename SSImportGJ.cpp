@@ -231,6 +231,7 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 		if ( pStar == nullptr )
 			continue;
 		
+		SSIdentifierVec idents;
 		SSIdentifier identGJ = pStar->getIdentifier ( kCatGJ );
 		
 		// Look up GJ star with accurate coordinates.  If we find one,
@@ -254,7 +255,7 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 			motion.lat = accMotion.lat;
 			motion.rad = isinf ( accMotion.rad ) ? motion.rad : accMotion.rad;
 
-			SSIdentifierVec idents = pStar->getIdentifiers();
+			idents = pStar->getIdentifiers();
 			
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatHIP ), idents );
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatBayer ), idents );
@@ -265,6 +266,12 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 			pStar->setIdentifiers ( idents );
 			pStar->setFundamentalMotion ( coords, motion );
 		}
+		
+		// Finally add common names to individual stars
+		
+		vector<string> names = SSIdentifiersToNames ( idents, nameMap );
+		if ( names.size() > 0 )
+			pStar->setNames ( names );
 	}
 	
 	// Return imported star count; file is closed automatically.

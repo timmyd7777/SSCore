@@ -26,14 +26,14 @@ enum SSCatalog
 	kCatFlamsteed = 11,		// Flamsteed star numbers (9 CMa, etc.)
 	kCatGCVS = 12,			// General Catalog of Variable Stars (R And, etc.)
 	kCatHR = 13,			// Harvard Revised (Yale Bright Star) catalog
-	kCatHD = 14,			// Henry Draper star catalog
-	kCatSAO = 15,			// Sminthsonian Astrophysical Observatory star catalog
-	kCatBD = 16,			// Bonner Durchmusterung star catalog
-	kCatCD = 17,			// Cordoba Durchmusterung star catalog
-	kCatCP = 18,			// Cape Photographic Durchmusterung star catalog
-	kCatHIP = 19,			// Hipparcos star catalog
-	kCatWDS = 20,			// Washington Double Star catalog
-	kCatGJ = 21,			// Gliese-Jahreiss Catalog of Nearby Stars
+	kCatGJ = 14,			// Gliese-Jahreiss Catalog of Nearby Stars
+	kCatHD = 15,			// Henry Draper star catalog
+	kCatSAO = 16,			// Sminthsonian Astrophysical Observatory star catalog
+	kCatBD = 17,			// Bonner Durchmusterung star catalog
+	kCatCD = 18,			// Cordoba Durchmusterung star catalog
+	kCatCP = 19,			// Cape Photographic Durchmusterung star catalog
+	kCatHIP = 20,			// Hipparcos star catalog
+	kCatWDS = 21,			// Washington Double Star catalog
 	
 	kCatMessier = 30,		// Messier deep sky objects
 	kCatCaldwell = 31,		// Caldwell deep sky objects
