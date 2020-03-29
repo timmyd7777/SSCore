@@ -615,53 +615,50 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatGJ, gj );
 	}
 
-	// parse constellation abbreviation from last 3 characters of string
+	// tokenize string into words separated by whitespace.
 	
-	string constr = "";
-	size_t consep = str.find_first_of ( " " );
-	if ( len >= 3 )
-		constr = str.substr ( len - 3, 3 );
+	vector<string> tokens = tokenize ( str, " " );
+	if ( tokens.size() < 2 )
+		return SSIdentifier ( kCatUnknown, 0 );
 	
-	// get constellation number; return unknown id if abbreviation not recognized
-	
+	// assume second token is a constellation abbrevation;
+	// return unknown id if abbreviation not recognized
+
+	string constr = tokens[1];
 	int con = _conmap[ constr ];
 	if ( ! con )
 		return SSIdentifier ( kCatUnknown, 0 );
+
+	// try parsing first token as a variable star designation; return GCVS identifier if successful.
 	
-	// try parsing prefix as a variable star designation; return GCVS identifier if successful.
-	
-	string varstr = str.substr ( 0, consep );
-	int64_t var = string_to_gcvs ( varstr );
+	int64_t var = string_to_gcvs ( tokens[0] );
 	if ( var > 0 )
 		return SSIdentifier ( kCatGCVS, var * 100 + con );
 	
-	// Find numeric portion of string, if any, and convert to integer
+	// If first token begins with a number, return a Flamsteed catalog identification
 	
-	string numstr = "";
-	size_t numsep = str.find_first_of ( "0123456789" );
-	if ( numsep != string::npos )
-		numstr = str.substr ( numsep, str.find_last_of ( "0123456789" ) - numsep + 1 );
-	int num = numstr.empty() ? 0 : stoi ( numstr );
-	
-	// If string begins with a number, return a Flamsteed catalog identification
-	
-	if ( numsep == 0 )
-		return SSIdentifier ( kCatFlamsteed, num * 100 + con );
+	size_t pos = tokens[0].find_first_of ( "0123456789" );
+	if ( pos == 0 )
+		return SSIdentifier ( kCatFlamsteed, strtoint ( tokens[0] ) * 100 + con );
 
-	// Otherwise, extract first non-numeric part of string and parse as a Bayer designation
-	// with the numeric portion (if any) as superscript
+	// If first token contains a number, convert numeric portion
+	// of token to integer, then erase numeric portion of token.
 	
-	string baystr = "";
-	if ( numsep == string::npos )
-		baystr = str.substr ( 0, consep );
-	else
-		baystr = str.substr ( 0, numsep );
+	int num = 0;
+	if ( pos != string::npos )
+	{
+		num = strtoint ( tokens[0].substr ( pos, string::npos ) );
+		tokens[0].erase ( pos, string::npos );
+	}
 	
-	int bay = string_to_bayer ( baystr );
+	// Try parsing first token as a Bayer letter.  If successful, return
+	// a Bayer designation with the numeric portion (if any) as superscript
+	
+	int bay = string_to_bayer ( tokens[0] );
 	if ( bay > 0 )
 		return SSIdentifier ( kCatBayer, ( bay * 100 + num ) * 100 + con );
 	
-	// Return unknown identifier
+	// We give up!  Return unknown identifier.
 	
 	return SSIdentifier ( kCatUnknown, 0 );
 }

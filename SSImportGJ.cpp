@@ -184,13 +184,10 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         if ( ! strBmV.empty() )
             bmag = strtofloat ( strBmV ) + vmag;
 
-        // Set up name and identifier vectors.
+        // Set up identifier vector.  Parse HD, DM identifiers.
+		// We'll add GJ identifier when adding components to star vector.
 
         vector<SSIdentifier> idents ( 0 );
-        vector<string> names ( 0 );
-
-		// Create HD, DM identifiers
-		
 		SSIdentifier identHD, identDM;
 		
         if ( ! strHD.empty() )
@@ -199,7 +196,21 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         if ( ! strDM.empty() )
             SSAddIdentifier ( SSIdentifier::fromString ( strDM ), idents );
 
-        // Get name string(s) corresponding to identifier(s).
+		// Attempt to parse variable-star designation.  Avoid strings that start with
+		// "MU", "NU"; these are just capitalized Bayer letters, not legit GCVS idents.
+		
+		if ( len > 189 )
+		{
+			string strName = trim ( line.substr ( 188, string::npos ) );
+			if ( strName.find ( "MU" ) == 0 || strName.find ( "NU" ) == 0 )
+				strName = "";
+			
+			SSIdentifier ident = SSIdentifier::fromString ( strName );
+			SSCatalog cat = ident.catalog();
+			if ( cat == kCatGCVS )
+				SSAddIdentifier ( ident, idents );
+		}
+		
         // Construct star and insert components into star vector.
 
         SSObjectPtr pObj = SSNewObject ( kTypeStar );
@@ -207,7 +218,6 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         if ( pStar == nullptr )
 			continue;
 
-		pStar->setNames ( names );
 		pStar->setIdentifiers ( idents );
 		pStar->setFundamentalMotion ( coords, motion );
 		pStar->setVMagnitude ( vmag );

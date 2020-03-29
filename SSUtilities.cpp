@@ -35,7 +35,7 @@ string format ( const char *fmt, ... )
 }
 
 // Splits a string into a vector of token strings separated by the specified delimiter.
-// Two adjacent delimiters generate an empty token string.
+// Two adjacent delimiters generate an empty token string (unlike C's strtok()).
 // The original string is not modified.
 
 vector<string> split ( string str, string delim )
@@ -52,6 +52,25 @@ vector<string> split ( string str, string delim )
     }
 
     tokens.push_back ( str.substr ( start, end ) );
+	return tokens;
+}
+
+// Splits a string into a vector of token strings separated by the specified delimiter.
+// Adjacent delimiters are ignored so tokens can never be empty (as with C's strtok()).
+// The original string is not modified.
+
+vector<string> tokenize ( string str, string delim )
+{
+	std::vector<std::string> tokens;
+
+	size_t start;
+	size_t end = 0;
+	while ( ( start = str.find_first_not_of ( delim, end ) ) != std::string::npos )
+	{
+		end = str.find ( delim, start );
+		tokens.push_back ( str.substr ( start, end - start )) ;
+	}
+
 	return tokens;
 }
 

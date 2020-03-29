@@ -21,6 +21,7 @@ using namespace std;
 string trim ( string str );
 string format ( const char *fmt, ... );
 vector<string> split ( string str, string delim );
+vector<string> tokenize ( string str, string delim );
 
 int strtoint ( string str );
 int64_t strtoint64 ( string str );
