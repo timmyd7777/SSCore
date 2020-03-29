@@ -69,7 +69,7 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         // Note we are ignoring the identifier prefix (GJ, Gl, NN, Wo)
         // and treating all identifiers as GJ numbers.
         
-        string strGJ = trim ( line.substr ( 2, 6 ) );
+        string strGJ = trim ( line.substr ( 2, 10 ) );
  		string comps = trim ( line.substr ( 8, 2 ) );
 
         // Get Identifier, HD, DM catalog numbers.
@@ -181,17 +181,18 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 			SSSpherical accCoords = pACStar->getFundamentalCoords();
 			SSSpherical accMotion = pACStar->getFundamentalMotion();
 			
-			coords = accCoords;
+			coords.lon = accCoords.lon;
+			coords.lat = accCoords.lat;
+			coords.rad = isinf ( accCoords.rad ) ? coords.rad : accCoords.rad;
 			
 			motion.lon = accMotion.lon;
 			motion.lat = accMotion.lat;
-			
+			motion.rad = isinf ( accMotion.rad ) ? motion.rad : accMotion.rad;
+
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatHIP ), idents );
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatBayer ), idents );
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatFlamsteed ), idents );
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatGCVS ), idents );
-			SSAddIdentifier ( pACStar->getIdentifier ( kCatSAO ), idents );
-			SSAddIdentifier ( pACStar->getIdentifier ( kCatWDS ), idents );
 		}
 
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
@@ -255,24 +256,17 @@ int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &sta
 		if ( line.length() < 124 )
 			continue;
 		
-        // Get Identifier, HD, DM catalog numbers.
-        // Note we are ignoring the identifier prefix (GJ, Gl, NN, Wo)
-        // and treating all identifiers as GJ numbers.
+        // Get Gl/GJ/NN Identifier (including component A, B, C, etc.)
+		// Get HIP or other identifier.
         
         string strGJ = trim ( line.substr ( 2, 20 ) );
         string strHIP = trim ( line.substr ( 22, 13 ) );
-
-		// If GJ identifier ends with A, B, C, separate component
-		// from identifier and tag as double.
 		
-		string comps = "";
+		// Extract component A, B, C from GJ identifier
+		
 		size_t pos = strGJ.find_first_of ( "ABC" );
-		if ( pos != string::npos )
-		{
-			comps = strGJ.substr ( pos, string::npos );
-			strGJ.erase ( pos - 1, string::npos );
-		}
-		
+ 		string comps = pos == string::npos ? "" : trim ( line.substr ( pos, string::npos ) );
+
         // Extract RA and Dec. If either are blank, skip this line.
         
         string strRA = trim ( line.substr ( 36, 11 ) );
@@ -331,14 +325,12 @@ int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &sta
 		SSStarPtr pHIPStar = SSGetStarPtr ( SSIdentifierToObject ( hipID, map, hipStars ) );
 		if ( pHIPStar != nullptr )
 		{
-			coords.rad = SSDynamics::kLYPerParsec * pHIPStar->getParallax();
+			coords.rad = SSDynamics::kLYPerParsec / pHIPStar->getParallax();
 			motion.rad = pHIPStar->getRadVel();
 
 			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatBayer ), idents );
 			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatFlamsteed ), idents );
 			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatGCVS ), idents );
-			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatSAO ), idents );
-			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatWDS ), idents );
 		}
 
 		// Sert identifier vector.  Get name string(s) corresponding to identifier(s).

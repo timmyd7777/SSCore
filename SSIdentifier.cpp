@@ -265,24 +265,29 @@ int64_t string_to_wds ( string str )
 
 string gj_to_string ( int64_t gj )
 {
-	int64_t n = gj / 10;
-	int64_t	d = gj - n * 10;
+	int64_t d = gj / 10;
+	int64_t	c = gj - d * 10;
+	
+	static vector<string> compvec = { "", "A", "B", "C", "AB", "AC", "BC" };
+	string comps = compvec[ c ];
 
-	if ( d > 0 )
-		return format ( "%d.%d", n, d );
+	if ( d % 10 == 0 )
+		return format ( "%d", d / 10 ) + comps;
 	else
-		return format ( "%d", n );
+		return format ( "%.1f", d / 10.0 ) + comps;
 }
 
 int64_t string_to_gj ( string str )
 {
-	int n = 0, d = 0;
+	static map<string,int> compmap = { { "A", 1 }, { "B", 2 }, { "C", 3 }, { "AB", 4 }, { "AC", 5 }, { "BC", 6 } };
+	
+	size_t pos = str.find_first_of ( "ABC" );
+	string comps = pos == string::npos ? "" : str.substr ( pos, string::npos );
+	
+	int d = strtofloat64 ( str ) * 10.0 + 0.1;
+	int c = compmap[ comps ];
 
-	sscanf ( str.c_str(), "%d.%d", &n, &d );
-	if ( n >= 0 && n <= 9999 && d >= 0 && d <= 9 )
-		 return n * 10 + d;
-	else
-		 return 0;
+	return 10 * d + c;
 }
 
 string wds_to_string ( int64_t wds )

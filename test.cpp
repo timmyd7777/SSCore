@@ -105,7 +105,7 @@ int main ( int argc, char *argv[] )
     cout << "Imported " << n << " Hipparcos Bayer/Flamsteed identifiers." << endl;
 
 	SSIdentifierMap hipGCVSMap;
-	n = SSImportHIPGCVSIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC", hipGCVSMap );
+	n = SSImportHIPGCVSIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC", hipGCVSMap );
     cout << "Imported " << n << " Hipparcos GCVS identifiers." << endl;
 
 	SSIdentifierNameMap hipNames;
@@ -137,10 +137,10 @@ int main ( int argc, char *argv[] )
     cout << "Imported " << n << " GJ accurate coordinate nearby stars." << endl;
 //	exportCatalog ( gjCoords );
 
-	SSObjectVec nearbyStars;
-    n = SSImportGJCNS3 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, gjACStars, nearbyStars );
+	SSObjectVec gjStars;
+    n = SSImportGJCNS3 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, gjACStars, gjStars );
     cout << "Imported " << n << " GJ nearby stars." << endl;
-	exportCatalog ( nearbyStars );
+	exportCatalog ( gjStars );
 
 	SSObjectVec skyStars;
 	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, skyStars );
