@@ -1,4 +1,4 @@
-// SSMPC.cpp
+// SSImportMPC.cpp
 // SSCore
 //
 // Created by Tim DeBenedictis on 3/24/20.
@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include "SSTime.hpp"
-#include "SSMPC.hpp"
+#include "SSImportMPC.hpp"
 
 // Reads comet data from a Minor Planet Center comet orbit export file:
 // https://www.minorplanetcenter.net/iau/MPCORB/CometEls.txt

@@ -1,11 +1,11 @@
-//  SSSKY2000.cpp
+//  SSImportSKY2000.cpp
 //  SSCore
 //
 //  Created by Tim DeBenedictis on 3/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
 #include "SSDynamics.hpp"
-#include "SSSKY2000.hpp"
+#include "SSImportSKY2000.hpp"
 
 #include <iostream>
 #include <fstream>

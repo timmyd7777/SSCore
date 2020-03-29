@@ -1,4 +1,4 @@
-// SSHipparcos.hpp
+// SSImportHIP.hpp
 // SSCore
 //
 // Created by Tim DeBenedictis on 3/23/20.

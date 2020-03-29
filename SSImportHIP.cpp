@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include "SSDynamics.hpp"
-#include "SSHipparcos.hpp"
+#include "SSImportHIP.hpp"
 
 // Cleans up some oddball conventions in the Hipparcos star name identification tables
 // for Bayer, Flamsteed, and variable star names so SSIdentifier understands them.

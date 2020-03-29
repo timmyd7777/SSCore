@@ -1,5 +1,5 @@
 //
-//  SSNGCIC.cpp
+//  SSImportNGCIC.cpp
 //  SSCore
 //
 //  Created by Tim DeBenedictis on 3/23/20.
@@ -7,8 +7,8 @@
 //
 
 #include "SSDynamics.hpp"
-#include "SSHipparcos.hpp"
-#include "SSNGCIC.hpp"
+#include "SSImportHIP.hpp"
+#include "SSImportNGCIC.hpp"
 
 #include <iostream>
 #include <fstream>

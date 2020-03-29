@@ -14,10 +14,10 @@
 #include "SSPlanet.hpp"
 #include "SSStar.hpp"
 #include "SSConstellation.hpp"
-#include "SSHipparcos.hpp"
-#include "SSSKY2000.hpp"
-#include "SSNGCIC.hpp"
-#include "SSMPC.hpp"
+#include "SSImportHIP.hpp"
+#include "SSImportSKY2000.hpp"
+#include "SSImportNGCIC.hpp"
+#include "SSImportMPC.hpp"
 #include "SSImportGJ.hpp"
 
 void exportCatalog ( SSObjectVec objects )

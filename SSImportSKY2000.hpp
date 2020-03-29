@@ -1,4 +1,4 @@
-// SSSKY2000.hpp
+// SSImportSKY2000.hpp
 // SSCore
 //
 // Created by Tim DeBenedictis on 3/23/20.
@@ -7,8 +7,8 @@
 // Functions for importing the SKY2000 Master Star Catalog
 // and IAU table of official star names.
 
-#ifndef SSSKY2000_hpp
-#define SSSKY2000_hpp
+#ifndef SSImportSKY2000_hpp
+#define SSImportSKY2000_hpp
 
 #include <map>
 #include <string>
@@ -18,4 +18,4 @@
 int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &stars );
 int SSImportIAUStarNames ( const char *filename, SSIdentifierNameMap &nameMap );
 
-#endif /* SSSKY2000_hpp */
+#endif /* SSImportSKY2000_hpp */

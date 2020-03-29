@@ -8,7 +8,7 @@
 #include <fstream>
 
 #include "SSDynamics.hpp"
-#include "SSHipparcos.hpp"
+#include "SSImportHIP.hpp"
 #include "SSImportGJ.hpp"
 
 // Comverts total proper motion (pm), position angle of motion (pa), and declination (dec)
