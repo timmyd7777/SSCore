@@ -128,19 +128,24 @@ int main ( int argc, char *argv[] )
 	n = SSImportIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt", iauNames );
 	cout << "Imported " << n << " IAU star names." << endl;
 
-	SSObjectVec skyStars;
-	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, skyStars );
-	cout << "Imported " << n << " SKY2000 Master Star Catalog stars." << endl;
-	exportCatalog ( skyStars );
-
     SSIdentifierNameMap starNames;
     SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNames );
 	cout << "Imported " << n << " star names." << endl;
 
-    SSObjectVec nearbyStars;
-    int numStars = SSImportGJ ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, nearbyStars );
-    cout << "Imported " << numStars << " nearby stars" << endl;
+    SSObjectVec gjACStars;
+    n = SSImportGJAC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/Accurate Coordinates/table1.dat", hipStars, gjACStars );
+    cout << "Imported " << n << " GJ accurate coordinate nearby stars." << endl;
+//	exportCatalog ( gjCoords );
+
+	SSObjectVec nearbyStars;
+    n = SSImportGJCNS3 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, gjACStars, nearbyStars );
+    cout << "Imported " << n << " GJ nearby stars." << endl;
 	exportCatalog ( nearbyStars );
+
+	SSObjectVec skyStars;
+	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, skyStars );
+	cout << "Imported " << n << " SKY2000 stars." << endl;
+//	exportCatalog ( skyStars );
 
 /*
     SSAngle zero = 0.0;
