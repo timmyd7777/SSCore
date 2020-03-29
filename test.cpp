@@ -117,8 +117,8 @@ int main ( int argc, char *argv[] )
     cout << "Imported " << n << " Hipparcos Input Catalog stars." << endl;
 
 	SSObjectVec hip2Stars;
-	n = SSImportHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat", hip2Stars );
-    cout << "Imported " << n << " Hipparcos New Reduction stars." << endl;
+//  n = SSImportHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat", hip2Stars );
+//  cout << "Imported " << n << " Hipparcos New Reduction stars." << endl;
 
 	SSObjectVec hipStars;
 	n = SSImportHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", hipHRMap, hipBayMap, hipGCVSMap, hipNames, hicStars, hip2Stars, hipStars );
@@ -135,7 +135,7 @@ int main ( int argc, char *argv[] )
     SSObjectVec gjACStars;
     n = SSImportGJAC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/Accurate Coordinates/table1.dat", hipStars, gjACStars );
     cout << "Imported " << n << " GJ accurate coordinate nearby stars." << endl;
-//	exportCatalog ( gjCoords );
+//	exportCatalog ( gjACStars );
 
 	SSObjectVec gjStars;
     n = SSImportGJCNS3 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, gjACStars, gjStars );

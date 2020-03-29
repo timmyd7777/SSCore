@@ -268,7 +268,7 @@ string gj_to_string ( int64_t gj )
 	int64_t d = gj / 10;
 	int64_t	c = gj - d * 10;
 	
-	static vector<string> compvec = { "", "A", "B", "C", "AB", "AC", "BC" };
+	static vector<string> compvec = { "", "A", "B", "C", "D" };
 	string comps = compvec[ c ];
 
 	if ( d % 10 == 0 )
@@ -279,9 +279,9 @@ string gj_to_string ( int64_t gj )
 
 int64_t string_to_gj ( string str )
 {
-	static map<string,int> compmap = { { "A", 1 }, { "B", 2 }, { "C", 3 }, { "AB", 4 }, { "AC", 5 }, { "BC", 6 } };
+	static map<string,int> compmap = { { "A", 1 }, { "B", 2 }, { "C", 3 }, { "D", 4 } };
 	
-	size_t pos = str.find_first_of ( "ABC" );
+	size_t pos = str.find_first_of ( "ABCD" );
 	string comps = pos == string::npos ? "" : str.substr ( pos, string::npos );
 	
 	int d = strtofloat64 ( str ) * 10.0 + 0.1;
@@ -606,9 +606,9 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatWDS, wds );
 	}
 	
-	// if string begins with "GJ", attempt to parse a Gliese-Jahreiss Nearby Star Catalog identifier
+	// if string begins with "GJ", "Gl", "Wo", or "NN", attempt to parse a Gliese-Jahreiss Nearby Star Catalog identifier
 	
-	if ( str.find ( "GJ" ) == 0 && len > 2 )
+	if ( ( str.find ( "GJ" ) == 0 || str.find ( "Gl" ) == 0 || str.find ( "NN" ) == 0 || str.find ( "Wo" ) == 0 ) && len > 2 )
 	{
 		int64_t gj = string_to_gj ( str.substr ( 2, len - 2 ) );
 		if ( gj )

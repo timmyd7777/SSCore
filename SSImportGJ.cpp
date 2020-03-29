@@ -31,12 +31,51 @@ void pmra_pmdec_to_pm_pa ( double pmra, double pmdec, double dec, double &pm, do
 	pa = atan2pi ( pmra, pmdec );
 }
 
+// Adds a copy of a single GJ star (pStar) to a vector of SSObjects (stars).
+// Provide the star's GJ identifier string (strGJ) WITHOUT prefix or components.
+// The star's component letter (strC) should be a single-character or empty string.
+
+void addGJStar ( SSStarPtr pStar, string strGJ, string strC, SSObjectVec &stars )
+{
+	SSStarPtr pNewStar = new SSStar ( *pStar );
+	
+	SSIdentifier identGJ = SSIdentifier::fromString ( "GJ " + strGJ + strC );
+	pNewStar->addIdentifier ( identGJ );
+	
+	SSIdentifierVec idents = pNewStar->getIdentifiers();
+	sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+	pNewStar->setIdentifiers ( idents );
+	
+	stars.push_back ( shared_ptr<SSObject> ( pNewStar ) );
+}
+
+// Adds multiple components of a GJ star (pStar) to a vector of SSObjects (stars).
+// Provide the star's GJ identifier string (strGJ) WITHOUT prefix or components.
+// Adds one star for each character in the component string (comps).
+
+int addGJComponentStars ( SSStarPtr pStar, string strGJ, string comps, SSObjectVec &stars )
+{
+	if ( comps.length() < 2 )
+	{
+		addGJStar ( pStar, strGJ, comps, stars );
+		return 1;
+	}
+	else
+	{
+		for ( char c : comps )
+			addGJStar ( pStar, strGJ, string ( 1, c ), stars );
+		return (int) comps.length();
+	}
+}
+
 // Imports Gliese-Jahreiss Catalog of Nearby Stars, 3rd (preliminary) Ed.:
 // ftp://cdsarc.u-strasbg.fr/cats/V/70A/
 // Imported stars are stored in the provided vector of SSObjects (stars).
 // Names are added from nameMap, wherever possible.
 // Accurate coordinates, proper motion, and HIP identifiers are added from hipStars.
-// Returns the total number of stars imported (should be 3802; Sun is excluded).
+// CNS lines representing multiple components are split into single components.
+// Returns the total number of stars imported (should be 3849 if successful);
+// original CNS3 contains 3803 lines; but multiples are split and Sun is excluded.
 
 int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &gjACStars, SSObjectVec &stars )
 {
@@ -46,10 +85,6 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
     if ( ! file )
         return ( 0 );
 
-	// Set up GJ identifier mapping for retrieving accurate GJ coordinates and HIP identifiers.
-	
-	SSObjectMap map = SSMakeObjectMap ( gjACStars, kCatGJ );
-	
 	// Set up matrix for precessing B1950 coordinates and proper motion to J2000
 	
 	SSMatrix precession = SSCoords::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
@@ -69,7 +104,7 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         // Note we are ignoring the identifier prefix (GJ, Gl, NN, Wo)
         // and treating all identifiers as GJ numbers.
         
-        string strGJ = trim ( line.substr ( 2, 10 ) );
+        string strGJ = trim ( line.substr ( 2, 6 ) );
  		string comps = trim ( line.substr ( 8, 2 ) );
 
         // Get Identifier, HD, DM catalog numbers.
@@ -154,23 +189,50 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         vector<SSIdentifier> idents ( 0 );
         vector<string> names ( 0 );
 
-		// Create GJ, HD, DM identifiers
+		// Create HD, DM identifiers
 		
-		SSIdentifier identGJ, identHD, identDM;
-		
-        if ( ! strGJ.empty() )
-			identGJ = SSIdentifier::fromString ( "GJ " + strGJ );
+		SSIdentifier identHD, identDM;
 		
         if ( ! strHD.empty() )
-            identHD = SSIdentifier ( kCatHD, strtoint ( strHD ) );
+            SSAddIdentifier ( SSIdentifier ( kCatHD, strtoint ( strHD ) ), idents );
         
         if ( ! strDM.empty() )
-            identDM = SSIdentifier::fromString ( strDM );
+            SSAddIdentifier ( SSIdentifier::fromString ( strDM ), idents );
 
-		SSAddIdentifier ( identGJ, idents );
-		SSAddIdentifier ( identHD, idents );
-		SSAddIdentifier ( identDM, idents );
+        // Get name string(s) corresponding to identifier(s).
+        // Construct star and insert components into star vector.
 
+        SSObjectPtr pObj = SSNewObject ( kTypeStar );
+        SSStarPtr pStar = SSGetStarPtr ( pObj );
+        if ( pStar == nullptr )
+			continue;
+
+		pStar->setNames ( names );
+		pStar->setIdentifiers ( idents );
+		pStar->setFundamentalMotion ( coords, motion );
+		pStar->setVMagnitude ( vmag );
+		pStar->setBMagnitude ( bmag );
+		pStar->setSpectralType ( strSpec );
+
+		// cout << pStar->toCSV() << endl;
+		numStars += addGJComponentStars ( pStar, strGJ, comps, stars );
+    }
+    
+	// Set up GJ identifier mapping for retrieving accurate GJ coordinates and HIP identifiers.
+	
+	SSObjectMap map = SSMakeObjectMap ( gjACStars, kCatGJ );
+	
+	// For each component star in CNS3, find a GJ star with GJ accurate coordinates
+	// and update original CNS3 star's coordinates, parallax, and identifiers.
+	
+	for ( int i = 0; i < stars.size(); i++ )
+	{
+		SSStarPtr pStar = SSGetStarPtr ( stars[i] );
+		if ( pStar == nullptr )
+			continue;
+		
+		SSIdentifier identGJ = pStar->getIdentifier ( kCatGJ );
+		
 		// Look up GJ star with accurate coordinates.  If we find one,
 		// replace CNS3 coordinates and motion with accurate GJ coordinates, distance,
 		// and proper motion (but not radial velocity!), and add HIP identifier.
@@ -178,6 +240,9 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 		SSStarPtr pACStar = SSGetStarPtr ( SSIdentifierToObject ( identGJ, map, gjACStars ) );
 		if ( pACStar != nullptr )
 		{
+			SSSpherical coords = pACStar->getFundamentalCoords();
+			SSSpherical motion = pACStar->getFundamentalMotion();
+
 			SSSpherical accCoords = pACStar->getFundamentalCoords();
 			SSSpherical accMotion = pACStar->getFundamentalMotion();
 			
@@ -189,39 +254,19 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 			motion.lat = accMotion.lat;
 			motion.rad = isinf ( accMotion.rad ) ? motion.rad : accMotion.rad;
 
+			SSIdentifierVec idents = pStar->getIdentifiers();
+			
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatHIP ), idents );
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatBayer ), idents );
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatFlamsteed ), idents );
 			SSAddIdentifier ( pACStar->getIdentifier ( kCatGCVS ), idents );
-		}
-
-        // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
-        // Construct star and insert into star vector.
-
-		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        SSObjectType type = comps.empty() ? kTypeStar : kTypeDoubleStar;
-        SSObjectPtr pObj = SSNewObject ( type );
-        SSStarPtr pStar = SSGetStarPtr ( pObj );
-        SSDoubleStarPtr pDblStar = SSGetDoubleStarPtr ( pObj );
-        
-        if ( pStar != nullptr )
-        {
-            pStar->setNames ( names );
-            pStar->setIdentifiers ( idents );
-            pStar->setFundamentalMotion ( coords, motion );
-            pStar->setVMagnitude ( vmag );
-            pStar->setBMagnitude ( bmag );
-            pStar->setSpectralType ( strSpec );
-
-			if ( pDblStar != nullptr )
-				pDblStar->setComponents ( comps );
 			
-			// cout << pStar->toCSV() << endl;
-			stars.push_back ( pObj );
-			numStars++;
+			sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+			pStar->setIdentifiers ( idents );
+			pStar->setFundamentalMotion ( coords, motion );
 		}
-    }
-    
+	}
+	
 	// Return imported star count; file is closed automatically.
 
 	return numStars;
@@ -231,8 +276,9 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 // https://cdsarc.unistra.fr/ftp/J/PASP/122/885
 // Imported stars are stored in the provided vector of SSObjects (stars).
 // Parallaxes, magnitudes, and identifiers are taken from Hipparcos stars (hipStars).
-// If no HIP stars provided, 2MASS J and H magnitudes are stored as V and B, respectively.
-// Returns the total number of stars imported (should be 4106).
+// Lines containing multiple components are split into individual single components.
+// Returns the total number of stars imported (should be 4266 if successful);
+// original file contains 4106 lines, but multiples are split into single components.
 
 int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &stars )
 {
@@ -256,16 +302,25 @@ int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &sta
 		if ( line.length() < 124 )
 			continue;
 		
-        // Get Gl/GJ/NN Identifier (including component A, B, C, etc.)
+        // Get Gl/GJ/NN/Wo Identifier (including component A, B, C, etc.)
 		// Get HIP or other identifier.
         
         string strGJ = trim ( line.substr ( 2, 20 ) );
         string strHIP = trim ( line.substr ( 22, 13 ) );
 		
-		// Extract component A, B, C from GJ identifier
+		// Extract components from GJ identifier, then erase from identifier
 		
-		size_t pos = strGJ.find_first_of ( "ABC" );
- 		string comps = pos == string::npos ? "" : trim ( line.substr ( pos, string::npos ) );
+		string comps = "";
+		size_t pos1 = strGJ.find_first_of ( "ABCD" );
+		if ( pos1 != string::npos )
+		{
+			// A few identifiers are duplicates on a single line separated
+			// by a slash (example: GJ 3406 A/3407 B); ignore the duplicate.
+			
+			size_t pos2 = strGJ.find_first_of ( "/" );
+			comps = trim ( strGJ.substr ( pos1 - 1, pos2 == string::npos ? string::npos : pos2 - pos1 ) );
+			strGJ.erase ( pos1, string::npos );
+		}
 
         // Extract RA and Dec. If either are blank, skip this line.
         
@@ -302,18 +357,15 @@ int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &sta
 		SSSpherical coords ( ra, dec, HUGE_VAL );
         SSSpherical motion ( pmRA, pmDec, HUGE_VAL );
 
-        // Get 2MASS J and H magnitudes
+        // Get 2MASS J and H magnitudes.  Ignored for now.
         
-        float jmag = strJmag.empty() ? HUGE_VAL : strtofloat ( strJmag );
-        float hmag = strHmag.empty() ? HUGE_VAL : strtofloat ( strHmag );
+		float vmag = HUGE_VAL; // strJmag.empty() ? HUGE_VAL : strtofloat ( strJmag );
+		float bmag = HUGE_VAL; // strHmag.empty() ? HUGE_VAL : strtofloat ( strHmag );
 
 		// Set up name and identifier vectors.
 
         vector<SSIdentifier> idents ( 0 );
         vector<string> names ( 0 );
-
-        if ( ! strGJ.empty() )
-            SSAddIdentifier ( SSIdentifier::fromString ( "GJ " + strGJ ), idents );
 
 		SSIdentifier hipID = SSIdentifier::fromString ( strHIP );
 		if ( hipID )
@@ -328,36 +380,29 @@ int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &sta
 			coords.rad = SSDynamics::kLYPerParsec / pHIPStar->getParallax();
 			motion.rad = pHIPStar->getRadVel();
 
+			vmag = pHIPStar->getVMagnitude();
+			bmag = pHIPStar->getBMagnitude();
+
 			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatBayer ), idents );
 			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatFlamsteed ), idents );
 			SSAddIdentifier ( pHIPStar->getIdentifier ( kCatGCVS ), idents );
 		}
 
-		// Sert identifier vector.  Get name string(s) corresponding to identifier(s).
-        // Construct star and insert into star vector.
+       // Construct star and insert componenets into star vector.
 
-		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-		
-        SSObjectType type = comps.empty() ? kTypeStar : kTypeDoubleStar;
-        SSObjectPtr pObj = SSNewObject ( type );
+        SSObjectPtr pObj = SSNewObject ( kTypeStar );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
-        SSDoubleStarPtr pDblStar = SSGetDoubleStarPtr ( pObj );
+        if ( pStar == nullptr )
+			continue;
+		
+		pStar->setNames ( names );
+		pStar->setIdentifiers ( idents );
+		pStar->setFundamentalMotion ( coords, motion );
+		pStar->setVMagnitude ( vmag );
+		pStar->setBMagnitude ( bmag );
 
-        if ( pStar != nullptr )
-        {
-            pStar->setNames ( names );
-            pStar->setIdentifiers ( idents );
-            pStar->setFundamentalMotion ( coords, motion );
-            pStar->setVMagnitude ( jmag );
-            pStar->setBMagnitude ( hmag );
-
-			if ( pDblStar != nullptr )
-				pDblStar->setComponents ( comps );
-			
-			// cout << pStar->toCSV() << endl;
-			stars.push_back ( pObj );
-			numStars++;
-		}
+		// cout << pStar->toCSV() << endl;
+		numStars += addGJComponentStars ( pStar, strGJ, comps, stars );
     }
     
 	// Return imported star count; file is closed automatically.
