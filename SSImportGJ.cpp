@@ -251,8 +251,8 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 		SSStarPtr pACStar = SSGetStarPtr ( SSIdentifierToObject ( identGJ, map, gjACStars ) );
 		if ( pACStar != nullptr )
 		{
-			SSSpherical coords = pACStar->getFundamentalCoords();
-			SSSpherical motion = pACStar->getFundamentalMotion();
+			SSSpherical coords = pStar->getFundamentalCoords();
+			SSSpherical motion = pStar->getFundamentalMotion();
 
 			SSSpherical accCoords = pACStar->getFundamentalCoords();
 			SSSpherical accMotion = pACStar->getFundamentalMotion();
