@@ -53,6 +53,7 @@ public:
 	bool addIdentifier ( SSIdentifier ident );
 	SSIdentifier getIdentifier ( SSCatalog cat );
 	vector<SSIdentifier> getIdentifiers ( void ) { return _idents; }
+	void sortIdentifiers ( void );
 	
 	SSVector getFundamentalPosition ( void ) { return _position; }
 	SSVector getFundamentalVelocity ( void ) { return _velocity; }

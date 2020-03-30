@@ -278,34 +278,28 @@ void addNGCICObjectData ( SSObjectVec &clusters, SSObjectVec &objects )
     
     for ( int i = 0; i < objects.size(); i++ )
     {
-        // Find index k of corresponding object in star cluster vector.
-        
-        int k = 0;
-        SSIdentifier ident = objects[i]->getIdentifier ( kCatNGC );
-        if ( ident )
-        {
-            k = ngcMap[ ident ];
-        }
-        else
-        {
-            ident = objects[i]->getIdentifier ( kCatIC );
-            if ( ident )
-                k = icMap[ ident ];
-        }
-        
-        if ( k == 0 )
-            continue;
-        
-        // If we found a cluster index, get pointers
-        // to NGC-IC object and to cluster.
+        // Get pointer to NGC-IC deep sky object.
         
         SSDeepSkyPtr pObject = SSGetDeepSkyPtr ( objects[i] );
         if ( pObject == nullptr )
             continue;
+
+		// Find pointer to corresponding object in other object vector,
+		// first using object's NGC identifier, then IC identifier.
         
-        SSDeepSkyPtr pCluster = SSGetDeepSkyPtr ( clusters[k - 1] );
-        if ( pCluster == nullptr )
-            continue;
+        SSIdentifier ident = objects[i]->getIdentifier ( kCatNGC );
+        SSDeepSkyPtr pCluster = SSGetDeepSkyPtr ( SSIdentifierToObject ( ident, ngcMap, clusters ) );
+		
+		if ( pCluster == nullptr )
+		{
+			SSIdentifier ident = objects[i]->getIdentifier ( kCatIC );
+			pCluster = SSGetDeepSkyPtr ( SSIdentifierToObject ( ident, icMap, clusters ) );
+        }
+        
+		// Continue if we don't find other corresponding object.
+		
+		if ( pCluster == nullptr )
+			continue;
         
         // Get NGC-IC object coordinates, and cluster coordinates and motion.
         

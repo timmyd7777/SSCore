@@ -10,6 +10,39 @@
 #include <iostream>
 #include <fstream>
 
+// Adds identifiers from other star catalog (stars) to a SKY2000 star (pStars).
+
+void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkyStar )
+{
+	// Find pointer to corresponding star in other star vector,
+	// using SKY2000 star's HD identifier.
+	
+	SSIdentifier ident = pSkyStar->getIdentifier ( kCatHD );
+	SSStarPtr pStar = SSGetStarPtr ( SSIdentifierToObject ( ident, map, stars ) );
+	
+	// Continue if we don't find other corresponding star.
+	
+	if ( pStar == nullptr )
+		return;
+	
+	// Get other star's HIP, Bayer, and GJ identifiers.
+	
+	SSIdentifier hipIdent = pStar->getIdentifier ( kCatHIP );
+	SSIdentifier bayIdent = pStar->getIdentifier ( kCatBayer );
+	SSIdentifier gjIdent = pStar->getIdentifier ( kCatGJ );
+	
+	// If the SKY2000 star does not already have identifiers in these catalogs, add them.
+	
+	if ( ! pSkyStar->getIdentifier ( kCatHIP ) )
+		pSkyStar->addIdentifier ( hipIdent );
+	
+	if ( ! pSkyStar->getIdentifier ( kCatBayer ) )
+		pSkyStar->addIdentifier ( bayIdent );
+
+	if ( ! pSkyStar->getIdentifier ( kCatGJ ) )
+		pSkyStar->addIdentifier ( gjIdent );
+}
+
 // Imports IAU official star name table from Working Group on Star Names
 // from http://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt
 // Stores imported pairs of names and identifiers in nameMap.
@@ -145,18 +178,26 @@ string SKY2000VariableTypeString ( int type )
 
 // Imports SKY2000 Master Star Catalog v5:
 // https://cdsarc.unistra.fr/ftp/V/145
-// Inserts name strings from nameNap;
-// Returns number of stars imported (299460 if successful).
+// Adds name strings from nameNap.
+// Adds additional HIP, Bayer, and GJ identifiers from vectors of
+// Hipparcos stars (hipStars) and Gliese-Jahreiss nearby stars (gjStars).
+// Nothing will be added if these star vectors are empty.
+// Returns number of SKY2000 stars imported (299460 if successful).
 
 // TODO: add HIP numbers and add'l Bayer letters from Hipparcos. Add nearby stars from RECONS.
 
-int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &stars )
+int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
     ifstream file ( filename );
     if ( ! file )
         return 0;
+
+	// Make index of HD catalog numbers in the Hipparcos and GJ star vectors.
+	
+    SSObjectMap hipMap = SSMakeObjectMap ( hipStars, kCatHD );
+    SSObjectMap gjMap = SSMakeObjectMap ( gjStars, kCatHD );
 
     // Read file line-by-line until we reach end-of-file
 
@@ -332,10 +373,9 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         if ( ! strWDS.empty() )
             SSAddIdentifier ( SSIdentifier::fromString ( "WDS " + strWDS ), idents );
         
-        // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
+		// Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
         
-        sort ( idents.begin(), idents.end(), compareSSIdentifiers );
         names = SSIdentifiersToNames ( idents, nameMap );
         
         bool isVar = ! ( strVarType.empty() && strVarMax.empty() && strVarMax.empty() && strVarPer.empty() );
@@ -354,16 +394,22 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
 
         SSObjectPtr pObj = SSNewObject ( type );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
-        
-        if ( pStar != nullptr )
-        {
-            pStar->setNames ( names );
-            pStar->setIdentifiers ( idents );
-            pStar->setFundamentalMotion ( position, velocity );
-            pStar->setVMagnitude ( vmag );
-            pStar->setBMagnitude ( bmag );
-            pStar->setSpectralType ( strSpec );
-        }
+        if ( pStar == nullptr )
+			continue;
+		
+		pStar->setNames ( names );
+		pStar->setIdentifiers ( idents );
+		pStar->setFundamentalMotion ( position, velocity );
+		pStar->setVMagnitude ( vmag );
+		pStar->setBMagnitude ( bmag );
+		pStar->setSpectralType ( strSpec );
+
+		// Add additional HIP, Bayer, and GJ identifiers from other catalogs.
+		// Sert star's identifier vector.
+		
+		addSKY2000StarData ( hipStars, hipMap, pStar );
+		addSKY2000StarData ( gjStars, gjMap, pStar );
+		pStar->sortIdentifiers();
         
         SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
         if ( pVar != nullptr )

@@ -94,6 +94,11 @@ bool SSStar::addIdentifier ( SSIdentifier ident )
 	return SSAddIdentifier ( ident, _idents );
 }
 
+void SSStar::sortIdentifiers ( void )
+{
+	sort ( _idents.begin(), _idents.end(), compareSSIdentifiers );
+}
+
 void SSStar::computeEphemeris ( SSDynamics &dyn )
 {
     if ( _parallax > 0.0 )

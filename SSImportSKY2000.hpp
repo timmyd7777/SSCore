@@ -15,7 +15,7 @@
 
 #include "SSStar.hpp"
 
-int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &stars );
 int SSImportIAUStarNames ( const char *filename, SSIdentifierNameMap &nameMap );
+int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &stars );
 
 #endif /* SSImportSKY2000_hpp */

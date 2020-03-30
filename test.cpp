@@ -62,7 +62,7 @@ int main ( int argc, char *argv[] )
     SSObjectVec asteroids;
     int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
-*/
+
 	SSIdentifierNameMap ngcicNameMap;
 	SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
 
@@ -90,7 +90,7 @@ int main ( int argc, char *argv[] )
 
 	exportCatalog ( objects, kCatMessier, 1, 110 );
 	exportCatalog ( objects, kCatCaldwell, 1, 110 );
-/*
+*/
 	SSIdentifierMap hipHRMap;
 	int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
     cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
@@ -138,10 +138,10 @@ int main ( int argc, char *argv[] )
 //	exportCatalog ( gjStars );
 
 	SSObjectVec skyStars;
-	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, skyStars );
+	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, hipStars, gjStars, skyStars );
 	cout << "Imported " << n << " SKY2000 stars." << endl;
 	exportCatalog ( skyStars, kCatHR, 1, 9110 );
-
+/*
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );

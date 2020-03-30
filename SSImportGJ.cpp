@@ -41,10 +41,7 @@ void addGJStar ( SSStarPtr pStar, string strGJ, string strC, SSObjectVec &stars 
 	
 	SSIdentifier identGJ = SSIdentifier::fromString ( "GJ " + strGJ + strC );
 	pNewStar->addIdentifier ( identGJ );
-	
-	SSIdentifierVec idents = pNewStar->getIdentifiers();
-	sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-	pNewStar->setIdentifiers ( idents );
+	pNewStar->sortIdentifiers();
 	
 	stars.push_back ( shared_ptr<SSObject> ( pNewStar ) );
 }
