@@ -335,11 +335,16 @@ void addNGCICObjectData ( SSObjectVec &clusters, SSObjectVec &objects )
 // http://www.klima-luft.de/steinicke/ngcic/rev2000/NI2019.zip
 // This is an Excel file; convert it to tab-delimited text first.
 // Inserts name strings from nameNap; if empty, no names will be added.
-// Adds distances, proper motions, radial velocities from other catalogs
-// of open and globulars clusters (clusters and globulars), and
-// planetary nebulae (planNebs); if empty, no data will be added.
-// Stores results in vector of SSObjects (objects).
-// Returns number of NGC-IC objects imported.
+// NGC-IC objects which are duplicates of other objects are discarded;
+// instead, the other object receives an additional NGC or IC identifier
+// of the duplicate. Nonexistent NGC-IC objects are imported as objects
+// of kTypeNonexistent. The goal is to have every NGC-IC entry represented
+// once, but not more than once.  This function also adds distances,
+// proper motions, radial velocities from other catalogs of open and
+// globulars clusters (clusters and globulars), planetary nebulae (planNebs).
+// If these other catalogs are empty, no data will be added.
+// The function stores imported objects in vector of SSObjects (objects).
+// It returns the number of NGC-IC objects imported (13027 if successful).
 
 int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects )
 {
