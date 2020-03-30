@@ -143,7 +143,8 @@ string SKY2000VariableTypeString ( int type )
     return vartypes[ type ];
 };
 
-// Imports SKY2000 Master Star Catalog v5.
+// Imports SKY2000 Master Star Catalog v5:
+// https://cdsarc.unistra.fr/ftp/V/145
 // Inserts name strings from nameNap;
 // Returns number of stars imported (299460 if successful).
 

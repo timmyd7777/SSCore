@@ -26,6 +26,7 @@
 # DM is Durchmusterung identifier (BD, CD, or CP)
 # HIP is Hipparcos catalog number
 # Common is star's common name
+# Empty fields indicate unknown or missing values.
 # -Tim DeBenedictis (timd@southernstars.com) 29 Mar 2020
 
 SS,14 29 42.95,-62 40 46.2,-0.54848,+0.7680,+11.05,+12.88,1.301,-16.0,M5.0 V,V645 Cen,,GJ 551,,,HIP 70890,Proxima Centauri
