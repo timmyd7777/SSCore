@@ -1,9 +1,13 @@
 ﻿# This list of the 160 nearest stars is primarily based on data from RECONS:
 # http://www.recons.org/TOP100.posted.htm
-# Where possible, accurate coordinates and proper motion are taken from:
+# Where possible, accurate coordinates and proper motion are from
+# "Accurate Coordinates for Gliese Catalog Stars" table found here:
 # https://cdsarc.unistra.fr/ftp/J/PASP/122/885
-# B magnitudes and radial velocities are from Hipparcos or from the Gliese
-# Catalog of Nearby Stars (for stars not in Hipparcos):
+# B magnitudes and radial velocities are preferentially from Hipparcos:
+# https://cdsarc.unistra.fr/ftp/I/239
+# or the Hipparcos Input Catalog:
+# https://cdsarc.unistra.fr/ftp/I/196
+# or from the Gliese Catalog of Nearby Stars:
 # ftp://cdsarc.u-strasbg.fr/cats/V/70A/
 # Identifiers and common names are from RECONS and cross-referenced with:
 # http://www.ieti.org/articles/crossref.pdf
