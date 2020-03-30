@@ -62,40 +62,35 @@ int main ( int argc, char *argv[] )
     SSObjectVec asteroids;
     int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
-
+*/
 	SSIdentifierNameMap ngcicNameMap;
-	importNGCICNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
+	SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
 
 	SSObjectVec clusters;
 	int numClus = SSImportDAML02 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Open Clusters/Dias 2016/clusters.txt", ngcicNameMap, clusters );
     cout << "Imported " << numClus << " open clusters" << endl;
+	exportCatalog ( clusters );
 
 	SSObjectVec globulars;
 	int numGlobs = SSImportMWGC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Globular Clusters/Harris 2010/mwgc.original.txt", ngcicNameMap, globulars );
     cout << "Imported " << numGlobs << " globular clusters" << endl;
+	exportCatalog ( globulars );
 
-	SSObjectVec planebs;
-	int numPlanebs = SSImportPNG ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/main.dat",
+	SSObjectVec planNebs;
+	int numPlanNebs = SSImportPNG ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/main.dat",
 								   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/dist.dat",
 								   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/diam.dat",
-								   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/vel.dat", ngcicNameMap, planebs );
-    cout << "Imported " << numPlanebs << " planetary nebulae" << endl;
+								   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/vel.dat", ngcicNameMap, planNebs );
+    cout << "Imported " << numPlanNebs << " planetary nebulae" << endl;
+	exportCatalog ( planNebs );
 
-	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, objects );
+	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects );
 	cout << "Imported " << numobj << " NGC-IC objects" << endl;
-
-    addNGCICClusterData ( clusters, objects );
-    addNGCICClusterData ( globulars, objects );
-    addNGCICClusterData ( planebs, objects );
-
-	exportCatalog ( clusters );
-	exportCatalog ( globulars );
-	exportCatalog ( planebs );
 	exportCatalog ( objects );
 
 	exportCatalog ( objects, kCatMessier, 1, 110 );
 	exportCatalog ( objects, kCatCaldwell, 1, 110 );
-*/
+/*
 	SSIdentifierMap hipHRMap;
 	int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
     cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
@@ -147,7 +142,6 @@ int main ( int argc, char *argv[] )
 	cout << "Imported " << n << " SKY2000 stars." << endl;
 	exportCatalog ( skyStars, kCatHR, 1, 9110 );
 
-/*
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );

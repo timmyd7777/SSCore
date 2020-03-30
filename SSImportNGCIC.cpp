@@ -264,15 +264,84 @@ void addMCIdentifiers ( vector<SSIdentifier> &idents, string ngcicStr )
 		SSAddIdentifier ( SSIdentifier ( kCatCaldwell, caldNum ), idents );
 }
 
+// Adds data from other deep sky catalogs to NGC-IC object data.
+// Open clusters: adds proper motion, radial velocities, distances.
+// Globular clusters: adds all of the above and spectral types.
+// Planetary nebulae: adds all of the above, and PNG identifiers.
+
+void addNGCICObjectData ( SSObjectVec &clusters, SSObjectVec &objects )
+{
+    SSObjectMap ngcMap = SSMakeObjectMap ( clusters, kCatNGC );
+    SSObjectMap icMap = SSMakeObjectMap ( clusters, kCatIC );
+
+    // For each NGC-IC object...
+    
+    for ( int i = 0; i < objects.size(); i++ )
+    {
+        // Find index k of corresponding object in star cluster vector.
+        
+        int k = 0;
+        SSIdentifier ident = objects[i]->getIdentifier ( kCatNGC );
+        if ( ident )
+        {
+            k = ngcMap[ ident ];
+        }
+        else
+        {
+            ident = objects[i]->getIdentifier ( kCatIC );
+            if ( ident )
+                k = icMap[ ident ];
+        }
+        
+        if ( k == 0 )
+            continue;
+        
+        // If we found a cluster index, get pointers
+        // to NGC-IC object and to cluster.
+        
+        SSDeepSkyPtr pObject = SSGetDeepSkyPtr ( objects[i] );
+        if ( pObject == nullptr )
+            continue;
+        
+        SSDeepSkyPtr pCluster = SSGetDeepSkyPtr ( clusters[k - 1] );
+        if ( pCluster == nullptr )
+            continue;
+        
+        // Get NGC-IC object coordinates, and cluster coordinates and motion.
+        
+        SSSpherical objCoords = pObject->getFundamentalCoords();
+        SSSpherical clusCoords = pCluster->getFundamentalCoords();
+        SSSpherical clusMotion = pCluster->getFundamentalMotion();
+
+        // Copy cluster distance, proper motion, and radial velocity into NGC-IC object.
+        
+        objCoords.rad = clusCoords.rad;
+        pObject->setFundamentalMotion ( objCoords, clusMotion );
+        
+		// For globular clusters also copy spectral type.
+		
+		if ( pCluster->getType() == kTypeGlobularCluster )
+			pObject->setSpectralType ( pCluster->getSpectralType() );
+
+		// For planetary nebulae, add PNG identifiers.
+		
+		if ( pCluster->getType() == kTypePlanetaryNebula )
+			pObject->addIdentifier ( pCluster->getIdentifier ( kCatPNG ) );
+	}
+}
+
 // Imports Wolfgang Steinicke's Revised NGC-IC Catalogs, obtained from:
 // http://www.klima-luft.de/steinicke/index_e.htm with data files here:
 // http://www.klima-luft.de/steinicke/ngcic/rev2000/NI2019.zip
 // This is an Excel file; convert it to tab-delimited text first.
 // Inserts name strings from nameNap; if empty, no names will be added.
+// Adds distances, proper motions, radial velocities from other catalogs
+// of open and globulars clusters (clusters and globulars), and
+// planetary nebulae (planNebs); if empty, no data will be added.
 // Stores results in vector of SSObjects (objects).
 // Returns number of NGC-IC objects imported.
 
-int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &objects )
+int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects )
 {
     // Open file; return on failure.
 
@@ -426,74 +495,16 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 		numObjects++;
 	}
 
+	// Now add propper motions, distances, radial velocities, etc.
+	// from other deep sky object catalogs, if we have them.
+	
+    addNGCICObjectData ( clusters, objects );
+    addNGCICObjectData ( globulars, objects );
+    addNGCICObjectData ( planNebs, objects );
+
 	// Return number of objects imported.  File closed automatically.
 	
 	return numObjects;
-}
-
-// Adds distances and radial velocities from open and globular
-// star cluster catalogs to NGC-IC object data.
-// Adds spectral types for globular clusters,
-
-void addNGCICClusterData ( SSObjectVec &clusters, SSObjectVec &objects )
-{
-    SSObjectMap ngcMap = SSMakeObjectMap ( clusters, kCatNGC );
-    SSObjectMap icMap = SSMakeObjectMap ( clusters, kCatIC );
-
-    // For each NGC-IC object...
-    
-    for ( int i = 0; i < objects.size(); i++ )
-    {
-        // Find index k of corresponding object in star cluster vector.
-        
-        int k = 0;
-        SSIdentifier ident = objects[i]->getIdentifier ( kCatNGC );
-        if ( ident )
-        {
-            k = ngcMap[ ident ];
-        }
-        else
-        {
-            ident = objects[i]->getIdentifier ( kCatIC );
-            if ( ident )
-                k = icMap[ ident ];
-        }
-        
-        if ( k == 0 )
-            continue;
-        
-        // If we found a cluster index, get pointers
-        // to NGC-IC object and to cluster.
-        
-        SSDeepSkyPtr pObject = SSGetDeepSkyPtr ( objects[i] );
-        if ( pObject == nullptr )
-            continue;
-        
-        SSDeepSkyPtr pCluster = SSGetDeepSkyPtr ( clusters[k - 1] );
-        if ( pCluster == nullptr )
-            continue;
-        
-        // Get NGC-IC object coordinates, and cluster coordinates and motion.
-        
-        SSSpherical objCoords = pObject->getFundamentalCoords();
-        SSSpherical clusCoords = pCluster->getFundamentalCoords();
-        SSSpherical clusMotion = pCluster->getFundamentalMotion();
-
-        // Copy cluster distance, proper motion, and radial velocity into NGC-IC object.
-        
-        objCoords.rad = clusCoords.rad;
-        pObject->setFundamentalMotion ( objCoords, clusMotion );
-        
-		// For globular clusters also copy spectral type.
-		
-		if ( pCluster->getType() == kTypeGlobularCluster )
-			pObject->setSpectralType ( pCluster->getSpectralType() );
-
-		// For planetary nebulae, add PNG identifiers.
-		
-		if ( pCluster->getType() == kTypePlanetaryNebula )
-			pObject->addIdentifier ( pCluster->getIdentifier ( kCatPNG ) );
-	}
 }
 
 // Imports Wilton Dias "Open Cluster and Galactic Structure" catalog:

@@ -275,3 +275,10 @@ double mod180 ( double deg )
 
     return deg;
 }
+
+// Reduces an angle in hours to the range 0 to 24.
+
+double mod24h ( double h )
+{
+    return h - 24 * floor ( h / 24 );
+}

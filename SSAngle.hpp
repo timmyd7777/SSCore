@@ -22,9 +22,11 @@ struct SSDegMinSec
 	double sec;		// seconds portion of angle, 0 - 59.999..., always positive
 	
     SSDegMinSec ( string s );
+	SSDegMinSec ( double degrees );
 	SSDegMinSec ( char sign, short deg, short min, double sec );
 	SSDegMinSec ( class SSAngle );
 	
+	double toDegrees ( void );
 	string toString ( void );
 };
 
@@ -38,9 +40,11 @@ struct SSHourMinSec
 	double sec;		// seconds portion of angle, 0 - 59.999..., always positive
 
     SSHourMinSec ( string s );
+	SSHourMinSec ( double hours );
 	SSHourMinSec ( char sign, short hour, short min, double sec );
 	SSHourMinSec ( class SSAngle );
 
+	double toHours ( void );
 	string toString ( void );
 };
 

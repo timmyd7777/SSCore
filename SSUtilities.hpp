@@ -43,5 +43,6 @@ double modpi ( double rad );
 double mod2pi ( double rad );
 double mod180 ( double deg );
 double mod360 ( double deg );
+double mod24h ( double h );
 
 #endif /* SSUtilities_hpp */

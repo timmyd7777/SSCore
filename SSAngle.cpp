@@ -7,86 +7,119 @@
 #include <math.h>
 #include "SSAngle.hpp"
 
-// Constructs an angular value in degrees, minutes, seconds with the given sign.
+// Constructs an angular value in degrees (d), minutes (m), seconds (s)
+// with the + or - sign as a single character (c).
 
-SSDegMinSec::SSDegMinSec ( char sign, short deg, short min, double sec )
+SSDegMinSec::SSDegMinSec ( char c, short d, short m, double s )
 {
-	this->sign = sign;
-	this->deg = deg;
-	this->min = min;
-	this->sec = sec;
+	sign = c;
+	deg = d;
+	min = m;
+	sec = s;
 }
 
-// Constructs an angular value in degrees, minutes, seconds from an angle in radians.
+// Constructs an angular value in degrees, minutes, seconds
+// from a angle in decimal degrees (degrees).
 
-SSDegMinSec::SSDegMinSec ( SSAngle ang )
+SSDegMinSec::SSDegMinSec ( double degrees )
 {
-    double degrees = fabs ( ang.toDegrees() );
-
-	sign = ang >= 0.0 ? '+' : '-';
+	sign = degrees >= 0.0 ? '+' : '-';
 	deg = degrees;
 	min = 60.0 * ( degrees - deg );
 	sec = 3600.0 * ( degrees - deg - min / 60.0 );
 }
 
-// Constructs an angular value from a string in degrees, minutes, and seconds
+// Constructs an angular value in degrees, minutes, seconds
+// from an angle in radians.
 
-SSDegMinSec::SSDegMinSec ( string str )
+SSDegMinSec::SSDegMinSec ( SSAngle angle ) : SSDegMinSec ( angle.toDegrees() )
 {
-    const char *cstr = str.c_str();
-    
-    deg = min = sec = 0;
-    sscanf ( cstr, "%hd %hd %lf", &deg, &min, &sec );
-	deg = abs ( deg );
-    sign = cstr[0] == '-' ? '-' : '+';
+	// wow, wasn't that easy!
 }
 
-// Converts an angle in degrees, minutes, seconds to a string
+// Constructs an angular value from a sexagesimal string in any format:
+// "DD MM SS.S", "DD MM.M", "DD.D". Assumes leading & trailing whitespace removed!
+
+SSDegMinSec::SSDegMinSec ( string str ) : SSDegMinSec ( strtodeg ( str ) )
+{
+	// you're putting me out of work!
+}
+
+// Converts an angle in degrees, minutes, seconds to decimal degrees.
+
+double SSDegMinSec::toDegrees ( void )
+{
+	double d = deg + min / 60.0 + sec / 3600.0;
+	return sign == '-' ? -d : d;
+}
+
+// Converts an angle in degrees, minutes, seconds to a string.
+// Prints seconds to 1 decimal place, and rounds up to avoid generating
+// strings like "+89 59 60.0" (this would become "+90 00 00.0")
 
 string SSDegMinSec::toString ( void )
 {
-	return format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
+	if ( sec >= 59.95 )
+		return SSDegMinSec ( toDegrees() + ( sign == '-' ? -0.05 : 0.05 ) / 3600.0 ).toString();
+	else
+		return format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
 }
 
 // Constructs an angular value in hours, minutes, seconds with the given sign.
 
-SSHourMinSec::SSHourMinSec ( char sign, short hour, short min, double sec )
+SSHourMinSec::SSHourMinSec ( char c, short h, short m, double s )
 {
-	this->sign = sign;
-	this->hour = hour;
-	this->min = min;
-	this->sec = sec;
+	sign = c;
+	hour = h;
+	min = m;
+	sec = s;
 }
 
-// Constructs an angular value in hours, minutes, seconds from an angle in radians.
+// Constructs an angular value in hours, minutes, seconds
+// from an angle in decimal hours.
 
-SSHourMinSec::SSHourMinSec ( SSAngle ang )
+SSHourMinSec::SSHourMinSec ( double hours )
 {
-	double hours = fabs ( ang.toHours() );
-
-	sign = ang >= 0.0 ? '+' : '-';
+	sign = hours >= 0.0 ? '+' : '-';
     hour = hours;
     min = 60.0 * ( hours - hour );
     sec = 3600.0 * ( hours - hour - min / 60.0 );
 }
 
-// Constructs an angular value from a string in degrees, minutes, and seconds
+// Constructs an angular value in hours, minutes, seconds from an angle in radians.
 
-SSHourMinSec::SSHourMinSec ( string str )
+SSHourMinSec::SSHourMinSec ( SSAngle angle ) : SSHourMinSec ( angle.toHours() )
 {
-    const char *cstr = str.c_str();
-    
-    hour = min = sec = 0;
-    sscanf ( cstr, "%hd %hd %lf", &hour, &min, &sec );
-	hour = abs ( hour );
-    sign = cstr[0] == '-' ? '-' : '+';
+	// bam!
 }
 
-// Converts an angle in hours, minutes, seconds to a string.  OMITS SIGN!
+// Constructs an angular value from a sexagesimal string in any format:
+// "HH MM SS.S", "HH MM.M", "HH.H". Assumes leading & trailing whitespace removed!
+
+SSHourMinSec::SSHourMinSec ( string str ) : SSHourMinSec ( strtodeg ( str ) )
+{
+	// it's too much!
+}
+
+// Converts an angle in hours, minutes, seconds to decimal hours.
+
+double SSHourMinSec::toHours ( void )
+{
+	double h = hour + min / 60.0 + sec / 3600.0;
+	return sign == '-' ? -h : h;
+}
+
+// Converts an angle in hours, minutes, seconds to a string.
+// Prints seconds to 2 decimal places, and rounds up to avoid generating
+// strings like "23 59 60.00" (this would become "00 00 00.0")
+// OMITS SIGN!
 
 string SSHourMinSec::toString ( void )
 {
-	return format ( "%02hd %02hd %05.2f", hour, min, sec );
+	if ( sec >= 59.995 )
+		return SSHourMinSec ( mod24h ( toHours() + 0.005 / 3600.0 ) ).toString();
+	else
+		return format ( "%02hd %02hd %05.2f", hour, min, sec );
 }
 
 // Constructs an angle in radians with the defautl value of zero.
