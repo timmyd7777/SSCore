@@ -262,14 +262,15 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         strVarType = SKY2000VariableTypeString ( strtoint ( strVarType ) );
         
         // Get J2000 Right Ascension and Declination
-        // and J2000 proper in R.A and Dec.
         
         SSHourMinSec ra ( strRA );
         SSDegMinSec dec ( strDec );
         
+        // Get J2000 proper in seconds of time per year (RA) and arcsec per year (Dec).
+		
         double pmRA = HUGE_VAL;
         if ( ! strPMRA.empty() )
-            pmRA = SSAngle::fromArcsec ( strtofloat ( strPMRA ) );
+            pmRA = SSAngle::fromArcsec ( strtofloat ( strPMRA ) * 15.0 );
         
         double pmDec = HUGE_VAL;
         if ( ! strPMDec.empty() )
@@ -407,7 +408,7 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
                 pDbl->setPositionAngleYear ( strtofloat ( strDblPAyr ) );
         }
         
-        // cout << pStar->toCSV() << endl;
+		// cout << pStar->toCSV() << endl;
 		stars.push_back ( pObj );
 		numStars++;
 	}

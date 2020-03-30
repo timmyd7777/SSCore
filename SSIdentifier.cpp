@@ -245,24 +245,6 @@ string dm_to_string ( int64_t dm )
     	return format ( "%c%02d %d", sign, zone, num );
 }
 
-int64_t string_to_wds ( string str )
-{
-	char	sign = 0;
-	int		ra = 0, dec = 0;
-	
-	sscanf ( str.c_str(), "%d%c%d", &ra, &sign, &dec );
-	
-	if ( sign == '+' )
-		sign = 1;
-	else
-		sign = 0;
-		
-	if ( ra >= 0 && ra < 24000 && dec >= 0 && dec < 9000 )
-		return ra * 100000 + sign * 10000 + dec;
-	else
-		return 0;
-}
-
 string gj_to_string ( int64_t gj )
 {
 	int64_t d = gj / 10;
@@ -288,6 +270,24 @@ int64_t string_to_gj ( string str )
 	int c = compmap[ comps ];
 
 	return 10 * d + c;
+}
+
+int64_t string_to_wds ( string str )
+{
+	char	sign = 0;
+	int		ra = 0, dec = 0;
+	
+	sscanf ( str.c_str(), "%d%c%d", &ra, &sign, &dec );
+	
+	if ( sign == '+' )
+		sign = 1;
+	else
+		sign = 0;
+		
+	if ( ra >= 0 && ra < 24000 && dec >= 0 && dec < 9000 )
+		return ra * 100000LL + sign * 10000 + dec;
+	else
+		return 0;
 }
 
 string wds_to_string ( int64_t wds )
@@ -415,24 +415,6 @@ SSIdentifier SSIdentifier::fromString ( string str )
 	
 	if ( _conmap.size() == 0 || _baymap.size() == 0 )
 		mapinit();
-
-    // if string is a number inside paratheses, attempt to parse as an asteroid number
-    
-    if ( str[0] == '(' && str[len - 1] == ')' )
-    {
-        int64_t n = strtoint ( str.substr ( 1, len - 2 ) );
-        if ( n > 0 )
-            return SSIdentifier ( kCatAstNum, n );
-    }
-    
-    // if string is a number followed by "P", parse as a periodic comet number
-    
-    if ( str.find ( "P" ) != string::npos )
-    {
-        int64_t n = strtoint ( str.substr ( 0, str.find ( "P" ) ) );
-        if ( n > 0 )
-            return SSIdentifier ( kCatComNum, n );
-    }
 
     // if string begins with "M", attempt to parse a Messier number
 	
@@ -615,49 +597,64 @@ SSIdentifier SSIdentifier::fromString ( string str )
 			return SSIdentifier ( kCatGJ, gj );
 	}
 
-	// tokenize string into words separated by whitespace.
-	
+	// Tokenize string into words separated by whitespace.
+	// if second token is a constellation abbrevation,
+	// attempt to parse Bayer/Flamsteed/GCVS identifier.
+
 	vector<string> tokens = tokenize ( str, " " );
-	if ( tokens.size() < 2 )
-		return SSIdentifier ( kCatUnknown, 0 );
-	
-	// assume second token is a constellation abbrevation;
-	// return unknown id if abbreviation not recognized
-
-	string constr = tokens[1];
-	int con = _conmap[ constr ];
-	if ( ! con )
-		return SSIdentifier ( kCatUnknown, 0 );
-
-	// try parsing first token as a variable star designation; return GCVS identifier if successful.
-	
-	int64_t var = string_to_gcvs ( tokens[0] );
-	if ( var > 0 )
-		return SSIdentifier ( kCatGCVS, var * 100 + con );
-	
-	// If first token begins with a number, return a Flamsteed catalog identification
-	
-	size_t pos = tokens[0].find_first_of ( "0123456789" );
-	if ( pos == 0 )
-		return SSIdentifier ( kCatFlamsteed, strtoint ( tokens[0] ) * 100 + con );
-
-	// If first token contains a number, convert numeric portion
-	// of token to integer, then erase numeric portion of token.
-	
-	int num = 0;
-	if ( pos != string::npos )
+	int con = tokens.size() >= 2 ? _conmap[ tokens[1] ] : 0;
+	if ( con )
 	{
-		num = strtoint ( tokens[0].substr ( pos, string::npos ) );
-		tokens[0].erase ( pos, string::npos );
+		string constr = tokens[1];
+
+		// try parsing first token as a variable star designation; return GCVS identifier if successful.
+		
+		int64_t var = string_to_gcvs ( tokens[0] );
+		if ( var > 0 )
+			return SSIdentifier ( kCatGCVS, var * 100 + con );
+		
+		// If first token begins with a number, return a Flamsteed catalog identification
+		
+		size_t pos = tokens[0].find_first_of ( "0123456789" );
+		if ( pos == 0 )
+			return SSIdentifier ( kCatFlamsteed, strtoint ( tokens[0] ) * 100 + con );
+
+		// If first token contains a number, convert numeric portion
+		// of token to integer, then erase numeric portion of token.
+		
+		int num = 0;
+		if ( pos != string::npos )
+		{
+			num = strtoint ( tokens[0].substr ( pos, string::npos ) );
+			tokens[0].erase ( pos, string::npos );
+		}
+		
+		// Try parsing first token as a Bayer letter.  If successful, return
+		// a Bayer designation with the numeric portion (if any) as superscript
+		
+		int bay = string_to_bayer ( tokens[0] );
+		if ( bay > 0 )
+			return SSIdentifier ( kCatBayer, ( bay * 100 + num ) * 100 + con );
 	}
 	
-	// Try parsing first token as a Bayer letter.  If successful, return
-	// a Bayer designation with the numeric portion (if any) as superscript
-	
-	int bay = string_to_bayer ( tokens[0] );
-	if ( bay > 0 )
-		return SSIdentifier ( kCatBayer, ( bay * 100 + num ) * 100 + con );
-	
+    // if string is a number inside paratheses, attempt to parse as an asteroid number
+    
+    if ( str[0] == '(' && str[len - 1] == ')' )
+    {
+        int64_t n = strtoint ( str.substr ( 1, len - 2 ) );
+        if ( n > 0 )
+            return SSIdentifier ( kCatAstNum, n );
+    }
+    
+    // if string is a number followed by "P", parse as a periodic comet number
+    
+    if ( str.find ( "P" ) != string::npos )
+    {
+        int64_t n = strtoint ( str.substr ( 0, str.find ( "P" ) ) );
+        if ( n > 0 )
+            return SSIdentifier ( kCatComNum, n );
+    }
+
 	// We give up!  Return unknown identifier.
 	
 	return SSIdentifier ( kCatUnknown, 0 );

@@ -140,12 +140,12 @@ int main ( int argc, char *argv[] )
 	SSObjectVec gjStars;
     n = SSImportGJCNS3 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, gjACStars, gjStars );
     cout << "Imported " << n << " GJ nearby stars." << endl;
-	exportCatalog ( gjStars );
+//	exportCatalog ( gjStars );
 
 	SSObjectVec skyStars;
 	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, skyStars );
 	cout << "Imported " << n << " SKY2000 stars." << endl;
-//	exportCatalog ( skyStars );
+	exportCatalog ( skyStars, kCatHR, 1, 9110 );
 
 /*
     SSAngle zero = 0.0;
