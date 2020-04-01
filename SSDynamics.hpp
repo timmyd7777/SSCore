@@ -26,9 +26,9 @@ class SSDynamics
     
     double      jde;
 
-	static constexpr double	kKmPerAU = 149597870.7;
-	static constexpr double	kKmPerEarthRadii = 6378.137;
-	static constexpr double kEarthFlattening = 1 / 198.257;
+    static constexpr double kKmPerAU = 149597870.7;
+    static constexpr double kKmPerEarthRadii = 6378.137;
+    static constexpr double kEarthFlattening = 1 / 198.257;
     static constexpr double kLightKmPerSec = 299792.458;                            // Speed of light in kilometers per second
     static constexpr double kLightAUPerDay = kLightKmPerSec * 86400.0 / kKmPerAU;   // Speed of lignt in astronomical units per day = 173.144
     static constexpr double kAUPerParsec = SSAngle::kArcsecPerRad;                  // Astronomical units per parsec = 206264.806247
@@ -49,9 +49,9 @@ class SSDynamics
     
     SSVector addAberration ( SSVector funDir );
     SSVector subtractAberration ( SSVector aberrFunDir );
-	
-	static double redShiftToRadVel ( double );
-	static double radVelToRedShift ( double );
+    
+    static double redShiftToRadVel ( double );
+    static double radVelToRedShift ( double );
 };
 
 #endif /* SSDynamics_hpp */

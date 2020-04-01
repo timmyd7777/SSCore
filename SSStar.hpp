@@ -20,8 +20,8 @@ class SSStar : public SSObject
 {
 protected:
     
-	vector<SSIdentifier> _idents;
-	
+    vector<SSIdentifier> _idents;
+    
     SSVector _position;     // heliocentric position in fundamental frame at epoch J2000; in light years if _parallax > 0 or as unit vector if _parallax is zero
     SSVector _velocity;     // heliocentric space velocity in fundamental frame at epoch J2000, in light years per year (fraction of light speed) if _parallax > 0 or as unit vector if _parallax is zero
     
@@ -33,41 +33,41 @@ protected:
 
     string  _spectrum;      // Spectral type string
     
-	SSStar ( SSObjectType type );	// constructs a star with a specific type code
-	string toCSV1 ( void );	// returns CSV string from base data (excluding names and identifiers).
-	string toCSV2 ( void );	// returns CSV string from names and identifiers (excluding base data).
+    SSStar ( SSObjectType type ); // constructs a star with a specific type code
+    string toCSV1 ( void );       // returns CSV string from base data (excluding names and identifiers).
+    string toCSV2 ( void );       // returns CSV string from names and identifiers (excluding base data).
 
 public:
     
-	SSStar ( void );
+    SSStar ( void );
 
-	void setIdentifiers ( vector<SSIdentifier> idents ) { _idents = idents; }
-	void setFundamentalPosition ( SSVector pos ) { _position = pos; }
-	void setFundamentalVelocity ( SSVector vel ) { _velocity = vel; }
-	void setFundamentalCoords ( SSSpherical coords );
-	void setFundamentalMotion ( SSSpherical coords, SSSpherical motion );
-	void setVMagnitude ( float vmag ) { _Vmag = vmag; }
-	void setBMagnitude ( float bmag ) { _Bmag = bmag; }
-	void setSpectralType ( string spectrum ) { _spectrum = spectrum; }
-	
-	bool addIdentifier ( SSIdentifier ident );
-	SSIdentifier getIdentifier ( SSCatalog cat );
-	vector<SSIdentifier> getIdentifiers ( void ) { return _idents; }
-	void sortIdentifiers ( void );
-	
-	SSVector getFundamentalPosition ( void ) { return _position; }
-	SSVector getFundamentalVelocity ( void ) { return _velocity; }
-	SSSpherical getFundamentalCoords ( void );
-	SSSpherical getFundamentalMotion ( void );
-	float getVMagnitude ( void ) { return _Vmag; }
-	float getBMagnitude ( void ) { return _Bmag; }
-	string getSpectralType ( void ) { return _spectrum; }
-	float getParallax ( void ) { return _parallax; }
-	float getRadVel ( void ) { return _radvel; }
-	
+    void setIdentifiers ( vector<SSIdentifier> idents ) { _idents = idents; }
+    void setFundamentalPosition ( SSVector pos ) { _position = pos; }
+    void setFundamentalVelocity ( SSVector vel ) { _velocity = vel; }
+    void setFundamentalCoords ( SSSpherical coords );
+    void setFundamentalMotion ( SSSpherical coords, SSSpherical motion );
+    void setVMagnitude ( float vmag ) { _Vmag = vmag; }
+    void setBMagnitude ( float bmag ) { _Bmag = bmag; }
+    void setSpectralType ( string spectrum ) { _spectrum = spectrum; }
+    
+    bool addIdentifier ( SSIdentifier ident );
+    SSIdentifier getIdentifier ( SSCatalog cat );
+    vector<SSIdentifier> getIdentifiers ( void ) { return _idents; }
+    void sortIdentifiers ( void );
+    
+    SSVector getFundamentalPosition ( void ) { return _position; }
+    SSVector getFundamentalVelocity ( void ) { return _velocity; }
+    SSSpherical getFundamentalCoords ( void );
+    SSSpherical getFundamentalMotion ( void );
+    float getVMagnitude ( void ) { return _Vmag; }
+    float getBMagnitude ( void ) { return _Bmag; }
+    string getSpectralType ( void ) { return _spectrum; }
+    float getParallax ( void ) { return _parallax; }
+    float getRadVel ( void ) { return _radvel; }
+    
     void computeEphemeris ( SSDynamics &dyn );
-	
-	virtual string toCSV ( void );
+    
+    virtual string toCSV ( void );
 };
 
 // This subclass of SSStar stores data for double stars
@@ -110,32 +110,32 @@ public:
 class SSVariableStar : virtual public SSStar
 {
 protected:
-	
-	string _varType;			// Variability type code string; empty if unknown
-	float _varMaxMag;			// Maximum visual magnitude (i.e. when faintest); infinite if unknown
-	float _varMinMag;			// Minimum visual magnitude (i.e. when brightest); infinity if unknown
-	double _varPeriod;			// Variability period, in days; infinite if unknown
-	double _varEpoch;			// Variability epoch, as Julian Date; infinite if unknown
-	
-	string toCSVV ( void );		// returns CSV string from variable-star data (but not SStar base class).
+    
+    string _varType;             // Variability type code string; empty if unknown
+    float _varMaxMag;            // Maximum visual magnitude (i.e. when faintest); infinite if unknown
+    float _varMinMag;            // Minimum visual magnitude (i.e. when brightest); infinity if unknown
+    double _varPeriod;           // Variability period, in days; infinite if unknown
+    double _varEpoch;            // Variability epoch, as Julian Date; infinite if unknown
+    
+    string toCSVV ( void );      // returns CSV string from variable-star data (but not SStar base class).
 
 public:
-	
-	SSVariableStar ( void );
+    
+    SSVariableStar ( void );
 
-	void setVariableType ( string varType ) { _varType = varType; }
-	void setMaximumMagnitude ( float maxMag ) { _varMaxMag = maxMag; }
-	void setMinimumMagnitude ( float minMag ) { _varMinMag = minMag; }
-	void setPeriod ( float period ) { _varPeriod = period; }
-	void setEpoch ( double epoch ) { _varEpoch = epoch; }
-	
-	string getVariableType ( void ) { return _varType; }
-	float getMaximumMagnitude ( void ) { return _varMaxMag; }
-	float getMinimumMagnitude ( void ) { return _varMinMag; }
-	double getPeriod ( void ) { return _varPeriod; }
-	double getEpoch ( void ) { return _varEpoch; }
-	
-	virtual string toCSV ( void );
+    void setVariableType ( string varType ) { _varType = varType; }
+    void setMaximumMagnitude ( float maxMag ) { _varMaxMag = maxMag; }
+    void setMinimumMagnitude ( float minMag ) { _varMinMag = minMag; }
+    void setPeriod ( float period ) { _varPeriod = period; }
+    void setEpoch ( double epoch ) { _varEpoch = epoch; }
+    
+    string getVariableType ( void ) { return _varType; }
+    float getMaximumMagnitude ( void ) { return _varMaxMag; }
+    float getMinimumMagnitude ( void ) { return _varMinMag; }
+    double getPeriod ( void ) { return _varPeriod; }
+    double getEpoch ( void ) { return _varEpoch; }
+    
+    virtual string toCSV ( void );
 };
 
 // This subclass of SSStar inherits from both SSDoubleStar and SSVariableStar,
@@ -144,10 +144,10 @@ public:
 class SSDoubleVariableStar : public SSDoubleStar, public SSVariableStar
 {
 public:
-	
-	SSDoubleVariableStar ( void );
+    
+    SSDoubleVariableStar ( void );
 
-	virtual string toCSV ( void );
+    virtual string toCSV ( void );
 };
 
 // This subclass of SSStar stores data for star clusters, nebulae, and galaxies.
@@ -160,7 +160,7 @@ protected:
     float _minAxis;     // apparent size minor axis, in radians; infinite if unknown
     float _PA;          // position angle of major axis from north in fundamental mean J2000 equatorial frame; infinite if unknown
 
-	string toCSVDS ( void );		// returns CSV string from deep sky object data (but not SStar base class).
+    string toCSVDS ( void );   // returns CSV string from deep sky object data (but not SStar base class).
 
 public:
     
@@ -176,7 +176,7 @@ public:
     float getPostionAngle ( void ) { return _PA; }
     string getGalaxyType ( void ) { return _spectrum; }
 
-	virtual string toCSV ( void );
+    virtual string toCSV ( void );
 };
 
 #pragma pack ( pop )

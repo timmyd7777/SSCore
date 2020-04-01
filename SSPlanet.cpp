@@ -13,7 +13,7 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
 {
     _id = SSIdentifier();
     _orbit = SSOrbit();
-	_Hmag = _Gmag = HUGE_VAL;
+    _Hmag = _Gmag = HUGE_VAL;
     _position = _velocity = SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
 }
 
@@ -25,7 +25,7 @@ SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSPlanet ( type )
 void SSPlanet::computeEphemeris ( SSDynamics &dyn )
 {
     double lt = 0.0;
-	SSPlanetID planetID = static_cast<SSPlanetID> ( _id.identifier() );
+    SSPlanetID planetID = static_cast<SSPlanetID> ( _id.identifier() );
     
     dyn.getPlanetPositionVelocity ( planetID, dyn.jde, _position, _velocity );
     lt = ( _position - dyn.obsPos ).magnitude() / dyn.kLightAUPerDay;
@@ -46,24 +46,24 @@ SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr )
 
 string SSPlanet::toCSV ( void )
 {
-	string csv = SSObject::typeToCode ( _type ) + ",";
-	
-	csv += isinf ( _orbit.q ) ? "," : format ( "%.6f,", _orbit.q );
-	csv += isinf ( _orbit.e ) ? "," : format ( "%.6f,", _orbit.e );
-	csv += isinf ( _orbit.i ) ? "," : format ( "%.6f,", _orbit.i * SSAngle::kDegPerRad );
-	csv += isinf ( _orbit.w ) ? "," : format ( "%.6f,", _orbit.w * SSAngle::kDegPerRad );
-	csv += isinf ( _orbit.n ) ? "," : format ( "%.6f,", _orbit.n * SSAngle::kDegPerRad );
-	csv += isinf ( _orbit.m ) ? "," : format ( "%.6f,", _orbit.m * SSAngle::kDegPerRad );
-	csv += isinf ( _orbit.t ) ? "," : format ( "%.6f,", _orbit.t );
-	
-	csv += isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
-	csv += isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
-	
+    string csv = SSObject::typeToCode ( _type ) + ",";
+    
+    csv += isinf ( _orbit.q ) ? "," : format ( "%.6f,", _orbit.q );
+    csv += isinf ( _orbit.e ) ? "," : format ( "%.6f,", _orbit.e );
+    csv += isinf ( _orbit.i ) ? "," : format ( "%.6f,", _orbit.i * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.w ) ? "," : format ( "%.6f,", _orbit.w * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.n ) ? "," : format ( "%.6f,", _orbit.n * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.m ) ? "," : format ( "%.6f,", _orbit.m * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.t ) ? "," : format ( "%.6f,", _orbit.t );
+    
+    csv += isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
+    csv += isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
+    
     if ( _id )
         csv += _id.toString() + ",";
         
-	for ( int i = 0; i < _names.size(); i++ )
-		csv += _names[i] + ",";
+    for ( int i = 0; i < _names.size(); i++ )
+        csv += _names[i] + ",";
 
-	return csv;
+    return csv;
 }

@@ -41,7 +41,7 @@ string format ( const char *fmt, ... )
 vector<string> split ( string str, string delim )
 {
     vector<string> tokens;
-	
+    
     size_t start = 0;
     size_t end = str.find ( delim );
     while ( end != std::string::npos )
@@ -52,7 +52,7 @@ vector<string> split ( string str, string delim )
     }
 
     tokens.push_back ( str.substr ( start, end ) );
-	return tokens;
+    return tokens;
 }
 
 // Splits a string into a vector of token strings separated by the specified delimiter.
@@ -61,17 +61,17 @@ vector<string> split ( string str, string delim )
 
 vector<string> tokenize ( string str, string delim )
 {
-	std::vector<std::string> tokens;
+    std::vector<std::string> tokens;
 
-	size_t start;
-	size_t end = 0;
-	while ( ( start = str.find_first_not_of ( delim, end ) ) != std::string::npos )
-	{
-		end = str.find ( delim, start );
-		tokens.push_back ( str.substr ( start, end - start )) ;
-	}
+    size_t start;
+    size_t end = 0;
+    while ( ( start = str.find_first_not_of ( delim, end ) ) != std::string::npos )
+    {
+        end = str.find ( delim, start );
+        tokens.push_back ( str.substr ( start, end - start )) ;
+    }
 
-	return tokens;
+    return tokens;
 }
 
 // Converts string to 32-bit signed integer.
@@ -156,86 +156,86 @@ double strtofloat64 ( string str )
 
 double strtodeg ( string str )
 {
-	const char *cstr = str.c_str();
+    const char *cstr = str.c_str();
 
-	double deg = 0.0, min = 0.0, sec = 0.0;
-	sscanf ( cstr, "%lf %lf %lf", &deg, &min, &sec );
-	deg = fabs ( deg ) + min / 60.0 + sec / 3600.0;
-	
-	return cstr[0] == '-' ? -deg : deg;
+    double deg = 0.0, min = 0.0, sec = 0.0;
+    sscanf ( cstr, "%lf %lf %lf", &deg, &min, &sec );
+    deg = fabs ( deg ) + min / 60.0 + sec / 3600.0;
+    
+    return cstr[0] == '-' ? -deg : deg;
 }
 
 // Converts angle in degrees to radians.
 
 double degtorad ( double deg )
 {
-	return deg * M_PI / 180.0;
+    return deg * M_PI / 180.0;
 }
 
 // Converts angle in radians to degrees.
 
 double radtodeg ( double rad )
 {
-	return rad * 180.0 / M_PI;
+    return rad * 180.0 / M_PI;
 }
 
 // Returns sine of angle in degrees.
 
 double sindeg ( double deg )
 {
-	return sin ( degtorad ( deg ) );
+    return sin ( degtorad ( deg ) );
 }
 
 // Returns cosine of angle in degrees.
 
 double cosdeg ( double deg )
 {
-	return cos ( degtorad ( deg ) );
+    return cos ( degtorad ( deg ) );
 }
 
 // Returns tangent of angle in degrees.
 
 double tandeg ( double deg )
 {
-	return tan ( degtorad ( deg ) );
+    return tan ( degtorad ( deg ) );
 }
 
 // Returns arcsine in degrees.
 
 double asindeg ( double y )
 {
-	return radtodeg ( asin ( y ) );
+    return radtodeg ( asin ( y ) );
 }
 
 // Returns arccosine in degrees.
 
 double acosdeg ( double x )
 {
-	return radtodeg ( acos ( x ) );
+    return radtodeg ( acos ( x ) );
 }
 
 // Returns arctangent in degrees.
 
 double atandeg ( double x )
 {
-	return radtodeg ( atan ( x ) );
+    return radtodeg ( atan ( x ) );
 }
 
 // Returns arctangent of y / x in radians in the range 0 to 2.0 * M_PI.
 
 double atan2pi ( double y, double x )
 {
-	if ( y < 0.0 )
-		return atan2 ( y, x ) + 2.0 * M_PI;
-	else
-		return atan2 ( y, x );
+    if ( y < 0.0 )
+        return atan2 ( y, x ) + 2.0 * M_PI;
+    else
+        return atan2 ( y, x );
 }
 
 // Returns arctangent of y / x in degress in the range 0 to 360.
 
 double atan2pideg ( double y, double x )
 {
-	return radtodeg ( atan2pi ( y, x ) );
+    return radtodeg ( atan2pi ( y, x ) );
 }
 
 // Reduces an angle in degrees to the range 0 to 2.0 * M_PI.

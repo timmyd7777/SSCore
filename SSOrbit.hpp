@@ -18,38 +18,38 @@
 
 struct SSOrbit
 {
-	double		t;		// epoch of orbital elements as Julian Ephemeris Date
-	double		q;		// periapse distance in astronomical units
-	double		e;		// eccentricity: 0.0 = circular, 1.0 = parabolic, > 1.0 = hyperbolic
-	double		i;		// inclination to reference plance in radians
-	double		w;		// argument of peripse in radians
-	double		n;		// longitude of ascending node in radians
-	double		m;		// mean anomaly at epoch in radians
-	double		mm;		// mean motion, radians per day
+    double t;        // epoch of orbital elements as Julian Ephemeris Date
+    double q;        // periapse distance in astronomical units
+    double e;        // eccentricity: 0.0 = circular, 1.0 = parabolic, > 1.0 = hyperbolic
+    double i;        // inclination to reference plance in radians
+    double w;        // argument of peripse in radians
+    double n;        // longitude of ascending node in radians
+    double m;        // mean anomaly at epoch in radians
+    double mm;       // mean motion, radians per day
 
-	static constexpr double	kGaussGravHelio = 0.01720209895;		// Gaussian gravitational constant for heliocentric orbits with time in days and distance in AU
-	static constexpr double	kGaussGravGeo = 0.0743669161;			// Gaussian gravitational constant for geocentric orbits with time in minutes and distance in Earth-radii
-	
+    static constexpr double kGaussGravHelio = 0.01720209895;        // Gaussian gravitational constant for heliocentric orbits with time in days and distance in AU
+    static constexpr double kGaussGravGeo = 0.0743669161;           // Gaussian gravitational constant for geocentric orbits with time in minutes and distance in Earth-radii
+    
     SSOrbit ( void );
-	SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm );
+    SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm );
 
-	static double meanMotion ( double e, double q, double g = kGaussGravHelio );
-	static double periapseDistance ( double e, double mm, double g = kGaussGravHelio );
-	static double gravityConstant ( double e, double q, double mm );
-	
-	void solveKeplerEquation ( double jde, double &nu, double &r );
-	static SSOrbit fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double g = kGaussGravHelio );
-	void toPositionVelocity ( double jde, SSVector &pos, SSVector &vel );
+    static double meanMotion ( double e, double q, double g = kGaussGravHelio );
+    static double periapseDistance ( double e, double mm, double g = kGaussGravHelio );
+    static double gravityConstant ( double e, double q, double mm );
+    
+    void solveKeplerEquation ( double jde, double &nu, double &r );
+    static SSOrbit fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double g = kGaussGravHelio );
+    void toPositionVelocity ( double jde, SSVector &pos, SSVector &vel );
 
-	static SSOrbit getMercuryOrbit ( double jde );
-	static SSOrbit getVenusOrbit ( double jde );
-	static SSOrbit getEarthOrbit ( double jde );
-	static SSOrbit getMarsOrbit ( double jde );
-	static SSOrbit getJupiterOrbit ( double jde );
-	static SSOrbit getSaturnOrbit ( double jde );
-	static SSOrbit getUranusOrbit ( double jde );
-	static SSOrbit getNeptuneOrbit ( double jde );
-	static SSOrbit getPlutoOrbit ( double jde );
+    static SSOrbit getMercuryOrbit ( double jde );
+    static SSOrbit getVenusOrbit ( double jde );
+    static SSOrbit getEarthOrbit ( double jde );
+    static SSOrbit getMarsOrbit ( double jde );
+    static SSOrbit getJupiterOrbit ( double jde );
+    static SSOrbit getSaturnOrbit ( double jde );
+    static SSOrbit getUranusOrbit ( double jde );
+    static SSOrbit getNeptuneOrbit ( double jde );
+    static SSOrbit getPlutoOrbit ( double jde );
 };
 
 #endif /* SSOrbit_hpp */

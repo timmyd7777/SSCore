@@ -103,8 +103,8 @@ SSMatrix SSMatrix::rotate ( int axis, double angle )
 {
     double cosa = cos ( angle );
     double sina = sin ( angle );
-	SSMatrix r;
-	
+    SSMatrix r;
+    
     if ( axis == 0 )
     {
         return SSMatrix ( 1.0, 0.0,  0.0,
@@ -150,6 +150,6 @@ SSMatrix SSMatrix::rotation ( int n, ... )
         m = m.rotate ( axis, angle );
     }
     
-	va_end ( ap );
+    va_end ( ap );
     return ( m );
 }

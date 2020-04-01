@@ -14,33 +14,33 @@
 
 void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkyStar )
 {
-	// Find pointer to corresponding star in other star vector,
-	// using SKY2000 star's HD identifier.
-	
-	SSIdentifier ident = pSkyStar->getIdentifier ( kCatHD );
-	SSStarPtr pStar = SSGetStarPtr ( SSIdentifierToObject ( ident, map, stars ) );
-	
-	// Continue if we don't find other corresponding star.
-	
-	if ( pStar == nullptr )
-		return;
-	
-	// Get other star's HIP, Bayer, and GJ identifiers.
-	
-	SSIdentifier hipIdent = pStar->getIdentifier ( kCatHIP );
-	SSIdentifier bayIdent = pStar->getIdentifier ( kCatBayer );
-	SSIdentifier gjIdent = pStar->getIdentifier ( kCatGJ );
-	
-	// If the SKY2000 star does not already have identifiers in these catalogs, add them.
-	
-	if ( ! pSkyStar->getIdentifier ( kCatHIP ) )
-		pSkyStar->addIdentifier ( hipIdent );
-	
-	if ( ! pSkyStar->getIdentifier ( kCatBayer ) )
-		pSkyStar->addIdentifier ( bayIdent );
+    // Find pointer to corresponding star in other star vector,
+    // using SKY2000 star's HD identifier.
+    
+    SSIdentifier ident = pSkyStar->getIdentifier ( kCatHD );
+    SSStarPtr pStar = SSGetStarPtr ( SSIdentifierToObject ( ident, map, stars ) );
+    
+    // Continue if we don't find other corresponding star.
+    
+    if ( pStar == nullptr )
+        return;
+    
+    // Get other star's HIP, Bayer, and GJ identifiers.
+    
+    SSIdentifier hipIdent = pStar->getIdentifier ( kCatHIP );
+    SSIdentifier bayIdent = pStar->getIdentifier ( kCatBayer );
+    SSIdentifier gjIdent = pStar->getIdentifier ( kCatGJ );
+    
+    // If the SKY2000 star does not already have identifiers in these catalogs, add them.
+    
+    if ( ! pSkyStar->getIdentifier ( kCatHIP ) )
+        pSkyStar->addIdentifier ( hipIdent );
+    
+    if ( ! pSkyStar->getIdentifier ( kCatBayer ) )
+        pSkyStar->addIdentifier ( bayIdent );
 
-	if ( ! pSkyStar->getIdentifier ( kCatGJ ) )
-		pSkyStar->addIdentifier ( gjIdent );
+    if ( ! pSkyStar->getIdentifier ( kCatGJ ) )
+        pSkyStar->addIdentifier ( gjIdent );
 }
 
 // Imports IAU official star name table from Working Group on Star Names
@@ -54,7 +54,7 @@ int SSImportIAUStarNames ( const char *filename, SSIdentifierNameMap &nameMap )
 
     ifstream file ( filename );
     if ( ! file )
-		return 0;
+        return 0;
 
     // Read file line-by-line until we reach end-of-file
 
@@ -85,13 +85,13 @@ int SSImportIAUStarNames ( const char *filename, SSIdentifierNameMap &nameMap )
         // If successful, insert identifier and name into map; display warning on failure.
         
         if ( ! ident )
-		{
+        {
             cout << "Warning: can't convert " << strIdent << " for " << strName << endl;
-			continue;
-		}
-		
+            continue;
+        }
+        
         nameMap.insert ( { ident, strName } );
-		count++;
+        count++;
     }
 
     // Return fully-imported name map.  File closed automatically.
@@ -194,8 +194,8 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
     if ( ! file )
         return 0;
 
-	// Make index of HD catalog numbers in the Hipparcos and GJ star vectors.
-	
+    // Make index of HD catalog numbers in the Hipparcos and GJ star vectors.
+    
     SSObjectMap hipMap = SSMakeObjectMap ( hipStars, kCatHD );
     SSObjectMap gjMap = SSMakeObjectMap ( gjStars, kCatHD );
 
@@ -309,7 +309,7 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         SSDegMinSec dec ( strDec );
         
         // Get J2000 proper in seconds of time per year (RA) and arcsec per year (Dec).
-		
+        
         double pmRA = HUGE_VAL;
         if ( ! strPMRA.empty() )
             pmRA = SSAngle::fromArcsec ( strtofloat ( strPMRA ) * 15.0 );
@@ -373,7 +373,7 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         if ( ! strWDS.empty() )
             SSAddIdentifier ( SSIdentifier::fromString ( "WDS " + strWDS ), idents );
         
-		// Get name string(s) corresponding to identifier(s).
+        // Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
         
         names = SSIdentifiersToNames ( idents, nameMap );
@@ -395,21 +395,21 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         SSObjectPtr pObj = SSNewObject ( type );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
         if ( pStar == nullptr )
-			continue;
-		
-		pStar->setNames ( names );
-		pStar->setIdentifiers ( idents );
-		pStar->setFundamentalMotion ( position, velocity );
-		pStar->setVMagnitude ( vmag );
-		pStar->setBMagnitude ( bmag );
-		pStar->setSpectralType ( strSpec );
+            continue;
+        
+        pStar->setNames ( names );
+        pStar->setIdentifiers ( idents );
+        pStar->setFundamentalMotion ( position, velocity );
+        pStar->setVMagnitude ( vmag );
+        pStar->setBMagnitude ( bmag );
+        pStar->setSpectralType ( strSpec );
 
-		// Add additional HIP, Bayer, and GJ identifiers from other catalogs.
-		// Sert star's identifier vector.
-		
-		addSKY2000StarData ( hipStars, hipMap, pStar );
-		addSKY2000StarData ( gjStars, gjMap, pStar );
-		pStar->sortIdentifiers();
+        // Add additional HIP, Bayer, and GJ identifiers from other catalogs.
+        // Sert star's identifier vector.
+        
+        addSKY2000StarData ( hipStars, hipMap, pStar );
+        addSKY2000StarData ( gjStars, gjMap, pStar );
+        pStar->sortIdentifiers();
         
         SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
         if ( pVar != nullptr )
@@ -455,12 +455,12 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
                 pDbl->setPositionAngleYear ( strtofloat ( strDblPAyr ) );
         }
         
-		// cout << pStar->toCSV() << endl;
-		stars.push_back ( pObj );
-		numStars++;
-	}
+        // cout << pStar->toCSV() << endl;
+        stars.push_back ( pObj );
+        numStars++;
+    }
 
-	// Return imported star count; file is closed automatically.
-	
-	return numStars;
+    // Return imported star count; file is closed automatically.
+    
+    return numStars;
 }

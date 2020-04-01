@@ -57,7 +57,7 @@ int SSImportHIPNames ( const char *filename, SSIdentifierNameMap &nameMap )
 
     ifstream file ( filename );
     if ( ! file )
-		return 0;
+        return 0;
 
     // Read file line-by-line until we reach end-of-file
 
@@ -78,7 +78,7 @@ int SSImportHIPNames ( const char *filename, SSIdentifierNameMap &nameMap )
         nameCount++;
     }
 
-	// Return imported name count; file is closed automatically.
+    // Return imported name count; file is closed automatically.
 
     return nameCount;
 }
@@ -100,18 +100,18 @@ void SSUpdateStarCoordsAndMotion ( double jyear, SSMatrix *pMatrix, SSSpherical 
     SSVector position = coords.toVectorPosition();
     SSVector velocity = coords.toVectorVelocity ( motion );
     
-	if ( jyear != 2000.0 )
-	{
-    	position += velocity * ( 2000.0 - jyear );
-		position = position.normalize();
-	}
-	
-	if ( pMatrix != nullptr )
-	{
-		position = *pMatrix * position;
-		velocity = *pMatrix * velocity;
-	}
-	
+    if ( jyear != 2000.0 )
+    {
+        position += velocity * ( 2000.0 - jyear );
+        position = position.normalize();
+    }
+    
+    if ( pMatrix != nullptr )
+    {
+        position = *pMatrix * position;
+        velocity = *pMatrix * velocity;
+    }
+    
     coords = position.toSpherical();
     motion = position.toSphericalVelocity ( velocity );
     
@@ -169,27 +169,27 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
         position.lon = SSHourMinSec ( strRA );
         position.lat = SSDegMinSec ( strDec );
         
-		// If we have a parallax, use it to compute distance in light years
-		
+        // If we have a parallax, use it to compute distance in light years
+        
         float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
         if ( plx > 0.0 )
             position.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
         
-		// Convert proper motion to radians per year
-		
+        // Convert proper motion to radians per year
+        
         if ( ! strPMRA.empty() )
             velocity.lon = SSAngle::fromArcsec ( strtofloat ( strPMRA ) ) / cos ( position.lat );
         
         if ( ! strPMDec.empty() )
             velocity.lat = SSAngle::fromArcsec ( strtofloat ( strPMDec ) );
         
-		// Convert radial velocity from km/sec to fraction of light speed
-		
+        // Convert radial velocity from km/sec to fraction of light speed
+        
         if ( ! strRV.empty() )
             velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
         
-		// Get Johnson V magnitude; get B magnitude from B-V color index.
-		
+        // Get Johnson V magnitude; get B magnitude from B-V color index.
+        
         float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
         float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
         
@@ -208,7 +208,7 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
 
-		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+        sort ( idents.begin(), idents.end(), compareSSIdentifiers );
         SSObjectType type = kTypeStar;
 
         SSObjectPtr pObj = SSNewObject ( type );
@@ -216,21 +216,21 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
         
         if ( pStar != nullptr )
         {
-			pStar->setNames ( names );
-			pStar->setIdentifiers ( idents );
-			pStar->setFundamentalMotion ( position, velocity );
-			pStar->setVMagnitude ( vmag );
-			pStar->setBMagnitude ( bmag );
-			pStar->setSpectralType ( strSpec );
+            pStar->setNames ( names );
+            pStar->setIdentifiers ( idents );
+            pStar->setFundamentalMotion ( position, velocity );
+            pStar->setVMagnitude ( vmag );
+            pStar->setBMagnitude ( bmag );
+            pStar->setSpectralType ( strSpec );
 
-			// cout << pStar->toCSV() << endl;
-			stars.push_back ( pObj );
-			numStars++;
-		}
+            // cout << pStar->toCSV() << endl;
+            stars.push_back ( pObj );
+            numStars++;
+        }
     }
 
-	// Return imported star count; file is closed automatically.
-	
+    // Return imported star count; file is closed automatically.
+    
     return numStars;
 }
 
@@ -250,7 +250,7 @@ int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
 
     string line = "";
     int numStars = 0;
-	
+    
     while ( getline ( file, line ) )
     {
         string strHIP = trim ( line.substr ( 0, 6 ) );
@@ -322,7 +322,7 @@ int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
 
-		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+        sort ( idents.begin(), idents.end(), compareSSIdentifiers );
         SSObjectType type = kTypeStar;
 
         SSObjectPtr pObj = SSNewObject ( type );
@@ -330,21 +330,21 @@ int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
         
         if ( pStar != nullptr )
         {
-	        pStar->setNames ( names );
-    	    pStar->setIdentifiers ( idents );
-        	pStar->setFundamentalMotion ( position, velocity );
-        	pStar->setVMagnitude ( vmag );
-        	pStar->setBMagnitude ( bmag );
+            pStar->setNames ( names );
+            pStar->setIdentifiers ( idents );
+            pStar->setFundamentalMotion ( position, velocity );
+            pStar->setVMagnitude ( vmag );
+            pStar->setBMagnitude ( bmag );
 
-			// cout << pStar->toCSV() << endl;
-			stars.push_back ( pObj );
-			numStars++;
-		}
-	}
+            // cout << pStar->toCSV() << endl;
+            stars.push_back ( pObj );
+            numStars++;
+        }
+    }
 
-	// Return imported star count; file is closed automatically.
-	
-	return numStars;
+    // Return imported star count; file is closed automatically.
+    
+    return numStars;
 }
 
 // Imports the main Hipparcos star catalog.
@@ -363,20 +363,20 @@ int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap 
     if ( ! file )
         return 0;
 
-	// Make mappings of HIP identifiers to object indices
-	// in HIC and HIP2 star vectors.
-	
-	SSObjectMap hicMap = SSMakeObjectMap ( hicStars, kCatHIP );
-	SSObjectMap hip2Map = SSMakeObjectMap ( hip2Stars, kCatHIP );
+    // Make mappings of HIP identifiers to object indices
+    // in HIC and HIP2 star vectors.
+    
+    SSObjectMap hicMap = SSMakeObjectMap ( hicStars, kCatHIP );
+    SSObjectMap hip2Map = SSMakeObjectMap ( hip2Stars, kCatHIP );
 
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
     int numStars = 0;
-	
+    
     while ( getline ( file, line ) )
     {
-		string strHIP = trim ( line.substr ( 8, 6 ) );
+        string strHIP = trim ( line.substr ( 8, 6 ) );
         string strRA = trim ( line.substr ( 51, 12 ) );
         string strDec = trim ( line.substr ( 64, 12 ) );
         string strPMRA = trim ( line.substr ( 87, 8 ) );
@@ -462,18 +462,18 @@ int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap 
         // Add Bayer and Flamsteed identifier(s) (if present) from Bayer identification table.
         // Add GCVS identifier(s) from the variable star ident table.
 
-		SSAddIdentifiers ( hipID, hrMap, idents );
-		SSAddIdentifiers ( hipID, bayMap, idents );
-		SSAddIdentifiers ( hipID, gcvsMap, idents );
+        SSAddIdentifiers ( hipID, hrMap, idents );
+        SSAddIdentifiers ( hipID, bayMap, idents );
+        SSAddIdentifiers ( hipID, gcvsMap, idents );
 
         // Add names(s) from identifier-to-name map.
 
         names = SSIdentifiersToNames ( idents, nameMap );
 
-		// If we found a matching Hipparcos New Reduction star,
+        // If we found a matching Hipparcos New Reduction star,
         // replace position and velocity with newer values.
         
-		SSStarPtr pStar = SSGetStarPtr ( SSIdentifierToObject ( hipID, hip2Map, hip2Stars ) );
+        SSStarPtr pStar = SSGetStarPtr ( SSIdentifierToObject ( hipID, hip2Map, hip2Stars ) );
         if ( pStar != nullptr )
         {
             position = pStar->getFundamentalCoords();
@@ -496,30 +496,30 @@ int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap 
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
 
-		sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+        sort ( idents.begin(), idents.end(), compareSSIdentifiers );
         SSObjectType type = kTypeStar;
 
         SSObjectPtr pObj = SSNewObject ( type );
-     	pStar = SSGetStarPtr ( pObj );
+         pStar = SSGetStarPtr ( pObj );
         
         if ( pStar != nullptr )
         {
-			pStar->setNames ( names );
-			pStar->setIdentifiers ( idents );
-			pStar->setFundamentalMotion ( position, velocity );
-			pStar->setVMagnitude ( vmag );
-			pStar->setBMagnitude ( bmag );
-			pStar->setSpectralType ( strSpec );
+            pStar->setNames ( names );
+            pStar->setIdentifiers ( idents );
+            pStar->setFundamentalMotion ( position, velocity );
+            pStar->setVMagnitude ( vmag );
+            pStar->setBMagnitude ( bmag );
+            pStar->setSpectralType ( strSpec );
 
-			// cout << pStar->toCSV() << endl;
-			stars.push_back ( pObj );
-			numStars++;
-		}
-	}
+            // cout << pStar->toCSV() << endl;
+            stars.push_back ( pObj );
+            numStars++;
+        }
+    }
 
-	// Return imported star count; file is closed automatically.
-	
-	return numStars;
+    // Return imported star count; file is closed automatically.
+    
+    return numStars;
 }
 
 // Imports Hipparcos HR (Bright Star) identifier table (IDENT3.DOC).
@@ -532,8 +532,8 @@ int SSImportHIPHRIdentifiers ( const char *filename, SSIdentifierMap &map )
     
     ifstream file ( filename );
     if ( ! file )
-		return 0;
-	
+        return 0;
+    
     // Read file line-by-line until we reach end-of-file
 
     string line ( "" );
@@ -544,11 +544,11 @@ int SSImportHIPHRIdentifiers ( const char *filename, SSIdentifierMap &map )
         string strHR = trim ( line.substr ( 0, 6 ) );
         string strHIP = trim ( line.substr ( 7, 6 ) );
         int hip = strtoint ( strHIP );
-		int hr = strtoint ( strHR );
-		
-		if ( hip == 0 || hr == 0 )
-			continue;
-		
+        int hr = strtoint ( strHR );
+        
+        if ( hip == 0 || hr == 0 )
+            continue;
+        
         // cout << hip << "," << hr << "," << endl;
         map.insert ( { SSIdentifier ( kCatHIP, hip ), SSIdentifier ( kCatHR, hr ) } );
         count++;
@@ -569,7 +569,7 @@ int SSImportHIPBayerIdentifiers ( const char *filename, SSIdentifierMap &map )
 
     ifstream file ( filename );
     if ( ! file )
-		return 0;
+        return 0;
     
     // Read file line-by-line until we reach end-of-file
 
@@ -584,8 +584,8 @@ int SSImportHIPBayerIdentifiers ( const char *filename, SSIdentifierMap &map )
         SSIdentifier id = SSIdentifier::fromString ( cleanHIPNameString ( strBF ) );
         int hip = strtoint ( strHIP );
 
-		if ( hip == 0 || id == 0 )
-			continue;
+        if ( hip == 0 || id == 0 )
+            continue;
         
         // cout << hip << "," << id.toString() << endl;
         map.insert ( { SSIdentifier ( kCatHIP, hip ), id } );
@@ -607,7 +607,7 @@ int SSImportHIPGCVSIdentifiers ( const char *filename, SSIdentifierMap &map )
 
     ifstream file ( filename );
     if ( ! file )
-		return 0;
+        return 0;
     
     // Read file line-by-line until we reach end-of-file
 
@@ -619,17 +619,17 @@ int SSImportHIPGCVSIdentifiers ( const char *filename, SSIdentifierMap &map )
         string strVar = trim ( line.substr ( 0, 11 ) );
         string strHIP = trim ( line.substr ( 12, 6 ) );
 
-		int hip = strtoint ( strHIP );
+        int hip = strtoint ( strHIP );
         SSIdentifier id = SSIdentifier::fromString ( cleanHIPNameString ( strVar ) );
         
-		// cout << hip << "," << id.toString() << endl;
+        // cout << hip << "," << id.toString() << endl;
         
         if ( id == 0 || hip == 0 )
-		{
+        {
             cout << "Warning: con't convert " << strVar << " for HIP " << hip << endl;
-			continue;
-		}
-		
+            continue;
+        }
+        
         // cout << hip << "," << id.toString() << endl;
         map.insert ( { SSIdentifier ( kCatHIP, hip ), id } );
         count++;

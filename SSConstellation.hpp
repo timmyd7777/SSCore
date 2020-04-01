@@ -13,42 +13,42 @@
 class SSConstellation : public SSObject
 {
 protected:
-	
-	double _area;				// square radians
-	int _rank;					// by area, largest-to-smallest
-	
-	vector<SSVector> _bounds;	// unit vectors to boundary vertices in fundamental (J2000 mean equatorial) frame
-	vector<int> _figures;		// HR numbers of stars making up figure.
-	
+    
+    double _area;                // square radians
+    int _rank;                   // by area, largest-to-smallest
+    
+    vector<SSVector> _bounds;    // unit vectors to boundary vertices in fundamental (J2000 mean equatorial) frame
+    vector<int> _figures;        // HR numbers of stars making up figure.
+    
 public:
-	
-	// constructor
-	
-	SSConstellation ( SSObjectType type );
-	
-	// accessors
-	
-	double getArea ( void ) { return _area; }
-	int getRank ( void ) { return _rank; }
-	vector<SSVector> getBoundary ( void ) { return _bounds; }
-	vector<int> getFigure ( void ) { return _figures; }
+    
+    // constructor
+    
+    SSConstellation ( SSObjectType type );
+    
+    // accessors
+    
+    double getArea ( void ) { return _area; }
+    int getRank ( void ) { return _rank; }
+    vector<SSVector> getBoundary ( void ) { return _bounds; }
+    vector<int> getFigure ( void ) { return _figures; }
 
-	// modifiers
-	
-	void setArea ( double area ) { _area = area; }
-	void setRank ( int rank ) { _rank = rank; }
-	void setBoundary ( vector<SSVector> bounds ) { _bounds = bounds; }
-	void setFigure ( vector<int> figure ) { _figures = figure; }
+    // modifiers
+    
+    void setArea ( double area ) { _area = area; }
+    void setRank ( int rank ) { _rank = rank; }
+    void setBoundary ( vector<SSVector> bounds ) { _bounds = bounds; }
+    void setFigure ( vector<int> figure ) { _figures = figure; }
 
-	// converts IAU abbreviation ("And", "Ant", ... "Vul") to index number (1, 2, ... 88) and vice-versa.
-	
-	static int abbreviationToIndex ( string abbrev );
-	static string indexToAbbreviation ( int index );
-	
-	// imports/exports from/to CSV-format text string
-	
-	static SSConstellation *fromCSV ( string csv );
-	string toCSV ( void );
+    // converts IAU abbreviation ("And", "Ant", ... "Vul") to index number (1, 2, ... 88) and vice-versa.
+    
+    static int abbreviationToIndex ( string abbrev );
+    static string indexToAbbreviation ( int index );
+    
+    // imports/exports from/to CSV-format text string
+    
+    static SSConstellation *fromCSV ( string csv );
+    string toCSV ( void );
 };
 
 // convenient alias for pointer to SSConstellation

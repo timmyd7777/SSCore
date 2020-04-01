@@ -36,78 +36,78 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
         numLines++;
         if ( line.length() < 160 )
             continue;
-		
-		// col 1-4: periodic or interstellar comet number, denoted with 'P' or 'I' in column 5.
+        
+        // col 1-4: periodic or interstellar comet number, denoted with 'P' or 'I' in column 5.
         // col 6-12: provisional designation. Both currently unused.
 
-		string field = line.substr ( 0, 4 );
-		field = line.substr ( 5, 7 );
-		
-		// col 15-18: year/month/day of perihelion passage (TDT)
+        string field = line.substr ( 0, 4 );
+        field = line.substr ( 5, 7 );
+        
+        // col 15-18: year/month/day of perihelion passage (TDT)
 
-		int year = strtoint ( line.substr ( 14, 4 ) );
-		int month = strtoint ( line.substr ( 19, 2 ) );
-		double day = strtofloat64 ( line.substr ( 22, 7 ) );
-		double peridate = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
-		if ( peridate == 0.0 )
-			continue;
-				
-		// col 31-39: perihelion distance (AU)
-		
-		field = line.substr ( 30, 9 );
-		double q = strtofloat64 ( field );
-		if ( q <= 0.0 )
-			continue;
-		
-		// col 42-49: orbital eccentricity
-		
-		field = line.substr ( 41, 8 );
-		double e = strtofloat64 ( field );
-		if ( e <= 0.0 )
-			continue;
-		
-		// col 52-59: argument of perihelion, J2000.0 (degrees)
-		
-		field = line.substr ( 51, 8 );
-		double w = degtorad ( strtofloat64 ( field ) );
-		if ( w <= 0.0 || w > M_2PI )
-			continue;
-		
-		// col 62-69: longitude of ascending node, J2000.0 (degrees)
-		
-		field = line.substr ( 61, 8 );
-		double n = degtorad ( strtofloat64 ( field ) );
-		if ( n <= 0.0 || n > M_2PI )
-			continue;
-		
-		// col 72-79: inclination, J2000.0 (degrees)
-		
-		field = line.substr ( 71, 8 );
-		double i = degtorad ( strtofloat64 ( field ) );
-		if ( i <= 0.0 || i > M_PI )
-			continue;
-		
-		// col 82-85: epoch for perturbed solution - may be blank
+        int year = strtoint ( line.substr ( 14, 4 ) );
+        int month = strtoint ( line.substr ( 19, 2 ) );
+        double day = strtofloat64 ( line.substr ( 22, 7 ) );
+        double peridate = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
+        if ( peridate == 0.0 )
+            continue;
+                
+        // col 31-39: perihelion distance (AU)
+        
+        field = line.substr ( 30, 9 );
+        double q = strtofloat64 ( field );
+        if ( q <= 0.0 )
+            continue;
+        
+        // col 42-49: orbital eccentricity
+        
+        field = line.substr ( 41, 8 );
+        double e = strtofloat64 ( field );
+        if ( e <= 0.0 )
+            continue;
+        
+        // col 52-59: argument of perihelion, J2000.0 (degrees)
+        
+        field = line.substr ( 51, 8 );
+        double w = degtorad ( strtofloat64 ( field ) );
+        if ( w <= 0.0 || w > M_2PI )
+            continue;
+        
+        // col 62-69: longitude of ascending node, J2000.0 (degrees)
+        
+        field = line.substr ( 61, 8 );
+        double n = degtorad ( strtofloat64 ( field ) );
+        if ( n <= 0.0 || n > M_2PI )
+            continue;
+        
+        // col 72-79: inclination, J2000.0 (degrees)
+        
+        field = line.substr ( 71, 8 );
+        double i = degtorad ( strtofloat64 ( field ) );
+        if ( i <= 0.0 || i > M_PI )
+            continue;
+        
+        // col 82-85: epoch for perturbed solution - may be blank
 
-		year = strtoint ( line.substr ( 81, 4 ) );
-		month = strtoint ( line.substr ( 85, 2 ) );
-		day = strtofloat64 ( line.substr ( 87, 2 ) );
-		double epoch = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
-		
-		// col 92-95: absolute magnitude
-		
-		field = trim ( line.substr ( 91, 4 ) );
-		float hmag = field.empty() ? HUGE_VAL : strtofloat ( field );
-		
-		// col 97-100: magnitude slope parameter
-		
-		field = trim ( line.substr ( 96, 5 ) );
-		float gmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        year = strtoint ( line.substr ( 81, 4 ) );
+        month = strtoint ( line.substr ( 85, 2 ) );
+        day = strtofloat64 ( line.substr ( 87, 2 ) );
+        double epoch = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
+        
+        // col 92-95: absolute magnitude
+        
+        field = trim ( line.substr ( 91, 4 ) );
+        float hmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        
+        // col 97-100: magnitude slope parameter
+        
+        field = trim ( line.substr ( 96, 5 ) );
+        float gmag = field.empty() ? HUGE_VAL : strtofloat ( field );
 
-		// col 103 - 159: name including provisional desingation and/or periodic comet number
-		
-		vector<string> names;
-		field = trim ( line.substr ( 102, 56 ) );
+        // col 103 - 159: name including provisional desingation and/or periodic comet number
+        
+        vector<string> names;
+        field = trim ( line.substr ( 102, 56 ) );
         SSIdentifier number = SSIdentifier::fromString ( field );
         
         // for numbered periodic comets, extract name following slash.
@@ -145,33 +145,33 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 
         // Allocate new comet object with default values
         
-		SSPlanetPtr pComet = new SSPlanet ( kTypeComet );
-		if ( pComet == nullptr )
-			continue;
-		
-		// Compute mean motion from semimajor axis.
-		// If we have an epoch, compute mean anomaly at epoch.
-		// Otherwise, use perihelion date as epoch and set mean anomaly to zero.
-		
-		double mdm = SSOrbit::meanMotion ( e, q );
-		double t = epoch == 0.0 ? peridate : epoch;
-		double m = epoch == 0.0 ? 0.0 : mdm * ( epoch - peridate );
-		SSOrbit orbit ( t, q, e, i, w, n, m, mdm );
-		
-		if ( number )
-			pComet->setIdentifier ( number );
+        SSPlanetPtr pComet = new SSPlanet ( kTypeComet );
+        if ( pComet == nullptr )
+            continue;
+        
+        // Compute mean motion from semimajor axis.
+        // If we have an epoch, compute mean anomaly at epoch.
+        // Otherwise, use perihelion date as epoch and set mean anomaly to zero.
+        
+        double mdm = SSOrbit::meanMotion ( e, q );
+        double t = epoch == 0.0 ? peridate : epoch;
+        double m = epoch == 0.0 ? 0.0 : mdm * ( epoch - peridate );
+        SSOrbit orbit ( t, q, e, i, w, n, m, mdm );
+        
+        if ( number )
+            pComet->setIdentifier ( number );
 
-		pComet->setNames ( names );
-		pComet->setOrbit ( orbit );
-		pComet->setHMagnitude ( hmag );
-		pComet->setGMagnitude ( gmag );
-		
-		cout << pComet->toCSV() << endl;
-		comets.push_back ( shared_ptr<SSObject> ( pComet ) );
-		numComets++;
-	}
-	
-	return numComets;
+        pComet->setNames ( names );
+        pComet->setOrbit ( orbit );
+        pComet->setHMagnitude ( hmag );
+        pComet->setGMagnitude ( gmag );
+        
+        cout << pComet->toCSV() << endl;
+        comets.push_back ( shared_ptr<SSObject> ( pComet ) );
+        numComets++;
+    }
+    
+    return numComets;
 }
 
 // Read asteroid data from a Minor Planet Center asteroid orbit export file:

@@ -12,10 +12,10 @@
 
 SSDegMinSec::SSDegMinSec ( char c, short d, short m, double s )
 {
-	sign = c;
-	deg = d;
-	min = m;
-	sec = s;
+    sign = c;
+    deg = d;
+    min = m;
+    sec = s;
 }
 
 // Constructs an angular value in degrees, minutes, seconds
@@ -23,11 +23,11 @@ SSDegMinSec::SSDegMinSec ( char c, short d, short m, double s )
 
 SSDegMinSec::SSDegMinSec ( double degrees )
 {
-	sign = degrees >= 0.0 ? '+' : '-';
+    sign = degrees >= 0.0 ? '+' : '-';
     degrees = fabs ( degrees );
-	deg = degrees;
-	min = 60.0 * ( degrees - deg );
-	sec = 3600.0 * ( degrees - deg - min / 60.0 );
+    deg = degrees;
+    min = 60.0 * ( degrees - deg );
+    sec = 3600.0 * ( degrees - deg - min / 60.0 );
 }
 
 // Constructs an angular value in degrees, minutes, seconds
@@ -35,7 +35,7 @@ SSDegMinSec::SSDegMinSec ( double degrees )
 
 SSDegMinSec::SSDegMinSec ( SSAngle angle ) : SSDegMinSec ( angle.toDegrees() )
 {
-	// wow, wasn't that easy!
+    // wow, wasn't that easy!
 }
 
 // Constructs an angular value from a sexagesimal string in any format:
@@ -43,15 +43,15 @@ SSDegMinSec::SSDegMinSec ( SSAngle angle ) : SSDegMinSec ( angle.toDegrees() )
 
 SSDegMinSec::SSDegMinSec ( string str ) : SSDegMinSec ( strtodeg ( str ) )
 {
-	// you're putting me out of work!
+    // you're putting me out of work!
 }
 
 // Converts an angle in degrees, minutes, seconds to decimal degrees.
 
 double SSDegMinSec::toDegrees ( void )
 {
-	double d = deg + min / 60.0 + sec / 3600.0;
-	return sign == '-' ? -d : d;
+    double d = deg + min / 60.0 + sec / 3600.0;
+    return sign == '-' ? -d : d;
 }
 
 // Converts an angle in degrees, minutes, seconds to a string.
@@ -60,20 +60,20 @@ double SSDegMinSec::toDegrees ( void )
 
 string SSDegMinSec::toString ( void )
 {
-	if ( sec >= 59.95 )
-		return SSDegMinSec ( toDegrees() + ( sign == '-' ? -0.05 : 0.05 ) / 3600.0 ).toString();
-	else
-		return format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
+    if ( sec >= 59.95 )
+        return SSDegMinSec ( toDegrees() + ( sign == '-' ? -0.05 : 0.05 ) / 3600.0 ).toString();
+    else
+        return format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
 }
 
 // Constructs an angular value in hours, minutes, seconds with the given sign.
 
 SSHourMinSec::SSHourMinSec ( char c, short h, short m, double s )
 {
-	sign = c;
-	hour = h;
-	min = m;
-	sec = s;
+    sign = c;
+    hour = h;
+    min = m;
+    sec = s;
 }
 
 // Constructs an angular value in hours, minutes, seconds
@@ -81,7 +81,7 @@ SSHourMinSec::SSHourMinSec ( char c, short h, short m, double s )
 
 SSHourMinSec::SSHourMinSec ( double hours )
 {
-	sign = hours >= 0.0 ? '+' : '-';
+    sign = hours >= 0.0 ? '+' : '-';
     hours = fabs ( hours );
     hour = hours;
     min = 60.0 * ( hours - hour );
@@ -92,7 +92,7 @@ SSHourMinSec::SSHourMinSec ( double hours )
 
 SSHourMinSec::SSHourMinSec ( SSAngle angle ) : SSHourMinSec ( angle.toHours() )
 {
-	// bam!
+    // bam!
 }
 
 // Constructs an angular value from a sexagesimal string in any format:
@@ -100,15 +100,15 @@ SSHourMinSec::SSHourMinSec ( SSAngle angle ) : SSHourMinSec ( angle.toHours() )
 
 SSHourMinSec::SSHourMinSec ( string str ) : SSHourMinSec ( strtodeg ( str ) )
 {
-	// it's too much!
+    // it's too much!
 }
 
 // Converts an angle in hours, minutes, seconds to decimal hours.
 
 double SSHourMinSec::toHours ( void )
 {
-	double h = hour + min / 60.0 + sec / 3600.0;
-	return sign == '-' ? -h : h;
+    double h = hour + min / 60.0 + sec / 3600.0;
+    return sign == '-' ? -h : h;
 }
 
 // Converts an angle in hours, minutes, seconds to a string.
@@ -118,10 +118,10 @@ double SSHourMinSec::toHours ( void )
 
 string SSHourMinSec::toString ( void )
 {
-	if ( sec >= 59.995 )
-		return SSHourMinSec ( mod24h ( toHours() + 0.005 / 3600.0 ) ).toString();
-	else
-		return format ( "%02hd %02hd %05.2f", hour, min, sec );
+    if ( sec >= 59.995 )
+        return SSHourMinSec ( mod24h ( toHours() + 0.005 / 3600.0 ) ).toString();
+    else
+        return format ( "%02hd %02hd %05.2f", hour, min, sec );
 }
 
 // Constructs an angle in radians with the defautl value of zero.
@@ -142,14 +142,14 @@ SSAngle::SSAngle ( double rad )
 
 SSAngle::SSAngle ( SSDegMinSec dms )
 {
-	_rad = kRadPerDeg * ( dms.deg + dms.min / 60.0 + dms.sec / 3600.0 ) * ( dms.sign == '+' ? 1 : -1 );
+    _rad = kRadPerDeg * ( dms.deg + dms.min / 60.0 + dms.sec / 3600.0 ) * ( dms.sign == '+' ? 1 : -1 );
 }
 
 // Constructs an angle in radians from hours, minutes, and seconds.
 
 SSAngle::SSAngle ( SSHourMinSec hms )
 {
-	_rad = kRadPerHour * ( hms.hour + hms.min / 60.0 + hms.sec / 3600.0 ) * ( hms.sign == '+' ? 1 : -1 );
+    _rad = kRadPerHour * ( hms.hour + hms.min / 60.0 + hms.sec / 3600.0 ) * ( hms.sign == '+' ? 1 : -1 );
 }
 
 // Constructs an angle in radians from an angle in arcseconds (360*60*60=1296000 arcseconds per circle)
@@ -198,5 +198,5 @@ SSAngle SSAngle::modPi ( void )
 
 SSAngle SSAngle::atan2Pi ( double y, double x )
 {
-	return SSAngle ( atan2pi ( y, x ) );
+    return SSAngle ( atan2pi ( y, x ) );
 }

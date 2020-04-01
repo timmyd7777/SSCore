@@ -15,58 +15,58 @@ typedef map<string,SSObjectType> SSStringTypeMap;
 
 SSTypeStringMap _typeStrings =
 {
-	{ kTypeNonexistent, "NO" },
-	{ kTypePlanet, "PL" },
-	{ kTypeMoon, "MN" },
-	{ kTypeAsteroid, "AS" },
-	{ kTypeComet, "CM" },
-	{ kTypeSatellite, "ST" },
-	{ kTypeSpacecraft, "SC" },
-	{ kTypeStar, "SS" },
-	{ kTypeDoubleStar, "DS" },
-	{ kTypeVariableStar, "VS" },
-	{ kTypeDoubleVariableStar, "DV" },
-	{ kTypeOpenCluster, "OC" },
-	{ kTypeGlobularCluster, "GC" },
-	{ kTypeBrightNebula, "BN" },
-	{ kTypeDarkNebula, "DN" },
-	{ kTypePlanetaryNebula, "PN" },
-	{ kTypeGalaxy, "GX" },
-	{ kTypeConstellation, "CN" },
-	{ kTypeAsterism, "AM" }
+    { kTypeNonexistent, "NO" },
+    { kTypePlanet, "PL" },
+    { kTypeMoon, "MN" },
+    { kTypeAsteroid, "AS" },
+    { kTypeComet, "CM" },
+    { kTypeSatellite, "ST" },
+    { kTypeSpacecraft, "SC" },
+    { kTypeStar, "SS" },
+    { kTypeDoubleStar, "DS" },
+    { kTypeVariableStar, "VS" },
+    { kTypeDoubleVariableStar, "DV" },
+    { kTypeOpenCluster, "OC" },
+    { kTypeGlobularCluster, "GC" },
+    { kTypeBrightNebula, "BN" },
+    { kTypeDarkNebula, "DN" },
+    { kTypePlanetaryNebula, "PN" },
+    { kTypeGalaxy, "GX" },
+    { kTypeConstellation, "CN" },
+    { kTypeAsterism, "AM" }
 };
 
 SSStringTypeMap _stringTypes =
 {
-	{ "NO", kTypeNonexistent },
-	{ "PL", kTypePlanet },
-	{ "MN", kTypeMoon },
-	{ "AS", kTypeAsteroid },
-	{ "CM", kTypeComet },
-	{ "ST", kTypeSatellite },
-	{ "SC", kTypeSpacecraft },
-	{ "SS", kTypeStar },
-	{ "DS", kTypeDoubleStar },
-	{ "VS", kTypeVariableStar },
-	{ "DV", kTypeDoubleVariableStar },
-	{ "OC", kTypeOpenCluster },
-	{ "GC", kTypeGlobularCluster },
-	{ "BN", kTypeBrightNebula },
-	{ "DN", kTypeDarkNebula },
-	{ "PN", kTypePlanetaryNebula },
-	{ "GX", kTypeGalaxy },
-	{ "CN", kTypeConstellation },
-	{ "AM", kTypeAsterism },
+    { "NO", kTypeNonexistent },
+    { "PL", kTypePlanet },
+    { "MN", kTypeMoon },
+    { "AS", kTypeAsteroid },
+    { "CM", kTypeComet },
+    { "ST", kTypeSatellite },
+    { "SC", kTypeSpacecraft },
+    { "SS", kTypeStar },
+    { "DS", kTypeDoubleStar },
+    { "VS", kTypeVariableStar },
+    { "DV", kTypeDoubleVariableStar },
+    { "OC", kTypeOpenCluster },
+    { "GC", kTypeGlobularCluster },
+    { "BN", kTypeBrightNebula },
+    { "DN", kTypeDarkNebula },
+    { "PN", kTypePlanetaryNebula },
+    { "GX", kTypeGalaxy },
+    { "CN", kTypeConstellation },
+    { "AM", kTypeAsterism },
 };
 
 string SSObject::typeToCode ( SSObjectType type )
 {
-	return _typeStrings[ type ];
+    return _typeStrings[ type ];
 }
 
 SSObjectType SSObject::codeToType ( string code )
 {
-	return _stringTypes[ code ];
+    return _stringTypes[ code ];
 }
 
 SSObject::SSObject ( void ) : SSObject ( kTypeNonexistent )
@@ -95,21 +95,21 @@ string SSObject::getName ( int i )
 
 SSIdentifier SSObject::getIdentifier ( SSCatalog cat )
 {
-	return SSIdentifier();
+    return SSIdentifier();
 }
 
 // Default implementation of addIdentifer; overridden by subclasses.
 
 bool SSObject::addIdentifier ( SSIdentifier ident )
 {
-	return false;
+    return false;
 }
 
 // Default implementation of toCSV; overridden by subclasses.
 
 string SSObject::toCSV ( void )
 {
-	return "";
+    return "";
 }
 
 // Default implementation of compteEphemeris; overridden by subclasses.
@@ -124,22 +124,22 @@ void SSObject::computeEphemeris ( SSDynamics &dyn )
 
 SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat )
 {
-	SSObjectMap map;
-	
-	for ( int i = 0; i < objects.size(); i++ )
-	{
-		SSObject *ptr = objects[i].get();
-		if ( ptr == nullptr )
-			continue;
-		
-		SSIdentifier ident = ptr->getIdentifier ( cat );
-		if ( ! ident )
-			continue;
-		
-		map.insert ( { ident, i + 1 } );
-	}
-	
-	return map;
+    SSObjectMap map;
+    
+    for ( int i = 0; i < objects.size(); i++ )
+    {
+        SSObject *ptr = objects[i].get();
+        if ( ptr == nullptr )
+            continue;
+        
+        SSIdentifier ident = ptr->getIdentifier ( cat );
+        if ( ! ident )
+            continue;
+        
+        map.insert ( { ident, i + 1 } );
+    }
+    
+    return map;
 }
 
 // Given a catalog identifier (ident), a mapping of identifiers to object indices (map),
@@ -149,10 +149,10 @@ SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat )
 
 SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjectVec &objects )
 {
-	int k = map[ ident ];
+    int k = map[ ident ];
 
-	if ( k > 0 )
-		return objects[ k - 1 ];
-	else
-		return SSObjectPtr ( nullptr );
+    if ( k > 0 )
+        return objects[ k - 1 ];
+    else
+        return SSObjectPtr ( nullptr );
 }

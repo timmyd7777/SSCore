@@ -19,9 +19,9 @@ SSSpherical::SSSpherical ( void )
 
 SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat )
 {
-	this->lon = lon;
-	this->lat = lat;
-	this->rad = 1.0;
+    this->lon = lon;
+    this->lat = lat;
+    this->rad = 1.0;
 }
 
 // Constructs spberical coordinates from longitude and latitude, both in radians,
@@ -29,9 +29,9 @@ SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat )
 
 SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat, double rad )
 {
-	this->lon = lon;
-	this->lat = lat;
-	this->rad = rad;
+    this->lon = lon;
+    this->lat = lat;
+    this->rad = rad;
 }
 
 // Constructs spberical coordinates from a rectangular coordinate vector.
@@ -69,12 +69,12 @@ SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
     double x = rad * cos ( lat ) * cos ( lon );
     double y = rad * cos ( lat ) * sin ( lon );
     double z = rad * sin ( lat );
-	
-	double vx = vel.rad * x / rad + y * vel.lon + z * vel.lat * cos ( lon );
-	double vy = vel.rad * y / rad - x * vel.lon + z * vel.lat * sin ( lon );
-	double vz = vel.rad * z / rad - rad * vel.lat * cos ( lat );
-	
-	return SSVector ( vx, vy, vz );
+    
+    double vx = vel.rad * x / rad + y * vel.lon + z * vel.lat * cos ( lon );
+    double vy = vel.rad * y / rad - x * vel.lon + z * vel.lat * sin ( lon );
+    double vz = vel.rad * z / rad - rad * vel.lat * cos ( lat );
+    
+    return SSVector ( vx, vy, vz );
 }
 
 // Returns angular separation in radians from this point in a spherical coordinate system
@@ -111,9 +111,9 @@ SSVector::SSVector ( double x, double y, double z )
 
 SSVector::SSVector ( SSSpherical sph )
 {
-	x = sph.rad * cos ( sph.lat ) * cos ( sph.lon );
-	y = sph.rad * cos ( sph.lat ) * sin ( sph.lon );
-	z = sph.rad * sin ( sph.lat );
+    x = sph.rad * cos ( sph.lat ) * cos ( sph.lon );
+    y = sph.rad * cos ( sph.lat ) * sin ( sph.lon );
+    z = sph.rad * sin ( sph.lat );
 }
 
 // Returns this vector's magnitude (length) measured from the origin.
@@ -242,12 +242,12 @@ SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
     }
     else
     {
-		double x2 = x * x;
-		double y2 = y * y;
-		double vx = vvec.x;
-		double vy = vvec.y;
-		double vz = vvec.z;
-		
+        double x2 = x * x;
+        double y2 = y * y;
+        double vx = vvec.x;
+        double vy = vvec.y;
+        double vz = vvec.z;
+        
         double vrad = ( x * vx + y * vy + z * vz ) / r;
         double vlon = ( y * vx - x * vy ) / ( x2 + y2 );
         double vlat = ( z * ( x * vx + y * vy ) - vz * ( x2 + y2 ) ) / ( r * r * sqrt ( x2 + y2 ) );

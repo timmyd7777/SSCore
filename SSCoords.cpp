@@ -14,13 +14,13 @@ SSCoords::SSCoords ( double jd, double lon, double lat )
 {
     getNutationConstants ( jd, de, dl );
     this->obq = getObliquity ( jd );
-	this->epoch = jd;
+    this->epoch = jd;
     this->lon = lon;
     this->lat = lat;
     this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl ) );
     
-	preMat = getPrecessionMatrix ( jd );
-	nutMat = getNutationMatrix ( obq, dl, de );
+    preMat = getPrecessionMatrix ( jd );
+    nutMat = getNutationMatrix ( obq, dl, de );
     equMat = nutMat.multiply ( preMat );
     eclMat = getEclipticMatrix ( - obq - de ).multiply ( equMat );
     horMat = getHorizonMatrix ( lst, lat ).multiply ( equMat );
@@ -85,7 +85,7 @@ SSMatrix SSCoords::getPrecessionMatrix ( double jd )
 {
     double zeta = 0.0, z = 0.0, theta = 0.0;
     getPrecessionConstants ( jd, zeta, z, theta );
-	return SSMatrix::rotation ( 3, 2, zeta, 1, theta, 2, z );
+    return SSMatrix::rotation ( 3, 2, zeta, 1, theta, 2, z );
 }
 
 // Returns a rotation matrix which corrects equatorial coordinates for nutation,
@@ -95,7 +95,7 @@ SSMatrix SSCoords::getPrecessionMatrix ( double jd )
 
 SSMatrix SSCoords::getNutationMatrix ( double obq, double nutLon, double nutObq )
 {
-	return SSMatrix::rotation ( 3, 0, -obq, 2, nutLon, 0, obq + nutObq );
+    return SSMatrix::rotation ( 3, 0, -obq, 2, nutLon, 0, obq + nutObq );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
@@ -269,32 +269,32 @@ SSSpherical SSCoords::fromHorizon ( SSSpherical hor )
 
 SSAngle SSCoords::refractionAngle ( SSAngle alt, bool a )
 {
-	double	h, r;
-	
-	if ( a == true )
-	{
-		h = max ( alt.toDegrees(), -1.9 );
-		r = 1.02 / tan ( SSAngle::fromDegrees ( h + ( 10.3 / ( h + 5.11 ) ) ) );
-	}
-	else
-	{
-		h = max ( alt.toDegrees(), -1.7 );
-		r = 1.0 / tan ( SSAngle::fromDegrees ( h + ( 7.31 / ( h + 4.4 ) ) ) );
-	}
-	
-	return SSAngle::fromArcmin ( r );
+    double    h, r;
+    
+    if ( a == true )
+    {
+        h = max ( alt.toDegrees(), -1.9 );
+        r = 1.02 / tan ( SSAngle::fromDegrees ( h + ( 10.3 / ( h + 5.11 ) ) ) );
+    }
+    else
+    {
+        h = max ( alt.toDegrees(), -1.7 );
+        r = 1.0 / tan ( SSAngle::fromDegrees ( h + ( 7.31 / ( h + 4.4 ) ) ) );
+    }
+    
+    return SSAngle::fromArcmin ( r );
 }
 
 // Returns refracted (apparent) altitude from true (geometric) altitude
 
 SSAngle SSCoords::toRefractedAltitude ( SSAngle alt )
 {
-	return alt + SSCoords::refractionAngle ( alt, true );
+    return alt + SSCoords::refractionAngle ( alt, true );
 }
 
 // Returns true (geometric) from refracted (apparent) altitude
 
 SSAngle SSCoords::fromRefractedAltitude ( SSAngle alt )
 {
-	return alt - SSCoords::refractionAngle ( alt, false );
+    return alt - SSCoords::refractionAngle ( alt, false );
 }

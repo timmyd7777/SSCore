@@ -1,9 +1,9 @@
-//  SSMatrix.hpp
-//  SSCore
+// SSMatrix.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 2/24/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//	Represents a 3x3 matrix, with routines for performing simple matrix and vector-matrix arithmetic.
+// Created by Tim DeBenedictis on 2/24/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+// Represents a 3x3 matrix, with routines for performing simple matrix and vector-matrix arithmetic.
 
 #ifndef SSMatrix_hpp
 #define SSMatrix_hpp
