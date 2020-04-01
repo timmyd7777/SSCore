@@ -8,12 +8,13 @@ SSCore is written in highly portable, modern C++.  It has been tested on MacOS, 
 
 **SSData** is a collection of data on well-known astronomical objects, compiled and carefully vetted from a variety of modern astronomical catalogs and data sources.  It includes:
 
-- **Solar System Objects:** the major planets (including Pluto!) and their natural satellites, with orbital and physical characteristics from [JPL Solar System Dynamics.] (https://ssd.jpl.nasa.gov)
-- **Stars:** the brightest and nearest stars, compiled from NASA's [SKY2000 Master Star Catalog] (https://ui.adsabs.harvard.edu/abs/2015yCat.5145....0M/abstract), Hipparcos, RECONS, and other sources.
-- **Deep Sky Objects:** the Messier and Caldwell objects, with data from Wolfgang Steinicke's [Revised NGC and IC] (http://www.klima-luft.de/steinicke/index_e.htm) catalogs, and enhanced using data from a few other sources.
+- **_Solar System Objects:_** the major planets (including Pluto!) and their natural satellites, with orbital and physical characteristics from [JPL Solar System Dynamics.] (https://ssd.jpl.nasa.gov)
+- **_Stars:_** the brightest and nearest stars, compiled from NASA's [SKY2000 Master Star Catalog] (https://ui.adsabs.harvard.edu/abs/2015yCat.5145....0M/abstract), Hipparcos, RECONS, and other sources.
+- **_Deep Sky Objects:_** the Messier and Caldwell objects, with data from Wolfgang Steinicke's [Revised NGC and IC] (http://www.klima-luft.de/steinicke/index_e.htm) catalogs, and enhanced using data from a few other sources.
+- **_Constellations:_** the 88 IAU-sanctioned constellations, including official IAU boundary and shape data.
 
 These files are all CSV-formatted text.  They can easily be imported into a spreadsheet or edited manually.  SSCore contains routines for reading and writing them as well.
 
 # Version History
 
-Version 1.0 (10 April 2020): Initial public release.
+Version 1.0, 10 Apr 2020: Initial public release.
