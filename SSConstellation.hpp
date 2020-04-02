@@ -60,16 +60,10 @@ typedef SSConstellation *SSConstellationPtr;
 
 SSConstellationPtr SSGetConstellationPtr ( SSObjectPtr ptr );
 
-// Imports constellations from CSV-format text file into vector of SSObjectPtr.
+// Imports constellations, boundaries, shapes from CSV-format text files into vector of SSObjectPtr.
 
-int SSImportConstellations ( const char *filename, SSObjectVec &constellations );
-
-// Imports constellation boundaries from CSV-format text file into vector of SSContellationPtr.
-
-int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constellations );
-
-// Imports constellation shapes from CSV-rormat text file into vector of SSContellationPtr.
-
-int SSImportConstellationShapes ( const char *filename, SSObjectVec &constellations );
+int SSImportConstellations ( const string &filename, SSObjectVec &constellations );
+int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &constellations );
+int SSImportConstellationShapes ( const string &filename, SSObjectVec &constellations );
 
 #endif /* SSConstellation_hpp */

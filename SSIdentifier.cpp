@@ -782,9 +782,13 @@ string SSIdentifier::toString ( void )
     {
         str = to_string ( id ) + "P";
     }
+    else if ( cat == kCatJPLanet )
+    {
+        str = to_string ( id );
+    }
     else if ( cat == kCatNORADSat )
     {
-        str = to_string (id);
+        str = to_string ( id );
     }
     
     return str;

@@ -17,7 +17,7 @@ enum SSCatalog
 {
     kCatUnknown = 0,        // Unknown catalog
     
-    kCatJPLanet = 1,        // JPL planet/moon identifiers (Mercury = 1, Venus = 2, etc.)
+    kCatJPLanet = 1,        // JPL NAIF planet/moon identifiers (Mercury = 1, Venus = 2, etc.)
     kCatAstNum = 2,         // Numbered asteroids (Ceres = 1, Pallas = 2, etc.)
     kCatComNum = 3,         // Numbered periodic comets (Halley = 1, Encke = 2, etc.)
     kCatNORADSat = 4,       // NORAD satellite catalog (ISS = 25544, HST = 20580, etc.)

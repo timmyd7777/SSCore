@@ -11,7 +11,7 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
 {
     _id = SSIdentifier();
     _orbit = SSOrbit();
-    _Hmag = _Gmag = HUGE_VAL;
+    _Hmag = _Gmag = _radius = HUGE_VAL;
     _position = _velocity = SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
 }
 
@@ -46,14 +46,18 @@ string SSPlanet::toCSV ( void )
 {
     string csv = SSObject::typeToCode ( _type ) + ",";
     
-    csv += isinf ( _orbit.q ) ? "," : format ( "%.6f,", _orbit.q );
-    csv += isinf ( _orbit.e ) ? "," : format ( "%.6f,", _orbit.e );
-    csv += isinf ( _orbit.i ) ? "," : format ( "%.6f,", _orbit.i * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.w ) ? "," : format ( "%.6f,", _orbit.w * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.n ) ? "," : format ( "%.6f,", _orbit.n * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.m ) ? "," : format ( "%.6f,", _orbit.m * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.mm ) ? "," : format ( "%.6f,", _orbit.mm * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.t ) ? "," : format ( "%.6f,", _orbit.t );
+    if ( _type == kTypeMoon )
+        csv += isinf ( _orbit.q ) ? "," : format ( "%.0f,", _orbit.q * SSDynamics::kKmPerAU );
+    else
+        csv += isinf ( _orbit.q ) ? "," : format ( "%.8f,", _orbit.q );
+
+    csv += isinf ( _orbit.e ) ? "," : format ( "%.8f,", _orbit.e );
+    csv += isinf ( _orbit.i ) ? "," : format ( "%.8f,", _orbit.i * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.w ) ? "," : format ( "%.8f,", _orbit.w * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.n ) ? "," : format ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.m ) ? "," : format ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.mm ) ? "," : format ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.t ) ? "," : format ( "%.4f,", _orbit.t );
     
     csv += isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
     csv += isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
@@ -89,6 +93,9 @@ SSPlanet *SSPlanet::fromCSV ( string csv )
     orbit.mm = fields[7].empty() ? HUGE_VAL : strtofloat64 ( fields[7] ) * SSAngle::kRadPerDeg;
     orbit.t = fields[8].empty() ? HUGE_VAL : strtofloat64 ( fields[8] );
 
+    if ( orbit.q > 1000.0 )
+        orbit.q /= SSDynamics::kKmPerAU;
+    
     float h = fields[9].empty() ? HUGE_VAL : strtofloat ( fields[9] );
     float g = fields[10].empty() ? HUGE_VAL : strtofloat ( fields[10] );
     float r = fields[11].empty() ? HUGE_VAL : strtofloat ( fields[11] );

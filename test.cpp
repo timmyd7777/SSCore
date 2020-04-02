@@ -20,12 +20,6 @@
 #include "SSImportMPC.hpp"
 #include "SSImportGJ.hpp"
 
-void exportCatalog ( SSObjectVec objects )
-{
-    for ( int i = 0; i < objects.size(); i++ )
-        cout << objects[i].get()->toCSV() << endl;
-}
-
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
     SSObjectMap map = SSMakeObjectMap ( objects, cat );
@@ -41,32 +35,64 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
     }
 }
 
-void TestSolarSystem ( void )
+void TestSolarSystem ( string inputDir, string outputDir )
 {
     SSObjectVec planets;
-    int numPlanets = SSImportObjectsFromCSV ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/SolarSystem/Planets.csv", planets );
+    int numPlanets = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Planets.csv", planets );
     cout << "Imported " << numPlanets << " major planets" << endl;
-
+    numPlanets = SSExportObjectsToCSV ( "", planets );
+    
     SSObjectVec moons;
-    int numMoons = SSImportObjectsFromCSV ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/SolarSystem/Moons.csv", moons );
+    int numMoons = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", moons );
     cout << "Imported " << numMoons << " natural satellites" << endl;
+    
+    SSObjectVec comets;
+    int numComets = SSImportMPCComets ( inputDir + "/SolarSystem/Comets.txt", comets );
+    cout << "Imported " << numComets << " MPC comets" << endl;
+
+    SSObjectVec asteroids;
+    int numAsteroids = SSImportMPCAsteroids ( inputDir + "/SolarSystem/Asteroids.txt", asteroids );
+    cout << "Imported " << numAsteroids << " MPC asteroids" << endl;
+
+    if ( ! outputDir.empty() )
+    {
+        numMoons = SSExportObjectsToCSV ( outputDir + "/ExportedMoons.csv", moons );
+        cout << "Exported " << numMoons << " natural satellites to " << outputDir + "/ExportedMoons.csv" << endl;
+
+        numComets = SSExportObjectsToCSV ( outputDir + "/ExportedComets.csv", comets );
+        cout << "Exported " << numComets << " MPC comets to " << outputDir + "/ExportedComets.csv" << endl;
+
+        numAsteroids = SSExportObjectsToCSV ( outputDir + "/ExportedAsteroids.csv", asteroids );
+        cout << "Exported " << numAsteroids << " MPC asteroids to " << outputDir + "/ExportedAsteroids.csv" << endl;
+    }
+}
+
+void TestConstellations ( string inputDir, string outputDir )
+{
+    SSObjectVec constellations;
+    
+    int numCons = SSImportConstellations ( inputDir + "/Constellations/Constellations.csv", constellations );
+    cout << "Imported " << numCons << " IAU constellations" << endl;
+    
+    int numVerts = SSImportConstellationBoundaries ( inputDir + "/Constellations/Boundaries.csv", constellations );
+    cout << "Imported " << numVerts << " IAU constellation boundary vertices" << endl;
+
+    int numLines = SSImportConstellationShapes ( inputDir + "/Constellations/Shapes.csv", constellations );
+    cout << "Imported " << numLines << " IAU constellation shape lines" << endl;
+
+    if ( ! outputDir.empty() )
+    {
+        numCons = SSExportObjectsToCSV ( outputDir + "/ExportedConstellations.csv", constellations );
+        cout << "Exported " << numCons << " constellations to " << outputDir + "/ExportedConstellations.csv" << endl;
+    }
 }
 
 int main ( int argc, char *argv[] )
 {
-    TestSolarSystem();
+    TestSolarSystem ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
+    TestConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
     
 /*
-    SSObjectVec constellations;
-    int numcon = SSImportConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
-    cout << "Imported " << numcon << " IAU constellations" << endl;
-    
-    int numverts = SSImportConstellationBoundaries ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Boundaries.csv", constellations );
-    cout << "Imported " << numverts << " IAU constellation boundary vertices" << endl;
-
-    int numlines = SSImportConstellationShapes ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Shapes.csv", constellations );
-    cout << "Imported " << numlines << " IAU constellation shape lines" << endl;
-
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
     cout << "Imported " << numcom << " MPC comets" << endl;

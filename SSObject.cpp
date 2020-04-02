@@ -185,7 +185,45 @@ SSObjectPtr SSNewObject ( SSObjectType type )
         return shared_ptr<class SSObject> ( nullptr );
 }
 
-int SSImportObjectsFromCSV ( const char *filename, SSObjectVec &objects )
+// Exports a vector of objects to a CSV-formatted text file.
+// If the filename is an empty string, streams CSV to standard output.
+// Returns the number of objects exported.
+
+int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects )
+{
+    int i = 0;
+    
+    // If filename is empty, just stream everything to stdout
+    
+    if ( filename.empty() )
+    {
+        for ( i = 0; i < objects.size(); i++ )
+            cout << objects[i].get()->toCSV() << endl;
+        
+        return i;
+    }
+
+    // Otherwise open file; return on failure.
+
+    ofstream file ( filename );
+    if ( ! file )
+        return 0;
+    
+    // Stream everything to file.
+    
+    for ( i = 0; i < objects.size(); i++ )
+        file << objects[i].get()->toCSV() << endl;
+
+    // Return object count; file will close automatically.
+    
+    return i;
+}
+
+// Imports objects from CSV-formatted text file (filename).
+// Imported objects are appended to the input vector of SSObjects (objects).
+// Returns number of objects successfully imported.
+
+int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
 {
     // Open file; return on failure.
 

@@ -15,16 +15,13 @@
 // Imported data is appended to the input vector of SSObjects (comets).
 // Returns number of comets successfully imported.
 
-int importMPCComets ( const char *filename, SSObjectVec &comets )
+int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
 {
-    // Open file; report error and return empty map on failure.
+    // Open file; return on failure.
 
     ifstream file ( filename );
     if ( ! file )
-    {
-        cout << "Failure: can't open " << filename << endl;
         return ( 0 );
-    }
 
     // Read file line-by-line until we reach end-of-file
 
@@ -54,38 +51,28 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
                 
         // col 31-39: perihelion distance (AU)
         
-        field = line.substr ( 30, 9 );
-        double q = strtofloat64 ( field );
-        if ( q <= 0.0 )
-            continue;
+        field = trim ( line.substr ( 30, 9 ) );
+        double q = field.empty() ? HUGE_VAL : strtofloat64 ( field );
         
         // col 42-49: orbital eccentricity
         
-        field = line.substr ( 41, 8 );
-        double e = strtofloat64 ( field );
-        if ( e <= 0.0 )
-            continue;
+        field = trim ( line.substr ( 41, 8 ) );
+        double e = field.empty() ? HUGE_VAL : strtofloat64 ( field );
         
         // col 52-59: argument of perihelion, J2000.0 (degrees)
         
-        field = line.substr ( 51, 8 );
-        double w = degtorad ( strtofloat64 ( field ) );
-        if ( w <= 0.0 || w > M_2PI )
-            continue;
+        field = trim ( line.substr ( 51, 8 ) );
+        double w = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 62-69: longitude of ascending node, J2000.0 (degrees)
         
         field = line.substr ( 61, 8 );
-        double n = degtorad ( strtofloat64 ( field ) );
-        if ( n <= 0.0 || n > M_2PI )
-            continue;
+        double n = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 72-79: inclination, J2000.0 (degrees)
         
         field = line.substr ( 71, 8 );
-        double i = degtorad ( strtofloat64 ( field ) );
-        if ( i <= 0.0 || i > M_PI )
-            continue;
+        double i = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 82-85: epoch for perturbed solution - may be blank
 
@@ -166,7 +153,7 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
         pComet->setHMagnitude ( hmag );
         pComet->setGMagnitude ( gmag );
         
-        cout << pComet->toCSV() << endl;
+        // cout << pComet->toCSV() << endl;
         comets.push_back ( shared_ptr<SSObject> ( pComet ) );
         numComets++;
     }
@@ -179,16 +166,13 @@ int importMPCComets ( const char *filename, SSObjectVec &comets )
 // Imported data is appended to the input vector of SSObjects (asteroids).
 // Returns number of asteroids successfully imported.
 
-int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
+int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
 {
-    // Open file; report error and return empty map on failure.
+    // Open file; return on failure.
 
     ifstream file ( filename );
     if ( ! file )
-    {
-        cout << "Failure: can't open " << filename << endl;
         return ( 0 );
-    }
 
     // Read file line-by-line until we reach end-of-file
 
@@ -208,7 +192,7 @@ int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
         
         // col 15-19: magnitude slope parameter
         
-        field = line.substr ( 14, 5 );
+        field = trim ( line.substr ( 14, 5 ) );
         float gmag = field.empty() ? HUGE_VAL : strtofloat ( field );
         
         // col 21-25: epoch in packed form
@@ -237,49 +221,37 @@ int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
         
         // col 27-35: Mean anomaly in degrees
         
-        field = line.substr ( 26, 9 );
-        double m = degtorad ( strtofloat64 ( field ) );
-        if ( m <= 0.0 || m > M_2PI )
-            continue;
+        field = trim ( line.substr ( 26, 9 ) );
+        double m = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 38-46: Argument of perihelion in degrees
         
-        field = line.substr ( 37, 9 );
-        double w = degtorad ( strtofloat64 ( field ) );
-        if ( w <= 0.0 || w > M_2PI )
-            continue;
+        field = trim ( line.substr ( 37, 9 ) );
+        double w = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 49-57: Longitude of ascending node in degrees
         
-        field = line.substr ( 48, 9 );
-        double n = degtorad ( strtofloat64 ( field ) );
-        if ( n <= 0.0 || n > M_2PI )
-            continue;
+        field = trim ( line.substr ( 48, 9 ) );
+        double n = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 60-68: Inclination in degrees
         
-        field = line.substr ( 59, 9 );
-        double i = degtorad ( strtofloat64 ( field ) );
-        if ( i <= 0.0 || i > M_PI )
-            continue;
+        field = trim ( line.substr ( 59, 9 ) );
+        double i = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 71-79: Eccentricity
         
-        field = line.substr ( 70, 9 );
-        double e = strtofloat64 ( field );
-        if ( e <= 0.0 || e >= 1.0 )
-            continue;
+        field = trim ( line.substr ( 70, 9 ) );
+        double e = field.empty() ? HUGE_VAL : strtofloat64 ( field );
         
         // col 81-91: Mean motion in degrees per day
         
-        field = line.substr ( 80, 11 );
-        double mm = degtorad ( strtofloat64 ( field ) );
-        if ( mm <= 0.0 || mm >= M_2PI )
-            continue;
+        field = trim ( line.substr ( 80, 11 ) );
+        double mm = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
         
         // col 93-103: Semimajor axis in AU.  If not found, compute from mean motion.
         
-        field = line.substr ( 92, 11 );
+        field = trim ( line.substr ( 92, 11 ) );
         double a = strtofloat64 ( field );
         if ( a <= 0.0 )
             a = pow ( SSOrbit::kGaussGravHelio / ( mm * mm ), 1.0 / 3.0 );
@@ -312,7 +284,7 @@ int importMPCAsteroids ( const char *filename, SSObjectVec &asteroids )
         pAsteroid->setHMagnitude ( hmag );
         pAsteroid->setGMagnitude ( gmag );
 
-        cout << pAsteroid->toCSV() << endl;
+        // cout << pAsteroid->toCSV() << endl;
         asteroids.push_back ( shared_ptr<SSObject> ( pAsteroid ) );
         numAsteroids++;
     }

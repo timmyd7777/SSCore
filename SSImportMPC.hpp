@@ -10,7 +10,7 @@
 
 #include "SSPlanet.hpp"
 
-int importMPCComets ( const char *filename, SSObjectVec &comets );
-int importMPCAsteroids ( const char *filename, SSObjectVec &comets );
+int SSImportMPCComets ( const string &filename, SSObjectVec &comets );
+int SSImportMPCAsteroids ( const string &filename, SSObjectVec &comets );
 
 #endif /* SSImportMPC_hpp */

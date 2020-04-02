@@ -121,7 +121,7 @@ string SSConstellation::toCSV ( void )
 // Imported data is appended to the input vector of SSObjects (constellations).
 // Returns number of consteillations successfully imported (should be 88).
 
-int SSImportConstellations ( const char *filename, SSObjectVec &constellations )
+int SSImportConstellations ( const string &filename, SSObjectVec &constellations )
 {
     // Open file; return on failure.
 
@@ -132,12 +132,10 @@ int SSImportConstellations ( const char *filename, SSObjectVec &constellations )
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
-    int numLines = 0, numCons = 0;
+    int numCons = 0;
 
     while ( getline ( file, line ) )
     {
-        numLines++;
-
         // Attempt to create constellation from CSV file line; continue on failure.
         
         SSConstellationPtr pCon = SSConstellation::fromCSV ( line );
@@ -146,7 +144,7 @@ int SSImportConstellations ( const char *filename, SSObjectVec &constellations )
         
         // If successful, append new constellation to object vector.
         
-        cout << pCon->toCSV() << endl;
+        // cout << pCon->toCSV() << endl;
         constellations.push_back ( shared_ptr<SSObject> ( pCon ) );
         numCons++;
     }
@@ -160,7 +158,7 @@ int SSImportConstellations ( const char *filename, SSObjectVec &constellations )
 // i.e. constellation[0] is Andromeda, [1] is Antlia, ... [87] is Vulpecula.
 // Returns number of boundary vertices successfully imported (should be 1562).
 
-int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constellations )
+int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &constellations )
 {
     // Open file; return on failure.
 
@@ -171,14 +169,13 @@ int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constel
     // Read file line-by-line until we reach end-of-file
 
     string line = "", abbr = "", lastAbbr = "And";
-    int numLines = 0, numVerts = 0;
+    int numVerts = 0;
+    
     vector<SSVector> boundary ( 0 );
     SSConstellationPtr pCon = SSGetConstellationPtr ( constellations[0] );
 
     while ( getline ( file, line ) )
     {
-        numLines++;
-
         // Require 3 fields per line; skip if we don't have em.
         
         vector<string> fields = split ( line, "," );
@@ -202,7 +199,7 @@ int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constel
             if ( pCon != nullptr && boundary.size() > 0 )
             {
                 pCon->setBoundary ( boundary );
-                cout << "Imported " << boundary.size() << " vertices for " << lastAbbr << endl;
+                // cout << "Imported " << boundary.size() << " vertices for " << lastAbbr << endl;
             }
 
             // Get pointer to new constellation, and start new boundary vertex.
@@ -235,7 +232,7 @@ int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constel
     if ( pCon != nullptr && boundary.size() > 0 )
     {
         pCon->setBoundary ( boundary );
-        cout << "Imported " << boundary.size() << " vertices for " << lastAbbr << endl;
+        // cout << "Imported " << boundary.size() << " vertices for " << lastAbbr << endl;
     }
 
     return numVerts;
@@ -247,7 +244,7 @@ int SSImportConstellationBoundaries ( const char *filename, SSObjectVec &constel
 // i.e. constellation[0] is Andromeda, [1] is Antlia, ... [87] is Vulpecula.
 // Returns number of shape lines successfully imported (should be 765).
 
-int SSImportConstellationShapes ( const char *filename, SSObjectVec &constellations )
+int SSImportConstellationShapes ( const string &filename, SSObjectVec &constellations )
 {
     // Open file; return on failure.
 
@@ -286,7 +283,7 @@ int SSImportConstellationShapes ( const char *filename, SSObjectVec &constellati
             if ( pCon != nullptr && shape.size() > 0 )
             {
                 pCon->setFigure ( shape );
-                cout << "Imported " << shape.size() / 2 << " shape lines for " << lastAbbr << endl;
+                // cout << "Imported " << shape.size() / 2 << " shape lines for " << lastAbbr << endl;
             }
 
             // Get pointer to new constellation, and start new boundary vertex.
@@ -318,7 +315,7 @@ int SSImportConstellationShapes ( const char *filename, SSObjectVec &constellati
     if ( pCon != nullptr && shape.size() > 0 )
     {
         pCon->setFigure ( shape );
-        cout << "Imported " << shape.size() / 2 << " shape lines for " << lastAbbr << endl;
+        // cout << "Imported " << shape.size() / 2 << " shape lines for " << lastAbbr << endl;
     }
 
     return numLines;
