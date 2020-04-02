@@ -1,16 +1,16 @@
 Solar System Object Data
 ========================
 
-This directory contains essential data on Solar System objects in CSV format and Minor Planet Center export format.  These files exit primrily for testing SSCore import/export functionality, but may be generally useful in their own right.
+This directory contains essential data on Solar System objects in CSV format and Minor Planet Center export format.  These files exit primarily for testing SSCore import/export functionality, but may be generally useful in their own right.
 
-You may use this data free of charge for any purpose you see fit.  If it's useful to you, drop me a note!
+You may use this data free of charge for any purpose as you see fit.  If it's helpful to you, drop me a note!
 
 _Tim DeBenedictis (timd@southernstars.com), 2 Apr 2020_
 
 Planets.csv
 -----------
 
-This table of planet data in Southern Stars CSV format was adapted from Table 1 in this paper by E.M. Standish (JPL Solar System Dynamics), ["Keplerian Elements for Approximate Positions of the Major Planets"](https://ssd.jpl.nasa.gov/txt/p_elem_t1.txt) and from JPL's ["Planets and Pluto: Physical Characteristics"](https://ssd.jpl.nasa.gov/?planet_phys_par) table.  Data for the Sun is from NASA ["Sun Fact Sheet"](https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html).
+This table of data on the Sun, the major planets, and Pluto is in Southern Stars CSV format was adapted from Table 1 in this paper by E.M. Standish (JPL Solar System Dynamics), ["Keplerian Elements for Approximate Positions of the Major Planets"](https://ssd.jpl.nasa.gov/txt/p_elem_t1.txt) and from JPL's ["Planets and Pluto: Physical Characteristics"](https://ssd.jpl.nasa.gov/?planet_phys_par) table.  Data for the Sun is from NASA's ["Sun Fact Sheet"](https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html).
 
 Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, ID, Name
 
@@ -59,7 +59,7 @@ Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, ID, Name
 
 Empty fields indicate unknown or missing values.
 
-The orbital inclinations, arguments, and nodes are referred to their Laplace Plane (essentially their primary planet's equatorial plane), except for Earth's Moon, whose orbital elements are referred to the J2000 Ecliptic.
+The orbital inclinations, arguments, and nodes are referred to their Laplace Plane (essentially their primary planet's equatorial plane), except for Earth's Moon, whose orbital elements are referred to the J2000 ecliptic.
 
 **Revision History**
 
@@ -68,7 +68,7 @@ Version 1.0 (31 Mar 2020): initial version
 Asteroids.txt
 -------------
 
-This table of asteroid data in MPC Export Format was compiled from the Minor Planet Center.  It includes the first 10,000 numbered asteroids from the [MPCORB database](https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT) and all of the asteroids on the MPC's ["Distant"  objects](https://www.minorplanetcenter.net/iau/MPCORB/Distant.txt) list.  This file includes all of the officially IAU-designated dwarf planets.  The file format is described [here](https://www.minorplanetcenter.net/iau/info/MPOrbitFormat.html).
+This table of asteroid data in MPC Export Format was compiled from the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html).  It includes the first 10,000 numbered asteroids from the [MPCORB database](https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT) and all of the asteroids on the MPC's ["Distant"  objects](https://www.minorplanetcenter.net/iau/MPCORB/Distant.txt) list.  This file includes all of the officially IAU-designated dwarf planets.  The file format is described [here](https://www.minorplanetcenter.net/iau/info/MPOrbitFormat.html).
 
 **Revision History**
 
