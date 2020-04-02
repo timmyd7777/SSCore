@@ -1,27 +1,4 @@
-﻿# Moon data was adapted from JPL's "Planetary Satellite Mean Orbital Parameters" table:
-# https://ssd.jpl.nasa.gov/?sat_elem
-# and from JPL's "Planetary Satellite Physical Parameters" table, found here:
-# https://ssd.jpl.nasa.gov/?sat_phys_par
-# Columns are: Type,q,e,i,w,N,M,n,Epoch,H,G,Radius,ID,Name
-# Type (PL) means Planet
-# q is periapse distance (km)
-# e is eccentricity
-# i is inclination (deg)
-# w is argument of perihelion (deg)
-# N is longitude of ascending node (deg)
-# M is mean anomaly (deg)
-# n is mean motion (deg/day)
-# Epoch is epoch of orbital elements (Julian Ephemeris Date)
-# H is absolute visual magnitude (i.e., V at 1.0 AU distance and 100% illumination)
-# G is magnitude phase parameter
-# Radius is equatorial radius (km)
-# ID is JPL NAIF ID
-# Name is moon name
-# Empty fields indicate unknown or missing values.
-# Version 1.0 (31 Mar 2020): initial version
-# -Tim DeBenedictis (timd@southernstars.com) 31 Mar 2020
-
-MN,363104,0.0554,5.160,318.150,125.080,135.270,13.1763580,2451545.0,0.21,,1737.5,301,Moon
+﻿MN,363104,0.0554,5.160,318.150,125.080,135.270,13.1763580,2451545.0,0.21,,1737.5,301,Moon
 MN,9234,0.0151,1.075,150.057,207.784,91.059,1128.8447569,2433282.5,12.80,,11.1,401,Phobos
 MN,23453,0.0002,1.788,260.729,24.525,325.329,285.1618790,2433282.5,13.85,,6.2,402,Deimos
 MN,420071,0.0041,0.036,84.129,43.977,342.021,203.4889583,2450464.5,1.90,,1821.6,501,Io
