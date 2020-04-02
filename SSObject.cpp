@@ -5,9 +5,14 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 //  Base class for all objects in the database (stars, planets, etc.)
 
+#include <iostream>
+#include <fstream>
 #include <map>
 
 #include "SSObject.hpp"
+#include "SSPlanet.hpp"
+#include "SSStar.hpp"
+#include "SSConstellation.hpp"
 #include "SSDynamics.hpp"
 
 typedef map<SSObjectType,string> SSTypeStringMap;
@@ -155,4 +160,75 @@ SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjec
         return objects[ k - 1 ];
     else
         return SSObjectPtr ( nullptr );
+}
+
+// Allocates a new object of the specific object type and returns a shared pointer to it.
+// On failure, returns a shared pointer to null.
+
+SSObjectPtr SSNewObject ( SSObjectType type )
+{
+    if ( type >= kTypePlanet && type <= kTypeSpacecraft )
+        return shared_ptr<SSPlanet> ( new SSPlanet ( type ) );
+    else if ( type == kTypeStar )
+        return shared_ptr<SSStar> ( new SSStar );
+    else if ( type == kTypeDoubleStar )
+        return shared_ptr<SSDoubleStar> ( new SSDoubleStar );
+    else if ( type == kTypeVariableStar )
+        return shared_ptr<SSVariableStar> ( new SSVariableStar );
+    else if ( type == kTypeDoubleVariableStar )
+        return shared_ptr<SSDoubleVariableStar> ( new SSDoubleVariableStar );
+    else if ( type >= kTypeOpenCluster && type <= kTypeGalaxy )
+        return shared_ptr<SSDeepSky> ( new SSDeepSky ( type ) );
+    else if ( type >= kTypeConstellation && type <= kTypeAsterism )
+        return shared_ptr<SSConstellation> ( new SSConstellation ( type ) );
+    else
+        return shared_ptr<class SSObject> ( nullptr );
+}
+
+int SSImportObjectsFromCSV ( const char *filename, SSObjectVec &objects )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int numObjects = 0;
+
+    while ( getline ( file, line ) )
+    {
+        // Attempt to create solar system object from CSV file line; if successful add to object vector.
+        
+        SSPlanetPtr pPlanet = SSPlanet::fromCSV ( line );
+        if ( pPlanet )
+        {
+            objects.push_back ( shared_ptr<SSObject> ( pPlanet ) );
+            numObjects++;
+        }
+
+        // Attempt to create star from CSV file line; if successful add to object vector.
+
+        SSStarPtr pStar = SSStar::fromCSV ( line );
+        if ( pStar )
+        {
+            objects.push_back ( shared_ptr<SSObject> ( pStar ) );
+            numObjects++;
+        }
+        
+        // Attempt to create constellation from CSV file line; if successful add to object vector.
+
+        SSConstellationPtr pCon = SSConstellation::fromCSV ( line );
+        if ( pCon )
+        {
+            objects.push_back ( shared_ptr<SSObject> ( pCon ) );
+            numObjects++;
+        }
+    }
+    
+    // Return number of objects added to object vector.  File will be closed automatically.
+    
+    return numObjects;
 }

@@ -1,10 +1,8 @@
+// SSPlanet.cpp
+// SSCore
 //
-//  SSPlanet.cpp
-//  SSCore
-//
-//  Created by Tim DeBenedictis on 3/15/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//
+// Created by Tim DeBenedictis on 3/15/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
 
 #include "SSDynamics.hpp"
 #include "SSPlanet.hpp"
@@ -54,16 +52,67 @@ string SSPlanet::toCSV ( void )
     csv += isinf ( _orbit.w ) ? "," : format ( "%.6f,", _orbit.w * SSAngle::kDegPerRad );
     csv += isinf ( _orbit.n ) ? "," : format ( "%.6f,", _orbit.n * SSAngle::kDegPerRad );
     csv += isinf ( _orbit.m ) ? "," : format ( "%.6f,", _orbit.m * SSAngle::kDegPerRad );
+    csv += isinf ( _orbit.mm ) ? "," : format ( "%.6f,", _orbit.mm * SSAngle::kDegPerRad );
     csv += isinf ( _orbit.t ) ? "," : format ( "%.6f,", _orbit.t );
     
     csv += isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
     csv += isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
-    
-    if ( _id )
-        csv += _id.toString() + ",";
+    csv += isinf ( _radius ) ? "," : format ( "%.1f,", _radius );
+
+    csv += _id ? _id.toString() + "," : ",";
         
     for ( int i = 0; i < _names.size(); i++ )
         csv += _names[i] + ",";
 
     return csv;
+}
+
+// Allocates a new SSPlanet and initializes it from a CSV-formatted string.
+// Returns nullptr on error (invalid CSV string, heap allocation failure, etc.)
+
+SSPlanet *SSPlanet::fromCSV ( string csv )
+{
+    vector<string> fields = split ( csv, "," );
+    
+    SSObjectType type = SSObject::codeToType ( fields[0] );
+    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 14 )
+        return nullptr;
+    
+    SSOrbit orbit;
+    
+    orbit.q = fields[1].empty() ? HUGE_VAL : strtofloat64 ( fields[1] );
+    orbit.e = fields[2].empty() ? HUGE_VAL : strtofloat64 ( fields[2] );
+    orbit.i = fields[3].empty() ? HUGE_VAL : strtofloat64 ( fields[3] ) * SSAngle::kRadPerDeg;
+    orbit.w = fields[4].empty() ? HUGE_VAL : strtofloat64 ( fields[4] ) * SSAngle::kRadPerDeg;
+    orbit.n = fields[5].empty() ? HUGE_VAL : strtofloat64 ( fields[5] ) * SSAngle::kRadPerDeg;
+    orbit.m = fields[6].empty() ? HUGE_VAL : strtofloat64 ( fields[6] ) * SSAngle::kRadPerDeg;
+    orbit.mm = fields[7].empty() ? HUGE_VAL : strtofloat64 ( fields[7] ) * SSAngle::kRadPerDeg;
+    orbit.t = fields[8].empty() ? HUGE_VAL : strtofloat64 ( fields[8] );
+
+    float h = fields[9].empty() ? HUGE_VAL : strtofloat ( fields[9] );
+    float g = fields[10].empty() ? HUGE_VAL : strtofloat ( fields[10] );
+    float r = fields[11].empty() ? HUGE_VAL : strtofloat ( fields[11] );
+
+    SSIdentifier ident;
+    if ( type == kTypePlanet || type == kTypeMoon )
+        ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[12] ) );
+    else
+        ident = SSIdentifier::fromString ( fields[12] );
+
+    vector<string> names;
+    for ( int i = 13; i < fields.size(); i++ )
+        names.push_back ( trim ( fields[i] ) );
+    
+    SSPlanetPtr pPlanet = new SSPlanet ( type );
+    if ( pPlanet == nullptr )
+        return nullptr;
+    
+    pPlanet->setOrbit ( orbit );
+    pPlanet->setHMagnitude ( h );
+    pPlanet->setGMagnitude ( g );
+    pPlanet->setRadius ( r );
+    pPlanet->setIdentifier ( ident );
+    pPlanet->setNames ( names );
+
+    return pPlanet;
 }

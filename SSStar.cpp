@@ -312,6 +312,24 @@ string SSDeepSky::toCSV ( void )
     return toCSV1() + toCSVDS() + toCSV2();
 }
 
+// Allocates a new SSStar and initializes it from a CSV-formatted string.
+// Returns nullptr on error (invalid CSV string, heap allocation failure, etc.)
+
+SSStarPtr SSStar::fromCSV ( string csv )
+{
+    vector<string> fields = split ( csv, "," );
+    
+    SSObjectType type = SSObject::codeToType ( fields[0] );
+    if ( type < kTypeStar || type > kTypeGalaxy || fields.size() < 13 )     // TODO: check number of fields
+        return nullptr;
+    
+    SSStarPtr pStar = new SSStar ( type );
+    if ( pStar == nullptr )
+        return nullptr;
+
+    return ( pStar );
+}
+
 // Downcasts generic SSObject pointer to SSStar pointer.
 // Returns nullptr if pointer is not an instance of SSStar!
 

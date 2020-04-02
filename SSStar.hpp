@@ -67,6 +67,9 @@ public:
     
     void computeEphemeris ( SSDynamics &dyn );
     
+    // imports/exports from/to CSV-format text string
+    
+    static SSStar *fromCSV ( string csv );
     virtual string toCSV ( void );
 };
 

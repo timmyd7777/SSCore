@@ -23,124 +23,136 @@
 void exportCatalog ( SSObjectVec objects )
 {
     for ( int i = 0; i < objects.size(); i++ )
-		cout << objects[i].get()->toCSV() << endl;
+        cout << objects[i].get()->toCSV() << endl;
 }
 
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
-	SSObjectMap map = SSMakeObjectMap ( objects, cat );
+    SSObjectMap map = SSMakeObjectMap ( objects, cat );
 
-	for ( int n = first; n <= last; n++ )
-	{
-		int i = map[ SSIdentifier ( cat, n ) ];
-		if ( i > 0 )
-		{
-			SSObjectPtr pObj = objects[ i - 1 ];
-			cout << pObj.get()->toCSV() << endl;
-		}
-	}
+    for ( int n = first; n <= last; n++ )
+    {
+        int i = map[ SSIdentifier ( cat, n ) ];
+        if ( i > 0 )
+        {
+            SSObjectPtr pObj = objects[ i - 1 ];
+            cout << pObj.get()->toCSV() << endl;
+        }
+    }
+}
+
+void TestSolarSystem ( void )
+{
+    SSObjectVec planets;
+    int numPlanets = SSImportObjectsFromCSV ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/SolarSystem/Planets.csv", planets );
+    cout << "Imported " << numPlanets << " major planets" << endl;
+
+    SSObjectVec moons;
+    int numMoons = SSImportObjectsFromCSV ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/SolarSystem/Moons.csv", moons );
+    cout << "Imported " << numMoons << " natural satellites" << endl;
 }
 
 int main ( int argc, char *argv[] )
 {
-	SSObjectVec objects;
+    TestSolarSystem();
+    
 /*
-	SSObjectVec constellations;
-	int numcon = SSImportConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
+    SSObjectVec constellations;
+    int numcon = SSImportConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Constellations.csv", constellations );
     cout << "Imported " << numcon << " IAU constellations" << endl;
-	
-	int numverts = SSImportConstellationBoundaries ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Boundaries.csv", constellations );
+    
+    int numverts = SSImportConstellationBoundaries ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Boundaries.csv", constellations );
     cout << "Imported " << numverts << " IAU constellation boundary vertices" << endl;
 
-	int numlines = SSImportConstellationShapes ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Shapes.csv", constellations );
+    int numlines = SSImportConstellationShapes ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Constellations/Shapes.csv", constellations );
     cout << "Imported " << numlines << " IAU constellation shape lines" << endl;
 
-	SSObjectVec comets;
-	int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
+    SSObjectVec comets;
+    int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
     cout << "Imported " << numcom << " MPC comets" << endl;
 
     SSObjectVec asteroids;
     int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
 
-	SSIdentifierNameMap ngcicNameMap;
-	SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
+    SSIdentifierNameMap ngcicNameMap;
+    SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
 
-	SSObjectVec clusters;
-	int numClus = SSImportDAML02 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Open Clusters/Dias 2016/clusters.txt", ngcicNameMap, clusters );
+    SSObjectVec clusters;
+    int numClus = SSImportDAML02 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Open Clusters/Dias 2016/clusters.txt", ngcicNameMap, clusters );
     cout << "Imported " << numClus << " open clusters" << endl;
-	exportCatalog ( clusters );
+    exportCatalog ( clusters );
 
-	SSObjectVec globulars;
-	int numGlobs = SSImportMWGC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Globular Clusters/Harris 2010/mwgc.original.txt", ngcicNameMap, globulars );
+    SSObjectVec globulars;
+    int numGlobs = SSImportMWGC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Globular Clusters/Harris 2010/mwgc.original.txt", ngcicNameMap, globulars );
     cout << "Imported " << numGlobs << " globular clusters" << endl;
-	exportCatalog ( globulars );
+    exportCatalog ( globulars );
 
-	SSObjectVec planNebs;
-	int numPlanNebs = SSImportPNG ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/main.dat",
-								   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/dist.dat",
-								   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/diam.dat",
-								   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/vel.dat", ngcicNameMap, planNebs );
+    SSObjectVec planNebs;
+    int numPlanNebs = SSImportPNG ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/main.dat",
+                                   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/dist.dat",
+                                   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/diam.dat",
+                                   "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/vel.dat", ngcicNameMap, planNebs );
     cout << "Imported " << numPlanNebs << " planetary nebulae" << endl;
-	exportCatalog ( planNebs );
+    exportCatalog ( planNebs );
 
-	int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects );
-	cout << "Imported " << numobj << " NGC-IC objects" << endl;
-	exportCatalog ( objects );
+    int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects );
+    cout << "Imported " << numobj << " NGC-IC objects" << endl;
+    exportCatalog ( objects );
 
-	exportCatalog ( objects, kCatMessier, 1, 110 );
-	exportCatalog ( objects, kCatCaldwell, 1, 110 );
+    exportCatalog ( objects, kCatMessier, 1, 110 );
+    exportCatalog ( objects, kCatCaldwell, 1, 110 );
 */
-	SSIdentifierMap hipHRMap;
-	int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
+    SSIdentifierMap hipHRMap;
+    int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
     cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
 
-	SSIdentifierMap hipBayMap;
-	n = SSImportHIPBayerIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC", hipBayMap );
+    SSIdentifierMap hipBayMap;
+    n = SSImportHIPBayerIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT4.DOC", hipBayMap );
     cout << "Imported " << n << " Hipparcos Bayer/Flamsteed identifiers." << endl;
 
-	SSIdentifierMap hipGCVSMap;
-	n = SSImportHIPGCVSIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC", hipGCVSMap );
+    SSIdentifierMap hipGCVSMap;
+    n = SSImportHIPGCVSIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT5.DOC", hipGCVSMap );
     cout << "Imported " << n << " Hipparcos GCVS identifiers." << endl;
 
-	SSIdentifierNameMap hipNames;
-	n = SSImportHIPNames ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC", hipNames );
+    SSIdentifierNameMap hipNames;
+    n = SSImportHIPNames ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT6.DOC", hipNames );
     cout << "Imported " << n << " Hipparcos star names." << endl;
-	
-	SSObjectVec hicStars;
-	n = SSImportHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat", hicStars );
+    
+    SSObjectVec hicStars;
+    n = SSImportHIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos Input Catalog/main.dat", hicStars );
     cout << "Imported " << n << " Hipparcos Input Catalog stars." << endl;
 
-	SSObjectVec hip2Stars;
+    SSObjectVec hip2Stars;
 //  n = SSImportHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat", hip2Stars );
 //  cout << "Imported " << n << " Hipparcos New Reduction stars." << endl;
 
-	SSObjectVec hipStars;
-	n = SSImportHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", hipHRMap, hipBayMap, hipGCVSMap, hipNames, hicStars, hip2Stars, hipStars );
+    SSObjectVec hipStars;
+    n = SSImportHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", hipHRMap, hipBayMap, hipGCVSMap, hipNames, hicStars, hip2Stars, hipStars );
     cout << "Imported " << n << " Hipparcos stars." << endl;
 
-	SSIdentifierNameMap iauNames;
-	n = SSImportIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt", iauNames );
-	cout << "Imported " << n << " IAU star names." << endl;
+    SSIdentifierNameMap iauNames;
+    n = SSImportIAUStarNames ( "/Users/timmyd/Projects/SouthernStars/Projects/Star Names/IAU-CSN.txt", iauNames );
+    cout << "Imported " << n << " IAU star names." << endl;
 
     SSIdentifierNameMap starNames;
     n = SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNames );
-	cout << "Imported " << n << " star names." << endl;
+    cout << "Imported " << n << " star names." << endl;
 
     SSObjectVec gjACStars;
     n = SSImportGJAC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/Accurate Coordinates/table1.dat", hipStars, gjACStars );
     cout << "Imported " << n << " GJ accurate coordinate nearby stars." << endl;
-//	exportCatalog ( gjACStars );
+//    exportCatalog ( gjACStars );
 
-	SSObjectVec gjStars;
+    SSObjectVec gjStars;
     n = SSImportGJCNS3 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, gjACStars, gjStars );
     cout << "Imported " << n << " GJ nearby stars." << endl;
-//	exportCatalog ( gjStars );
+//    exportCatalog ( gjStars );
 
-	SSObjectVec skyStars;
-	n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, hipStars, gjStars, skyStars );
-	cout << "Imported " << n << " SKY2000 stars." << endl;
-	exportCatalog ( skyStars, kCatHR, 1, 9110 );
+    SSObjectVec skyStars;
+    n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, hipStars, gjStars, skyStars );
+    cout << "Imported " << n << " SKY2000 stars." << endl;
+    exportCatalog ( skyStars, kCatHR, 1, 9110 );
 /*
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
@@ -152,11 +164,11 @@ int main ( int argc, char *argv[] )
     printf ( "%f\n", (double) sum );
             
     SSTime now = SSTime::fromSystem();
-	SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 55.3 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 09.7 ) ) };
+    SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 55.3 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 09.7 ) ) };
     SSDynamics dyn ( now.jd, here.lon, here.lat );
     
-//	SSTime now ( SSDate ( kSSGregorian, -5.0, 1971, 12, 28, 11, 44, 0.0 ) );
-	SSDate date = ( now );
+//    SSTime now ( SSDate ( kSSGregorian, -5.0, 1971, 12, 28, 11, 44, 0.0 ) );
+    SSDate date = ( now );
     
     printf ( "Julian Date: %f\n", now.jd );
     printf ( "Time Zone: %.1f\n", now.zone );
@@ -201,38 +213,38 @@ int main ( int argc, char *argv[] )
     printf ( "Azimuth  = %03hd %02hd %04.1f\n", azm.deg, azm.min,azm.sec );
     printf ( "Altitude = %c%02hd %02hd %04.1f\n", alt.sign, alt.deg, alt.min, alt.sec );
 
-	// Print J2000 RA/Dec of north galactic pole
-	
-	SSSpherical galCen = dyn.coords.fromGalactic ( SSSpherical ( 0.0, 0.0 ) );
-	ra = SSHourMinSec ( galCen.lon );
-	dec = SSDegMinSec ( galCen.lat );
-	
+    // Print J2000 RA/Dec of north galactic pole
+    
+    SSSpherical galCen = dyn.coords.fromGalactic ( SSSpherical ( 0.0, 0.0 ) );
+    ra = SSHourMinSec ( galCen.lon );
+    dec = SSDegMinSec ( galCen.lat );
+    
     printf ( "Gal Cen RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Gal Cen Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
-	// Print J2000 RA/Dec of galactic center
-	
-	SSSpherical ngp = dyn.coords.fromGalactic ( SSSpherical ( 0.0, SSAngle::fromDegrees ( 90.0 ) ) );
-	ra = SSHourMinSec ( ngp.lon );
-	dec = SSDegMinSec ( ngp.lat );
+    // Print J2000 RA/Dec of galactic center
+    
+    SSSpherical ngp = dyn.coords.fromGalactic ( SSSpherical ( 0.0, SSAngle::fromDegrees ( 90.0 ) ) );
+    ra = SSHourMinSec ( ngp.lon );
+    dec = SSDegMinSec ( ngp.lat );
     printf ( "NGP RA  = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "NGP Dec = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
 
-	double jde = now.getJulianEphemerisDate();
-	SSOrbit orb = SSOrbit::getEarthOrbit ( jde );
-	SSMatrix orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
-	
-	SSVector pos, vel;
-	orb.toPositionVelocity ( jde, pos, vel );
-	
-	pos = pos.multiplyBy ( -1.0 );
-	pos = orbMat.multiply ( pos );
-	vel = orbMat.multiply ( vel );
-	
-	pos = dyn.coords.toEquatorial ( pos );
-	SSSpherical equ ( pos );
-	ra = SSHourMinSec ( equ.lon );
-	dec = SSDegMinSec ( equ.lat );
+    double jde = now.getJulianEphemerisDate();
+    SSOrbit orb = SSOrbit::getEarthOrbit ( jde );
+    SSMatrix orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
+    
+    SSVector pos, vel;
+    orb.toPositionVelocity ( jde, pos, vel );
+    
+    pos = pos.multiplyBy ( -1.0 );
+    pos = orbMat.multiply ( pos );
+    vel = orbMat.multiply ( vel );
+    
+    pos = dyn.coords.toEquatorial ( pos );
+    SSSpherical equ ( pos );
+    ra = SSHourMinSec ( equ.lon );
+    dec = SSDegMinSec ( equ.lat );
 
     printf ( "Sun RA   = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Sun Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
@@ -253,18 +265,18 @@ int main ( int argc, char *argv[] )
         printf ( "%d Dec  = %c%02hd %02hd %04.1f\n", id, dec.sign, dec.deg, dec.min, dec.sec );
         printf ( "%d Dist = %f AU\n", id, planet.getDistance() );
     }
-	
-	dyn.getMoonPositionVelocity ( kLuna, dyn.jde, pos, vel );
-	pos = pos.subtract ( dyn.obsPos );
-	equ = SSSpherical ( dyn.coords.toEquatorial ( pos ) );
-	ra = SSHourMinSec ( equ.lon );
-	dec = SSDegMinSec ( equ.lat );
-	
+    
+    dyn.getMoonPositionVelocity ( kLuna, dyn.jde, pos, vel );
+    pos = pos.subtract ( dyn.obsPos );
+    equ = SSSpherical ( dyn.coords.toEquatorial ( pos ) );
+    ra = SSHourMinSec ( equ.lon );
+    dec = SSDegMinSec ( equ.lat );
+    
     printf ( "Moon RA   = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Moon Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
     printf ( "Moon Dist = %f ER\n", equ.rad * SSDynamics::kKmPerAU );
 
-	SSVector v1 ( 1.0, 2.0, 3.0 );
+    SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );
     SSVector v3;
     
@@ -288,22 +300,3 @@ int main ( int argc, char *argv[] )
 */
 }
 
-SSObjectPtr SSNewObject ( SSObjectType type )
-{
-	if ( type >= kTypePlanet && type <= kTypeSpacecraft )
-		return shared_ptr<SSPlanet> ( new SSPlanet ( type ) );
-	else if ( type == kTypeStar )
-		return shared_ptr<SSStar> ( new SSStar );
-	else if ( type == kTypeDoubleStar )
-		return shared_ptr<SSDoubleStar> ( new SSDoubleStar );
-	else if ( type == kTypeVariableStar )
-		return shared_ptr<SSVariableStar> ( new SSVariableStar );
-	else if ( type == kTypeDoubleVariableStar )
-		return shared_ptr<SSDoubleVariableStar> ( new SSDoubleVariableStar );
-    else if ( type >= kTypeOpenCluster && type <= kTypeGalaxy )
-        return shared_ptr<SSDeepSky> ( new SSDeepSky ( type ) );
-    else if ( type >= kTypeConstellation && type <= kTypeAsterism )
-        return shared_ptr<SSConstellation> ( new SSConstellation ( type ) );
-	else
-		return shared_ptr<class SSObject> ( nullptr );
-}

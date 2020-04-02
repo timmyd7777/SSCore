@@ -66,8 +66,9 @@ protected:
 
     SSIdentifier _id;           // planet/moon/asteroid/comet/satellite identifier
     SSOrbit     _orbit;         // current orbital elements
-    float       _Hmag;          // absolute magnitude
-    float       _Gmag;          // magnitude slope parameter
+    float       _Hmag;          // absolute magnitude; infinite if unknown
+    float       _Gmag;          // magnitude slope parameter; infinite if unknown
+    float       _radius;        // equatorial radius in kilometers; 0 or infinite if unknown
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
 
@@ -80,14 +81,19 @@ public:
     void setOrbit ( SSOrbit orbit ) { _orbit = orbit; }
     void setHMagnitude ( float hmag ) { _Hmag = hmag; }
     void setGMagnitude ( float gmag ) { _Gmag = gmag; }
+    void setRadius ( float radius ) { _radius = radius; }
 
     SSIdentifier getIdentifier ( SSIdentifier ident ) { return _id; }
     SSOrbit getOrbit ( void ) { return _orbit; }
     float getHMagnitude ( void ) { return _Hmag; }
     float getGMagnitude ( void ) { return _Gmag; }
-
+    float getRadius ( void ) { return _radius; }
+    
     void computeEphemeris ( SSDynamics &dyn );
     
+    // imports/exports from/to CSV-format text string
+    
+    static SSPlanet *fromCSV ( string csv );
     string toCSV ( void );
 };
 

@@ -102,6 +102,9 @@ SSObjectPtr SSNewObject ( SSObjectType type );
 SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat );
 SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjectVec &objects );
 
+int SSImportObjectsFromCSV ( const char *filename, SSObjectVec &objects );
+int SSExportObjectsToCSV ( const char *filename, SSObjectVec &objects );
+
 #pragma pack ( pop )
 
 #endif /* SSObject_hpp */
