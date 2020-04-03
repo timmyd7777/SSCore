@@ -19,6 +19,7 @@
 #include "SSImportNGCIC.hpp"
 #include "SSImportMPC.hpp"
 #include "SSImportGJ.hpp"
+#include "SSJPLDEphemeris.hpp"
 
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
@@ -127,8 +128,33 @@ void TestDeepSky ( string inputDir, string outputDir )
 	}
 }
 
+void TestJPLDEphemeris ( string ephemFile )
+{
+    SSJPLDEphemeris jpldeph;
+    
+    if ( ! jpldeph.open ( ephemFile, kJPLDE438 ) )
+    {
+        cout << "Failed to open " << ephemFile << endl;
+        return;
+    }
+    
+    cout << "Successfully opened " << ephemFile << endl;
+    
+    double jed = SSTime ( SSDate ( kGregorian, 0.0, 2020, 1, 1.0, 0, 0, 0.0 ) ).getJulianEphemerisDate();
+    SSVector pos, vel;
+    
+    for ( int id = 0; id <= 10; id++ )
+    {
+        jpldeph.compute ( id, jed, pos, vel );
+        cout << format ( "id: %2d ", id );
+        cout << format ( "pos: %+12.8f, %+12.8f, %+12.8f ", pos.x, pos.y, pos.z );
+        cout << format ( "vel: %+12.8f, %+12.8f, %+12.8f", vel.x, vel.y, vel.z ) << endl;
+    }
+}
+
 int main ( int argc, char *argv[] )
 {
+    TestJPLDEphemeris ( "/Users/timmyd/Projects/SouthernStars/Projects/DE438/DE438.1950.eph" );
     TestSolarSystem ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
     TestConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
 	TestStars ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
