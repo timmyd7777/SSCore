@@ -47,7 +47,7 @@ public:
     
     // imports/exports from/to CSV-format text string
     
-    static SSConstellation *fromCSV ( string csv );
+    static SSObjectPtr fromCSV ( string csv );
     string toCSV ( void );
 };
 

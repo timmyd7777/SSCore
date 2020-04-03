@@ -89,11 +89,42 @@ void TestConstellations ( string inputDir, string outputDir )
 
 void TestStars ( string inputDir, string outputDir )
 {
-    SSObjectVec stars;
+    SSObjectVec nearest, brightest;
 	
-    int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", stars );
+    int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearest );
     cout << "Imported " << numStars << " nearby stars" << endl;
-    numStars = SSExportObjectsToCSV ( "", stars );
+	
+    numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Brightest.csv", brightest );
+    cout << "Imported " << numStars << " bright stars" << endl;
+	
+    if ( ! outputDir.empty() )
+    {
+		numStars = SSExportObjectsToCSV ( outputDir + "/ExportedNearbyStars.csv", nearest );
+		cout << "Exported " << numStars << " nearby stars to " << outputDir + "/ExportedNearbyStars.csv" << endl;
+
+		numStars = SSExportObjectsToCSV ( outputDir + "/ExportedBrightStars.csv", brightest );
+		cout << "Exported " << numStars << " bright stars to " << outputDir + "/ExportedBrightStars.csv" << endl;
+	}
+}
+
+void TestDeepSky ( string inputDir, string outputDir )
+{
+    SSObjectVec messier, caldwell;
+	
+    int numObjs = SSImportObjectsFromCSV ( inputDir + "/DeepSky/Messier.csv", messier );
+    cout << "Imported " << numObjs << " Messier objects" << endl;
+	
+	numObjs = SSImportObjectsFromCSV ( inputDir + "/DeepSky/Caldwell.csv", caldwell );
+    cout << "Imported " << numObjs << " Caldwell objects" << endl;
+	
+    if ( ! outputDir.empty() )
+    {
+		numObjs = SSExportObjectsToCSV ( outputDir + "/ExportedMessier.csv", messier );
+		cout << "Exported " << numObjs << " Messier objects to " << outputDir + "/ExportedMessier.csv" << endl;
+
+		numObjs = SSExportObjectsToCSV ( outputDir + "/ExportedCaldwell.csv", caldwell );
+		cout << "Exported " << numObjs << " Caldwell objects to " << outputDir + "/ExportedCaldwell.csv" << endl;
+	}
 }
 
 int main ( int argc, char *argv[] )
@@ -101,6 +132,7 @@ int main ( int argc, char *argv[] )
     TestSolarSystem ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
     TestConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
 	TestStars ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
+	TestDeepSky ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
 /*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );

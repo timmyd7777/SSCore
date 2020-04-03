@@ -69,7 +69,7 @@ public:
     
     // imports/exports from/to CSV-format text string
     
-    static SSStar *fromCSV ( string csv );
+    static SSObjectPtr fromCSV ( string csv );
     virtual string toCSV ( void );
 };
 

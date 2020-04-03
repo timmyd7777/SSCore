@@ -74,7 +74,7 @@ string SSPlanet::toCSV ( void )
 // Allocates a new SSPlanet and initializes it from a CSV-formatted string.
 // Returns nullptr on error (invalid CSV string, heap allocation failure, etc.)
 
-SSPlanet *SSPlanet::fromCSV ( string csv )
+SSObjectPtr SSPlanet::fromCSV ( string csv )
 {
     vector<string> fields = split ( csv, "," );
     
@@ -110,7 +110,8 @@ SSPlanet *SSPlanet::fromCSV ( string csv )
     for ( int i = 13; i < fields.size(); i++ )
         names.push_back ( trim ( fields[i] ) );
     
-    SSPlanetPtr pPlanet = new SSPlanet ( type );
+	SSObjectPtr pObject = SSNewObject ( type );
+    SSPlanetPtr pPlanet = SSGetPlanetPtr ( pObject );
     if ( pPlanet == nullptr )
         return nullptr;
     
@@ -121,5 +122,5 @@ SSPlanet *SSPlanet::fromCSV ( string csv )
     pPlanet->setIdentifier ( ident );
     pPlanet->setNames ( names );
 
-    return pPlanet;
+    return pObject;
 }

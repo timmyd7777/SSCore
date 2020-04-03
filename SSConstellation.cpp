@@ -73,7 +73,7 @@ SSConstellationPtr SSGetConstellationPtr ( SSObjectPtr ptr )
 // Allocates a new SSConstellation and initializes it from a CSV-formatted string.
 // Returns nullptr on error (invalid CSV string, heap allocation failure, etc.)
 
-SSConstellation *SSConstellation::fromCSV ( string csv )
+SSObjectPtr SSConstellation::fromCSV ( string csv )
 {
     vector<string> fields = split ( csv, "," );
     
@@ -81,9 +81,10 @@ SSConstellation *SSConstellation::fromCSV ( string csv )
     if ( type < kTypeConstellation || type > kTypeAsterism || fields.size() < 8 )
         return nullptr;
     
-    SSConstellationPtr pCon = new SSConstellation ( type );
+	SSObjectPtr pObject = SSNewObject ( type );
+    SSConstellationPtr pCon = SSGetConstellationPtr ( pObject );
     if ( pCon == nullptr )
-        return pCon;
+        return nullptr;
     
     double ra = degtorad ( strtofloat64 ( fields[1] ) * 15.0 );
     double dec = degtorad ( strtofloat64 ( fields[2] ) );
@@ -94,7 +95,7 @@ SSConstellation *SSConstellation::fromCSV ( string csv )
     pCon->setRank ( strtoint ( fields[4] ) );
     pCon->setNames ( vector<string> ( &fields[5], &fields[8] ) );
 
-    return pCon;
+    return pObject;
 }
 
 string SSConstellation::toCSV ( void )
@@ -138,14 +139,15 @@ int SSImportConstellations ( const string &filename, SSObjectVec &constellations
     {
         // Attempt to create constellation from CSV file line; continue on failure.
         
-        SSConstellationPtr pCon = SSConstellation::fromCSV ( line );
+		SSObjectPtr pObject = SSConstellation::fromCSV ( line );
+		SSConstellationPtr pCon = SSGetConstellationPtr ( pObject );
         if ( pCon == nullptr )
             continue;
         
         // If successful, append new constellation to object vector.
         
         // cout << pCon->toCSV() << endl;
-        constellations.push_back ( shared_ptr<SSObject> ( pCon ) );
+        constellations.push_back ( pObject );
         numCons++;
     }
     

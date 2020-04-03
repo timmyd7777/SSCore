@@ -18,7 +18,7 @@
 typedef map<SSObjectType,string> SSTypeStringMap;
 typedef map<string,SSObjectType> SSStringTypeMap;
 
-SSTypeStringMap _typeStrings =
+static SSTypeStringMap _typeStrings =
 {
     { kTypeNonexistent, "NO" },
     { kTypePlanet, "PL" },
@@ -41,7 +41,7 @@ SSTypeStringMap _typeStrings =
     { kTypeAsterism, "AM" }
 };
 
-SSStringTypeMap _stringTypes =
+static SSStringTypeMap _stringTypes =
 {
     { "NO", kTypeNonexistent },
     { "PL", kTypePlanet },
@@ -61,7 +61,7 @@ SSStringTypeMap _stringTypes =
     { "PN", kTypePlanetaryNebula },
     { "GX", kTypeGalaxy },
     { "CN", kTypeConstellation },
-    { "AM", kTypeAsterism },
+    { "AM", kTypeAsterism }
 };
 
 string SSObject::typeToCode ( SSObjectType type )
@@ -240,29 +240,32 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
     {
         // Attempt to create solar system object from CSV file line; if successful add to object vector.
         
-        SSPlanetPtr pPlanet = SSPlanet::fromCSV ( line );
-        if ( pPlanet )
+        SSObjectPtr pObject = SSPlanet::fromCSV ( line );
+        if ( pObject )
         {
-            objects.push_back ( shared_ptr<SSObject> ( pPlanet ) );
+            objects.push_back ( pObject );
             numObjects++;
+			continue;
         }
 
         // Attempt to create star from CSV file line; if successful add to object vector.
 
-        SSStarPtr pStar = SSStar::fromCSV ( line );
-        if ( pStar )
+		pObject = SSStar::fromCSV ( line );
+        if ( pObject )
         {
-            objects.push_back ( shared_ptr<SSObject> ( pStar ) );
+            objects.push_back ( pObject );
             numObjects++;
+			continue;
         }
         
         // Attempt to create constellation from CSV file line; if successful add to object vector.
 
-        SSConstellationPtr pCon = SSConstellation::fromCSV ( line );
-        if ( pCon )
+        pObject = SSConstellation::fromCSV ( line );
+        if ( pObject )
         {
-            objects.push_back ( shared_ptr<SSObject> ( pCon ) );
+            objects.push_back ( pObject );
             numObjects++;
+			continue;
         }
     }
     

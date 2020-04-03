@@ -315,16 +315,39 @@ string SSDeepSky::toCSV ( void )
 // Allocates a new SSStar and initializes it from a CSV-formatted string.
 // Returns nullptr on error (invalid CSV string, heap allocation failure, etc.)
 
-SSStarPtr SSStar::fromCSV ( string csv )
+SSObjectPtr SSStar::fromCSV ( string csv )
 {
+	// split string into comma-delimited fields,
+	// remove leading & trailing whitespace from each field.
+	
     vector<string> fields = split ( csv, "," );
-    
+	for ( int i = 0; i < fields.size(); i++ )
+		fields[i] = trim ( fields[i] );
+	
     SSObjectType type = SSObject::codeToType ( fields[0] );
-    if ( type < kTypeStar || type > kTypeGalaxy || fields.size() < 13 )     // TODO: check number of fields
+    if ( type < kTypeStar || type > kTypeGalaxy )
         return nullptr;
     
-	SSHourMinSec ra ( trim ( fields[1] ) );
-	SSDegMinSec dec ( trim ( fields[2] ) );
+	// Set expected field index for first identifier based on object type.
+	// Verify that we have the required number if fiels and return if not.
+	
+	int fid = 0;
+	if ( type == kTypeStar )
+		fid = 10;
+	else if ( type == kTypeDoubleStar )
+		fid = 15;
+	else if ( type == kTypeVariableStar )
+		fid = 15;
+	else if ( type == kTypeDoubleVariableStar )
+		fid = 20;
+	else
+		fid = 14;
+	
+	if ( fields.size() < fid )
+		return nullptr;
+	
+	SSHourMinSec ra ( fields[1] );
+	SSDegMinSec dec ( fields[2] );
 	
 	double pmRA = fields[3].empty() ? HUGE_VAL : SSAngle::kRadPerArcsec * strtofloat64 ( fields[3] ) * 15.0;
 	double pmDec = fields[4].empty() ? HUGE_VAL : SSAngle::kRadPerArcsec * strtofloat64 ( fields[4] );
@@ -336,7 +359,30 @@ SSStarPtr SSStar::fromCSV ( string csv )
 	float radvel = fields[8].empty() ? HUGE_VAL : strtofloat ( fields[8] ) / SSDynamics::kLightKmPerSec;
 	string spec = trim ( fields[9] );
 	
-    SSStarPtr pStar = new SSStar ( type );
+	// For remaining fields, attempt to parse an identifier.
+	// If we succeed, add it to the identifier vector; otherwise add it to the name vector.
+	
+	vector<string> names;
+	vector<SSIdentifier> idents;
+	
+	for ( int i = fid; i < fields.size(); i++ )
+	{
+		if ( fields[i].empty() )
+			continue;
+		
+		SSIdentifier ident = SSIdentifier::fromString ( fields[i] );
+		if ( ident )
+			idents.push_back ( ident );
+		else
+			names.push_back ( fields[i] );
+	}
+	
+	SSObjectPtr pObject = SSNewObject ( type );
+	SSStarPtr pStar = SSGetStarPtr ( pObject );
+	SSDoubleStarPtr pDoubleStar = SSGetDoubleStarPtr ( pObject );
+	SSVariableStarPtr pVariableStar = SSGetVariableStarPtr ( pObject );
+	SSDeepSkyPtr pDeepSkyObject = SSGetDeepSkyPtr ( pObject );
+
     if ( pStar == nullptr )
         return nullptr;
 
@@ -347,8 +393,53 @@ SSStarPtr SSStar::fromCSV ( string csv )
 	pStar->setVMagnitude ( vmag );
 	pStar->setBMagnitude ( bmag );
 	pStar->setSpectralType ( spec );
+	pStar->setIdentifiers( idents );
+	pStar->setNames ( names );
 	
-    return ( pStar );
+	if ( pDoubleStar )
+	{
+		string comps = fields[10];
+		float dmag = fields[11].empty() ? HUGE_VAL : strtofloat ( fields[11] );
+		float sep = fields[12].empty() ? HUGE_VAL : strtofloat ( fields[12] ) / SSAngle::kArcsecPerRad;
+		float pa = fields[13].empty() ? HUGE_VAL : strtofloat ( fields[13] ) / SSAngle::kDegPerRad;
+		float year = fields[14].empty() ? HUGE_VAL : strtofloat ( fields[14] );
+
+		pDoubleStar->setComponents ( comps );
+		pDoubleStar->setMagnitudeDelta( dmag );
+		pDoubleStar->setSeparation ( sep );
+		pDoubleStar->setPositionAngle ( pa );
+		pDoubleStar->setPositionAngleYear ( year );
+	}
+
+	if ( pVariableStar )
+	{
+		int fv = ( type == kTypeVariableStar ) ? 10 : 15;
+			
+		string vtype = fields[fv];
+		float vmin = fields[fv+1].empty() ? HUGE_VAL : strtofloat ( fields[fv+1] );
+		float vmax = fields[fv+2].empty() ? HUGE_VAL : strtofloat ( fields[fv+2] );
+		float vper = fields[fv+3].empty() ? HUGE_VAL : strtofloat ( fields[fv+3] );
+		double vep = fields[fv+4].empty() ? HUGE_VAL : strtofloat64 ( fields[fv+4] );
+		
+		pVariableStar->setVariableType ( vtype );
+		pVariableStar->setMaximumMagnitude ( vmax );
+		pVariableStar->setMinimumMagnitude ( vmin );
+		pVariableStar->setPeriod ( vper );
+		pVariableStar->setEpoch ( vep );
+	}
+	
+	if ( pDeepSkyObject )
+	{
+		float major = fields[10].empty() ? HUGE_VAL : strtofloat ( fields[10] ) / SSAngle::kArcminPerRad;
+		float minor = fields[11].empty() ? HUGE_VAL : strtofloat ( fields[11] ) / SSAngle::kArcminPerRad;
+		float pa = fields[12].empty() ? HUGE_VAL : strtofloat ( fields[12] ) / SSAngle::kDegPerRad;
+		
+		pDeepSkyObject->setMajorAxis ( major );
+		pDeepSkyObject->setMinorAxis ( minor );
+		pDeepSkyObject->setPositionAngle ( pa );
+	}
+	
+	return ( pObject );
 }
 
 // Downcasts generic SSObject pointer to SSStar pointer.
