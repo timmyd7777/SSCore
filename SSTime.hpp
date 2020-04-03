@@ -21,8 +21,8 @@ using namespace std;
 
 enum SSCalendar
 {
-    kGregorian = 0,        // Gregorian calendar, used after JD >= 2299161.0, 15 October 1582.  Leap years every 4th year, but not every 100th, unless also 400th.
-    kJulian = 1            // Julian calendar, used before JD <  2299161.0,  4 October 1582.  Leap years every 4th year.
+    kGregorian = 0,        // Gregorian calendar, used after 15 October 1582 (JD 2299161).  Leap years every 4th year, but not every 100th, unless also 400th.
+    kJulian = 1            // Julian calendar, used before 4 October 1582 (JD 2299161).  Leap years every 4 years.
 };
 
 // Represents an instant in time as a calendar date in a local time zone.

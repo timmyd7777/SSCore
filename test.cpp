@@ -87,11 +87,20 @@ void TestConstellations ( string inputDir, string outputDir )
     }
 }
 
+void TestStars ( string inputDir, string outputDir )
+{
+    SSObjectVec stars;
+	
+    int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", stars );
+    cout << "Imported " << numStars << " nearby stars" << endl;
+    numStars = SSExportObjectsToCSV ( "", stars );
+}
+
 int main ( int argc, char *argv[] )
 {
     TestSolarSystem ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
     TestConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
-    
+	TestStars ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
 /*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );

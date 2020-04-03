@@ -5,6 +5,13 @@ SSCore
 
 SSCore is written in highly portable, modern C++.  It has been tested on MacOS, iOS, Android, Linux, and Windows.  It uses common STL types and language features (string, vector, map; operator overloading) and stack-based memory management wherever possible to produce compact, highly efficient, optimized code.
 
+License
+-------
+
+SSCore is Copyright © 2020 Southern Stars Group, LLC. All rights reserved.  Southern Stars grants you a license to use the SSCore code for any personal, private, research, or other **non-commercial** purpose.
+
+If you wish to include any part of the SSCore code in a commercial product, please contact Southern Stars Group, LLC (timd@southernstars.com) for a commercial license.
+
 SSData
 ------
 

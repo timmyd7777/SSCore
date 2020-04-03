@@ -323,10 +323,31 @@ SSStarPtr SSStar::fromCSV ( string csv )
     if ( type < kTypeStar || type > kTypeGalaxy || fields.size() < 13 )     // TODO: check number of fields
         return nullptr;
     
+	SSHourMinSec ra ( trim ( fields[1] ) );
+	SSDegMinSec dec ( trim ( fields[2] ) );
+	
+	double pmRA = fields[3].empty() ? HUGE_VAL : SSAngle::kRadPerArcsec * strtofloat64 ( fields[3] ) * 15.0;
+	double pmDec = fields[4].empty() ? HUGE_VAL : SSAngle::kRadPerArcsec * strtofloat64 ( fields[4] );
+	
+	float vmag = fields[5].empty() ? HUGE_VAL : strtofloat ( fields[5] );
+	float bmag = fields[6].empty() ? HUGE_VAL : strtofloat ( fields[6] );
+	
+	float dist = fields[7].empty() ? HUGE_VAL : strtofloat ( fields[7] ) * SSDynamics::kLYPerParsec;
+	float radvel = fields[8].empty() ? HUGE_VAL : strtofloat ( fields[8] ) / SSDynamics::kLightKmPerSec;
+	string spec = trim ( fields[9] );
+	
     SSStarPtr pStar = new SSStar ( type );
     if ( pStar == nullptr )
         return nullptr;
 
+	SSSpherical coords ( ra, dec, dist );
+	SSSpherical motion ( pmRA, pmDec, radvel );
+	
+	pStar->setFundamentalMotion ( coords, motion );
+	pStar->setVMagnitude ( vmag );
+	pStar->setBMagnitude ( bmag );
+	pStar->setSpectralType ( spec );
+	
     return ( pStar );
 }
 
