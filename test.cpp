@@ -128,33 +128,40 @@ void TestDeepSky ( string inputDir, string outputDir )
 	}
 }
 
-void TestJPLDEphemeris ( string ephemFile )
+void TestJPLDEphemeris ( string inputDir )
 {
     SSJPLDEphemeris jpldeph;
     
-    if ( ! jpldeph.open ( ephemFile, kJPLDE438 ) )
+    string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
+    if ( ! jpldeph.open ( ephemFile ) )
     {
         cout << "Failed to open " << ephemFile << endl;
         return;
     }
     
     cout << "Successfully opened " << ephemFile << endl;
+    cout << "JED " << jpldeph.getStartJED() << " to " << jpldeph.getStopJED() << endl;
     
+    // for ( int i = 0; i < jpldeph.getConstantNumber(); i++ )
+    //    cout << jpldeph.getConstantName ( i ) << " = " << jpldeph.getConstantValue ( i ) << endl;
+        
     double jed = SSTime ( SSDate ( kGregorian, 0.0, 2020, 1, 1.0, 0, 0, 0.0 ) ).getJulianEphemerisDate();
     SSVector pos, vel;
     
     for ( int id = 0; id <= 10; id++ )
     {
-        jpldeph.compute ( id, jed, pos, vel );
-        cout << format ( "id: %2d ", id );
-        cout << format ( "pos: %+12.8f, %+12.8f, %+12.8f ", pos.x, pos.y, pos.z );
-        cout << format ( "vel: %+12.8f, %+12.8f, %+12.8f", vel.x, vel.y, vel.z ) << endl;
+        jpldeph.compute ( id, jed, true, pos, vel );
+        cout << format ( "obj %2d  ", id );
+        cout << format ( "pos %+12.8f %+12.8f %+12.8f  ", pos.x, pos.y, pos.z );
+        cout << format ( "vel %+11.8f %+11.8f %+11.8f", vel.x, vel.y, vel.z ) << endl;
     }
+    
+    jpldeph.close();
 }
 
 int main ( int argc, char *argv[] )
 {
-    TestJPLDEphemeris ( "/Users/timmyd/Projects/SouthernStars/Projects/DE438/DE438.1950.eph" );
+    TestJPLDEphemeris ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData" );
     TestSolarSystem ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
     TestConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
 	TestStars ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );

@@ -6,6 +6,12 @@
 
 #include "SSJPLDEphemeris.hpp"
 
+// Code is based on "C version software for the JPL planetary ephemerides"
+// by Piotr A. Dybczynski (dybol@amu.edu.pl),
+// Astronomical Observatory of the A. Mickiewicz Universty,
+// Sloneczna 36, 60-286 Poznan, POLAND:
+// https://apollo.astro.amu.edu.pl/PAD/index.php?n=Dybol.JPLEph
+
 /***************************************************************************
 *******                  JPLBIN.H   v.1.5                          *********
 ****************************************************************************
@@ -27,8 +33,8 @@
 /*#define DENUM 406*/
 /*#define DENUM 421*/
 /*#define DENUM 422*/
-#define DENUM 430
-/*#define DENUM 431*/
+/*#define DENUM 430*/
+#define DENUM 431
 
 
 #if   DENUM==200
@@ -81,62 +87,6 @@ struct  __attribute__((__packed__))  rec1{
          char spare[RECSIZE-sizeof(struct rec2)];
        } R2;
 
-/*****************************************************************************
-*        *****    jpl planetary and lunar ephemerides    *****     C ver.1.5 *
-******************************************************************************
-* program testeph                                                            *
-*                                                                            *
-*                                                                            *
-* Testeph tests the jpl ephemeris reading and interpolating routine using    *
-* examples computed from the original ephemeris.                             *
-*                                                                            *
-* Testeph contains the reading and interpolating subroutines that are of     *
-* eventual interest to the user.  Once testeph is working correctly, the     *
-* user can extract those subroutines and the installation process is         *
-* complete.                                                                  *
-*                                                                            *
-* You must allow access to "testpo.xxx" to testeph.                          *
-* "testpo.xxx" is the specially formatted text file that contains the test   *
-* cases for the ephemeris, dexxx.                                            *
-*                                                                            *
-* After the initial identifying text which is concluded by an "EOT" in       *
-* columns 1-3, the test file contains the following quantities:              *
-*                                                                            *
-*     JPL ephemeris number                                                   *
-*     calendar date                                                          *
-*     julian ephemeris date                                                  *
-*     target number (1-mercury, ...,3-earth, ,,,9-pluto, 10-moon, 11-sun,    *
-*                    12-solar system barycenter, 13-earth-moon barycenter    *
-*                    14-nutations, 15-librations)                            *
-*     center number (same codes as target number)                            *
-*     coordinate number (1-x, 2-y, ... 6-zdot)                               *
-*     coordinate  [au, au/day].                                              *
-*                                                                            *
-* For each test case input, testeph                                          *
-*                                                                            *
-*     - computes the corresponding state from data contained                 *
-*       in dexxx,                                                            *
-*                                                                            *
-*     - compares the two sets,                                               *
-*                                                                            *
-*     - writes an error message if the difference between                    *
-*       any of the state components is greater than 10**(-13).               *
-*                                                                            *
-*     - writes state and difference information for every npt'th             *
-*       test case processed.                                                 *
-*                                                                            *
-*                                                                            *
-*  This program was written in standard fortran-77 and it was manually       *
-*  translated to C language by Piotr A. Dybczynski (dybol@phys.amu.edu.pl).  *
-*                                                                            *
-*  This is version 1.4 of this C translation, use jplbin.h version 1.4       *
-*
-******************************************************************************
-*                 Last modified: March 25, 2020 by PAD                       *
-*****************************************************************************/
-
-
-
 /* the binary file with DE431 is so large that the following line is necessary
 in standard Linux 32-bit environment */
 
@@ -146,112 +96,28 @@ in standard Linux 32-bit environment */
 #include<math.h>
 #include<string.h>
 
-/**** YOU PROBABLY HAVE TO ALTERNATE FOLLOWING TWO DEFINITIONS: ************/
-
-//#define TESTFILE "testpo.430"
-//#define TESTFILE "testpo.431"
-#define TESTFILE "testpo.438"
-
-//#define EPHFILE  "linux_p1550p2650.430"
-//#define EPHFILE  "lnxm13000p17000.431"
-#define EPHFILE  "DE438.1950.eph"
-
 /***** THERE IS NO NEED TO MODIFY THE REST OF THIS SOURCE (I hope) *********/
 
-int KM=0,BARY=0;
-double PVSUN[6];
+// Well, not quite.  A few minor modifications to original code:
+// 1) Removed main(), FILE *F, TESTFILE, EPHFILE.
+// 2) Moved nams, vals, nvs, ss from main() to global scope.
+// 3) Initialized all global variables to zero.
 
+FILE *F1=NULL;
+int KM=0,BARY=1;
+
+double PVSUN[6]={0};
+char nams[NMAX][6]={0};
+double ss[3]={0};
+double vals[NMAX]={0};
+int nvs=0;
+
+void constan(char nam[][6], double val[], double sss[], int *n);
 void state(double et2[],int list[],double pv[][6],double nut[]);
 void split(double tt, double fr[]);
 void interp(double buf[],double t[],int ncf,int ncm,int na,int ifl,
             double pv[]);
-
-#if 0
-
-int main(void)
-{
-  char nams[NMAX][6], buff[102];
-  double del, et, r[6], ss[3], vals[NMAX], xi;
-  int i, line, nvs, ntarg, nctr, ncoord;
-  int npt=100;         /* results will be printed to screen every npt lines */
-
-/***** Write a fingerprint to the screen. ***********************************/
-
-  puts("\n JPL test-ephemeris program (v.1.5)\n"
-       " C version translated from the original JPL FORTRAN code.\n");
-
-/****************************************************************************/
-  F =fopen(TESTFILE,"r");
-  F1=fopen(EPHFILE,"r");
-
-  if(F==NULL) {puts("\n\nNo testfile to open\n\n"); return 1;}
-  if(F1==NULL) {puts("\n\nNo ephfile to open\n\n"); fclose(F); return 1;}
-/****************************************************************************/
-
-/****** Print the ephemeris constants. **************************************/
-
-  constan(nams,vals,ss,&nvs);   /* we change the name of this routine
-                                   because const is the reserved token in C */
-
-  printf("%14.2f  %14.2f  %14.2f\n",ss[0],ss[1],ss[2]);
-  for(i=0;i<nvs;++i)
-  //for(i=0;i<10;++i)
-      printf("%.6s  %24.16E\n",nams[i],vals[i]);
-
-/****** Skip the test points file header comments.  *************************/
-
-   while(1)
-   {
-     fgets(buff,100,F);
-     buff[3]='\0';
-     if(strcmp(buff,"EOT")==0) break;
-   }
-
-     puts("LINE  JED    t# c# x#  --- JPL value ---   "
-          "--- user value --   -- difference --");
-
-   line=0;
-   while( fgets(buff,100,F) != NULL)
-   {
-/*****  Read a value from the test case; Skip if not within the time-range
-        of the present version of the ephemeris.                            */
-
-     sscanf(buff+15," %lf %d %d %d %lf",&et,&ntarg,&nctr,&ncoord,&xi);
-
-     if(et<ss[0]) continue;      /* ephemeris starts later than test points */
-     if(et>ss[1]) break;         /* ephemeris ends earlier than test points */
-
-     pleph(et,ntarg,nctr,r);
-
-     del  = fabs(r[ncoord-1] - xi);
-
-     if(ntarg ==15 && ncoord ==3)  del=del/(0.23*(et-2451545.));
-     else if(ntarg == 15 && ncoord == 6) del=del*0.01/(1.0+(et-2451545.)/36525.);
-
-     line++;
-
-     if((line%npt)==0)
-        printf("%7d %10.1f %2d %2d %2d %25.13f %25.13f %13.5e\n",
-               line,et,ntarg,nctr,ncoord,xi,r[ncoord-1],del);
-
-/******  Print out warning if difference greater than tolerance.   **********/
-
-     if(fabs(del) >= 1.e-13)
-        {
-          puts("*****  warning : next difference >= 1.0E-13  *****");
-          printf("%7d %10.1f %2d %2d %2d %25.13f %25.13f %13.5e\n",
-                 line,et,ntarg,nctr,ncoord,xi,r[ncoord-1],del);
-          getchar();
-        }
-     /*getchar();*/            /* uncomment this to stop after every warning */
-   }
-
-   fclose(F);
-   fclose(F1);
-   return 0;
-}
-
-#endif
+void pleph(double et,int ntarg,int ncent,double rrd[] );
 
 /****************************************************************************/
 /*****************************************************************************
@@ -295,7 +161,7 @@ int main(void)
 **           The option is available to have the units in km and km/sec.    **
 **           for this, set km=TRUE at the beginning of the program.         **
 *****************************************************************************/
-void SSJPLDEphemeris::pleph ( double et, int ntarg, int ncent, double rrd[] )
+void pleph(double et,int ntarg,int ncent,double rrd[] )
 {
   double et2[2],pv[13][6];/* pv is the position/velocity array
                              NUMBERED FROM ZERO: 0=Mercury,1=Venus,...
@@ -645,7 +511,7 @@ void split(double tt, double fr[2])
 **              the barycentric position and velocity of the sun.           **
 **                                                                          **
 *****************************************************************************/
-void SSJPLDEphemeris::state(double et2[2],int list[12],double pv[][6],double nut[4])
+void state(double et2[2],int list[12],double pv[][6],double nut[4])
 {
   int i,j;
   static int ipt[13][3], first=TRUE;
@@ -700,8 +566,8 @@ void SSJPLDEphemeris::state(double et2[2],int list[12],double pv[][6],double nut
       if(nr != nrl)
         {
           nrl=nr;
-          _file.seekg(nr*RECSIZE);
-          _file.read((char *)buf,sizeof(buf));
+          fseek(F1,nr*RECSIZE,SEEK_SET);
+          fread(buf,sizeof(buf),1,F1);
         }
 
       if(KM)
@@ -768,13 +634,13 @@ void SSJPLDEphemeris::state(double et2[2],int list[12],double pv[][6],double nut
 **         defined in file:     jplbin.h                                   **
 **         F1 = ephemeris binary file pointer (obtained from fopen() )     **
 ****************************************************************************/
-void SSJPLDEphemeris::constan ( char nam[][6], double val[], double sss[], int *n )
+void constan(char nam[][6], double val[], double sss[], int *n)
 {
   int i,j;
 
-  _file.read((char*)&R1,sizeof(R1));
+  fread(&R1,sizeof(R1),1,F1);
   *n =(int)R1.r1.ncon;
-  _file.read((char*)&R2,sizeof(R2));
+  fread(&R2,sizeof(R2),1,F1);
 
   for(i=0;i<3;++i) sss[i]=R1.r1.ss[i];
 
@@ -791,55 +657,114 @@ void SSJPLDEphemeris::constan ( char nam[][6], double val[], double sss[], int *
 }
 /*************************** THE END ***************************************/
 
-SSJPLDEphemeris::SSJPLDEphemeris ( void )
+// Opens epheneris file and reads header.
+// Returns true if successful or false on failure.
+// Closes any ephemeris file already open.
+
+bool SSJPLDEphemeris::open ( const string &filename )
 {
-    _ksize = 0;
+    if ( F1 != NULL )
+        close();
     
-    nvs = 0;
-    memset ( nams, 0, sizeof ( nams ) );
-    memset ( vals, 0, sizeof ( vals ) );
-
-    ss[0] = ss[1] = ss[2] = 0.0;
-}
-
-bool SSJPLDEphemeris::open ( const string &filename, SSJPLDESeries series )
-{
-    _file.open ( filename, ios::binary );
-    if ( ! _file.is_open() )
+    F1 = fopen ( filename.c_str(), "rb" );
+    if ( F1 == NULL )
         return false;
     
-    if ( series == kJPLDE200 )
-        _ksize = 1652;
-    else if ( series == kJPLDE404 || series == kJPLDE406 )
-        _ksize = 1456;
-    else
-        _ksize = 2036;
-    
-    constan ( nams, vals, ss, &nvs );
+    constan ( nams, vals , ss, &nvs );
     return true;
 }
 
+// Closes any currently-open ephemeris file and resets internal variables to zero.
+// Don't close until you are finished using ephemeris!
+
 void SSJPLDEphemeris::close ( void )
 {
-    _ksize = 0;
-    _file.close();
+    if ( F1 == NULL )
+        return;
+    
+    fclose ( F1 );
+    F1 = NULL;
+    
+    memset ( PVSUN, 0, sizeof ( PVSUN ) );
+    memset ( nams, 0, sizeof ( nams ) );
+    memset ( ss, 0, sizeof ( ss ) );
+    memset ( vals, 0, sizeof ( vals ) );
+    nvs = 0;
 }
 
-bool SSJPLDEphemeris::compute ( int id, double jed, SSVector &position, SSVector &velocity )
+// Computes object position and velocity in units of AU and AU per day,
+// in fundamental J2000 equatorial frame (ICRS) at a given Julian Ephemeris Date (jed),
+// relative to Sun (if bary is false) or to Solar System Barycenter (if bary is true).
+// Object identifier (id) is 1 - 9 for Mercury - Pluto, 0 for Sun, or 10 for Earth's Moon.
+
+bool SSJPLDEphemeris::compute ( int id, double jed, bool bary, SSVector &position, SSVector &velocity )
 {
-    if ( jed < ss[0] || jed > ss[1] )
+    if ( F1 == NULL || jed < ss[0] || jed > ss[1] || id < 0 || id > 10 )
         return false;
     
-    if ( id < 0 || id > 10 )
-        return false;
+    // Sun is 0 in our convention; 11 for JPL.
     
+    if ( id == 0 )
+        id = 11;
+
     double rrd[6] = { 0.0 };
-    
-    if ( id > 0 )
-        pleph ( jed, id, 11, rrd );
+    pleph ( jed, id, bary ? 12 : 11, rrd );
 
     position = SSVector ( rrd[0], rrd[1], rrd[2] );
     velocity = SSVector ( rrd[3], rrd[4], rrd[5] );
     
     return true;
+}
+
+// Returns ephemeris starting Julian Ephemeris Date
+
+double SSJPLDEphemeris::getStartJED ( void )
+{
+    return ss[0];
+}
+
+// Returns ephemeris ending Julian Ephemeris Date
+
+double SSJPLDEphemeris::getStopJED ( void )
+{
+    return ss[1];
+}
+
+// Returns ephemeris time step in days
+
+double SSJPLDEphemeris::getStep ( void )
+{
+    return ss[2];
+}
+
+// Returns number of constants in ephemeris header
+
+int SSJPLDEphemeris::getConstantNumber ( void )
+{
+    return nvs;
+}
+
+// Returns name of i-th constant in ephemeris header
+// as string, where i = 0 to constant number - 1.
+
+string SSJPLDEphemeris::getConstantName ( int i )
+{
+    if ( i < 0 || i >= nvs )
+        return "";
+    
+    char name[8] = { 0 };
+    memcpy ( name, nams[i], 6 );
+    
+    return string ( name );
+}
+
+// Returns value of i-th constant in ephemeris header
+// as double, where i = 0 to constant number - 1.
+
+double SSJPLDEphemeris::getConstantValue ( int i )
+{
+    if ( i < 0 || i >= nvs )
+        return 0.0;
+    else
+        return vals[i];
 }
