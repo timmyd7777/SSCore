@@ -93,3 +93,15 @@ There are two files here.  The larger, **1550_2650.438**, is about 103 MB in siz
 **Revision History**
 
 Version 1.0 (3 Apr 2020): initial commit.
+
+Satellites
+----------
+
+This directory contains a sample of TLE (Two/Three-Line Element) and other satellite data files from different sources.  These are test cases for SSCore satellite data import functionality, and may be useful in their own right!
+
+- **_visual.txt_**_ is the [Visual](http://www.celestrak.com/NORAD/elements/visual.txt) (brightest) satellite list from [CelesTrak](http://www.celestrak.com)
+- **_all.txt_**_ is the [complete](https://www.n2yo.com/tle2/3line.tle) satellite list from [N2YO](https://www.n2yo.com)
+
+**Revision History**
+
+Version 1.0 (4 Apr 2020): initial checkin.

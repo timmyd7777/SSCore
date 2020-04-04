@@ -20,6 +20,7 @@
 #include "SSImportMPC.hpp"
 #include "SSImportGJ.hpp"
 #include "SSJPLDEphemeris.hpp"
+#include "SSTLE.hpp"
 
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
@@ -34,6 +35,22 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
             cout << pObj.get()->toCSV() << endl;
         }
     }
+}
+
+void TestSatellites ( string inputDir, string outputDir )
+{
+    string filename = inputDir + "/SolarSystem/Satellites/visual.txt";
+    ifstream file ( filename );
+    if ( ! file )
+    {
+        cout << "Failed to open " << filename << endl;
+        return;
+    }
+    
+    SSTLE tle;
+    
+    while ( tle.read ( file ) == 0 )
+        tle.write ( cout );
 }
 
 void TestSolarSystem ( string inputDir, string outputDir )
@@ -161,6 +178,7 @@ void TestJPLDEphemeris ( string inputDir )
 
 int main ( int argc, char *argv[] )
 {
+    TestSatellites ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
     TestJPLDEphemeris ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData" );
     TestSolarSystem ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
     TestConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
