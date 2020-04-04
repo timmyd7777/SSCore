@@ -39,7 +39,7 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 
 void TestSatellites ( string inputDir, string outputDir )
 {
-    string filename = inputDir + "/SolarSystem/Satellites/visual.txt";
+    string filename = inputDir + "/SolarSystem/Satellites/all.txt";
     ifstream file ( filename );
     if ( ! file )
     {
@@ -50,7 +50,20 @@ void TestSatellites ( string inputDir, string outputDir )
     SSTLE tle;
     
     while ( tle.read ( file ) == 0 )
+    {
         tle.write ( cout );
+        
+        for ( double jd = tle.jdepoch; jd < tle.jdepoch + 30.0; jd += 10.0 )
+        {
+            SSVector pos, vel;
+            
+            tle.toPositionVelocity ( jd, pos, vel );
+            
+            cout << format ( "jd %.6f  ", jd );
+            cout << format ( "pos %+12.8f %+12.8f %+12.8f  ", pos.x, pos.y, pos.z );
+            cout << format ( "vel %+11.8f %+11.8f %+11.8f",   vel.x, vel.y, vel.z ) << endl;
+        }
+    }
 }
 
 void TestSolarSystem ( string inputDir, string outputDir )
