@@ -4,7 +4,11 @@
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
+#ifdef WIN32
+#include <windows.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include "SSAngle.hpp"
 #include "SSTime.hpp"
@@ -31,7 +35,7 @@ SSDate::SSDate ( SSCalendar calendar, double zone, int year, short month, double
 SSDate::SSDate ( SSTime time )
 {
     double    j = time.jd + 0.5 + time.zone / 24.0;
-    int        z = floor ( j ), a = 0;
+    int       z = floor ( j ), a = 0;
     double    f = j - z;
     
     if ( time.calendar == kGregorian )
@@ -130,6 +134,7 @@ SSTime::SSTime ( SSDate date )
 
     jd = floor ( 365.25 * ( date.year + 4716 ) ) + floor ( 30.6001 * ( date.month + 1 ) ) + date.day + b - 1524.5;
     zone = date.zone;
+	calendar = date.calendar;
 }
 
 // Constructs a time from the computer system time; the local time zone is also read from the system.
@@ -137,7 +142,18 @@ SSTime::SSTime ( SSDate date )
 
 SSTime SSTime::fromSystem ( void )
 {
-    struct timeval    tv = { 0 };
+#ifdef WIN32
+	SYSTEMTIME	systime = { 0 };
+	TIME_ZONE_INFORMATION tzinfo = { 0 };
+
+	GetTimeZoneInformation ( &tzinfo );
+	double zone = -tzinfo.Bias / 60.0;
+
+	GetLocalTime ( &systime );
+	SSDate date ( kGregorian, zone, systime.wYear, systime.wMonth, systime.wDay, systime.wHour, systime.wMinute, systime.wSecond + systime.wMilliseconds / 1000.0 );
+	return SSTime ( date );
+#else
+	struct timeval    tv = { 0 };
     struct timezone    tz = { 0 };
     
     gettimeofday ( &tv, &tz );
@@ -145,6 +161,7 @@ SSTime SSTime::fromSystem ( void )
     double zone = -tz.tz_minuteswest / 60.0;
     
     return SSTime ( jd, zone );
+#endif
 }
 
 // Constructs a time from an arbitrary unix time (i.e. seconds since 1.0 Jan 1970 UTC).

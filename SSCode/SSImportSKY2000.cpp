@@ -7,6 +7,7 @@
 #include "SSDynamics.hpp"
 #include "SSImportSKY2000.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 

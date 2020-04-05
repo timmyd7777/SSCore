@@ -4,6 +4,7 @@
 //  Created by Tim DeBenedictis on 3/15/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <algorithm>
 #include <map>
 
 #include "SSDynamics.hpp"

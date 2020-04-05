@@ -10,9 +10,17 @@
 #ifndef SSUtilities_hpp
 #define SSUtilities_hpp
 
-#include <math.h>
+#include <cmath>
 #include <string>
 #include <vector>
+
+#ifndef max
+#define max(x,y) (x>y?x:y)
+#endif
+
+#ifndef min
+#define min(x,y) (x<y?x:y)
+#endif
 
 using namespace std;
 

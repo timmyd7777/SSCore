@@ -4,6 +4,7 @@
 // Created by Tim DeBenedictis on 3/23/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <cstdarg>
 #include "SSUtilities.hpp"
 
 // Returns a C++ string which has leading and trailing whitespace

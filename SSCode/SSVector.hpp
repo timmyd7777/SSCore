@@ -23,7 +23,7 @@ struct SSSpherical
     SSSpherical ( void );
     SSSpherical ( SSAngle lon, SSAngle lat );
     SSSpherical ( SSAngle lon, SSAngle lat, double rad );
-    SSSpherical ( class SSVector );
+    SSSpherical ( struct SSVector );
 
     SSAngle angularSeparation ( SSSpherical other );
     SSAngle positionAngle ( SSSpherical other );

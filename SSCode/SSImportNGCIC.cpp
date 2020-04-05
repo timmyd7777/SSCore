@@ -10,6 +10,7 @@
 #include "SSImportHIP.hpp"
 #include "SSImportNGCIC.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 

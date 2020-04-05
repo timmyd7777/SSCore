@@ -57,12 +57,9 @@
 #define NMAX 1000
 #define OLDMAX 400
 
-/*
 #pragma pack(push, 1)
-*/
 
-
-struct  __attribute__((__packed__))  rec1{
+struct  rec1{
          char ttl[3][84];
          char cnam[OLDMAX][6];
          double ss[3];
@@ -79,13 +76,15 @@ struct  __attribute__((__packed__))  rec1{
          char spare[RECSIZE-sizeof(struct rec1)];
        } R1;
 
- struct  __attribute__((__packed__)) rec2{
+ struct  rec2{
          double cval[NMAX];
        };
  struct {
          struct rec2 r2;
          char spare[RECSIZE-sizeof(struct rec2)];
        } R2;
+
+#pragma pack(pop)
 
 /* the binary file with DE431 is so large that the following line is necessary
 in standard Linux 32-bit environment */

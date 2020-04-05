@@ -6,6 +6,10 @@
 
 #include "SSCoords.hpp"
 
+#ifndef max
+#define max(x,y) (x>y?x:y)
+#endif
+
 // Constructs a coordinate transformation object for a specific
 // Julian Date (jd) and geographic longitude/latitude (both in radians,
 // east and noth are positive).

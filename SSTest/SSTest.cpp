@@ -4,6 +4,7 @@
 //  Created by Tim DeBenedictis on 2/24/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <direct.h>
 #include <stdio.h>
 #include <iostream>
 
@@ -36,9 +37,27 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
     }
 }
 
+void TestTime ( void )
+{
+	SSTime now = SSTime::fromSystem();
+	SSDate date = now;
+
+	cout << "Current date is " << format ( "%04hd-%02hd-%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
+	cout << "Current time is " << format ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
+	cout << "Current time zone is " << format ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
+	cout << "Current Julian Date is " << format ( "%.6f", now ) << endl;
+};
+
+void ShowWorkingDirectory ( void )
+{
+	char path[_MAX_PATH] = { 0 };
+	_getcwd(path, _MAX_PATH);
+	cout << "Current working directory is " << string(path) << endl;
+}
+
 void TestSatellites ( string inputDir, string outputDir )
 {
-    string filename = inputDir + "/SolarSystem/Satellites/all.txt";
+    string filename = inputDir + "/SolarSystem/Satellites/visual.txt";
     ifstream file ( filename );
     if ( ! file )
     {
@@ -196,6 +215,9 @@ void TestJPLDEphemeris ( string inputDir )
 
 int main ( int argc, char *argv[] )
 {
+	TestTime();
+	ShowWorkingDirectory();
+
     if ( argc < 3 )
     {
         cout << "Usage: SSTest <inpath> <outpath>" << endl;
