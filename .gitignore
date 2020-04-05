@@ -37,10 +37,8 @@
 
 # Xcode user settings and intermediate files
 xcuserdata/
-xcshareddata/
 DerivedData/
 *.xcworkspace
 
 # Unix intermediate files and test executable
-*.o
 SSTest
