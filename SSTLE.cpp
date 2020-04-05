@@ -98,6 +98,7 @@ static double qoms2t = ( ( q0 - s0 ) * xae / xkmper )
                      * ( ( q0 - s0 ) * xae / xkmper )
                      * ( ( q0 - s0 ) * xae / xkmper );
 static double s = xae * ( 1.0 + s0 / xkmper );
+static double a3ovk2 = -xj3 / ck2;
 
 static double zns = 1.19459E-5;
 static double c1ss = 2.9864797E-6;
@@ -201,6 +202,90 @@ double thetag ( double ep, deep_args *deep_arg )
 
     deep_arg->ds50 = ds50;
     return ( thetag );
+}
+
+// math/vector functions
+
+double acose ( double x )
+{
+    double rval;
+
+    if ( x >= 1.0 )
+        rval = 0.;
+    else if ( x <= -1.0 )
+        rval = xpi;
+    else
+        rval = acos ( x );
+    
+    return ( rval );
+}
+
+// v1 . v2
+
+double dot(double* v1, double* v2)
+{
+    double sum = 0;
+    
+    for ( int i = 0; i < 3; i++ )
+        sum += v1[i] * v2[i];
+    
+    return sum;
+}
+
+// |v|
+
+double norm ( double *v )
+{
+    return sqrt ( dot ( v, v ) );
+}
+
+// a * v = av
+
+void smult(double a, double* v, double* av)
+{
+    for ( int i = 0; i < 3; i++ )
+        av[i] = a * v[i];
+}
+
+// v1 + v2 = s
+
+void vadd ( double *v1, double *v2, double *s )
+{
+    for ( int i = 0; i < 3; i++ )
+        s[i] = v1[i] + v2[i];
+}
+
+// v1 x v2 = b
+
+void cross ( double v1[3], double v2[3], double b[3] )
+{
+    b[0] = v1[1] * v2[2] - v1[2] * v2[1];
+    b[1] = v1[2] * v2[0] - v1[0] * v2[2];
+    b[2] = v1[0] * v2[1] - v1[1] * v2[0];
+}
+
+// u = v / ||v||
+
+void unitv( double v[], double u[] )
+{
+    double no = norm( v );
+    for ( int i = 0; i < 3; i++ )
+        u[i] = v[i] / no;
+}
+
+// default constructor zero initializes
+
+SSTLE::SSTLE ( void )
+{
+    memset ( this, 0, sizeof ( *this ) );
+}
+
+// copy constructor deletes arg pointer
+
+SSTLE::SSTLE ( const SSTLE &other )
+{
+    *this = other;
+    argp.sgp = nullptr;
 }
 
 // Determines whether to use a deep-space (true) or near-Earth (false) ephemeris.
@@ -1683,6 +1768,305 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
     vel.z = rdotk*uz+rfdotk*vz;
 }
 
+// Calculates classical osculating orbit elements from position and velocity.
+// based on http://sat.belastro.net/satelliteorbitdetermination.com/RV2EL.txt
+
+void SSTLE::rvel ( SSVector &pos, SSVector &vel )
+{
+    double rr2[3] = { pos.x, pos.y, pos.z };
+    double vv2[3] = { vel.x, vel.y, vel.z };
+    
+    int i;
+
+    double xinck, xnodek, ek, wk, xn, rk, uk, aodp, pl, rdotk, rfdotk, temp;
+    double h[3], n[3], vec[3], vk[3];
+    double vz[3] = {0, 0, 1};
+    double vy[3];
+
+    smult ( 1.0 / xke, vv2, vk );
+    cross ( rr2, vk, h );
+    pl = dot ( h, h );
+    cross ( vz, h, n );
+    if ( n[0] == 0.0 && n[1] == 0.0)
+        n[0] = 1.0;
+    unitv ( n, n );
+    rk = norm ( rr2 );
+    rdotk = dot ( rr2, vv2 ) / rk;
+    rfdotk = norm ( h ) * xke / rk;
+    temp = dot ( rr2, n ) / rk;
+    uk = acose ( temp );
+    if ( rr2[2] < 0.0)
+        uk = twopi - uk;
+    cross ( vk, h, vz );
+    smult ( -1.0 / rk, rr2, vy );
+    vadd ( vz, vy, vec );
+    ek = norm ( vec );
+    if( ek >= 1.)
+        return;         // open orbit
+    xnodek = atan2 ( n[1], n[0] );
+    if ( xnodek < 0.0)
+        xnodek += twopi;
+    temp = sqrt ( h[0] * h[0] + h[1] * h[1] );
+    xinck =  atan2 ( temp, h[2]);
+    temp = dot ( vec, n ) / ek;
+    wk = acose ( temp );
+    if ( vec[2] < 0.0 )
+        wk = fmod2p ( twopi - wk );
+    aodp = pl / (1.0 - ek * ek );
+    xn = xke * pow ( aodp, -1.5 );
+
+    double cosio = 0, sinio = 0, sin2u = 0, cos2u = 0, temp1 = 0, temp2 = 0,
+           rdot = 0, rfdot = 0, theta2 = 0, betal = 0, x3thm1 = 0, x1mth2 = 0, x7thm1 = 0,
+           esine = 0, ecose = 0, elsq = 0, cosepw = 0, sinepw = 0, axn = 0, ayn = 0,
+           cosu = 0, sinu = 0, capu = 0, xlcof = 0, aycof = 0, aynl = 0, xll = 0,
+           xl = 0, a0 = 0, a1 = 0, a2 = 0, d0 = 0, d1 = 0, beta = 0, beta2 = 0, r = 0, u = 0;
+
+    // In the first loop the osculating elements rk, uk, xnodek, xinck, rdotk,
+    // and rfdotk are used as anchors to find the corresponding final SGP4
+    // mean elements r, u, xnodeo, xincl, rdot, and rfdot.  Several other final
+    // mean values based on these are also found: betal, cosio, sinio, theta2,
+    // cos2u, sin2u, x3thm1, x7thm1, x1mth2.  In addition, the osculating values
+    // initially held by aodp, pl, and xn are replaced by intermediate
+    // (not osculating and not mean) values used by SGP4.  The loop converges
+    // on the value of pl in about four iterations.
+
+    // seed value for first loop
+    xincl = xinck;
+    u = uk;
+
+    for ( i = 0; i < 99; i++ )
+    {
+        a2 = pl;
+        betal = sqrt ( pl / aodp );
+        temp1 = ck2  / pl;
+        temp2 = temp1 / pl;
+        cosio = cos ( xincl );
+        sinio = sin ( xincl );
+        sin2u = sin ( 2.0 * u );
+        cos2u = cos ( 2.0 * u );
+        theta2 = cosio * cosio;
+        x3thm1 = 3.0 * theta2 - 1.0;
+        x1mth2 = 1.0 - theta2;
+        x7thm1 = 7.0 * theta2 - 1.0;
+        r = ( rk - 0.5 * temp1 * x1mth2 * cos2u ) / ( 1.0 - 1.5 * temp2 * betal * x3thm1 );
+        u = uk + 0.25 * temp2 * x7thm1 * sin2u;
+        xnodeo = xnodek - 1.5 * temp2 * cosio * sin2u;
+        xincl = xinck - 1.5 * temp2 * cosio * sinio * cos2u;
+        rdot = rdotk + xn * temp1 * x1mth2 * sin2u;
+        rfdot = rfdotk - xn * temp1 * ( x1mth2 * cos2u + 1.5 * x3thm1 );
+        temp = r * rfdot / xke;
+        pl = temp * temp;
+
+        // vis-viva equation
+        temp = 2.0 / r - ( rdot * rdot + rfdot * rfdot) / ( xke * xke );
+        aodp = 1.0 / temp;
+
+        xn = xke * pow ( aodp, -1.5 );
+        if ( fabs ( a2 - pl ) < 1.e-13 )
+            break;
+    }
+
+    // The next values are calculated from constants and a combination of mean
+    // and intermediate quantities from the first loop.  These values all remain
+    // fixed and are used in the second loop.
+
+    // preliminary values for the second loop
+    
+    ecose = 1. - r / aodp;
+    esine = r * rdot / ( xke * sqrt ( aodp ) );   // needed for Kepler's eqn.
+    elsq = 1.0 - pl / aodp;               // intermediate eccentricity squared
+    a3ovk2 = -xj3 / ck2;
+    xlcof = 0.125 * a3ovk2 * sinio * ( 3.0 + 5.0 * cosio ) / ( 1.0 + cosio );
+    aycof = 0.25 * a3ovk2 * sinio;
+    temp1 = esine / ( 1.0 + sqrt ( 1.0 - elsq ) );
+    cosu = cos ( u );
+    sinu = sin ( u );
+
+    // The second loop normally converges in about six iterations to the final
+    // mean value for the eccentricity, eo.  The mean perigee, omegao, is also
+    // determined.  Cosepw and sinepw are found to high accuracy and
+    // are used to calculate an intermediate value for the eccentric anomaly,
+    // temp2.  Temp2 is then used in Kepler's equation to find an intermediate
+    // value for the true longitude, capu.
+
+    // seed values for loop
+    eo = sqrt ( elsq );
+    omegao = wk;
+    axn = eo * cos ( omegao );
+
+    for ( i = 0; i < 99; i++ )
+    {
+        a2 = eo;
+        beta = 1.0 - eo * eo;
+        temp = 1.0 / ( aodp * beta );
+        aynl = temp * aycof;
+        ayn = eo * sin ( omegao ) + aynl;
+        cosepw = r * cosu / aodp + axn - ayn * temp1;
+        sinepw = r * sinu / aodp + ayn + axn * temp1;
+        axn = cosepw * ecose + sinepw * esine;
+        ayn = sinepw * ecose - cosepw * esine;
+        omegao = fmod2p ( atan2 ( ayn - aynl, axn ) );
+        // eo = axn / cos ( omegao );
+        // use weighted average to tame instability at high eccentricities
+        eo = 0.9 * eo + 0.1 * ( axn / cos ( omegao ) );
+        if ( eo > 0.999 )
+            eo = 0.999;
+        if ( fabs ( a2 - eo ) < 1.e-13 )
+            break;
+    }
+
+    temp2 = atan2 ( sinepw, cosepw );
+    capu = temp2 - esine;             // Kepler's equation
+    xll = temp * xlcof * axn;
+
+    // xll adjusts the intermediate true longitude,
+    // capu, to the mean true longitude, xl
+    
+    xl = capu - xll;
+    xmo = fmod2p ( xl - omegao);        // mean anomaly
+
+    // The third loop usually converges after three iterations to the
+    // mean semi-major axis, a1, which is then used to find the mean motion, xno.
+
+    a0 = aodp;
+    a1 = a0;
+    beta2 = sqrt ( beta );
+    temp = 1.5 * ck2 * x3thm1 / ( beta * beta2 );
+    for ( i = 0; i < 99; i++ )
+    {
+       a2 = a1;
+       d0 = temp / ( a0 * a0 );
+       a0 = aodp * ( 1.0 - d0 );
+       d1 = temp / ( a1 * a1 );
+       a1 = a0 / ( 1.0 - d1 / 3.0 - d1 * d1 - 134.0 * d1 * d1 * d1 / 81.0 );
+       if ( fabs ( a2 - a1 ) < 1.e-13 )
+           break;
+    }
+    
+    xno = xke * pow ( a1 , -1.5 );
+    
+    delargs();
+    deep = isdeep();
+}
+
+// vectors to SGP4 mean elements
+
+void SSTLE::rv2el ( SSVector &pos, SSVector &vel )
+{
+    double rr[3] = { pos.x, pos.y, pos.z };
+    double vv[3] = { vel.x, vel.y, vel.z };
+
+    double ik, ok, ek, wk, mk, nk;
+    double iz, oz, ez, wz, mz, nz;
+    double rr1[3], vv1[3];
+
+    rvel ( pos, vel );           // SGP4 x-elements from state vectors
+
+    // These elements are pretty close.  Save the
+    // x-elements as the k-element reference elements
+
+    ik = xincl;
+    ok = xnodeo;
+    ek = eo;
+    wk = omegao;
+    mk = xmo;
+    nk = xno;
+
+    // save state vectors before they are changed by sgp4(0.0)
+
+    rr1[0] = rr[0];
+    rr1[1] = rr[1];
+    rr1[2] = rr[2];
+    vv1[0] = vv[0];
+    vv1[1] = vv[1];
+    vv1[2] = vv[2];
+
+    sgp4 ( 0.0, pos, vel );        // SGP4 propagation of k-elements to rr', vv'
+    rvel ( pos, vel );             // SGP4 of rr', vv' to x-elements'
+
+    // first correction to k-elements is (k-elements - x-elements')
+
+    xincl  = ik + ik - xincl;
+    xnodeo = ok + ok - xnodeo;
+    eo     = ek + ek - eo;
+    omegao = wk + wk - omegao;
+    xmo    = mk + mk - xmo;
+    xno    = nk + nk - xno;
+
+    // save z-elements. These elements are very close.
+
+    iz = xincl;
+    oz = xnodeo;
+    ez = eo;
+    wz = omegao;
+    mz = xmo;
+    nz = xno;
+
+    sgp4 ( 0.0, pos, vel );      // SGP4 propagation of z-elements to rr", vv"
+    rvel ( pos, vel);            // SGP4 of rr", vv" to x-elements"
+
+    // second correction is small adjustment to z-elements
+    // final elements are corrected by (k-elements - x-elements")
+
+    xincl  = iz + ik - xincl;
+    xnodeo = oz + ok - xnodeo;
+    eo     = ez + ek - eo;
+    omegao = wz + wk - omegao;
+    xmo    = mz + mk - xmo;
+    xno    = nz + nk - xno;
+
+    // ensure 0 <= angle < twopi
+
+    xincl  = fabs ( xincl );
+    xnodeo = fmod2p ( xnodeo );
+    omegao = fmod2p ( omegao );
+    xmo    = fmod2p ( xmo );
+
+    // restore state vectors
+    
+    pos.x = rr1[0];
+    pos.y = rr1[1];
+    pos.z = rr1[2];
+    vel.x = vv1[0];
+    vel.y = vv1[1];
+    vel.z = vv1[2];
+}
+
+// Computes satellite position and velocity at a given Julian Date (jd)
+// in Earth-centered, inertial current equatorial reference frame, in kilometers and kilometers per second.
+// NOTE 1: Julian Date in civil time (UTC), not a Julian Ephemeris Datae in Dynamic Time (TDT)!
+// NOTE 2: Position and Velocity are referenced to the Earth's equator at the orbital element epoch,
+// not to the fundamental J2000 ICRF equator!
+
+void SSTLE::toPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
+{
+    double tsince = ( jd - jdepoch ) * xmnpda;
+    
+    if ( deep )
+        sdp4 ( tsince, pos, vel );
+    else
+        sgp4 ( tsince, pos, vel );
+    
+    pos *= xkmper;
+    vel *= xkmper / 60.0;
+}
+
+// Compute SGP4-compatible Keplerian elements in TLE format from satellite position
+// and velocity (in Earth-radii and Earth-radii per minute) at a particular Julian
+// Date (jd).  The satellite's BSTAR drag coefficient must be input in the TLE
+// structure.  The first and second derivatives of mean motion (TLE fields xndt2o
+// and xndd6o) are not modified.  The desired epoch of the computed orbital elements
+// (as Julian Date) is input in (jd).
+
+void SSTLE::fromPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
+{
+    SSVector pos1 = pos / xkmper;
+    SSVector vel1 = vel * 60.0 / xkmper;
+
+    rv2el ( pos1, vel1 );
+    jdepoch = jd;
+}
+
 // Reads a TLE record from three lines of an input stream (file).
 // Returns 0 if successful or a negative number of failure.
 
@@ -1763,17 +2147,8 @@ int SSTLE::read ( istream &file )
 
     // Does this TLE already have SGP orbit model arguments?
     // If so delete them since they won't be valid after new are elements read.
-    
-    if ( argp.sdp4 || argp.sgp4 )
-    {
-        if ( deep )
-            delete argp.sdp4;
-        else
-            delete argp.sgp4;
-        
-        argp.sdp4 = nullptr;
-        argp.sgp4 = nullptr;
-    }
+
+    delargs();
     
     // Select a deep-space vs. near-earth ephemeris
     
@@ -1859,22 +2234,16 @@ char SSTLE::checksum ( string &line )
     return ( sum % 10 + '0' );
 }
 
-// Computes satellite position and velocity at a given Julian Date (jd)
-// in Earth-centered, inertial current equatorial reference frame,
-// in kilometers and kilometers per second.
-// NOTE 1: Julian Date in civil time (UTC), not a Julian Ephemeris Datae in Dynamic Time (TDT)!
-// NOTE 2: Position and Velocity are referenced to the Earth's equator at the orbital element epoch,
-// not to the fundamental J2000 ICRF equator!
-
-void SSTLE::toPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
+void SSTLE::delargs ( void )
 {
-    double tsince = ( jd - jdepoch ) * xmnpda;
-    
-    if ( deep )
-        sdp4 ( tsince, pos, vel );
-    else
-        sgp4 ( tsince, pos, vel );
-    
-    pos *= xkmper;
-    vel *= xkmper / 60.0;
+    if ( argp.sdp4 || argp.sgp4 )
+    {
+        if ( deep )
+            delete argp.sdp4;
+        else
+            delete argp.sgp4;
+        
+        argp.sdp4 = nullptr;
+        argp.sgp4 = nullptr;
+    }
 }

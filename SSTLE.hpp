@@ -43,10 +43,14 @@ struct SSTLE
     }
     argp;
 
+    SSTLE ( void );
+    SSTLE ( const SSTLE &other );
+    
     // Read from/write to input/output stream.
     
     int read ( istream &file );
     int write ( ostream &file );
+    void delargs ( void );
     
     static char checksum ( string &line );
     
@@ -59,7 +63,11 @@ struct SSTLE
     bool isdeep ( void );
     void dodeep ( int ientry, struct deep_args *args );
     
+    void rvel ( SSVector &pos, SSVector &vel );
+    void rv2el ( SSVector &pos, SSVector &vel );
+
     void toPositionVelocity ( double jd, SSVector &pos, SSVector &vel );
+    void fromPositionVelocity ( double jd, SSVector &pos, SSVector &vel );
 };
 
 #endif /* SSTLE_hpp */
