@@ -1770,6 +1770,9 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
 
 // Calculates classical osculating orbit elements from position and velocity.
 // based on http://sat.belastro.net/satelliteorbitdetermination.com/RV2EL.txt
+// by Scott Campbell, campbel.7@hotmail.com.  Position and velocity vectors
+// are in Earth-radii and Earth-raii per minute, and referred to Earth-fixed,
+// intertial current equatorial frame (not ICRS!)
 
 void SSTLE::rvel ( SSVector &pos, SSVector &vel )
 {
@@ -1949,7 +1952,9 @@ void SSTLE::rvel ( SSVector &pos, SSVector &vel )
     deep = isdeep();
 }
 
-// vectors to SGP4 mean elements
+// Converts posiition and velocity vectors to SGP4 mean elements.
+// See discussion at bottom of Scott Campbell's description page:
+// http://sat.belastro.net/satelliteorbitdetermination.com/RV2EL.txt
 
 void SSTLE::rv2el ( SSVector &pos, SSVector &vel )
 {
