@@ -64,4 +64,13 @@ Other
 - implement VSOP2013 and ELPMPP02
 - implement P.S. low-precision planetary position computation routines
 
+Building and Running
+--------------------
+- Clean up and compete makefile for linux builds.
+- Add MSVC++ Windows test program.
+- Add iOS test program
+- Add Android test program.  Will need replacement routine for getline(), etc. that can
+  read data files from APK and OBB.  Add JNI.
+- Add Obj-C bridging classes for swift.
+
 -Tim DeBenedictis (timd@southernstars.com) 5 April 2020
