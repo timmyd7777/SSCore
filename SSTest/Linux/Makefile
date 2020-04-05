@@ -40,7 +40,7 @@ CC=gcc
 CFLAGS=-std=c++11 -I$(SOURCEDIR)
 LDFLAGS=-lstdc++
 
-EXECUTABLE=SSTest
+EXECUTABLE=sstest
 
 all:	test
 

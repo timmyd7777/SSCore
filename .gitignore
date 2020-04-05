@@ -41,7 +41,7 @@ DerivedData/
 *.xcworkspace
 
 # Unix intermediate files and test executable
-SSTest
+sstest
 
 # Windows intermediate directories
 Debug/
