@@ -3,6 +3,12 @@
 //
 // Created by Tim DeBenedictis on 4/4/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
+//
+// This C++ source code derives mostly from NORADS's spacetrack report #3,
+// FORTRAN routines and Dr. T. Kelso's Pascal ports of same. This file
+// contains SGP, SGP4, and SDP4 satellite ephemeris routines for the prediction
+// of a satellites position and velocity from its three-line element (TLE) set
+// of orbital parameters.
 
 #include "SSUtilities.hpp"
 #include "SSTime.hpp"
@@ -61,9 +67,14 @@ struct sdp4_args
     struct deep_args deep;
 };
 
-#define dpinit   1 // Deep-space initialization code
-#define dpsec    2 // Deep-space secular code
-#define dpper    3 // Deep-space periodic code
+// Entry points for dodeep() method.
+
+enum deep_entry
+{
+    dpinit = 1, // Deep-space initialization code
+    dpsec = 2,  // Deep-space secular code
+    dpper = 3   // Deep-space periodic code
+};
 
 static double pio2 = 1.57079633;
 static double x3pio2 = 4.71238898;
@@ -192,13 +203,12 @@ double thetag ( double ep, deep_args *deep_arg )
     return ( thetag );
 }
 
-// Determines whether to use a deep-space or near-Earth ephemeris
+// Determines whether to use a deep-space (true) or near-Earth (false) ephemeris.
+// For satellites with orbit period > 225 minutesm use deep space ephemeris.
 
 bool SSTLE::isdeep ( void )
 {
     double ao, xnodp, dd1, dd2, delo, temp, a1, del1, r1;
-
-    // Period > 225 minutes is deep space
   
     dd1 = xke / xno;
     dd2 = tothrd;
@@ -217,9 +227,11 @@ bool SSTLE::isdeep ( void )
         return false;
 }
 
-// Deep space ephemeris
+// Used internally by SDP4 deep space ephemeris; should not be called directly.
+// The entry point (ientry) is one of (dpinit,dpper,dpsec) defined above.
+// Values are input and output in the deep_args struct (arg)
 
-void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
+void SSTLE::dodeep ( int ientry, deep_args *arg )
 {
     double thgr = 0,xnq = 0,xqncl = 0,omegaq = 0,zmol = 0,zmos = 0,savtsn = 0,ee2 = 0,e3 = 0,xi2 = 0,
            xl2 = 0,xl3 = 0,xl4 = 0,xgh2 = 0,xgh3 = 0,xgh4 = 0,xh2 = 0,xh3 = 0,sse = 0,ssi = 0,ssg = 0,xi3 = 0,
@@ -247,99 +259,99 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
   
     // Recover saved values
     
-    thgr = deep_arg->thgr;
-    xnq = deep_arg->xnq;
-    xqncl = deep_arg->xqncl;
-    omegaq = deep_arg->omegaq;
-    zmol = deep_arg->zmol;
-    zmos = deep_arg->zmos;
-    savtsn = deep_arg->savtsn;
-    ee2 = deep_arg->ee2;
-    e3 = deep_arg->e3;
-    xi2 = deep_arg->xi2;
-    xl2 = deep_arg->xl2;
-    xl3 = deep_arg->xl3;
-    xl4 = deep_arg->xl4;
-    xgh2 = deep_arg->xgh2;
-    xgh3 = deep_arg->xgh3;
-    xgh4 = deep_arg->xgh4;
-    xh2 = deep_arg->xh2;
-    xh3 = deep_arg->xh3;
-    sse = deep_arg->sse;
-    ssi = deep_arg->ssi;
-    ssg = deep_arg->ssg;
-    xi3 = deep_arg->xi3;
-    se2 = deep_arg->se2;
-    si2 = deep_arg->si2;
-    sl2 = deep_arg->sl2;
-    sgh2 = deep_arg->sgh2;
-    sh2 = deep_arg->sh2;
-    se3 = deep_arg->se3;
-    si3 = deep_arg->si3;
-    sl3 = deep_arg->sl3;
-    sgh3 = deep_arg->sgh3;
-    sh3 = deep_arg->sh3;
-    sl4 = deep_arg->sl4;
-    sgh4 = deep_arg->sgh4;
-    ssl = deep_arg->ssl;
-    ssh = deep_arg->ssh;
-    d3210 = deep_arg->d3210;
-    d3222 = deep_arg->d3222;
-    d4410 = deep_arg->d4410;
-    d4422 = deep_arg->d4422;
-    d5220 = deep_arg->d5220;
-    d5232 = deep_arg->d5232;
-    d5421 = deep_arg->d5421;
-    d5433 = deep_arg->d5433;
-    del1 = deep_arg->del1;
-    del2 = deep_arg->del2;
-    del3 = deep_arg->del3;
-    fasx2 = deep_arg->fasx2;
-    fasx4 = deep_arg->fasx4;
-    fasx6 = deep_arg->fasx6;
-    xlamo = deep_arg->xlamo;
-    xfact = deep_arg->xfact;
-    xni = deep_arg->xni;
-    atime = deep_arg->atime;
-    stepp = deep_arg->stepp;
-    stepn = deep_arg->stepn;
-    step2 = deep_arg->step2;
-    preep = deep_arg->preep;
-    pl = deep_arg->pl;
-    sghs = deep_arg->sghs;
-    xli = deep_arg->xli;
-    d2201 = deep_arg->d2201;
-    d2211 = deep_arg->d2211;
-    sghl = deep_arg->sghl;
-    sh1 = deep_arg->sh1;
-    pinc = deep_arg->pinc;
-    pe = deep_arg->pe;
-    shs = deep_arg->shs;
-    zsingl = deep_arg->zsingl;
-    zcosgl = deep_arg->zcosgl;
-    zsinhl = deep_arg->zsinhl;
-    zcoshl = deep_arg->zcoshl;
-    zsinil = deep_arg->zsinil;
-    zcosil = deep_arg->zcosil;
+    thgr = arg->thgr;
+    xnq = arg->xnq;
+    xqncl = arg->xqncl;
+    omegaq = arg->omegaq;
+    zmol = arg->zmol;
+    zmos = arg->zmos;
+    savtsn = arg->savtsn;
+    ee2 = arg->ee2;
+    e3 = arg->e3;
+    xi2 = arg->xi2;
+    xl2 = arg->xl2;
+    xl3 = arg->xl3;
+    xl4 = arg->xl4;
+    xgh2 = arg->xgh2;
+    xgh3 = arg->xgh3;
+    xgh4 = arg->xgh4;
+    xh2 = arg->xh2;
+    xh3 = arg->xh3;
+    sse = arg->sse;
+    ssi = arg->ssi;
+    ssg = arg->ssg;
+    xi3 = arg->xi3;
+    se2 = arg->se2;
+    si2 = arg->si2;
+    sl2 = arg->sl2;
+    sgh2 = arg->sgh2;
+    sh2 = arg->sh2;
+    se3 = arg->se3;
+    si3 = arg->si3;
+    sl3 = arg->sl3;
+    sgh3 = arg->sgh3;
+    sh3 = arg->sh3;
+    sl4 = arg->sl4;
+    sgh4 = arg->sgh4;
+    ssl = arg->ssl;
+    ssh = arg->ssh;
+    d3210 = arg->d3210;
+    d3222 = arg->d3222;
+    d4410 = arg->d4410;
+    d4422 = arg->d4422;
+    d5220 = arg->d5220;
+    d5232 = arg->d5232;
+    d5421 = arg->d5421;
+    d5433 = arg->d5433;
+    del1 = arg->del1;
+    del2 = arg->del2;
+    del3 = arg->del3;
+    fasx2 = arg->fasx2;
+    fasx4 = arg->fasx4;
+    fasx6 = arg->fasx6;
+    xlamo = arg->xlamo;
+    xfact = arg->xfact;
+    xni = arg->xni;
+    atime = arg->atime;
+    stepp = arg->stepp;
+    stepn = arg->stepn;
+    step2 = arg->step2;
+    preep = arg->preep;
+    pl = arg->pl;
+    sghs = arg->sghs;
+    xli = arg->xli;
+    d2201 = arg->d2201;
+    d2211 = arg->d2211;
+    sghl = arg->sghl;
+    sh1 = arg->sh1;
+    pinc = arg->pinc;
+    pe = arg->pe;
+    shs = arg->shs;
+    zsingl = arg->zsingl;
+    zcosgl = arg->zcosgl;
+    zsinhl = arg->zsinhl;
+    zcoshl = arg->zcoshl;
+    zsinil = arg->zsinil;
+    zcosil = arg->zcosil;
       
     switch ( ientry )
     {
         case dpinit: // Entrance for deep space initialization
             
-            thgr = thetag ( jdepoch, deep_arg );
+            thgr = thetag ( jdepoch, arg );
             eq = eo;
-            xnq = deep_arg->xnodp;
-            aqnv = 1/deep_arg->aodp;
+            xnq = arg->xnodp;
+            aqnv = 1/arg->aodp;
             xqncl = xincl;
             xmao = xmo;
-            xpidot = deep_arg->omgdot+deep_arg->xnodot;
+            xpidot = arg->omgdot+arg->xnodot;
             sinq = sin(xnodeo);
             cosq = cos(xnodeo);
             omegaq = omegao;
 
             // Initialize lunar solar terms
             
-            day = deep_arg->ds50+18261.5;  // Days since 1900 Jan 0.5
+            day = arg->ds50+18261.5;  // Days since 1900 Jan 0.5
             if (day != preep)
             {
                 preep = day;
@@ -392,56 +404,54 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                  a8 = zsing*zsini;
                  a9 = zsing*zsinh+zcosg*zcosi*zcosh;
                  a10 = zcosg*zsini;
-                 a2 = deep_arg->cosio*a7+ deep_arg->sinio*a8;
-                 a4 = deep_arg->cosio*a9+ deep_arg->sinio*a10;
-                 a5 = -deep_arg->sinio*a7+ deep_arg->cosio*a8;
-                 a6 = -deep_arg->sinio*a9+ deep_arg->cosio*a10;
-                 x1 = a1*deep_arg->cosg+a2*deep_arg->sing;
-                 x2 = a3*deep_arg->cosg+a4*deep_arg->sing;
-                 x3 = -a1*deep_arg->sing+a2*deep_arg->cosg;
-                 x4 = -a3*deep_arg->sing+a4*deep_arg->cosg;
-                 x5 = a5*deep_arg->sing;
-                 x6 = a6*deep_arg->sing;
-                 x7 = a5*deep_arg->cosg;
-                 x8 = a6*deep_arg->cosg;
+                 a2 = arg->cosio*a7+ arg->sinio*a8;
+                 a4 = arg->cosio*a9+ arg->sinio*a10;
+                 a5 = -arg->sinio*a7+ arg->cosio*a8;
+                 a6 = -arg->sinio*a9+ arg->cosio*a10;
+                 x1 = a1*arg->cosg+a2*arg->sing;
+                 x2 = a3*arg->cosg+a4*arg->sing;
+                 x3 = -a1*arg->sing+a2*arg->cosg;
+                 x4 = -a3*arg->sing+a4*arg->cosg;
+                 x5 = a5*arg->sing;
+                 x6 = a6*arg->sing;
+                 x7 = a5*arg->cosg;
+                 x8 = a6*arg->cosg;
                  z31 = 12*x1*x1-3*x3*x3;
                  z32 = 24*x1*x2-6*x3*x4;
                  z33 = 12*x2*x2-3*x4*x4;
-                 z1 = 3*(a1*a1+a2*a2)+z31*deep_arg->eosq;
-                 z2 = 6*(a1*a3+a2*a4)+z32*deep_arg->eosq;
-                 z3 = 3*(a3*a3+a4*a4)+z33*deep_arg->eosq;
-                 z11 = -6*a1*a5+deep_arg->eosq*(-24*x1*x7-6*x3*x5);
-                 z12 = -6*(a1*a6+a3*a5)+ deep_arg->eosq*
-                        (-24*(x2*x7+x1*x8)-6*(x3*x6+x4*x5));
-                 z13 = -6*a3*a6+deep_arg->eosq*(-24*x2*x8-6*x4*x6);
-                 z21 = 6*a2*a5+deep_arg->eosq*(24*x1*x5-6*x3*x7);
-                 z22 = 6*(a4*a5+a2*a6)+ deep_arg->eosq*
-                        (24*(x2*x5+x1*x6)-6*(x4*x7+x3*x8));
-                 z23 = 6*a4*a6+deep_arg->eosq*(24*x2*x6-6*x4*x8);
-                 z1 = z1+z1+deep_arg->betao2*z31;
-                 z2 = z2+z2+deep_arg->betao2*z32;
-                 z3 = z3+z3+deep_arg->betao2*z33;
+                 z1 = 3*(a1*a1+a2*a2)+z31*arg->eosq;
+                 z2 = 6*(a1*a3+a2*a4)+z32*arg->eosq;
+                 z3 = 3*(a3*a3+a4*a4)+z33*arg->eosq;
+                 z11 = -6*a1*a5+arg->eosq*(-24*x1*x7-6*x3*x5);
+                 z12 = -6*(a1*a6+a3*a5)+ arg->eosq*(-24*(x2*x7+x1*x8)-6*(x3*x6+x4*x5));
+                 z13 = -6*a3*a6+arg->eosq*(-24*x2*x8-6*x4*x6);
+                 z21 = 6*a2*a5+arg->eosq*(24*x1*x5-6*x3*x7);
+                 z22 = 6*(a4*a5+a2*a6)+ arg->eosq*(24*(x2*x5+x1*x6)-6*(x4*x7+x3*x8));
+                 z23 = 6*a4*a6+arg->eosq*(24*x2*x6-6*x4*x8);
+                 z1 = z1+z1+arg->betao2*z31;
+                 z2 = z2+z2+arg->betao2*z32;
+                 z3 = z3+z3+arg->betao2*z33;
                  s3 = cc*xnoi;
-                 s2 = -0.5*s3/deep_arg->betao;
-                 s4 = s3*deep_arg->betao;
+                 s2 = -0.5*s3/arg->betao;
+                 s4 = s3*arg->betao;
                  s1 = -15*eq*s4;
                  s5 = x1*x3+x2*x4;
                  s6 = x2*x3+x1*x4;
                  s7 = x2*x4-x1*x3;
                  se = s1*zn*s5;
                  si = s2*zn*(z11+z13);
-                 sl = -zn*s3*(z1+z3-14-6*deep_arg->eosq);
+                 sl = -zn*s3*(z1+z3-14-6*arg->eosq);
                  sgh = s4*zn*(z31+z33-6);
                  sh = -zn*s2*(z21+z23);
                  if (xqncl < 5.2359877E-2)
-                   sh = 0;
+                    sh = 0;
                  ee2 = 2*s1*s6;
                  e3 = 2*s1*s7;
                  xi2 = 2*s2*z12;
                  xi3 = 2*s2*(z13-z11);
                  xl2 = -2*s3*z2;
                  xl3 = -2*s3*(z3-z1);
-                 xl4 = -2*s3*(-21-9*deep_arg->eosq)*ze;
+                 xl4 = -2*s3*(-21-9*arg->eosq)*ze;
                  xgh2 = 2*s4*z32;
                  xgh3 = 2*s4*(z33-z31);
                  xgh4 = -18*s4*ze;
@@ -449,14 +459,15 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                  xh3 = -2*s2*(z23-z21);
 
                  if(ls == 1)
-                   break;
+                     break;
 
                  // Do lunar terms
+                
                  sse = se;
                  ssi = si;
                  ssl = sl;
-                 ssh = sh/deep_arg->sinio;
-                 ssg = sgh-deep_arg->cosio*ssh;
+                 ssh = sh/arg->sinio;
+                 ssg = sgh-arg->cosio*ssh;
                  se2 = ee2;
                  si2 = xi2;
                  sl2 = xl2;
@@ -485,13 +496,13 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
             sse = sse+se;
             ssi = ssi+si;
             ssl = ssl+sl;
-            ssg = ssg+sgh-deep_arg->cosio/deep_arg->sinio*sh;
-            ssh = ssh+sh/deep_arg->sinio;
+            ssg = ssg+sgh-arg->cosio/arg->sinio*sh;
+            ssh = ssh+sh/arg->sinio;
 
             // Geopotential resonance initialization for 12 hour orbits
             
-            deep_arg->iresfl = 0;
-            deep_arg->isynfl = 0;
+            arg->iresfl = 0;
+            arg->isynfl = 0;
 
             if( !((xnq < 0.0052359877) && (xnq > 0.0034906585)) )
             {
@@ -499,83 +510,63 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                     break;
                 if (eq < 0.5)
                     break;
-                deep_arg->iresfl = 1;
-                eoc = eq*deep_arg->eosq;
+                arg->iresfl = 1;
+                eoc = eq*arg->eosq;
                 g201 = -0.306-(eq-0.64)*0.440;
                 
                 if (eq <= 0.65)
                 {
-                    g211 = 3.616-13.247*eq+16.290*deep_arg->eosq;
-                    g310 = -19.302+117.390*eq-228.419*
-                              deep_arg->eosq+156.591*eoc;
-                    g322 = -18.9068+109.7927*eq-214.6334*
-                             deep_arg->eosq+146.5816*eoc;
-                    g410 = -41.122+242.694*eq-471.094*
-                             deep_arg->eosq+313.953*eoc;
-                    g422 = -146.407+841.880*eq-1629.014*
-                             deep_arg->eosq+1083.435*eoc;
-                    g520 = -532.114+3017.977*eq-5740*
-                             deep_arg->eosq+3708.276*eoc;
+                    g211 = 3.616-13.247*eq+16.290*arg->eosq;
+                    g310 = -19.302+117.390*eq-228.419*arg->eosq+156.591*eoc;
+                    g322 = -18.9068+109.7927*eq-214.6334*arg->eosq+146.5816*eoc;
+                    g410 = -41.122+242.694*eq-471.094*arg->eosq+313.953*eoc;
+                    g422 = -146.407+841.880*eq-1629.014*arg->eosq+1083.435*eoc;
+                    g520 = -532.114+3017.977*eq-5740*arg->eosq+3708.276*eoc;
                 }
                 else
                 {
-                    g211 = -72.099+331.819*eq-508.738*
-                             deep_arg->eosq+266.724*eoc;
-                    g310 = -346.844+1582.851*eq-2415.925*
-                             deep_arg->eosq+1246.113*eoc;
-                    g322 = -342.585+1554.908*eq-2366.899*
-                             deep_arg->eosq+1215.972*eoc;
-                    g410 = -1052.797+4758.686*eq-7193.992*
-                             deep_arg->eosq+3651.957*eoc;
-                    g422 = -3581.69+16178.11*eq-24462.77*
-                             deep_arg->eosq+ 12422.52*eoc;
+                    g211 = -72.099+331.819*eq-508.738*arg->eosq+266.724*eoc;
+                    g310 = -346.844+1582.851*eq-2415.925*arg->eosq+1246.113*eoc;
+                    g322 = -342.585+1554.908*eq-2366.899*arg->eosq+1215.972*eoc;
+                    g410 = -1052.797+4758.686*eq-7193.992*arg->eosq+3651.957*eoc;
+                    g422 = -3581.69+16178.11*eq-24462.77*arg->eosq+ 12422.52*eoc;
                     if (eq <= 0.715)
-                        g520 = 1464.74-4664.75*eq+3763.64*deep_arg->eosq;
+                        g520 = 1464.74-4664.75*eq+3763.64*arg->eosq;
                     else
-                        g520 = -5149.66+29936.92*eq-54087.36*
-                               deep_arg->eosq+31324.56*eoc;
+                        g520 = -5149.66+29936.92*eq-54087.36*arg->eosq+31324.56*eoc;
                 } // End if (eq <= 0.65)
 
                 if (eq < 0.7)
                 {
-                    g533 = -919.2277+4988.61*eq-9064.77*
-                             deep_arg->eosq+5542.21*eoc;
-                    g521 = -822.71072+4568.6173*eq-8491.4146*
-                             deep_arg->eosq+5337.524*eoc;
-                    g532 = -853.666+4690.25*eq-8624.77*
-                             deep_arg->eosq+ 5341.4*eoc;
+                    g533 = -919.2277+4988.61*eq-9064.77*arg->eosq+5542.21*eoc;
+                    g521 = -822.71072+4568.6173*eq-8491.4146*arg->eosq+5337.524*eoc;
+                    g532 = -853.666+4690.25*eq-8624.77*arg->eosq+ 5341.4*eoc;
                 }
                 else
                 {
-                    g533 = -37995.78+161616.52*eq-229838.2*
-                             deep_arg->eosq+109377.94*eoc;
-                    g521 = -51752.104+218913.95*eq-309468.16*
-                             deep_arg->eosq+146349.42*eoc;
-                    g532 = -40023.88+170470.89*eq-242699.48*
-                            deep_arg->eosq+115605.82*eoc;
+                    g533 = -37995.78+161616.52*eq-229838.2*arg->eosq+109377.94*eoc;
+                    g521 = -51752.104+218913.95*eq-309468.16*arg->eosq+146349.42*eoc;
+                    g532 = -40023.88+170470.89*eq-242699.48*arg->eosq+115605.82*eoc;
                 } // End if (eq <= 0.7)
 
-                sini2 = deep_arg->sinio*deep_arg->sinio;
-                f220 = 0.75*(1+2*deep_arg->cosio+deep_arg->theta2);
+                sini2 = arg->sinio*arg->sinio;
+                f220 = 0.75*(1+2*arg->cosio+arg->theta2);
                 f221 = 1.5*sini2;
-                f321 = 1.875*deep_arg->sinio*(1-2*\
-                         deep_arg->cosio-3*deep_arg->theta2);
-                f322 = -1.875*deep_arg->sinio*(1+2*
-                         deep_arg->cosio-3*deep_arg->theta2);
+                f321 = 1.875*arg->sinio*(1-2*arg->cosio-3*arg->theta2);
+                f322 = -1.875*arg->sinio*(1+2*arg->cosio-3*arg->theta2);
                 f441 = 35*sini2*f220;
                 f442 = 39.3750*sini2*sini2;
-                f522 = 9.84375*deep_arg->sinio*(sini2*(1-2*deep_arg->cosio-5*
-                 deep_arg->theta2)+0.33333333*(-2+4*deep_arg->cosio+
-                 6*deep_arg->theta2));
-                f523 = deep_arg->sinio*(4.92187512*sini2*(-2-4*
-                       deep_arg->cosio+10*deep_arg->theta2)+6.56250012
-                       *(1+2*deep_arg->cosio-3*deep_arg->theta2));
-                f542 = 29.53125*deep_arg->sinio*(2-8*
-                         deep_arg->cosio+deep_arg->theta2*
-                 (-12+8*deep_arg->cosio+10*deep_arg->theta2));
-                f543 = 29.53125*deep_arg->sinio*(-2-8*deep_arg->cosio+
-                 deep_arg->theta2*(12+8*deep_arg->cosio-10*
-                         deep_arg->theta2));
+                f522 = 9.84375*arg->sinio*(sini2*(1-2*arg->cosio-5*
+                       arg->theta2)+0.33333333*(-2+4*arg->cosio+
+                       6*arg->theta2));
+                f523 = arg->sinio*(4.92187512*sini2*(-2-4*
+                       arg->cosio+10*arg->theta2)+6.56250012
+                       *(1+2*arg->cosio-3*arg->theta2));
+                f542 = 29.53125*arg->sinio*(2-8*
+                       arg->cosio+arg->theta2*
+                       (-12+8*arg->cosio+10*arg->theta2));
+                f543 = 29.53125*arg->sinio*(-2-8*arg->cosio+
+                       arg->theta2*(12+8*arg->cosio-10*arg->theta2));
                 xno2 = xnq*xnq;
                 ainv2 = aqnv*aqnv;
                 temp1 = 3*xno2*ainv2;
@@ -598,22 +589,20 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                 d5421 = temp*f542*g521;
                 d5433 = temp*f543*g533;
                 xlamo = xmao+xnodeo+xnodeo-thgr-thgr;
-                bfact = deep_arg->xmdot+deep_arg->xnodot+
-                          deep_arg->xnodot-thdt-thdt;
+                bfact = arg->xmdot+arg->xnodot+arg->xnodot-thdt-thdt;
                 bfact = bfact+ssl+ssh+ssh;
             } // if( !(xnq < 0.0052359877) && (xnq > 0.0034906585) )
             else
             {
-                deep_arg->iresfl = 1;
-                deep_arg->isynfl = 1;
+                arg->iresfl = 1;
+                arg->isynfl = 1;
                 // Synchronous resonance terms initialization
-                g200 = 1+deep_arg->eosq*(-2.5+0.8125*deep_arg->eosq);
-                g310 = 1+2*deep_arg->eosq;
-                g300 = 1+deep_arg->eosq*(-6+6.60937*deep_arg->eosq);
-                f220 = 0.75*(1+deep_arg->cosio)*(1+deep_arg->cosio);
-                f311 = 0.9375*deep_arg->sinio*deep_arg->sinio*
-                       (1+3*deep_arg->cosio)-0.75*(1+deep_arg->cosio);
-                f330 = 1+deep_arg->cosio;
+                g200 = 1+arg->eosq*(-2.5+0.8125*arg->eosq);
+                g310 = 1+2*arg->eosq;
+                g300 = 1+arg->eosq*(-6+6.60937*arg->eosq);
+                f220 = 0.75*(1+arg->cosio)*(1+arg->cosio);
+                f311 = 0.9375*arg->sinio*arg->sinio*(1+3*arg->cosio)-0.75*(1+arg->cosio);
+                f330 = 1+arg->cosio;
                 f330 = 1.875*f330*f330*f330;
                 del1 = 3*xnq*xnq*aqnv*aqnv;
                 del2 = 2*del1*f220*g200*q22;
@@ -623,7 +612,7 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                 fasx4 = 2.8843198;
                 fasx6 = 0.37448087;
                 xlamo = xmao+xnodeo+omegao-thgr;
-                bfact = deep_arg->xmdot+xpidot-thdt;
+                bfact = arg->xmdot+xpidot-thdt;
                 bfact = bfact+ssl+ssg+ssh;
             } // End if( !(xnq < 0.0052359877) && (xnq > 0.0034906585) )
 
@@ -640,28 +629,27 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
 
         case dpsec: // Entrance for deep space secular effects
             
-            deep_arg->xll = deep_arg->xll+ssl*deep_arg->t;
-            deep_arg->omgadf = deep_arg->omgadf+ssg*deep_arg->t;
-            deep_arg->xnode = deep_arg->xnode+ssh*deep_arg->t;
-            deep_arg->em = eo+sse*deep_arg->t;
-            deep_arg->xinc = xincl+ssi*deep_arg->t;
-            if (deep_arg->xinc < 0)
+            arg->xll = arg->xll+ssl*arg->t;
+            arg->omgadf = arg->omgadf+ssg*arg->t;
+            arg->xnode = arg->xnode+ssh*arg->t;
+            arg->em = eo+sse*arg->t;
+            arg->xinc = xincl+ssi*arg->t;
+            if (arg->xinc < 0)
             {
-                deep_arg->xinc = -deep_arg->xinc;
-                deep_arg->xnode = deep_arg->xnode + xpi;
-                deep_arg->omgadf = deep_arg->omgadf-xpi;
+                arg->xinc = -arg->xinc;
+                arg->xnode = arg->xnode + xpi;
+                arg->omgadf = arg->omgadf-xpi;
             }
-            if( deep_arg->iresfl == 0 )
+            
+            if( arg->iresfl == 0 )
                 break;
 
             do
             {
-                if((atime == 0) ||
-                   ((deep_arg->t >= 0) && (atime < 0)) ||
-                   ((deep_arg->t < 0) && (atime >= 0)) )
+                if((atime == 0) || ((arg->t >= 0) && (atime < 0)) || ((arg->t < 0) && (atime >= 0)) )
                 {
                     // Epoch restart
-                    if( deep_arg->t >= 0 )
+                    if( arg->t >= 0 )
                         delt = stepp;
                     else
                         delt = stepn;
@@ -672,9 +660,9 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                 }
                 else
                 {
-                    if( fabs(deep_arg->t) >= fabs(atime) )
+                    if( fabs(arg->t) >= fabs(atime) )
                     {
-                        if ( deep_arg->t > 0 )
+                        if ( arg->t > 0 )
                             delt = stepp;
                         else
                             delt = stepn;
@@ -683,21 +671,21 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
 
                 do
                 {
-                    if ( fabs(deep_arg->t-atime) >= stepp )
+                    if ( fabs(arg->t-atime) >= stepp )
                     {
                         dl = 1;
                         er = 0;
                     }
                     else
                     {
-                        ft = deep_arg->t-atime;
+                        ft = arg->t-atime;
                         dl = 0;
                         er = 0;
                     }
 
-                    if( fabs(deep_arg->t) < fabs(atime) )
+                    if( fabs(arg->t) < fabs(atime) )
                     {
-                        if (deep_arg->t >= 0)
+                        if (arg->t >= 0)
                             delt = stepn;
                         else
                             delt = stepp;
@@ -706,16 +694,14 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                     }
 
                     // Dot terms calculated
-                    if( deep_arg->isynfl )
+                    if( arg->isynfl )
                     {
-                        xndot = del1*sin(xli-fasx2)+del2*sin(2*(xli-fasx4))
-                                +del3*sin(3*(xli-fasx6));
-                        xnddt = del1*cos(xli-fasx2)+2*del2*cos(2*(xli-fasx4))
-                                +3*del3*cos(3*(xli-fasx6));
+                        xndot = del1*sin(xli-fasx2)+del2*sin(2*(xli-fasx4))+del3*sin(3*(xli-fasx6));
+                        xnddt = del1*cos(xli-fasx2)+2*del2*cos(2*(xli-fasx4))+3*del3*cos(3*(xli-fasx6));
                     }
                     else
                     {
-                        xomi = omegaq+deep_arg->omgdot*atime;
+                        xomi = omegaq+arg->omgdot*atime;
                         x2omi = xomi+xomi;
                         x2li = xli+xli;
                         xndot = d2201*sin(x2omi+xli-g22)
@@ -738,7 +724,7 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                                +d4422*cos(x2li-g44)
                                +d5421*cos(xomi+x2li-g54)
                                +d5433*cos(-xomi+x2li-g54));
-                    } // End of if (deep_arg->isynfl)
+                    } // End of if (arg->isynfl)
 
                     xldot = xni+xfact;
                     xnddt = xnddt*xldot;
@@ -754,25 +740,25 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
             }
             while(dl == 1 && er == 1);
 
-            deep_arg->xn = xni+xndot*ft+xnddt*ft*ft*0.5;
+            arg->xn = xni+xndot*ft+xnddt*ft*ft*0.5;
             xl = xli+xldot*ft+xndot*ft*ft*0.5;
-            temp = -deep_arg->xnode+thgr+deep_arg->t*thdt;
+            temp = -arg->xnode+thgr+arg->t*thdt;
 
-            if (deep_arg->isynfl == 0)
-                deep_arg->xll = xl+temp+temp;
+            if (arg->isynfl == 0)
+                arg->xll = xl+temp+temp;
             else
-                deep_arg->xll = xl-deep_arg->omgadf+temp;
+                arg->xll = xl-arg->omgadf+temp;
 
             break; // End case dpsec
 
         case dpper: // Entrance for lunar-solar periodics
             
-            sinis = sin(deep_arg->xinc);
-            cosis = cos(deep_arg->xinc);
-            if (fabs(savtsn-deep_arg->t) >= 30)
+            sinis = sin(arg->xinc);
+            cosis = cos(arg->xinc);
+            if (fabs(savtsn-arg->t) >= 30)
             {
-                savtsn = deep_arg->t;
-                zm = zmos+zns*deep_arg->t;
+                savtsn = arg->t;
+                zm = zmos+zns*arg->t;
                 zf = zm+2*zes*sin(zm);
                 sinzf = sin(zf);
                 f2 = 0.5*sinzf*sinzf-0.25;
@@ -782,7 +768,7 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
                 sls = sl2*f2+sl3*f3+sl4*sinzf;
                 sghs = sgh2*f2+sgh3*f3+sgh4*sinzf;
                 shs = sh2*f2+sh3*f3;
-                zm = zmol+znl*deep_arg->t;
+                zm = zmol+znl*arg->t;
                 zf = zm+2*zel*sin(zm);
                 sinzf = sin(zf);
                 f2 = 0.5*sinzf*sinzf-0.25;
@@ -799,135 +785,139 @@ void SSTLE::dodeep ( int ientry, deep_args *deep_arg )
 
             pgh = sghs+sghl;
             ph = shs+sh1;
-            deep_arg->xinc = deep_arg->xinc+pinc;
-            deep_arg->em = deep_arg->em+pe;
+            arg->xinc = arg->xinc+pinc;
+            arg->em = arg->em+pe;
 
             if (xqncl >= 0.2)
             {
                 // Apply periodics directly
-                ph = ph/deep_arg->sinio;
-                pgh = pgh-deep_arg->cosio*ph;
-                deep_arg->omgadf = deep_arg->omgadf+pgh;
-                deep_arg->xnode = deep_arg->xnode+ph;
-                deep_arg->xll = deep_arg->xll+pl;
+                
+                ph = ph/arg->sinio;
+                pgh = pgh-arg->cosio*ph;
+                arg->omgadf = arg->omgadf+pgh;
+                arg->xnode = arg->xnode+ph;
+                arg->xll = arg->xll+pl;
             }
             else
             {
                 // Apply periodics with Lyddane modification
                 
-                sinok = sin(deep_arg->xnode);
-                cosok = cos(deep_arg->xnode);
+                sinok = sin(arg->xnode);
+                cosok = cos(arg->xnode);
                 alfdp = sinis*sinok;
                 betdp = sinis*cosok;
                 dalf = ph*cosok+pinc*cosis*sinok;
                 dbet = -ph*sinok+pinc*cosis*cosok;
                 alfdp = alfdp+dalf;
                 betdp = betdp+dbet;
-                deep_arg->xnode = fmod2p ( deep_arg->xnode );
-                xls = deep_arg->xll+deep_arg->omgadf+cosis*deep_arg->xnode;
-                dls = pl+pgh-pinc*deep_arg->xnode*sinis;
+                arg->xnode = fmod2p ( arg->xnode );
+                xls = arg->xll+arg->omgadf+cosis*arg->xnode;
+                dls = pl+pgh-pinc*arg->xnode*sinis;
                 xls = xls+dls;
-                xnoh = deep_arg->xnode;
-                deep_arg->xnode = actan (alfdp,betdp);
+                xnoh = arg->xnode;
+                arg->xnode = actan (alfdp,betdp);
 
                 // This is a patch to Lyddane modification
                 // suggested by Rob Matson.
                 
-                if(fabs(xnoh-deep_arg->xnode) > xpi)
+                if(fabs(xnoh-arg->xnode) > xpi)
                 {
-                  if(deep_arg->xnode < xnoh)
-                    deep_arg->xnode +=twopi;
+                  if(arg->xnode < xnoh)
+                    arg->xnode +=twopi;
                   else
-                    deep_arg->xnode -=twopi;
+                    arg->xnode -=twopi;
                 }
 
-                deep_arg->xll = deep_arg->xll+pl;
-                deep_arg->omgadf = xls-deep_arg->xll-cos(deep_arg->xinc)*deep_arg->xnode;
+                arg->xll = arg->xll+pl;
+                arg->omgadf = xls-arg->xll-cos(arg->xinc)*arg->xnode;
             }
 
             break; // End case dpper
-    }
-    // End switch(ientry)
+    } // End switch(ientry)
 
     // Store variables for future use
     
-    deep_arg->thgr = thgr;
-    deep_arg->xnq = xnq;
-    deep_arg->xqncl = xqncl;
-    deep_arg->omegaq = omegaq;
-    deep_arg->zmol = zmol;
-    deep_arg->zmos = zmos;
-    deep_arg->savtsn = savtsn;
-    deep_arg->ee2 = ee2;
-    deep_arg->e3 = e3;
-    deep_arg->xi2 = xi2;
-    deep_arg->xl2 = xl2;
-    deep_arg->xl3 = xl3;
-    deep_arg->xl4 = xl4;
-    deep_arg->xgh2 = xgh2;
-    deep_arg->xgh3 = xgh3;
-    deep_arg->xgh4 = xgh4;
-    deep_arg->xh2 = xh2;
-    deep_arg->xh3 = xh3;
-    deep_arg->sse = sse;
-    deep_arg->ssi = ssi;
-    deep_arg->ssg = ssg;
-    deep_arg->xi3 = xi3;
-    deep_arg->se2 = se2;
-    deep_arg->si2 = si2;
-    deep_arg->sl2 = sl2;
-    deep_arg->sgh2 = sgh2;
-    deep_arg->sh2 = sh2;
-    deep_arg->se3 = se3;
-    deep_arg->si3 = si3;
-    deep_arg->sl3 = sl3;
-    deep_arg->sgh3 = sgh3;
-    deep_arg->sh3 = sh3;
-    deep_arg->sl4 = sl4;
-    deep_arg->sgh4 = sgh4;
-    deep_arg->ssl = ssl;
-    deep_arg->ssh = ssh;
-    deep_arg->d3210 = d3210;
-    deep_arg->d3222 = d3222;
-    deep_arg->d4410 = d4410;
-    deep_arg->d4422 = d4422;
-    deep_arg->d5220 = d5220;
-    deep_arg->d5232 = d5232;
-    deep_arg->d5421 = d5421;
-    deep_arg->d5433 = d5433;
-    deep_arg->del1 = del1;
-    deep_arg->del2 = del2;
-    deep_arg->del3 = del3;
-    deep_arg->fasx2 = fasx2;
-    deep_arg->fasx4 = fasx4;
-    deep_arg->fasx6 = fasx6;
-    deep_arg->xlamo = xlamo;
-    deep_arg->xfact = xfact;
-    deep_arg->xni = xni;
-    deep_arg->atime = atime;
-    deep_arg->stepp = stepp;
-    deep_arg->stepn = stepn;
-    deep_arg->step2 = step2;
-    deep_arg->preep = preep;
-    deep_arg->pl = pl;
-    deep_arg->sghs = sghs;
-    deep_arg->xli = xli;
-    deep_arg->d2201 = d2201;
-    deep_arg->d2211 = d2211;
-    deep_arg->sghl = sghl;
-    deep_arg->sh1 = sh1;
-    deep_arg->pinc = pinc;
-    deep_arg->pe = pe;
-    deep_arg->shs = shs;
-    deep_arg->zsingl = zsingl;
-    deep_arg->zcosgl = zcosgl;
-    deep_arg->zsinhl = zsinhl;
-    deep_arg->zcoshl = zcoshl;
-    deep_arg->zsinil = zsinil;
-    deep_arg->zcosil = zcosil;
+    arg->thgr = thgr;
+    arg->xnq = xnq;
+    arg->xqncl = xqncl;
+    arg->omegaq = omegaq;
+    arg->zmol = zmol;
+    arg->zmos = zmos;
+    arg->savtsn = savtsn;
+    arg->ee2 = ee2;
+    arg->e3 = e3;
+    arg->xi2 = xi2;
+    arg->xl2 = xl2;
+    arg->xl3 = xl3;
+    arg->xl4 = xl4;
+    arg->xgh2 = xgh2;
+    arg->xgh3 = xgh3;
+    arg->xgh4 = xgh4;
+    arg->xh2 = xh2;
+    arg->xh3 = xh3;
+    arg->sse = sse;
+    arg->ssi = ssi;
+    arg->ssg = ssg;
+    arg->xi3 = xi3;
+    arg->se2 = se2;
+    arg->si2 = si2;
+    arg->sl2 = sl2;
+    arg->sgh2 = sgh2;
+    arg->sh2 = sh2;
+    arg->se3 = se3;
+    arg->si3 = si3;
+    arg->sl3 = sl3;
+    arg->sgh3 = sgh3;
+    arg->sh3 = sh3;
+    arg->sl4 = sl4;
+    arg->sgh4 = sgh4;
+    arg->ssl = ssl;
+    arg->ssh = ssh;
+    arg->d3210 = d3210;
+    arg->d3222 = d3222;
+    arg->d4410 = d4410;
+    arg->d4422 = d4422;
+    arg->d5220 = d5220;
+    arg->d5232 = d5232;
+    arg->d5421 = d5421;
+    arg->d5433 = d5433;
+    arg->del1 = del1;
+    arg->del2 = del2;
+    arg->del3 = del3;
+    arg->fasx2 = fasx2;
+    arg->fasx4 = fasx4;
+    arg->fasx6 = fasx6;
+    arg->xlamo = xlamo;
+    arg->xfact = xfact;
+    arg->xni = xni;
+    arg->atime = atime;
+    arg->stepp = stepp;
+    arg->stepn = stepn;
+    arg->step2 = step2;
+    arg->preep = preep;
+    arg->pl = pl;
+    arg->sghs = sghs;
+    arg->xli = xli;
+    arg->d2201 = d2201;
+    arg->d2211 = d2211;
+    arg->sghl = sghl;
+    arg->sh1 = sh1;
+    arg->pinc = pinc;
+    arg->pe = pe;
+    arg->shs = shs;
+    arg->zsingl = zsingl;
+    arg->zcosgl = zcosgl;
+    arg->zsinhl = zsinhl;
+    arg->zcoshl = zcoshl;
+    arg->zsinil = zsinil;
+    arg->zcosil = zcosil;
 }
 
-// SGP orbit model
+// SGP orbit model. Computes satellite position and velocity
+// in the Earth-centered, inertial equatorial reference frame,
+// in units of Earth-radii and Earth-radii per minute.
+// Elapsed time since orbital element epoch (tsince) is in minutes.
+// A simpler and faster (but less accurate) orbit model than SGP4/SDP4.
 
 void SSTLE::sgp ( double tsince, SSVector &pos, SSVector &vel )
 {
@@ -1110,7 +1100,11 @@ void SSTLE::sgp ( double tsince, SSVector &pos, SSVector &vel )
     vel.z = rvdot * vz + vel.z;
 }
 
-// SGP4 orbit model
+// SGP4 orbit model. Computes satellite position and velocity
+// in Earth-centered, inertial equatorial reference frame,
+// in units of Earth-radii and Earth-radii per minute.
+// Elapsed time since orbital element epoch (tsince) is in minutes.
+// Use this for near-Earth satellites with orbit periods < 225 minutes.
 
 void SSTLE::sgp4 ( double tsince, SSVector &pos, SSVector &vel )
 {
@@ -1426,7 +1420,11 @@ void SSTLE::sgp4 ( double tsince, SSVector &pos, SSVector &vel )
     vel.z = rdotk*uz+rfdotk*vz;
 }
 
-// SDP4 orbit model
+// SGP4 orbit model. Computes satellite position and velocity
+// in Earth-centered, inertial equatorial reference frame,
+// in units of Earth-radii and Earth-radii per minute.
+// Elapsed time since orbital element epoch (tsince) is in minutes.
+// Use this for deep-space satellites with orbit periods > 225 minutes.
 
 void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
 {
@@ -1444,7 +1442,7 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
            psisq = 0,tsi = 0,qoms24 = 0,s4 = 0,pinvsq = 0,temp = 0,tempa = 0,temp1 = 0,
            temp2 = 0,temp3 = 0,temp4 = 0,temp5 = 0,temp6 = 0;
 
-    deep_args deep_arg = { 0 };
+//    deep_args deep_arg = { 0 };
 
     sdp4_args *arg;
     
@@ -1458,24 +1456,24 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
         // semimajor axis (aodp) from input elements.
         
         a1 = pow(xke/xno,tothrd);
-        deep_arg.cosio = cos(xincl);
-        deep_arg.theta2 = deep_arg.cosio*deep_arg.cosio;
-        x3thm1 = 3*deep_arg.theta2-1;
-        deep_arg.eosq = eo*eo;
-        deep_arg.betao2 = 1-deep_arg.eosq;
-        deep_arg.betao = sqrt(deep_arg.betao2);
-        del1 = 1.5*ck2*x3thm1/(a1*a1*deep_arg.betao*deep_arg.betao2);
+        arg->deep.cosio = cos(xincl);
+        arg->deep.theta2 = arg->deep.cosio*arg->deep.cosio;
+        x3thm1 = 3*arg->deep.theta2-1;
+        arg->deep.eosq = eo*eo;
+        arg->deep.betao2 = 1-arg->deep.eosq;
+        arg->deep.betao = sqrt(arg->deep.betao2);
+        del1 = 1.5*ck2*x3thm1/(a1*a1*arg->deep.betao*arg->deep.betao2);
         ao = a1*(1-del1*(0.5*tothrd+del1*(1+134/81*del1)));
-        delo = 1.5*ck2*x3thm1/(ao*ao*deep_arg.betao*deep_arg.betao2);
-        deep_arg.xnodp = xno/(1+delo);
-        deep_arg.aodp = ao/(1-delo);
+        delo = 1.5*ck2*x3thm1/(ao*ao*arg->deep.betao*arg->deep.betao2);
+        arg->deep.xnodp = xno/(1+delo);
+        arg->deep.aodp = ao/(1-delo);
 
         // For perigee below 156 km, the values
         // of s and qoms2t are altered.
         
         s4 = s;
         qoms24 = qoms2t;
-        perige = (deep_arg.aodp*(1-eo)-xae)*xkmper;
+        perige = (arg->deep.aodp*(1-eo)-xae)*xkmper;
         if(perige < 156)
         {
           if (perige <= 98 )
@@ -1486,51 +1484,51 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
           s4 = s4/xkmper+xae;
         }
         
-        pinvsq = 1/(deep_arg.aodp*deep_arg.aodp*deep_arg.betao2*deep_arg.betao2);
-        deep_arg.sing = sin(omegao);
-        deep_arg.cosg = cos(omegao);
-        tsi = 1/(deep_arg.aodp-s4);
-        eta = deep_arg.aodp*eo*tsi;
+        pinvsq = 1/(arg->deep.aodp*arg->deep.aodp*arg->deep.betao2*arg->deep.betao2);
+        arg->deep.sing = sin(omegao);
+        arg->deep.cosg = cos(omegao);
+        tsi = 1/(arg->deep.aodp-s4);
+        eta = arg->deep.aodp*eo*tsi;
         etasq = eta*eta;
         eeta = eo*eta;
         psisq = fabs(1-etasq);
         coef = qoms24*pow(tsi,4);
         coef1 = coef/pow(psisq,3.5);
-        c2 = coef1*deep_arg.xnodp*(deep_arg.aodp*(1+1.5*etasq+eeta*
+        c2 = coef1*arg->deep.xnodp*(arg->deep.aodp*(1+1.5*etasq+eeta*
            (4+etasq))+0.75*ck2*tsi/psisq*x3thm1*(8+3*etasq*(8+etasq)));
         c1 = bstar*c2;
-        deep_arg.sinio = sin(xincl);
+        arg->deep.sinio = sin(xincl);
         a3ovk2 = -xj3/ck2*pow(xae,3);
-        x1mth2 = 1-deep_arg.theta2;
-        c4 = 2*deep_arg.xnodp*coef1*deep_arg.aodp*deep_arg.betao2*
+        x1mth2 = 1-arg->deep.theta2;
+        c4 = 2*arg->deep.xnodp*coef1*arg->deep.aodp*arg->deep.betao2*
                (eta*(2+0.5*etasq)+eo*(0.5+2*etasq)-2*ck2*tsi/
-               (deep_arg.aodp*psisq)*(-3*x3thm1*(1-2*eeta+etasq*
+               (arg->deep.aodp*psisq)*(-3*x3thm1*(1-2*eeta+etasq*
                (1.5-0.5*eeta))+0.75*x1mth2*(2*etasq-eeta*(1+etasq))*
                cos(2*omegao)));
-        theta4 = deep_arg.theta2*deep_arg.theta2;
-        temp1 = 3*ck2*pinvsq*deep_arg.xnodp;
+        theta4 = arg->deep.theta2*arg->deep.theta2;
+        temp1 = 3*ck2*pinvsq*arg->deep.xnodp;
         temp2 = temp1*ck2*pinvsq;
-        temp3 = 1.25*ck4*pinvsq*pinvsq*deep_arg.xnodp;
-        deep_arg.xmdot = deep_arg.xnodp+0.5*temp1*deep_arg.betao*
-                         x3thm1+0.0625*temp2*deep_arg.betao*
-                         (13-78*deep_arg.theta2+137*theta4);
-        x1m5th = 1-5*deep_arg.theta2;
-        deep_arg.omgdot = -0.5*temp1*x1m5th+0.0625*temp2*
-                          (7-114*deep_arg.theta2+395*theta4)+
-                          temp3*(3-36*deep_arg.theta2+49*theta4);
-        xhdot1 = -temp1*deep_arg.cosio;
-        deep_arg.xnodot = xhdot1+(0.5*temp2*(4-19*deep_arg.theta2)+
-                         2*temp3*(3-7*deep_arg.theta2))*deep_arg.cosio;
-        xnodcf = 3.5*deep_arg.betao2*xhdot1*c1;
+        temp3 = 1.25*ck4*pinvsq*pinvsq*arg->deep.xnodp;
+        arg->deep.xmdot = arg->deep.xnodp+0.5*temp1*arg->deep.betao*
+                         x3thm1+0.0625*temp2*arg->deep.betao*
+                         (13-78*arg->deep.theta2+137*theta4);
+        x1m5th = 1-5*arg->deep.theta2;
+        arg->deep.omgdot = -0.5*temp1*x1m5th+0.0625*temp2*
+                          (7-114*arg->deep.theta2+395*theta4)+
+                          temp3*(3-36*arg->deep.theta2+49*theta4);
+        xhdot1 = -temp1*arg->deep.cosio;
+        arg->deep.xnodot = xhdot1+(0.5*temp2*(4-19*arg->deep.theta2)+
+                         2*temp3*(3-7*arg->deep.theta2))*arg->deep.cosio;
+        xnodcf = 3.5*arg->deep.betao2*xhdot1*c1;
         t2cof = 1.5*c1;
-        xlcof = 0.125*a3ovk2*deep_arg.sinio*(3+5*deep_arg.cosio)/
-                (1+deep_arg.cosio);
-        aycof = 0.25*a3ovk2*deep_arg.sinio;
-        x7thm1 = 7*deep_arg.theta2-1;
+        xlcof = 0.125*a3ovk2*arg->deep.sinio*(3+5*arg->deep.cosio)/
+                (1+arg->deep.cosio);
+        aycof = 0.25*a3ovk2*arg->deep.sinio;
+        x7thm1 = 7*arg->deep.theta2-1;
 
         // initialize deep space perturbations
         
-        dodeep ( dpinit, &deep_arg );
+        dodeep ( dpinit, &arg->deep );
           
         // End of SDP4 initialization, save variables for further use.
           
@@ -1543,7 +1541,6 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
         arg->xlcof = xlcof;
         arg->aycof = aycof;
         arg->x7thm1 = x7thm1;
-        arg->deep = deep_arg;
     }
     else
     {
@@ -1560,56 +1557,55 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
         xlcof = arg->xlcof;
         aycof = arg->aycof;
         x7thm1 = arg->x7thm1;
-        deep_arg = arg->deep;
     }
 
     // Update for secular gravity and atmospheric drag
     
-    xmdf = xmo+deep_arg.xmdot*tsince;
-    deep_arg.omgadf = omegao+deep_arg.omgdot*tsince;
-    xnoddf = xnodeo+deep_arg.xnodot*tsince;
+    xmdf = xmo+arg->deep.xmdot*tsince;
+    arg->deep.omgadf = omegao+arg->deep.omgdot*tsince;
+    xnoddf = xnodeo+arg->deep.xnodot*tsince;
     tsq = tsince*tsince;
-    deep_arg.xnode = xnoddf+xnodcf*tsq;
+    arg->deep.xnode = xnoddf+xnodcf*tsq;
     tempa = 1-c1*tsince;
     tempe = bstar*c4*tsince;
     templ = t2cof*tsq;
-    deep_arg.xn = deep_arg.xnodp;
+    arg->deep.xn = arg->deep.xnodp;
 
     // Update for deep-space secular effects
     
-    deep_arg.xll = xmdf;
-    deep_arg.t = tsince;
+    arg->deep.xll = xmdf;
+    arg->deep.t = tsince;
 
-    dodeep ( dpsec, &deep_arg );
+    dodeep ( dpsec, &arg->deep );
 
-    xmdf = deep_arg.xll;
-    a = pow(xke/deep_arg.xn,tothrd)*tempa*tempa;
-    deep_arg.em = deep_arg.em-tempe;
-    xmam = xmdf+deep_arg.xnodp*templ;
+    xmdf = arg->deep.xll;
+    a = pow(xke/arg->deep.xn,tothrd)*tempa*tempa;
+    arg->deep.em = arg->deep.em-tempe;
+    xmam = xmdf+arg->deep.xnodp*templ;
 
     // Update for deep-space periodic effects
     
-    deep_arg.xll = xmam;
+    arg->deep.xll = xmam;
 
-    dodeep ( dpper, &deep_arg );
+    dodeep ( dpper, &arg->deep );
 
-    xmam = deep_arg.xll;
-    xl = xmam+deep_arg.omgadf+deep_arg.xnode;
-    beta = sqrt(1-deep_arg.em*deep_arg.em);
-    deep_arg.xn = xke/pow(a,1.5);
+    xmam = arg->deep.xll;
+    xl = xmam+arg->deep.omgadf+arg->deep.xnode;
+    beta = sqrt(1-arg->deep.em*arg->deep.em);
+    arg->deep.xn = xke/pow(a,1.5);
 
     // Long period periodics
     
-    axn = deep_arg.em*cos(deep_arg.omgadf);
+    axn = arg->deep.em*cos(arg->deep.omgadf);
     temp = 1/(a*beta*beta);
     xll = temp*xlcof*axn;
     aynl = temp*aycof;
     xlt = xl+xll;
-    ayn = deep_arg.em*sin(deep_arg.omgadf)+aynl;
+    ayn = arg->deep.em*sin(arg->deep.omgadf)+aynl;
 
     // Solve Kepler's Equation
     
-    capu = fmod2p(xlt-deep_arg.xnode);
+    capu = fmod2p(xlt-arg->deep.xnode);
     temp2 = capu;
 
     i = 0;
@@ -1654,10 +1650,10 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
     
     rk = r*(1-1.5*temp2*betal*x3thm1)+0.5*temp1*x1mth2*cos2u;
     uk = u-0.25*temp2*x7thm1*sin2u;
-    xnodek = deep_arg.xnode+1.5*temp2*deep_arg.cosio*sin2u;
-    xinck = deep_arg.xinc+1.5*temp2*deep_arg.cosio*deep_arg.sinio*cos2u;
-    rdotk = rdot-deep_arg.xn*temp1*x1mth2*sin2u;
-    rfdotk = rfdot+deep_arg.xn*temp1*(x1mth2*cos2u+1.5*x3thm1);
+    xnodek = arg->deep.xnode+1.5*temp2*arg->deep.cosio*sin2u;
+    xinck = arg->deep.xinc+1.5*temp2*arg->deep.cosio*arg->deep.sinio*cos2u;
+    rdotk = rdot-arg->deep.xn*temp1*x1mth2*sin2u;
+    rfdotk = rfdot+arg->deep.xn*temp1*(x1mth2*cos2u+1.5*x3thm1);
 
     // Orientation vectors
     
@@ -1863,6 +1859,13 @@ char SSTLE::checksum ( string &line )
     return ( sum % 10 + '0' );
 }
 
+// Computes satellite position and velocity at a given Julian Date (jd)
+// in Earth-centered, inertial current equatorial reference frame,
+// in kilometers and kilometers per second.
+// NOTE 1: Julian Date in civil time (UTC), not a Julian Ephemeris Datae in Dynamic Time (TDT)!
+// NOTE 2: Position and Velocity are referenced to the Earth's equator at the orbital element epoch,
+// not to the fundamental J2000 ICRF equator!
+
 void SSTLE::toPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
 {
     double tsince = ( jd - jdepoch ) * xmnpda;
@@ -1871,4 +1874,7 @@ void SSTLE::toPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
         sdp4 ( tsince, pos, vel );
     else
         sgp4 ( tsince, pos, vel );
+    
+    pos *= xkmper;
+    vel *= xkmper / 60.0;
 }

@@ -60,8 +60,8 @@ void TestSatellites ( string inputDir, string outputDir )
             tle.toPositionVelocity ( jd, pos, vel );
             
             cout << format ( "jd %.6f  ", jd );
-            cout << format ( "pos %+12.8f %+12.8f %+12.8f  ", pos.x, pos.y, pos.z );
-            cout << format ( "vel %+11.8f %+11.8f %+11.8f",   vel.x, vel.y, vel.z ) << endl;
+            cout << format ( "pos %+10.3f %+10.3f %+10.3f  ", pos.x, pos.y, pos.z );
+            cout << format ( "vel %+7.3f %+7.3f %+7.3f",   vel.x, vel.y, vel.z ) << endl;
         }
     }
 }
