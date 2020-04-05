@@ -1,0 +1,67 @@
+SSCore/SSData To-Do's and Wishlist
+==================================
+
+SSConstellation
+---------------
+- add routine to find constellation from (RA,Dec) coords
+- deal with precession from B1875 -> J2000 consistently
+- interpolate constellation boundaries when reading from file
+
+SSDynamics
+----------
+- implement rise/transit/set time computation
+- needs a lot of work to unify ephemeris computation from different sources
+- rename to SSPhysics?
+
+SSIdentifier
+------------
+- make case-insensitive wherever possible
+- add comments for internal functions
+
+SSImportSKY2000
+---------------
+- add import routines for WDS and GCVS catalogs
+
+SSJPLDEphemeris
+---------------
+- rewrite guts to make thread-safe
+
+SSMatrix
+--------
+- code inverse() routine to return inverse of matrix
+
+SSObject
+--------
+- implement polymorphism correctly: add virtual functions for all of the accessors
+  and modifiers unique to subclasses; remove downcasting functions. This will have
+  big ripple effect but result in simpler code.
+  
+SSPlanet
+--------
+- add SSSatellite subclass
+
+SSStar
+------
+- add SSBinaryStar subclass.
+- add binary star orbit catalog import
+
+SSTLE
+-----
+- deal with argp more consistently, or get rid of it completely
+- add EFECtoECI() and ECItoECEF routines()
+- add import routines for McCants magnitude files, JE9PEL amateur radio data
+- add iridium flare computation
+
+SSTime
+------
+- add Moslem and Jewish calendars
+
+Other
+-----
+- implement routines for computing solar system object visual magnitudes
+- star absolute to apparent magnitudes and vice-versa
+- implement ephemeris routines for major solar system moons
+- implement VSOP2013 and ELPMPP02
+- implement P.S. low-precision planetary position computation routines
+
+-Tim DeBenedictis (timd@southernstars.com) 5 April 2020
