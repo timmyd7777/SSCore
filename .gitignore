@@ -42,3 +42,7 @@ DerivedData/
 
 # Unix intermediate files and test executable
 SSTest
+
+# Windows intermediate directories
+Debug/
+Release/
