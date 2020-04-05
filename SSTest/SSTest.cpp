@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "AstroLib.h"
 #include "SSCoords.hpp"
 #include "SSOrbit.hpp"
 #include "SSDynamics.hpp"
@@ -197,12 +196,23 @@ void TestJPLDEphemeris ( string inputDir )
 
 int main ( int argc, char *argv[] )
 {
-    TestSatellites ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
-    TestJPLDEphemeris ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData" );
-    TestSolarSystem ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
-    TestConstellations ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
-	TestStars ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
-	TestDeepSky ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData", "/Users/timmyd/Desktop" );
+    if ( argc < 3 )
+    {
+        cout << "Usage: SSTest <inpath> <outpath>" << endl;
+        cout << "inpath: path to SSData directory" << endl;
+        cout << "outpath: path to output directory" << endl;
+        exit ( -1 );
+    }
+    
+    string inpath ( argv[1] );
+    string outpath ( argv[2] );
+    
+    TestSatellites ( inpath, outpath );
+    TestJPLDEphemeris ( inpath );
+    TestSolarSystem ( inpath, outpath );
+    TestConstellations ( inpath, outpath );
+	TestStars ( inpath, outpath );
+	TestDeepSky ( inpath, outpath );
 /*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
@@ -239,7 +249,7 @@ int main ( int argc, char *argv[] )
 
     exportCatalog ( objects, kCatMessier, 1, 110 );
     exportCatalog ( objects, kCatCaldwell, 1, 110 );
-*/
+
     SSIdentifierMap hipHRMap;
     int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
     cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
@@ -290,7 +300,7 @@ int main ( int argc, char *argv[] )
     n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, hipStars, gjStars, skyStars );
     cout << "Imported " << n << " SKY2000 stars." << endl;
     exportCatalog ( skyStars, kCatHR, 1, 9110 );
-/*
+
     SSAngle zero = 0.0;
     SSAngle one ( 1.0 );
     SSAngle two ( 2.0 );
