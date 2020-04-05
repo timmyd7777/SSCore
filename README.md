@@ -24,7 +24,7 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSJPLDEphemeris:_** This class reads JPL's binary DE43x series of ephemeris files and computes very fast, accurate lunar and planetary positions from them.
 - **_SSDynamics:_** Implements solar system and stellar dynamics. Computes position, motion, and visual magnitude of all types of celestial objects, as seen by an observer from a particular time and location, in a unified fashion.
 - **_SSMatrix:_** Represents a 3x3 matrix, with routines for performing matrix and vector-matrix arithmetic.
-- **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations etc.)
+- **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations, etc.)
 - **_SSOrbit:_** This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.
 - **_SSPlanet:_** This subclass of SSObject represents all solar system objects (not just planets, but also moons, asteroids, comets, satellites, etc.)
 - **_SSStar:_** This subclass of SSObject represents all objects outside the solar system, including stars, star clusters, nebulae, and galaxies. SSStar has special subclasses for double and variable stars, and for deep sky objects.
@@ -39,7 +39,7 @@ SSData
 
 **SSData** is a collection of data on well-known astronomical objects, compiled and carefully vetted from a variety of modern astronomical catalogs and data sources.  It includes:
 
-- **_Solar System Objects:_** the major planets (including Pluto!) and their natural satellites, with orbital and physical characteristics from [JPL Solar System Dynamics.](https://ssd.jpl.nasa.gov). Also current asteroid and comet data from the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html), a selection of satellite TLE files from [CelesTrak](http://www.celestrak.com) and [N2YO](https://www.n2yo.com], and JPL's latest planetary and lunar [ephemeris](https://ssd.jpl.nasa.gov/?planet_eph_export).
+- **_Solar System Objects:_** the major planets (including Pluto!) and their natural satellites, with orbital and physical characteristics from [JPL Solar System Dynamics.](https://ssd.jpl.nasa.gov). Also current asteroid and comet data from the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html), a selection of satellite TLE files from [CelesTrak](http://www.celestrak.com) and [N2YO](https://www.n2yo.com), and JPL's latest planetary and lunar [ephemeris](https://ssd.jpl.nasa.gov/?planet_eph_export).
 - **_Stars:_** the brightest and nearest stars, compiled from NASA's [SKY2000 Master Star Catalog](https://ui.adsabs.harvard.edu/abs/2015yCat.5145....0M/abstract), Hipparcos, RECONS, and other sources; with official IAU [star names](http://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt).
 - **_Deep Sky Objects:_** the Messier and Caldwell objects, with data from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/index_e.htm) catalogs, and enhanced using data from a few other sources.
 - **_Constellations:_** the 88 IAU-sanctioned constellations, including official IAU [boundary](https://watcheroftheskies.net/constellations/bound_18.txt) and [shape]( http://mkweb.bcgsc.ca/constellations/constellation.shapes.iau.txt) data.
