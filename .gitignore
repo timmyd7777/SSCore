@@ -40,9 +40,9 @@ xcuserdata/
 DerivedData/
 *.xcworkspace
 
-# Unix intermediate files and test executable
-sstest
+# Linux test executable
+Linux/sstest
 
 # Windows intermediate directories
-Debug/
-Release/
+Windows/Debug/
+Windows/Release/
