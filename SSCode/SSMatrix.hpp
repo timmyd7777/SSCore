@@ -3,6 +3,7 @@
 //
 // Created by Tim DeBenedictis on 2/24/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
+//
 // Represents a 3x3 matrix, with routines for performing simple matrix and vector-matrix arithmetic.
 
 #ifndef SSMatrix_hpp

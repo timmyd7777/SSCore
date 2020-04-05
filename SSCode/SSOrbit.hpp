@@ -1,10 +1,10 @@
+// SSOrbit.hpp
+// SSCore
 //
-//  SSOrbit.hpp
-//  SSCore
+// Created by Tim DeBenedictis on 3/7/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
 //
-//  Created by Tim DeBenedictis on 3/7/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//  Class for storing Keplerian orbital elements, computing position/velocity at a given time from them, and vice-versa.
+// This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.
 
 #ifndef SSOrbit_hpp
 #define SSOrbit_hpp

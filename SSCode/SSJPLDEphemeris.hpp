@@ -4,9 +4,8 @@
 // Created by Tim DeBenedictis on 4/3/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
-// This class reads JPL's binary DE ephemeris files
-// and computes lunar and planetary positions from them.
-//
+// This class reads JPL's binary DE43x series of ephemeris files
+// and computes vdery fast, accurate lunar and planetary positions from them.
 
 #ifndef SSJPLEphemeris_hpp
 #define SSJPLEphemeris_hpp

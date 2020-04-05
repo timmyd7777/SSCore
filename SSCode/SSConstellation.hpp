@@ -3,7 +3,10 @@
 //
 // Created by Tim DeBenedictis on 3/25/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
-// This subclass of SSObject stores information for constellations and asterisms.
+//
+// This subclass of SSObject stores information for constellations and asterisms,
+// including the official IAU constellation names, abbreviations, boundaries; and
+// shape/figure data.
 
 #ifndef SSConstellation_hpp
 #define SSConstellation_hpp

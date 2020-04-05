@@ -1,9 +1,11 @@
-//  SSPlanet.hpp
-//  SSCore
+// SSPlanet.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 3/15/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//  Represents solar system objects (planets, moons, asteroids, etc.)
+// Created by Tim DeBenedictis on 3/15/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+//
+// This subclass of SSObject represents all solar system objects (not just planets,
+// but also moons, asteroids, comets, satellites, etc.)
 
 #ifndef SSPlanet_hpp
 #define SSPlanet_hpp

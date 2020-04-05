@@ -1,10 +1,11 @@
+// SSDynamics.hpp
+// SSCore
 //
-//  SSDynamics.hpp
-//  SSCore
+// Created by Tim DeBenedictis on 3/10/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
 //
-//  Created by Tim DeBenedictis on 3/10/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//
+// Implements solar system and stellar dynamics. Computes position, motion, and visual magnitude of all
+// types of celestial objects, as seen by an observer from a particular time and location, in a unified fashion.
 
 #ifndef SSDynamics_hpp
 #define SSDynamics_hpp

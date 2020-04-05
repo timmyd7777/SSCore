@@ -1,9 +1,13 @@
-//  SSStar.hpp
-//  SSCore
+// SSStar.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 3/15/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//  Represents a star or deep sky object
+// Created by Tim DeBenedictis on 3/15/20.
+//
+// Copyright © 2020 Southern Stars. All rights reserved.
+//
+// This subclass of SSObject represents all objects outside the solar system,
+// including stars, star clusters, nebulae, and galaxies. SSStar has special
+// subclasses for double and variable stars, and for deep sky objects.
 
 #ifndef SSStar_hpp
 #define SSStar_hpp

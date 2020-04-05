@@ -1,9 +1,11 @@
-//  SSVector.hpp
-//  SSCore
+// SSVector.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 2/24/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//    Classes for converting points between spherical and rectangular coordinates, and performing vector arithmetic operations.
+// Created by Tim DeBenedictis on 2/24/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+//
+// Classes for converting points between spherical and rectangular coordinates,
+// and for performing vector arithmetic operations.
 
 #ifndef SSVector_hpp
 #define SSVector_hpp

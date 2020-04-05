@@ -1,10 +1,11 @@
-//  SSCoords.hpp
-//  SSCore
+// SSCoords.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 2/28/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//    Classes for converting rectangular and spherical coordinates between different astronomical reference frames
-//  at a particular time and geographic location.
+// Created by Tim DeBenedictis on 2/28/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+//
+// This class converts rectangular and spherical coordinates between different astronomical reference frames
+// at a particular time and geographic location.
 
 #ifndef SSCoords_hpp
 #define SSCoords_hpp

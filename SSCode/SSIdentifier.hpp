@@ -1,9 +1,12 @@
-//  SSIdentifier.hpp
-//  SSCore
+// SSIdentifier.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 3/20/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//  This class represents object identifiers in a wide variety of astronomical catalogs.
+// Created by Tim DeBenedictis on 3/20/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+//
+// This class represents object identifiers used in a wide variety of astronomical catalogs
+// with a unified system of 64-bit integers, and contains methods for converting identifiers
+// from string representations ("HR 7001", "NGC 1976", etc.) to 64-bit integers and vice-versa.
 
 #ifndef SSIdentifier_hpp
 #define SSIdentifier_hpp

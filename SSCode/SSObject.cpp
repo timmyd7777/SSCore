@@ -1,9 +1,10 @@
-//  SSObject.cpp
-//  SSCore
+// SSObject.cpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 3/15/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//  Base class for all objects in the database (stars, planets, etc.)
+// Created by Tim DeBenedictis on 3/15/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+//
+// Base class for all types of celestial objects (stars, planets, constellations, etc.)
 
 #include <iostream>
 #include <fstream>

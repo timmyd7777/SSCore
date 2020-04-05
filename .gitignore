@@ -35,10 +35,12 @@
 .DS_Store
 .Trashes
 
-# Xcode user settings
+# Xcode user settings and intermediate files
 xcuserdata/
+xcshareddata/
+DerivedData/
 *.xcworkspace
 
-# Unix test executable
-test
-
+# Unix intermediate files and test executable
+*.o
+SSTest

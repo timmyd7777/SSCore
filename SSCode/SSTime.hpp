@@ -3,6 +3,7 @@
 //
 // Created by Tim DeBenedictis on 2/23/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
+// 
 // Classes for converting between Julian Day and calendar date/time; and between civil and dynamic time.
 
 #ifndef SSTime_hpp
