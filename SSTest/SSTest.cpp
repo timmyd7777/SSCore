@@ -1,4 +1,4 @@
-//  test.cpp
+//  SSTest.cpp
 //  SSCore
 //
 //  Created by Tim DeBenedictis on 2/24/20.
@@ -6,6 +6,10 @@
 
 #include <cstdio>
 #include <iostream>
+
+#if defined __APPLE__
+#include <TargetConditionals.h>
+#endif
 
 #include "SSCoords.hpp"
 #include "SSOrbit.hpp"
@@ -215,7 +219,23 @@ void TestJPLDEphemeris ( string inputDir )
     jpldeph.close();
 }
 
-int main ( int argc, char *argv[] )
+#if TARGET_OS_IOS
+#include "SSTest.h"
+
+#define main(argc,argv) _main(argc,argv)
+
+int _main ( int argc, const char *argv[] );
+
+int SSTestMain ( const char *inputpath, const char *outputpath )
+{
+    const char *argv[] = { "SSTest", inputpath, outputpath };
+
+    return _main ( 3, argv );
+}
+
+#endif
+
+int main ( int argc, const char *argv[] )
 {
     TestTime();
 
@@ -236,6 +256,7 @@ int main ( int argc, char *argv[] )
     TestConstellations ( inpath, outpath );
     TestStars ( inpath, outpath );
     TestDeepSky ( inpath, outpath );
+    
 /*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
@@ -468,5 +489,6 @@ int main ( int argc, char *argv[] )
     printf ( "%lf %lf %lf\n", i.m10, i.m11, i.m12 );
     printf ( "%lf %lf %lf\n", i.m20, i.m21, i.m22 );
 */
+    return 0;
 }
 

@@ -1,0 +1,484 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A31CDC05243B76A800573D03 /* SSData in Resources */ = {isa = PBXBuildFile; fileRef = A31CDC04243B76A800573D03 /* SSData */; };
+		A3EBE0ED243AE4E800B47EAE /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0C7243AE4E800B47EAE /* SSObject.cpp */; };
+		A3EBE0EE243AE4E800B47EAE /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */; };
+		A3EBE0EF243AE4E800B47EAE /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */; };
+		A3EBE0F0243AE4E800B47EAE /* SSJPLDEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0CC243AE4E800B47EAE /* SSJPLDEphemeris.cpp */; };
+		A3EBE0F1243AE4E800B47EAE /* SSTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0CE243AE4E800B47EAE /* SSTime.cpp */; };
+		A3EBE0F2243AE4E800B47EAE /* SSImportSKY2000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0D0243AE4E800B47EAE /* SSImportSKY2000.cpp */; };
+		A3EBE0F3243AE4E800B47EAE /* SSTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0D2243AE4E800B47EAE /* SSTLE.cpp */; };
+		A3EBE0F4243AE4E800B47EAE /* SSImportGJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0DB243AE4E800B47EAE /* SSImportGJ.cpp */; };
+		A3EBE0F5243AE4E800B47EAE /* SSImportHIP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0DC243AE4E800B47EAE /* SSImportHIP.cpp */; };
+		A3EBE0F6243AE4E800B47EAE /* SSAngle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0DE243AE4E800B47EAE /* SSAngle.cpp */; };
+		A3EBE0F7243AE4E800B47EAE /* SSOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0DF243AE4E800B47EAE /* SSOrbit.cpp */; };
+		A3EBE0F8243AE4E800B47EAE /* SSImportNGCIC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E0243AE4E800B47EAE /* SSImportNGCIC.cpp */; };
+		A3EBE0F9243AE4E800B47EAE /* SSUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E1243AE4E800B47EAE /* SSUtilities.cpp */; };
+		A3EBE0FA243AE4E800B47EAE /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E2243AE4E800B47EAE /* SSStar.cpp */; };
+		A3EBE0FB243AE4E800B47EAE /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E3243AE4E800B47EAE /* SSPlanet.cpp */; };
+		A3EBE0FC243AE4E800B47EAE /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E4243AE4E800B47EAE /* SSVector.cpp */; };
+		A3EBE0FD243AE4E800B47EAE /* SSImportMPC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E5243AE4E800B47EAE /* SSImportMPC.cpp */; };
+		A3EBE0FE243AE4E800B47EAE /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E7243AE4E800B47EAE /* SSMatrix.cpp */; };
+		A3EBE0FF243AE4E800B47EAE /* SSDynamics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E9243AE4E800B47EAE /* SSDynamics.cpp */; };
+		A3EBE100243AE4E800B47EAE /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0EC243AE4E800B47EAE /* SSCoords.cpp */; };
+		A3EBE102243AE69800B47EAE /* SSTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE101243AE69800B47EAE /* SSTest.cpp */; };
+		A3EBE104243AE9A600B47EAE /* SSTest.h in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE103243AE9A600B47EAE /* SSTest.h */; };
+		A3F33350243B89D500D27A15 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3F3334F243B89D500D27A15 /* Preview Assets.xcassets */; };
+		A3F33352243B89EE00D27A15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3F33351243B89EE00D27A15 /* Assets.xcassets */; };
+		A3F33358243B8B0100D27A15 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F33355243B8B0100D27A15 /* SceneDelegate.swift */; };
+		A3F33359243B8B0100D27A15 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F33356243B8B0100D27A15 /* ContentView.swift */; };
+		A3F3335A243B8B0100D27A15 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F33357243B8B0100D27A15 /* AppDelegate.swift */; };
+		A3F3335D243B8B3F00D27A15 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A3F3335B243B8B3F00D27A15 /* LaunchScreen.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A30DBCCA243AE47500E9CC82 /* SSTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SSTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A31CDC04243B76A800573D03 /* SSData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SSData; path = ../../SSData; sourceTree = "<group>"; };
+		A35E293A243B73B400089CFD /* SSTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SSTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		A3EBE0C5243AE4E800B47EAE /* SSVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSVector.hpp; sourceTree = "<group>"; };
+		A3EBE0C6243AE4E800B47EAE /* SSImportMPC.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportMPC.hpp; sourceTree = "<group>"; };
+		A3EBE0C7243AE4E800B47EAE /* SSObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSObject.cpp; sourceTree = "<group>"; };
+		A3EBE0C8243AE4E800B47EAE /* SSMatrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSMatrix.hpp; sourceTree = "<group>"; };
+		A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSConstellation.cpp; sourceTree = "<group>"; };
+		A3EBE0CA243AE4E800B47EAE /* SSDynamics.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSDynamics.hpp; sourceTree = "<group>"; };
+		A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSIdentifier.cpp; sourceTree = "<group>"; };
+		A3EBE0CC243AE4E800B47EAE /* SSJPLDEphemeris.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSJPLDEphemeris.cpp; sourceTree = "<group>"; };
+		A3EBE0CD243AE4E800B47EAE /* SSCoords.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSCoords.hpp; sourceTree = "<group>"; };
+		A3EBE0CE243AE4E800B47EAE /* SSTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSTime.cpp; sourceTree = "<group>"; };
+		A3EBE0CF243AE4E800B47EAE /* SSImportGJ.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportGJ.hpp; sourceTree = "<group>"; };
+		A3EBE0D0243AE4E800B47EAE /* SSImportSKY2000.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportSKY2000.cpp; sourceTree = "<group>"; };
+		A3EBE0D1243AE4E800B47EAE /* SSImportHIP.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportHIP.hpp; sourceTree = "<group>"; };
+		A3EBE0D2243AE4E800B47EAE /* SSTLE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSTLE.cpp; sourceTree = "<group>"; };
+		A3EBE0D3243AE4E800B47EAE /* SSAngle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSAngle.hpp; sourceTree = "<group>"; };
+		A3EBE0D4243AE4E800B47EAE /* SSOrbit.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSOrbit.hpp; sourceTree = "<group>"; };
+		A3EBE0D5243AE4E800B47EAE /* SSUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSUtilities.hpp; sourceTree = "<group>"; };
+		A3EBE0D6243AE4E800B47EAE /* SSImportNGCIC.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportNGCIC.hpp; sourceTree = "<group>"; };
+		A3EBE0D7243AE4E800B47EAE /* SSStar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSStar.hpp; sourceTree = "<group>"; };
+		A3EBE0D8243AE4E800B47EAE /* SSPlanet.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSPlanet.hpp; sourceTree = "<group>"; };
+		A3EBE0D9243AE4E800B47EAE /* SSTime.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSTime.hpp; sourceTree = "<group>"; };
+		A3EBE0DA243AE4E800B47EAE /* SSImportSKY2000.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportSKY2000.hpp; sourceTree = "<group>"; };
+		A3EBE0DB243AE4E800B47EAE /* SSImportGJ.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportGJ.cpp; sourceTree = "<group>"; };
+		A3EBE0DC243AE4E800B47EAE /* SSImportHIP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportHIP.cpp; sourceTree = "<group>"; };
+		A3EBE0DD243AE4E800B47EAE /* SSTLE.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSTLE.hpp; sourceTree = "<group>"; };
+		A3EBE0DE243AE4E800B47EAE /* SSAngle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSAngle.cpp; sourceTree = "<group>"; };
+		A3EBE0DF243AE4E800B47EAE /* SSOrbit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSOrbit.cpp; sourceTree = "<group>"; };
+		A3EBE0E0243AE4E800B47EAE /* SSImportNGCIC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportNGCIC.cpp; sourceTree = "<group>"; };
+		A3EBE0E1243AE4E800B47EAE /* SSUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSUtilities.cpp; sourceTree = "<group>"; };
+		A3EBE0E2243AE4E800B47EAE /* SSStar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSStar.cpp; sourceTree = "<group>"; };
+		A3EBE0E3243AE4E800B47EAE /* SSPlanet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSPlanet.cpp; sourceTree = "<group>"; };
+		A3EBE0E4243AE4E800B47EAE /* SSVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSVector.cpp; sourceTree = "<group>"; };
+		A3EBE0E5243AE4E800B47EAE /* SSImportMPC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportMPC.cpp; sourceTree = "<group>"; };
+		A3EBE0E6243AE4E800B47EAE /* SSObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSObject.hpp; sourceTree = "<group>"; };
+		A3EBE0E7243AE4E800B47EAE /* SSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSMatrix.cpp; sourceTree = "<group>"; };
+		A3EBE0E8243AE4E800B47EAE /* SSConstellation.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSConstellation.hpp; sourceTree = "<group>"; };
+		A3EBE0E9243AE4E800B47EAE /* SSDynamics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSDynamics.cpp; sourceTree = "<group>"; };
+		A3EBE0EA243AE4E800B47EAE /* SSIdentifier.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSIdentifier.hpp; sourceTree = "<group>"; };
+		A3EBE0EB243AE4E800B47EAE /* SSJPLDEphemeris.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSJPLDEphemeris.hpp; sourceTree = "<group>"; };
+		A3EBE0EC243AE4E800B47EAE /* SSCoords.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSCoords.cpp; sourceTree = "<group>"; };
+		A3EBE101243AE69800B47EAE /* SSTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSTest.cpp; path = ../SSTest.cpp; sourceTree = "<group>"; };
+		A3EBE103243AE9A600B47EAE /* SSTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SSTest.h; sourceTree = "<group>"; };
+		A3F3334F243B89D500D27A15 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		A3F33351243B89EE00D27A15 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = SOURCE_ROOT; };
+		A3F33355243B8B0100D27A15 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = SOURCE_ROOT; };
+		A3F33356243B8B0100D27A15 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = SOURCE_ROOT; };
+		A3F33357243B8B0100D27A15 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = SOURCE_ROOT; };
+		A3F3335C243B8B3F00D27A15 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = SOURCE_ROOT; };
+		A3F3335E243B8B4800D27A15 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A30DBCC7243AE47500E9CC82 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A30DBCC1243AE47500E9CC82 = {
+			isa = PBXGroup;
+			children = (
+				A3EBE0C4243AE4E800B47EAE /* SSCode */,
+				A31CDC04243B76A800573D03 /* SSData */,
+				A3F33357243B8B0100D27A15 /* AppDelegate.swift */,
+				A3F33356243B8B0100D27A15 /* ContentView.swift */,
+				A3F33355243B8B0100D27A15 /* SceneDelegate.swift */,
+				A3F3335B243B8B3F00D27A15 /* LaunchScreen.storyboard */,
+				A3F3335E243B8B4800D27A15 /* Info.plist */,
+				A3F33351243B89EE00D27A15 /* Assets.xcassets */,
+				A3F3334E243B89D500D27A15 /* Preview Content */,
+				A3EBE101243AE69800B47EAE /* SSTest.cpp */,
+				A3EBE103243AE9A600B47EAE /* SSTest.h */,
+				A35E293A243B73B400089CFD /* SSTest-Bridging-Header.h */,
+				A30DBCCB243AE47500E9CC82 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A30DBCCB243AE47500E9CC82 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A30DBCCA243AE47500E9CC82 /* SSTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A3EBE0C4243AE4E800B47EAE /* SSCode */ = {
+			isa = PBXGroup;
+			children = (
+				A3EBE0DE243AE4E800B47EAE /* SSAngle.cpp */,
+				A3EBE0D3243AE4E800B47EAE /* SSAngle.hpp */,
+				A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */,
+				A3EBE0E8243AE4E800B47EAE /* SSConstellation.hpp */,
+				A3EBE0EC243AE4E800B47EAE /* SSCoords.cpp */,
+				A3EBE0CD243AE4E800B47EAE /* SSCoords.hpp */,
+				A3EBE0E9243AE4E800B47EAE /* SSDynamics.cpp */,
+				A3EBE0CA243AE4E800B47EAE /* SSDynamics.hpp */,
+				A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */,
+				A3EBE0EA243AE4E800B47EAE /* SSIdentifier.hpp */,
+				A3EBE0DB243AE4E800B47EAE /* SSImportGJ.cpp */,
+				A3EBE0DC243AE4E800B47EAE /* SSImportHIP.cpp */,
+				A3EBE0D1243AE4E800B47EAE /* SSImportHIP.hpp */,
+				A3EBE0CF243AE4E800B47EAE /* SSImportGJ.hpp */,
+				A3EBE0E5243AE4E800B47EAE /* SSImportMPC.cpp */,
+				A3EBE0C6243AE4E800B47EAE /* SSImportMPC.hpp */,
+				A3EBE0E0243AE4E800B47EAE /* SSImportNGCIC.cpp */,
+				A3EBE0D6243AE4E800B47EAE /* SSImportNGCIC.hpp */,
+				A3EBE0D0243AE4E800B47EAE /* SSImportSKY2000.cpp */,
+				A3EBE0DA243AE4E800B47EAE /* SSImportSKY2000.hpp */,
+				A3EBE0CC243AE4E800B47EAE /* SSJPLDEphemeris.cpp */,
+				A3EBE0EB243AE4E800B47EAE /* SSJPLDEphemeris.hpp */,
+				A3EBE0E7243AE4E800B47EAE /* SSMatrix.cpp */,
+				A3EBE0C8243AE4E800B47EAE /* SSMatrix.hpp */,
+				A3EBE0C7243AE4E800B47EAE /* SSObject.cpp */,
+				A3EBE0E6243AE4E800B47EAE /* SSObject.hpp */,
+				A3EBE0DF243AE4E800B47EAE /* SSOrbit.cpp */,
+				A3EBE0D4243AE4E800B47EAE /* SSOrbit.hpp */,
+				A3EBE0E3243AE4E800B47EAE /* SSPlanet.cpp */,
+				A3EBE0D8243AE4E800B47EAE /* SSPlanet.hpp */,
+				A3EBE0E2243AE4E800B47EAE /* SSStar.cpp */,
+				A3EBE0D7243AE4E800B47EAE /* SSStar.hpp */,
+				A3EBE0CE243AE4E800B47EAE /* SSTime.cpp */,
+				A3EBE0D9243AE4E800B47EAE /* SSTime.hpp */,
+				A3EBE0D2243AE4E800B47EAE /* SSTLE.cpp */,
+				A3EBE0DD243AE4E800B47EAE /* SSTLE.hpp */,
+				A3EBE0E1243AE4E800B47EAE /* SSUtilities.cpp */,
+				A3EBE0D5243AE4E800B47EAE /* SSUtilities.hpp */,
+				A3EBE0E4243AE4E800B47EAE /* SSVector.cpp */,
+				A3EBE0C5243AE4E800B47EAE /* SSVector.hpp */,
+			);
+			name = SSCode;
+			path = ../../SSCode;
+			sourceTree = "<group>";
+		};
+		A3F3334E243B89D500D27A15 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				A3F3334F243B89D500D27A15 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A30DBCC9243AE47500E9CC82 /* SSTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A30DBCDE243AE47700E9CC82 /* Build configuration list for PBXNativeTarget "SSTest" */;
+			buildPhases = (
+				A30DBCC6243AE47500E9CC82 /* Sources */,
+				A30DBCC7243AE47500E9CC82 /* Frameworks */,
+				A30DBCC8243AE47500E9CC82 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SSTest;
+			productName = SSTest;
+			productReference = A30DBCCA243AE47500E9CC82 /* SSTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A30DBCC2243AE47500E9CC82 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1120;
+				LastUpgradeCheck = 1120;
+				ORGANIZATIONNAME = "Southern Stars";
+				TargetAttributes = {
+					A30DBCC9243AE47500E9CC82 = {
+						CreatedOnToolsVersion = 11.2.1;
+					};
+				};
+			};
+			buildConfigurationList = A30DBCC5243AE47500E9CC82 /* Build configuration list for PBXProject "SSTest" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A30DBCC1243AE47500E9CC82;
+			productRefGroup = A30DBCCB243AE47500E9CC82 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A30DBCC9243AE47500E9CC82 /* SSTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A30DBCC8243AE47500E9CC82 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3F33350243B89D500D27A15 /* Preview Assets.xcassets in Resources */,
+				A3F33352243B89EE00D27A15 /* Assets.xcassets in Resources */,
+				A3F3335D243B8B3F00D27A15 /* LaunchScreen.storyboard in Resources */,
+				A31CDC05243B76A800573D03 /* SSData in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A30DBCC6243AE47500E9CC82 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3EBE0F2243AE4E800B47EAE /* SSImportSKY2000.cpp in Sources */,
+				A3EBE0FA243AE4E800B47EAE /* SSStar.cpp in Sources */,
+				A3F33359243B8B0100D27A15 /* ContentView.swift in Sources */,
+				A3EBE100243AE4E800B47EAE /* SSCoords.cpp in Sources */,
+				A3EBE0F1243AE4E800B47EAE /* SSTime.cpp in Sources */,
+				A3EBE0F9243AE4E800B47EAE /* SSUtilities.cpp in Sources */,
+				A3EBE0EF243AE4E800B47EAE /* SSIdentifier.cpp in Sources */,
+				A3F33358243B8B0100D27A15 /* SceneDelegate.swift in Sources */,
+				A3EBE0F0243AE4E800B47EAE /* SSJPLDEphemeris.cpp in Sources */,
+				A3EBE102243AE69800B47EAE /* SSTest.cpp in Sources */,
+				A3EBE0ED243AE4E800B47EAE /* SSObject.cpp in Sources */,
+				A3EBE0FE243AE4E800B47EAE /* SSMatrix.cpp in Sources */,
+				A3EBE0FD243AE4E800B47EAE /* SSImportMPC.cpp in Sources */,
+				A3F3335A243B8B0100D27A15 /* AppDelegate.swift in Sources */,
+				A3EBE104243AE9A600B47EAE /* SSTest.h in Sources */,
+				A3EBE0FC243AE4E800B47EAE /* SSVector.cpp in Sources */,
+				A3EBE0F3243AE4E800B47EAE /* SSTLE.cpp in Sources */,
+				A3EBE0F7243AE4E800B47EAE /* SSOrbit.cpp in Sources */,
+				A3EBE0F4243AE4E800B47EAE /* SSImportGJ.cpp in Sources */,
+				A3EBE0EE243AE4E800B47EAE /* SSConstellation.cpp in Sources */,
+				A3EBE0F8243AE4E800B47EAE /* SSImportNGCIC.cpp in Sources */,
+				A3EBE0FF243AE4E800B47EAE /* SSDynamics.cpp in Sources */,
+				A3EBE0F5243AE4E800B47EAE /* SSImportHIP.cpp in Sources */,
+				A3EBE0FB243AE4E800B47EAE /* SSPlanet.cpp in Sources */,
+				A3EBE0F6243AE4E800B47EAE /* SSAngle.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		A3F3335B243B8B3F00D27A15 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A3F3335C243B8B3F00D27A15 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		A30DBCDC243AE47700E9CC82 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A30DBCDD243AE47700E9CC82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A30DBCDF243AE47700E9CC82 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
+				DEVELOPMENT_TEAM = 3VXR2SZ857;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.southernstars.SSTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SSTest-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A30DBCE0243AE47700E9CC82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
+				DEVELOPMENT_TEAM = 3VXR2SZ857;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.southernstars.SSTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SSTest-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A30DBCC5243AE47500E9CC82 /* Build configuration list for PBXProject "SSTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A30DBCDC243AE47700E9CC82 /* Debug */,
+				A30DBCDD243AE47700E9CC82 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A30DBCDE243AE47700E9CC82 /* Build configuration list for PBXNativeTarget "SSTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A30DBCDF243AE47700E9CC82 /* Debug */,
+				A30DBCE0243AE47700E9CC82 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A30DBCC2243AE47500E9CC82 /* Project object */;
+}
