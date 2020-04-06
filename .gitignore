@@ -38,7 +38,6 @@
 # Xcode user settings and intermediate files
 xcuserdata/
 DerivedData/
-*.xcworkspace
 
 # Linux test executable
 Linux/sstest
