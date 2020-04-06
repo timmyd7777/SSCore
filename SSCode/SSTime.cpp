@@ -4,7 +4,7 @@
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <sys/time.h>
@@ -142,7 +142,7 @@ SSTime::SSTime ( SSDate date )
 
 SSTime SSTime::fromSystem ( void )
 {
-#ifdef WIN32
+#ifdef _WIN32
     TIME_ZONE_INFORMATION tzinfo = { 0 };
     GetTimeZoneInformation ( &tzinfo );
     double zone = -tzinfo.Bias / 60.0;
@@ -151,7 +151,7 @@ SSTime SSTime::fromSystem ( void )
     GetLocalTime ( &systime );
     SSDate date ( kGregorian, zone, systime.wYear, systime.wMonth, systime.wDay, systime.wHour, systime.wMinute, systime.wSecond + systime.wMilliseconds / 1000.0 );
 
-    return SSTime ( date, zone );
+    return SSTime ( date );
 #else
     time_t t = time ( nullptr );
     double zone = localtime ( &t )->tm_gmtoff / 3600.0;

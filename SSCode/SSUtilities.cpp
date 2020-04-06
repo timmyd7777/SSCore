@@ -7,7 +7,7 @@
 #include <cstdarg>
 #include "SSUtilities.hpp"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <direct.h>
 #else
 #include <unistd.h>
@@ -15,7 +15,7 @@
 
 // Returns path to current working directory as a string
 
-#ifdef WIN32
+#ifdef _WIN32
 
 string getcwd ( void )
 {
