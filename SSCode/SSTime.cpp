@@ -134,7 +134,7 @@ SSTime::SSTime ( SSDate date )
 
     jd = floor ( 365.25 * ( date.year + 4716 ) ) + floor ( 30.6001 * ( date.month + 1 ) ) + date.day + b - 1524.5;
     zone = date.zone;
-	calendar = date.calendar;
+    calendar = date.calendar;
 }
 
 // Constructs a time from the computer system time; the local time zone is also read from the system.
@@ -143,23 +143,23 @@ SSTime::SSTime ( SSDate date )
 SSTime SSTime::fromSystem ( void )
 {
 #ifdef WIN32
-	SYSTEMTIME	systime = { 0 };
-	TIME_ZONE_INFORMATION tzinfo = { 0 };
+    TIME_ZONE_INFORMATION tzinfo = { 0 };
+    GetTimeZoneInformation ( &tzinfo );
+    double zone = -tzinfo.Bias / 60.0;
 
-	GetTimeZoneInformation ( &tzinfo );
-	double zone = -tzinfo.Bias / 60.0;
+    SYSTEMTIME    systime = { 0 };
+    GetLocalTime ( &systime );
+    SSDate date ( kGregorian, zone, systime.wYear, systime.wMonth, systime.wDay, systime.wHour, systime.wMinute, systime.wSecond + systime.wMilliseconds / 1000.0 );
 
-	GetLocalTime ( &systime );
-	SSDate date ( kGregorian, zone, systime.wYear, systime.wMonth, systime.wDay, systime.wHour, systime.wMinute, systime.wSecond + systime.wMilliseconds / 1000.0 );
-	return SSTime ( date );
+    return SSTime ( date, zone );
 #else
-	struct timeval    tv = { 0 };
-    struct timezone    tz = { 0 };
+    time_t t = time ( nullptr );
+    double zone = localtime ( &t )->tm_gmtoff / 3600.0;
     
-    gettimeofday ( &tv, &tz );
+    struct timeval tv = { 0 };
+    gettimeofday ( &tv, nullptr );
     double jd = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
-    double zone = -tz.tz_minuteswest / 60.0;
-    
+
     return SSTime ( jd, zone );
 #endif
 }
