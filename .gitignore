@@ -44,5 +44,5 @@ DerivedData/
 Linux/sstest
 
 # Windows intermediate directories
-Windows/Debug/
-Windows/Release/
+Debug/
+Release/
