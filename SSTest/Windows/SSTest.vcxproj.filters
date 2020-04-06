@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\SSCode">
+      <UniqueIdentifier>{727a1652-cf37-4298-9e39-1509f17dcd42}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\SSTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSAngle.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSConstellation.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSCoords.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSDynamics.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSIdentifier.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSImportGJ.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSImportHIP.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSImportMPC.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSImportNGCIC.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSImportSKY2000.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSJPLDEphemeris.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSMatrix.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSObject.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSOrbit.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSPlanet.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSStar.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSTime.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSTLE.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSUtilities.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSVector.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\SSCode\SSAngle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSConstellation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSCoords.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSDynamics.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSIdentifier.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSImportGJ.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSImportHIP.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSImportMPC.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSImportNGCIC.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSImportSKY2000.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSJPLDEphemeris.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSMatrix.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSObject.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSOrbit.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSPlanet.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSStar.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSTime.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSTLE.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSUtilities.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSVector.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
