@@ -49,10 +49,10 @@ These files are mostly CSV-formatted text.  They can easily be imported into a s
 SSTest
 ------
 
-This directory contains a test program (SSTest.cpp), which hopefully serves as an example of how to use the C++ classes in the SSCode directory.  It also contains build environments for MacOS, iOS, Android, Windows, and Linux.  Build instructions for each platform:
+This directory contains a test program (SSTest.cpp), which hopefully serves as an example of how to use the C++ classes in the SSCode directory.  It also contains build environments for MacOS, iOS, Android, Windows, and Linux.  Building and running instructions for each platform follow.
 
 - **_Android:_** instructions TBD
-- **_MacOS:_** open **SSTest.xcodeproj** in the MacOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.
+- **_MacOS:_** open **SSTest.xcodeproj** in the MacOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**. NOTE: by default, Xcode places the SSTest executable under `~/Library/Developer/Xcode/DerivedData`, so SSTest won't know where to find the `SSData` folder.  To fix this, from Xcode's **File** menu, select **Project Settings...**, then change **Derived Data** to **Project-relative Location** (DerivedData). This puts the `DerivedData` folder, which contains the SSTest executable, into the `SSTest/MacOS` folder adjacent to `SSData`.
 - **_iOS:_** open **SSTest.xcodeproj** in the iOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.  This will launch SSTest in the iPhone Simulator.  NOTE: output is all sent to the Xcode debugger console; there is no user interface (yet!)
 - **_Linux:_** cd to the `Linux` directory; then type `make`.  After build completes, type `./sstest ../../SSData .` The final . tells the `sstest` executable to place file output into the current directory.
 - **_Windows:_** open **SSTest.sln** in Visual Studio 2017 or later. From Visual Studio's **Build** menu, select **Build Solution**.  Then from the **Debug** menu, select **Start Debugging** (or **Start Without Debugging** if you have selected a Release configuration.)  The Visual Studio project supports both x86 and x64 builds.
