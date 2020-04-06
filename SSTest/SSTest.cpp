@@ -4,7 +4,11 @@
 //  Created by Tim DeBenedictis on 2/24/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
+#ifdef WIN32
 #include <direct.h>
+#else
+#include <unistd.h>
+#endif
 #include <stdio.h>
 #include <iostream>
 
@@ -39,20 +43,26 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 
 void TestTime ( void )
 {
-	SSTime now = SSTime::fromSystem();
-	SSDate date = now;
+    SSTime now = SSTime::fromSystem();
+    SSDate date = now;
 
-	cout << "Current date is " << format ( "%04hd-%02hd-%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
-	cout << "Current time is " << format ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
-	cout << "Current time zone is " << format ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
-	cout << "Current Julian Date is " << format ( "%.6f", now ) << endl;
+    cout << "Current date is " << format ( "%04hd-%02hd-%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
+    cout << "Current time is " << format ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
+    cout << "Current time zone is " << format ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
+    cout << "Current Julian Date is " << format ( "%.6f", now ) << endl;
 };
 
 void ShowWorkingDirectory ( void )
 {
-	char path[_MAX_PATH] = { 0 };
-	_getcwd(path, _MAX_PATH);
-	cout << "Current working directory is " << string(path) << endl;
+#ifdef WIN32
+    char path[_MAX_PATH] = { 0 };
+    _getcwd(path, _MAX_PATH);
+    cout << "Current working directory is " << string ( path ) << endl;
+#else
+    char path[PATH_MAX] = { 0 };
+    getcwd ( path, PATH_MAX );
+    cout << "Current working directory is " << string ( path ) << endl;
+#endif
 }
 
 void TestSatellites ( string inputDir, string outputDir )
@@ -145,41 +155,41 @@ void TestConstellations ( string inputDir, string outputDir )
 void TestStars ( string inputDir, string outputDir )
 {
     SSObjectVec nearest, brightest;
-	
+    
     int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearest );
     cout << "Imported " << numStars << " nearby stars" << endl;
-	
+    
     numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Brightest.csv", brightest );
     cout << "Imported " << numStars << " bright stars" << endl;
-	
+    
     if ( ! outputDir.empty() )
     {
-		numStars = SSExportObjectsToCSV ( outputDir + "/ExportedNearbyStars.csv", nearest );
-		cout << "Exported " << numStars << " nearby stars to " << outputDir + "/ExportedNearbyStars.csv" << endl;
+        numStars = SSExportObjectsToCSV ( outputDir + "/ExportedNearbyStars.csv", nearest );
+        cout << "Exported " << numStars << " nearby stars to " << outputDir + "/ExportedNearbyStars.csv" << endl;
 
-		numStars = SSExportObjectsToCSV ( outputDir + "/ExportedBrightStars.csv", brightest );
-		cout << "Exported " << numStars << " bright stars to " << outputDir + "/ExportedBrightStars.csv" << endl;
-	}
+        numStars = SSExportObjectsToCSV ( outputDir + "/ExportedBrightStars.csv", brightest );
+        cout << "Exported " << numStars << " bright stars to " << outputDir + "/ExportedBrightStars.csv" << endl;
+    }
 }
 
 void TestDeepSky ( string inputDir, string outputDir )
 {
     SSObjectVec messier, caldwell;
-	
+    
     int numObjs = SSImportObjectsFromCSV ( inputDir + "/DeepSky/Messier.csv", messier );
     cout << "Imported " << numObjs << " Messier objects" << endl;
-	
-	numObjs = SSImportObjectsFromCSV ( inputDir + "/DeepSky/Caldwell.csv", caldwell );
+    
+    numObjs = SSImportObjectsFromCSV ( inputDir + "/DeepSky/Caldwell.csv", caldwell );
     cout << "Imported " << numObjs << " Caldwell objects" << endl;
-	
+    
     if ( ! outputDir.empty() )
     {
-		numObjs = SSExportObjectsToCSV ( outputDir + "/ExportedMessier.csv", messier );
-		cout << "Exported " << numObjs << " Messier objects to " << outputDir + "/ExportedMessier.csv" << endl;
+        numObjs = SSExportObjectsToCSV ( outputDir + "/ExportedMessier.csv", messier );
+        cout << "Exported " << numObjs << " Messier objects to " << outputDir + "/ExportedMessier.csv" << endl;
 
-		numObjs = SSExportObjectsToCSV ( outputDir + "/ExportedCaldwell.csv", caldwell );
-		cout << "Exported " << numObjs << " Caldwell objects to " << outputDir + "/ExportedCaldwell.csv" << endl;
-	}
+        numObjs = SSExportObjectsToCSV ( outputDir + "/ExportedCaldwell.csv", caldwell );
+        cout << "Exported " << numObjs << " Caldwell objects to " << outputDir + "/ExportedCaldwell.csv" << endl;
+    }
 }
 
 void TestJPLDEphemeris ( string inputDir )
@@ -215,8 +225,8 @@ void TestJPLDEphemeris ( string inputDir )
 
 int main ( int argc, char *argv[] )
 {
-	TestTime();
-	ShowWorkingDirectory();
+    TestTime();
+    ShowWorkingDirectory();
 
     if ( argc < 3 )
     {
@@ -233,8 +243,8 @@ int main ( int argc, char *argv[] )
     TestJPLDEphemeris ( inpath );
     TestSolarSystem ( inpath, outpath );
     TestConstellations ( inpath, outpath );
-	TestStars ( inpath, outpath );
-	TestDeepSky ( inpath, outpath );
+    TestStars ( inpath, outpath );
+    TestDeepSky ( inpath, outpath );
 /*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
