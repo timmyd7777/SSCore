@@ -55,7 +55,7 @@ This directory contains a test program (SSTest.cpp), which hopefully serves as a
 - **_MacOS:_** open SSTest.codeproj in Xcode directory with Xcode 10 or later. Select Product -> Run from Xcode.
 - **_iOS:_** instructions TBD
 - **_Linux:_** cd to SSTest/Linux directory; then type "make" (without quotes!)  After build completes, type "./SSTest ../../SSData ." (without quotes!)
-- **_Windows:_** instructions TBD
+- **_Windows:_** open SSTest.sln in Visual Studio 2017 or later. Select Build -> Build Solution, then Debug -> Start Debugging (or Start Without Debugging if you have selected a Release configuration.)  The Visual Studio project support both x86 and x64 builds.
 
 Version History
 ---------------

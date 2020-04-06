@@ -47,6 +47,7 @@ SSStar
 
 SSTLE
 -----
+- add TLE and revolution numbers to exported TLEs so they exactly match the imported versions.
 - deal with argp more consistently, or get rid of it completely
 - add EFECtoECI() and ECItoECEF routines()
 - add import routines for McCants magnitude files, JE9PEL amateur radio data
@@ -67,7 +68,6 @@ Other
 Building and Running
 --------------------
 - Clean up and compete makefile for linux builds.
-- Add MSVC++ Windows test program.
 - Add iOS test program
 - Add Android test program.  Will need replacement routine for getline(), etc. that can
   read data files from APK and OBB.  Add JNI.
