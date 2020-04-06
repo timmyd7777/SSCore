@@ -46,3 +46,4 @@ Linux/sstest
 # Windows intermediate directories
 Windows/Debug/
 Windows/Release/
+*.user
