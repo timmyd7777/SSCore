@@ -59,6 +59,14 @@ void TestSatellites ( string inputDir, string outputDir )
         return;
     }
     
+    string outfilename = outputDir + "/ExportedSatellites.tle";
+    ofstream outfile ( outfilename );
+    if ( ! outfile )
+    {
+        cout << "Failed to open " << outfilename << endl;
+        return;
+    }
+    
     SSTLE tle;
     
     while ( tle.read ( file ) == 0 )
@@ -69,18 +77,18 @@ void TestSatellites ( string inputDir, string outputDir )
 
         tle.toPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
 
-//        cout << format ( "jd %.6f  ", tle.jdepoch + 10.0 );
-//        cout << format ( "pos %+10.3f %+10.3f %+10.3f  ", pos.x, pos.y, pos.z );
-//        cout << format ( "vel %+7.3f %+7.3f %+7.3f",   vel.x, vel.y, vel.z ) << endl;
+        cout << format ( "JD %.6f  ", tle.jdepoch + 10.0 );
+        cout << format ( "pos %+10.3f %+10.3f %+10.3f  ", pos.x, pos.y, pos.z );
+        cout << format ( "vel %+7.3f %+7.3f %+7.3f",   vel.x, vel.y, vel.z ) << endl;
 
         SSTLE tle1 = tle;
         tle1.fromPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
-        tle1.write ( cout );
         
         SSTLE tle2 = tle1;
         tle1.toPositionVelocity ( tle1.jdepoch - 10.0, pos, vel );
         tle2.fromPositionVelocity ( tle1.jdepoch - 10.0, pos, vel );
         tle2.write ( cout );
+        tle2.write ( outfile );
      }
 }
 
@@ -222,7 +230,7 @@ int main ( int argc, char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
-//    TestSatellites ( inpath, outpath );
+    TestSatellites ( inpath, outpath );
     TestJPLDEphemeris ( inpath );
     TestSolarSystem ( inpath, outpath );
     TestConstellations ( inpath, outpath );
