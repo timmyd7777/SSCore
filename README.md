@@ -52,8 +52,8 @@ SSTest
 This directory contains a test program (SSTest.cpp), which hopefully serves as an example of how to use the C++ classes in the SSCode directory.  It also contains build environments for MacOS, iOS, Android, Windows, and Linux.  Build instructions for each platform:
 
 - **_Android:_** instructions TBD
-- **_MacOS:_** open **SSTest.xcodeproj** in the Xcode directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.
-- **_iOS:_** instructions TBD
+- **_MacOS:_** open **SSTest.xcodeproj** in the MacOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.
+- **_iOS:_** open **SSTest.xcodeproj** in the iOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.  This will launch SSTest in the iPhone Simulator.  NOTE: output is all sent to the Xcode debugger console; there is no user interface (yet!)
 - **_Linux:_** cd to the `Linux` directory; then type `make`.  After build completes, type `./sstest ../../SSData .` The final . tells the `sstest` executable to place file output into the current directory.
 - **_Windows:_** open **SSTest.sln** in Visual Studio 2017 or later. From Visual Studio's **Build** menu, select **Build Solution**.  Then from the **Debug** menu, select **Start Debugging** (or **Start Without Debugging** if you have selected a Release configuration.)  The Visual Studio project supports both x86 and x64 builds.
 
