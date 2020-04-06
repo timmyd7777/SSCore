@@ -4,12 +4,7 @@
 //  Created by Tim DeBenedictis on 2/24/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
-#ifdef WIN32
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 
 #include "SSCoords.hpp"
@@ -50,20 +45,9 @@ void TestTime ( void )
     cout << "Current time is " << format ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
     cout << "Current time zone is " << format ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
     cout << "Current Julian Date is " << format ( "%.6f", now ) << endl;
-};
 
-void ShowWorkingDirectory ( void )
-{
-#ifdef WIN32
-    char path[_MAX_PATH] = { 0 };
-    _getcwd(path, _MAX_PATH);
-    cout << "Current working directory is " << string ( path ) << endl;
-#else
-    char path[PATH_MAX] = { 0 };
-    getcwd ( path, PATH_MAX );
-    cout << "Current working directory is " << string ( path ) << endl;
-#endif
-}
+    cout << "Current working directory is " << getcwd() << endl;
+};
 
 void TestSatellites ( string inputDir, string outputDir )
 {
@@ -226,7 +210,6 @@ void TestJPLDEphemeris ( string inputDir )
 int main ( int argc, char *argv[] )
 {
     TestTime();
-    ShowWorkingDirectory();
 
     if ( argc < 3 )
     {
@@ -239,7 +222,7 @@ int main ( int argc, char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
-    TestSatellites ( inpath, outpath );
+//    TestSatellites ( inpath, outpath );
     TestJPLDEphemeris ( inpath );
     TestSolarSystem ( inpath, outpath );
     TestConstellations ( inpath, outpath );

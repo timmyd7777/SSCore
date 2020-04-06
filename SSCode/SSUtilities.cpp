@@ -7,6 +7,34 @@
 #include <cstdarg>
 #include "SSUtilities.hpp"
 
+#ifdef WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
+// Returns path to current working directory as a string
+
+#ifdef WIN32
+
+string getcwd ( void )
+{
+    char path[_MAX_PATH] = { 0 };
+    _getcwd ( path, _MAX_PATH );
+    return string ( path );
+}
+
+#else
+
+string getcwd(void)
+{
+    char path[PATH_MAX] = { 0 };
+    getcwd ( path, PATH_MAX );
+    return string ( path );
+}
+
+#endif
+
 // Returns a C++ string which has leading and trailing whitespace
 // trimmed from the input string (does not modify input string).
 
@@ -76,79 +104,39 @@ vector<string> tokenize ( string str, string delim )
 }
 
 // Converts string to 32-bit signed integer.
+// Avoids throwing exceptions, unlike stoi().
 // Returns zero if string cannot be converted.
 
 int strtoint ( string str )
 {
-    int i;
-    
-    try
-    {
-        i = stoi ( str );
-    }
-    catch ( ... )
-    {
-        i = 0;
-    }
-    
-    return i;
+    return atoi ( str.c_str() );
 }
 
 // Converts string to 64-bit signed integer.
+// Avoids throwing exceptions, unlike stoll().
 // Returns zero if string cannot be converted.
 
 int64_t strtoint64 ( string str )
 {
-    int64_t i;
-    
-    try
-    {
-        i = stoll ( str );
-    }
-    catch ( ... )
-    {
-        i = 0;
-    }
-    
-    return i;
+    return atoll ( str.c_str() );
 }
 
 // Converts string to 32-bit single precision floating point value.
+// Avoids throwing exceptions, unlike stof().
 // Returns zero if string cannot be converted.
 
 float strtofloat ( string str )
 {
-    float f;
-    
-    try
-    {
-        f = stof ( str );
-    }
-    catch ( ... )
-    {
-        f = 0.0;
-    }
-    
-    return f;
+    return strtof ( str.c_str(), nullptr );
 }
 
 // Converts string to 64-bit double precision floating point value.
+// Avoids throwing exceptions, unlike stod().
 // Returns zero if string cannot be converted.
 
 double strtofloat64 ( string str )
 {
-    double d;
-    
-    try
-    {
-        d = stod ( str );
-    }
-    catch ( ... )
-    {
-        d = 0.0;
-    }
-    
-    return d;
+    return strtod ( str.c_str(), nullptr );
 }
 
 // Converts a string representing an angle in deg min sec to decimal degrees.
