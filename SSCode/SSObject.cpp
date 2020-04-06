@@ -246,17 +246,17 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
         {
             objects.push_back ( pObject );
             numObjects++;
-			continue;
+            continue;
         }
 
         // Attempt to create star from CSV file line; if successful add to object vector.
 
-		pObject = SSStar::fromCSV ( line );
+        pObject = SSStar::fromCSV ( line );
         if ( pObject )
         {
             objects.push_back ( pObject );
             numObjects++;
-			continue;
+            continue;
         }
         
         // Attempt to create constellation from CSV file line; if successful add to object vector.
@@ -266,7 +266,7 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
         {
             objects.push_back ( pObject );
             numObjects++;
-			continue;
+            continue;
         }
     }
     
