@@ -1,7 +1,7 @@
 Star Data
 =========
 
-This directory contains essential data on the brightest and nearest stars in Southern Stars CSV format. These files exit primarily for testing SSCore import/export functionality, but may be generally useful in their own right.
+This directory contains essential data on the brightest and nearest stars in Southern Stars CSV format. These files exist primarily for testing SSCore import/export functionality, but may be generally useful in their own right.
 
 Even in this day and age of multi-billion-star catalogs (e.g. GAIA) it's still useful to have all the most pertinent data gathered in one place, and GAIA is missing several thousand of the brightest stars in the sky.
 
@@ -12,7 +12,7 @@ _Tim DeBenedictis (timd@southernstars.com), 6 Apr 2020_
 Brightest.csv
 -----------
 
-This bright star catalog was extracted from NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated with data from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239) and the Gliese-Jahreiss [Catalog of Nearby Stars, 3rd Ed.](ftp://cdsarc.u-strasbg.fr/cats/V/70A/) (CNS3). It contains all 9092 stars from SKY2000 with HR (Harvard Revised = Bright Star) catalog numbers.
+This bright star catalog was extracted from NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated with data from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239) and the Gliese-Jahreiss [Catalog of Nearby Stars, 3rd Edition](ftp://cdsarc.u-strasbg.fr/cats/V/70A/) (CNS3). It contains all 9092 stars from SKY2000 with HR (Harvard Revised = Bright Star) catalog numbers.
 
 The original HR catalog has 9110 entries. Four HR numbers missing from SKY2000 (928, 4374, 4969, 5977) are double star secondary components; these were added to HR 927 (52 Ari), HR 4375 (xi UMa), HR 4968 (alpha Com), and HR 5978 (xi Sco). The other missing HR numbers (92, 95, 182, 1057, 1841, 2472, 2496, 3515, 3671, 6309, 6515, 7189, 7539, 8296) are all "bad" HR objects which are novae, supernovae, or deep sky objects. 
 
@@ -45,20 +45,20 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year], 
 - **_Ident1, Ident2, etc._** are catalog identifiers in preferred order: Bayer, Flamsteed, GCVS, HR, HD, SAO, BD, CD, CP, WDS
 - **_Common1, Common2, etc._** are star common names.
 
-Fields **_[Comp ... Year]_** are only present for star types DS and DV.
-Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV.
+Fields **_[Comp ... Year]_** are only present for star types DS and DV. 
+Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV. 
 Empty fields indicate unknown or missing values.
 
 **Revision History**
 
-Version 1.0 (27 Mar 2020): initial version
-Version 1.1 (30 Mar 2020): corrected erroneous proper motions for open clusters with RV.
-Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
+- Version 1.0 (27 Mar 2020): initial version
+- Version 1.1 (30 Mar 2020): corrected erroneous proper motions for open clusters with RV.
+- Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 
 Nearest.csv
 -----------
 
-This list of the 160 nearest stars is primarily based on data from [RECONS](http://www.recons.org/TOP100.posted.htm). Wherever possible, accurate coordinates and proper motion are from [Accurate Coordinates for Gliese Catalog Stars](https://cdsarc.unistra.fr/ftp/J/PASP/122/885). Blue (Johnson B) magnitudes and radial velocities are preferentially from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239) or the [Hipparcos Input Catalog](https://cdsarc.unistra.fr/ftp/I/196) or from the Gliese [Catalog of Nearby Stars](ftp://cdsarc.u-strasbg.fr/cats/V/70A/).
+This list of the 160 nearest stars is primarily based on data from [RECONS](http://www.recons.org/TOP100.posted.htm). Wherever possible, accurate coordinates and proper motion are from [Accurate Coordinates for Gliese Catalog Stars](https://cdsarc.unistra.fr/ftp/J/PASP/122/885). Johnson B (blue) magnitudes and radial velocities are preferentially from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239), the [Hipparcos Input Catalog](https://cdsarc.unistra.fr/ftp/I/196), or the Gliese [Catalog of Nearby Stars](ftp://cdsarc.u-strasbg.fr/cats/V/70A/).
 
 Identifiers and common names are from RECONS and cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley.
 
@@ -80,5 +80,5 @@ This list of nearby star common names was compiled primarily from:
 
 **Revision History**
 
-Version 1.0 (27 Mar 2020): initial version
-Version 1.1 (6 Apr 2020): Moved comments from CSV file header into this README.
+- Version 1.0 (27 Mar 2020): initial version
+- Version 1.1 (6 Apr 2020): Moved comments from CSV file header into this README.
