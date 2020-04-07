@@ -10,5 +10,6 @@
 #define SSTest_Bridging_Header_h
 
 #include "SSTest.h"
+#include "SSCore.h"
 
 #endif /* SSTest_Bridging_Header_h */

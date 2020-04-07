@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
+
         // get path to SSData folder within main bundle as C string for input
         
         let inpath = ( Bundle.main.bundlePath.appending ("/SSData") as NSString ).utf8String
