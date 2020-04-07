@@ -1,7 +1,7 @@
 Solar System Object Data
 ========================
 
-This directory contains essential data on Solar System objects in CSV format and Minor Planet Center export format.  These files exit primarily for testing SSCore import/export functionality, but may be generally useful in their own right.
+This directory contains essential data on Solar System objects in various formats.  These files exit primarily for testing SSCore import/export functionality, but may be generally useful in their own right.
 
 You may use this data free of charge for any purpose as you see fit.  If it's helpful to you, drop me a note!
 

@@ -1,39 +1,4 @@
-﻿# This list of the 160 nearest stars is primarily based on data from RECONS:
-# http://www.recons.org/TOP100.posted.htm
-# Where possible, accurate coordinates and proper motion are from
-# "Accurate Coordinates for Gliese Catalog Stars" table found here:
-# https://cdsarc.unistra.fr/ftp/J/PASP/122/885
-# B magnitudes and radial velocities are preferentially from Hipparcos:
-# https://cdsarc.unistra.fr/ftp/I/239
-# or the Hipparcos Input Catalog:
-# https://cdsarc.unistra.fr/ftp/I/196
-# or from the Gliese Catalog of Nearby Stars:
-# ftp://cdsarc.u-strasbg.fr/cats/V/70A/
-# Identifiers and common names are from RECONS and cross-referenced with:
-# http://www.ieti.org/articles/crossref.pdf
-# Columns are:
-# Type,RA,Dec,pmRA,pmDec,V,B,Dist,RV,Spec,Bayer,Flam,GJ,HD,DM,HIP,Common
-# Type code (SS) means Single Star
-# RA is J2000 right ascension
-# Dec is J2000 declination
-# pmRA is proper motion in R.A., seconds per year
-# pmDec is proper motion in Dec., arcsec per year
-# V is Johnson Visual magnitude
-# B is Johnson Blue magnitude
-# Dist is distance in parsecs
-# RV is radial velocity in km/sec
-# Spec is spectral type (from RECONS)
-# Bayer is greek letter or variable-star designation
-# Flam is flamsteed number
-# GJ is main identifier from CNS3, or from RECONS if star not in CNS3
-# HD is Henry Draper catalog number
-# DM is Durchmusterung identifier (BD, CD, or CP)
-# HIP is Hipparcos catalog number
-# Common is star's common name
-# Empty fields indicate unknown or missing values.
-# -Tim DeBenedictis (timd@southernstars.com) 29 Mar 2020
-
-SS,14 29 42.95,-62 40 46.2,-0.54848,+0.7680,+11.05,+12.88,1.301,-16.0,M5.0 V,V645 Cen,,GJ 551,,,HIP 70890,Proxima Centauri
+﻿SS,14 29 42.95,-62 40 46.2,-0.54848,+0.7680,+11.05,+12.88,1.301,-16.0,M5.0 V,V645 Cen,,GJ 551,,,HIP 70890,Proxima Centauri
 SS,14 39 36.50,-60 50 02.3,-0.50314,+0.4820,+0.01,+0.65,1.338,-24.6,G2.0 V,alpha1 Cen,,GJ 559A,HD 128620,CP -60 5483,HIP 71683,Rigil Kentaurus
 SS,14 39 35.08,-60 50 13.8,-0.49252,+0.9520,+1.34,+2.18,1.338,-20.7,K0 V,alpha2 Cen,,GJ 559B,HD 128621,,HIP 71681,Toliman
 SS,17 57 48.50,+04 41 36.2,-0.05345,+10.2770,+9.57,+11.29,1.833,-106.8,M3.5 V,,,GJ 699,,BD +04 3561a,HIP 87937,Barnard's Star
