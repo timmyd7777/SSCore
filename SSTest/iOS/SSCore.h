@@ -149,6 +149,25 @@ CSSVector CSSVectorDivideBy ( CSSVector cvec, double s );
 double CSSVectorDotProduct ( CSSVector v1, CSSVector v2 );
 CSSVector CSSVectorCrossProduct ( CSSVector v1, CSSVector v2 );
 
+// C wrappers for C++ SSMatrix classes and methods
+
+typedef struct CSSMatrix
+{
+    double m00, m01, m02;
+    double m10, m11, m12;
+    double m20, m21, m22;
+}
+CSSMatrix;
+
+CSSMatrix CSSMatrixIdentity ( void );
+CSSMatrix CSSMatrixTranspose ( CSSMatrix mat );
+CSSMatrix CSSMatrixInverse ( CSSMatrix mat );
+double CSSMatrixDeterminant ( CSSMatrix mat );
+
+CSSMatrix CSSMatrixMultiplyMatrix ( CSSMatrix mat1, CSSMatrix mat2 );
+CSSVector CSSMatrixMultiplyVector ( CSSMatrix mat, CSSVector vec );
+CSSMatrix CSSMatrixRotate ( CSSMatrix mat, int axis, double angle );
+
 #ifdef __cplusplus
 }
 #endif

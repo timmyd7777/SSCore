@@ -8,6 +8,17 @@
 
 import SwiftUI
 
+func CSSMatrixToString ( mat: CSSMatrix ) -> String
+{
+    var str = ""
+    
+    str.append ( String ( format: "%+f %+f %+f\n", mat.m00, mat.m01, mat.m02 ) );
+    str.append ( String ( format: "%+f %+f %+f\n", mat.m10, mat.m11, mat.m12 ) );
+    str.append ( String ( format: "%+f %+f %+f\n", mat.m20, mat.m21, mat.m22 ) );
+
+    return str
+}
+
 func test ( ) -> String
 {
     let ctime = CSSTimeFromSystem()
@@ -29,7 +40,23 @@ func test ( ) -> String
     
     let hmsstr = "12 34 56.7"
     let chms = CSSHourMinSecFromString ( hmsstr );
-    str.append ( String ( format: "%@ hour min sec = %.6f radian", hmsstr, CSSHourMinSecToRadians ( chms ) ) )
+    str.append ( String ( format: "%@ hour min sec = %.6f radian\n", hmsstr, CSSHourMinSecToRadians ( chms ) ) )
+
+    var cmat = CSSMatrixIdentity();
+    cmat = CSSMatrixRotate ( cmat, 1, 1.0 );
+    cmat = CSSMatrixRotate ( cmat, 2, 2.0 );
+    cmat = CSSMatrixRotate ( cmat, 3, 3.0 );
+
+    str.append ( "Rotation Matrix:\n" )
+    str.append ( CSSMatrixToString ( mat: cmat ) )
+    
+    str.append ( "Inverse Matrix:\n" )
+    let cinv = CSSMatrixInverse ( cmat );
+    str.append ( CSSMatrixToString ( mat: cinv ) )
+    
+    str.append ( "Identity Matrix:\n" )
+    let cidm = CSSMatrixMultiplyMatrix ( cinv, cmat );
+    str.append ( CSSMatrixToString ( mat: cidm ) )
 
     return str
 }

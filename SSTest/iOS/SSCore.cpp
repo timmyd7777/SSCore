@@ -10,6 +10,7 @@
 #include "SSTime.hpp"
 #include "SSAngle.hpp"
 #include "SSVector.hpp"
+#include "SSMatrix.hpp"
 
 // C wrappers for C++ SSTime classes and methods
 
@@ -153,14 +154,14 @@ CSSVector CSSVectorSubtract ( CSSVector cvec1, CSSVector cvec2 )
 
 CSSVector CSSVectorMultiplyBy ( CSSVector cvec, double s )
 {
-    cvec.x *= s; cvec.y *= s; cvec.z *= s;
-    return cvec;
+    CSSVector cvec1 = { cvec.x * s, cvec.y * s, cvec.z * s };
+    return cvec1;
 }
 
 CSSVector CSSVectorDivideBy ( CSSVector cvec, double s )
 {
-    cvec.x /= s; cvec.y /= s; cvec.z /= s;
-    return cvec;
+    CSSVector cvec1 = { cvec.x / s, cvec.y / s, cvec.z / s };
+    return cvec1;
 }
 
 double CSSVectorDotProduct ( CSSVector cvec1, CSSVector cvec2 )
@@ -175,4 +176,128 @@ CSSVector CSSVectorCrossProduct ( CSSVector cvec1, CSSVector cvec2 )
     SSVector x = vec1.crossProduct ( vec2 );
     CSSVector cx = { x.x, x.y, x.z };
     return cx;
+}
+
+// C wrappers for C++ SSMatrix classes and methods
+
+CSSMatrix CSSMatrixIdentity ( void )
+{
+    CSSMatrix cmat =
+    {
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 0.0, 1.0
+    };
+    
+    return cmat;
+}
+
+CSSMatrix CSSMatrixTranspose ( CSSMatrix mat )
+{
+    CSSMatrix matr =
+    {
+        mat.m00, mat.m10, mat.m20,
+        mat.m01, mat.m11, mat.m21,
+        mat.m02, mat.m12, mat.m22
+    };
+    
+    return matr;
+}
+
+CSSMatrix CSSMatrixInverse ( CSSMatrix cmat )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    mat = mat.inverse();
+    
+    CSSMatrix cminv =
+    {
+        mat.m00, mat.m01, mat.m02,
+        mat.m10, mat.m11, mat.m12,
+        mat.m20, mat.m21, mat.m22
+    };
+    
+    return cminv;
+}
+
+double CSSMatrixDeterminant ( CSSMatrix cmat )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    return mat.determinant();
+}
+
+CSSMatrix CSSMatrixMultiplyMatrix ( CSSMatrix cmat1, CSSMatrix cmat2 )
+{
+    SSMatrix mat1 =
+    {
+        cmat1.m00, cmat1.m01, cmat1.m02,
+        cmat1.m10, cmat1.m11, cmat1.m12,
+        cmat1.m20, cmat1.m21, cmat1.m22
+    };
+    
+    SSMatrix mat2 =
+    {
+        cmat2.m00, cmat2.m01, cmat2.m02,
+        cmat2.m10, cmat2.m11, cmat2.m12,
+        cmat2.m20, cmat2.m21, cmat2.m22
+    };
+
+    SSMatrix mat3 = mat1 * mat2;
+    
+    CSSMatrix cmat3 =
+    {
+        mat3.m00, mat3.m01, mat3.m02,
+        mat3.m10, mat3.m11, mat3.m12,
+        mat3.m20, mat3.m21, mat3.m22
+    };
+    
+    return cmat3;
+}
+
+CSSVector CSSMatrixMultiplyVector ( CSSMatrix cmat, CSSVector cvec )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    SSVector vec = { cvec.x, cvec.y, cvec.z };
+    vec = mat * vec;
+    
+    CSSVector cvec1 = { vec.x, vec.y, vec.z };
+    return cvec1;
+}
+
+CSSMatrix CSSMatrixRotate ( CSSMatrix cmat, int axis, double angle )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    mat = mat.rotate ( axis, angle );
+    
+    CSSMatrix cmatr =
+    {
+        mat.m00, mat.m01, mat.m02,
+        mat.m10, mat.m11, mat.m12,
+        mat.m20, mat.m21, mat.m22
+    };
+    
+    return cmatr;
 }
