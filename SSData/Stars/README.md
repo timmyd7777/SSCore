@@ -45,8 +45,8 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year], 
 - **_Ident1, Ident2, etc._** are catalog identifiers in preferred order: Bayer, Flamsteed, GCVS, HR, HD, SAO, BD, CD, CP, WDS
 - **_Common1, Common2, etc._** are star common names.
 
-Fields **_[Comp ... Year]_** are only present for star types DS and DV. 
-Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV. 
+Fields **_[Comp ... Year]_** are only present for star types DS and DV.  
+Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV.  
 Empty fields indicate unknown or missing values.
 
 **Revision History**
