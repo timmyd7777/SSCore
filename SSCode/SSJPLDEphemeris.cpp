@@ -673,6 +673,13 @@ bool SSJPLDEphemeris::open ( const string &filename )
     return true;
 }
 
+// Returns true/false depending on whether an ephemeris file open.
+
+bool SSJPLDEphemeris::isOpen ( void )
+{
+    return F1 == NULL ? false : true;
+}
+
 // Closes any currently-open ephemeris file and resets internal variables to zero.
 // Don't close until you are finished using ephemeris!
 

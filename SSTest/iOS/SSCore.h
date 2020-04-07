@@ -10,7 +10,9 @@
 #ifndef SSCore_h
 #define SSCore_h
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 #ifdef __cplusplus
@@ -167,6 +169,35 @@ double CSSMatrixDeterminant ( CSSMatrix mat );
 CSSMatrix CSSMatrixMultiplyMatrix ( CSSMatrix mat1, CSSMatrix mat2 );
 CSSVector CSSMatrixMultiplyVector ( CSSMatrix mat, CSSVector vec );
 CSSMatrix CSSMatrixRotate ( CSSMatrix mat, int axis, double angle );
+
+// C wrappers for C++ SSIdentifier classes and methods
+
+typedef int64_t CSSIdentifier;
+
+CSSIdentifier CSSIdentifierFromString ( const char *str );
+const char *StringFromCSSIdentifier ( CSSIdentifier ident );
+
+CSSIdentifier CSSIdentifierFromCatalogNumber ( int catalog, int64_t number );
+char CSSIdentifierGetCatalog ( CSSIdentifier ident );
+int64_t CSSIdentifierGetNumber ( CSSIdentifier ident );
+
+// C wrappers for C++ SSJPLDEphemeris classes and methods
+
+typedef struct CSSPositionVelocity
+{
+    CSSVector position;
+    CSSVector velocity;
+}
+CSSPositionVelocity;
+
+bool CSSJPLDEphemerisOpen ( const char *filename );
+bool CSSJPLDEphemerisIsOpen ( void );
+void CSSJPLDEphemerisClose ( void );
+
+double CSSJPLDEphemerisStartJED ( const char *filename );
+double CSSJPLDEphemerisStopJED ( void );
+
+CSSPositionVelocity CSSJPLDEphemerisCompute ( int planet, double jd, bool bary );
 
 #ifdef __cplusplus
 }

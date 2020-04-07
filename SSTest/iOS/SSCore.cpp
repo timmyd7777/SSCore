@@ -9,6 +9,8 @@
 
 #include "SSTime.hpp"
 #include "SSAngle.hpp"
+#include "SSIdentifier.hpp"
+#include "SSJPLDEphemeris.hpp"
 #include "SSVector.hpp"
 #include "SSMatrix.hpp"
 
@@ -300,4 +302,86 @@ CSSMatrix CSSMatrixRotate ( CSSMatrix cmat, int axis, double angle )
     };
     
     return cmatr;
+}
+
+// C wrappers for C++ SSIdentifier classes and methods
+
+CSSIdentifier CSSIdentifierFromString ( const char *str )
+{
+    SSIdentifier ident = SSIdentifier::fromString ( str );
+    return ident;
+}
+
+const char *CSSIdentifierToString ( CSSIdentifier cident )
+{
+    SSIdentifier ident ( cident );
+    static string str = ident.toString();
+    return str.c_str();
+}
+
+CSSIdentifier CSSIdentifierFromCatalogNumber ( int catalog, int64_t number )
+{
+    SSIdentifier ident ( (SSCatalog) catalog, number );
+    return ident;
+}
+
+char CSSIdentifierGetCatalog ( CSSIdentifier cident )
+{
+    SSIdentifier ident ( cident );
+    return ident.catalog();
+}
+
+int64_t CSSIdentifierGetNumber ( CSSIdentifier cident )
+{
+    SSIdentifier ident ( cident );
+    return ident.identifier();
+}
+
+// C wrappers for C++ SSJPLDEphemeris classes and methods
+
+static SSJPLDEphemeris _jpldeph;
+
+bool CSSJPLDEphemerisOpen ( const char *filename )
+{
+    return _jpldeph.open ( string ( filename ) );
+}
+
+bool CSSJPLDEphemerisIsOpen ( void )
+{
+    return _jpldeph.isOpen();
+}
+
+void CSSJPLDEphemerisClose ( void )
+{
+    _jpldeph.close();
+}
+
+double CSSJPLDEphemerisStartJED ( const char *filename )
+{
+    return _jpldeph.getStartJED();
+}
+
+double CSSJPLDEphemerisStopJED ( void )
+{
+    return _jpldeph.getStopJED();
+}
+
+CSSPositionVelocity CSSJPLDEphemerisCompute ( int planet, double jd, bool bary )
+{
+    SSVector pos ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    SSVector vel ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    
+    CSSPositionVelocity posvel =
+    {
+        { HUGE_VAL, HUGE_VAL, HUGE_VAL },
+        { HUGE_VAL, HUGE_VAL, HUGE_VAL }
+    };
+    
+    if ( _jpldeph.compute ( planet, jd, bary, pos, vel ) )
+    {
+        memcpy ( &posvel.position, &pos, sizeof ( pos ) );
+        memcpy ( &posvel.velocity, &vel, sizeof ( vel ) );
+    }
+    
+    return posvel;
 }
