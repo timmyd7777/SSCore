@@ -10,7 +10,9 @@
 #ifndef SSCore_h
 #define SSCore_h
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 #ifdef __cplusplus
@@ -61,6 +63,10 @@ CSSDate;
 CSSDate CSSTimeToCSSDate ( CSSTime time );
 CSSTime CSSDateToCSSTime ( CSSDate date );
 CSSTime CSSTimeFromSystem ( void );
+
+double CSSTimeGetDeltaT ( CSSTime ctime );
+double CSSTimeGetJulianEphemerisDate ( CSSTime ctime );
+double CSSTimeGetSiderealTime ( CSSTime ctime, double lon );
 
 // C wrappers for C++ SSAngle constants, classes, and methods
 
@@ -132,6 +138,9 @@ typedef struct CSSVector
 }
 CSSVector;
 
+CSSVector CSSVectorFromXYZ ( double x, double y, double z );
+CSSSpherical CSSSphericalFromLonLatRad ( double lon, double lat, double rad );
+
 CSSVector CSSSphericalToCSSVector ( CSSSpherical csph );
 CSSSpherical CSSVectorToCSSSpherical ( CSSVector cvec );
 
@@ -148,6 +157,100 @@ CSSVector CSSVectorDivideBy ( CSSVector cvec, double s );
 
 double CSSVectorDotProduct ( CSSVector v1, CSSVector v2 );
 CSSVector CSSVectorCrossProduct ( CSSVector v1, CSSVector v2 );
+
+// C wrappers for C++ SSMatrix classes and methods
+
+typedef struct CSSMatrix
+{
+    double m00, m01, m02;
+    double m10, m11, m12;
+    double m20, m21, m22;
+}
+CSSMatrix;
+
+CSSMatrix CSSMatrixIdentity ( void );
+CSSMatrix CSSMatrixTranspose ( CSSMatrix mat );
+CSSMatrix CSSMatrixInverse ( CSSMatrix mat );
+double CSSMatrixDeterminant ( CSSMatrix mat );
+
+CSSMatrix CSSMatrixMultiplyMatrix ( CSSMatrix mat1, CSSMatrix mat2 );
+CSSVector CSSMatrixMultiplyVector ( CSSMatrix mat, CSSVector vec );
+CSSMatrix CSSMatrixRotate ( CSSMatrix mat, int axis, double angle );
+
+// C wrappers for C++ SSIdentifier classes and methods
+
+typedef int64_t CSSIdentifier;
+
+CSSIdentifier CSSIdentifierFromString ( const char *str );
+const char *StringFromCSSIdentifier ( CSSIdentifier ident );
+
+CSSIdentifier CSSIdentifierFromCatalogNumber ( int catalog, int64_t number );
+char CSSIdentifierGetCatalog ( CSSIdentifier ident );
+int64_t CSSIdentifierGetNumber ( CSSIdentifier ident );
+
+// C wrappers for C++ SSJPLDEphemeris classes and methods
+
+bool CSSJPLDEphemerisOpen ( const char *filename );
+bool CSSJPLDEphemerisIsOpen ( void );
+void CSSJPLDEphemerisClose ( void );
+
+double CSSJPLDEphemerisStartJED ( const char *filename );
+double CSSJPLDEphemerisStopJED ( void );
+
+bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *pos, CSSVector *vel );
+
+// C wrappers for C++ SSObject definitions, classes and methods
+
+static int kCSSTypeNonexistent = 0;            // Nonexistent/unknown object or erroneous catalog entry
+static int kCSSTypePlanet = 1;                 // Major planet (Mercury, Venus, etc.)
+static int kCSSTypeMoon = 2;                   // Natural satellite (Moon, Io, Europa, etc.)
+static int kCSSTypeAsteroid = 3;               // Minor planet (Ceres, Pallas, etc.)
+static int kCSSTypeComet = 4;                  // Comet (Halley, Encke, etc.)
+static int kCSSTypeSatellite = 5;              // Artificial satellite (ISS, HST, etc.)
+static int kCSSTypeSpacecraft = 6;             // Interplanetary spacecraft (Voyager, Cassini, etc.)
+static int kCSSTypeStar = 10;                  // Single star (Canopus, Vega, etc.)
+static int kCSSTypeDoubleStar = 12;            // Double star (Alpha Cen, Sirius, etc.)
+static int kCSSTypeVariableStar = 13;          // Variable single star (Mira, etc.)
+static int kCSSTypeDoubleVariableStar = 14;    // Double star with variable component (Betelgeuse, Algol, etc.)
+static int kCSSTypeOpenCluster = 20;           // Open star cluster (M45, Hyades, etc.)
+static int kCSSTypeGlobularCluster = 21;       // Globular star cluster (M13, etc.)
+static int kCSSTypeBrightNebula = 22;          // Emission, reflection nebula or supernova remnant (M42, M78, M1, etc.)
+static int kCSSTypeDarkNebula = 23;            // Dark nebula (Coalsack, Horsehead, etc.)
+static int kCSSTypePlanetaryNebula = 24;       // Planetary nebula (M57, M27, etc.)
+static int kCSSTypeGalaxy = 25;                // Galaxy (M31, LMC, SMC, etc.)
+static int kCSSTypeConstellation = 30;         // Constellation officially recognized by IAU (Andromeda, Antlia, etc.)
+static int kCSSTypeAsterism = 31;              // Common but informally recognized star pattern (Big Dipper, Summer Triangle, etc.)
+
+typedef struct CSSObject CSSObject;
+typedef CSSObject *CSSObjectPtr;
+
+const char *CSSObjectTypeToCode ( int type );
+int CSSObjectTypeFromCode ( const char *string );
+
+int CSSObjectGetType ( CSSObjectPtr pObject );
+const char *CSSObjectGetName ( CSSObjectPtr pObject, int i );           // returns copy of i-th name string
+CSSIdentifier CSSObjectGetIdentifier ( CSSObjectPtr pObject, int cat ); // returns identifier in the specified catalog, or null identifier if object has none in that catalog.
+
+CSSVector CSSObjectGetDirection ( CSSObjectPtr pObject );
+double CSSObjectGetDistance ( CSSObjectPtr pObject );
+float CSSObjectGetMagnitude ( CSSObjectPtr pObject );
+
+void CSSObjectSetDirection ( CSSObjectPtr pObject, CSSVector dir );
+void CSSObjectSetDistance ( CSSObjectPtr pObject, double dist );
+void CSSObjectSetMagnitude ( CSSObjectPtr pObject, float mag );
+
+typedef struct CSSObjectArray CSSObjectArray;
+typedef CSSObjectArray *CSSObjectArrayPtr;
+
+CSSObjectArray *CSSObjectArrayCreate ( void );
+void CSSObjectArrayDestroy ( CSSObjectArray *pObjArr );
+
+int CSSImportObjectsFromCSV ( const char *filename, CSSObjectArray *pObjArr );
+size_t CSSObjectArraySize ( CSSObjectArray *pObjArr );
+CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i );
+
+// Converts integer object types to two-character type codes and vice-versa.
+
 
 #ifdef __cplusplus
 }

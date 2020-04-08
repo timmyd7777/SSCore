@@ -47,6 +47,32 @@ SSMatrix SSMatrix::transpose ( void )
                       m02, m12, m22 );
 }
 
+// Returns a 3x3 matrix which is the inverse of this matrix.
+// Does not invert this matrix in place!
+// For a rotation matrix, its transpose is also its inverse.
+// If this matrix is singular, returns infinity matrix.
+// CAUTION: for near-singular matrices, may not be accurate. From code here:
+// https://stackoverflow.com/questions/983999/simple-3x3-matrix-inverse-code-c
+
+SSMatrix SSMatrix::inverse ( void )
+{
+    double det = determinant();
+    
+    double w00 = ( m11 * m22 - m21 * m12 ) / det;
+    double w01 = ( m02 * m21 - m01 * m22 ) / det;
+    double w02 = ( m01 * m12 - m02 * m11 ) / det;
+    double w10 = ( m12 * m20 - m10 * m22 ) / det;
+    double w11 = ( m00 * m22 - m02 * m20 ) / det;
+    double w12 = ( m10 * m02 - m00 * m12 ) / det;
+    double w20 = ( m10 * m21 - m20 * m11 ) / det;
+    double w21 = ( m20 * m01 - m00 * m21 ) / det;
+    double w22 = ( m00 * m11 - m10 * m01 ) / det;
+    
+    return SSMatrix ( w00, w01, w02,
+                      w10, w11, w12,
+                      w20, w21, w22 );
+}
+
 // Returns the determinant of this 3x3 matrix.
 // For a rotation matrix, the determinant is 1.0.
 

@@ -60,6 +60,7 @@ protected:
 public:
     
     SSIdentifier ( void );
+    SSIdentifier ( int64_t ident );
     SSIdentifier ( SSCatalog catalog, int64_t id );
     
     SSCatalog catalog ( void );
@@ -70,7 +71,6 @@ public:
     
     bool operator > ( SSIdentifier other ) { return _id > other._id; }
     bool operator < ( SSIdentifier &other ) const { return _id < other._id; }
-    bool operator == ( SSIdentifier other ) { return _id == other._id; }
     operator int64_t() const { return _id; }
     
     static SSIdentifier fromBayer ( string s );

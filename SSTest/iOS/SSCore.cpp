@@ -9,7 +9,11 @@
 
 #include "SSTime.hpp"
 #include "SSAngle.hpp"
+#include "SSIdentifier.hpp"
+#include "SSJPLDEphemeris.hpp"
 #include "SSVector.hpp"
+#include "SSMatrix.hpp"
+#include "SSObject.hpp"
 
 // C wrappers for C++ SSTime classes and methods
 
@@ -32,6 +36,24 @@ CSSTime CSSTimeFromSystem ( void )
     SSTime now = SSTime::fromSystem();
     CSSTime cnow = { now.jd, now.zone, now.calendar };
     return cnow;
+}
+
+double CSSTimeGetDeltaT ( CSSTime ctime )
+{
+    SSTime time ( ctime.jd );
+    return time.getDeltaT();
+}
+
+double CSSTimeGetJulianEphemerisDate ( CSSTime ctime )
+{
+    SSTime time ( ctime.jd );
+    return time.getJulianEphemerisDate();
+}
+
+double CSSTimeGetSiderealTime ( CSSTime ctime, double lon )
+{
+    SSTime time ( ctime.jd );
+    return time.getSiderealTime ( lon );
 }
 
 // C wrappers for C++ SSAngle classes and methods
@@ -58,8 +80,9 @@ CSSAngle CSSDegMinSecToRadians ( CSSDegMinSec cdms )
 
 const char *CSSDegMinSecToString ( CSSDegMinSec cdms )
 {
+    static string str = "";
     SSDegMinSec dms ( cdms.sign, cdms.deg, cdms.min, cdms.sec );
-    static string str = dms.toString();
+    str = dms.toString();
     return str.c_str();
 }
 
@@ -80,18 +103,30 @@ CSSHourMinSec CSSHourMinSecFromString ( const char *str )
 CSSAngle CSSHourMinSecToRadians ( CSSHourMinSec chms )
 {
     SSHourMinSec hms ( chms.sign, chms.hour, chms.min, chms.sec );
-    static string str = hms.toString();
     return SSAngle ( hms );
 }
 
 const char *CSSHourMinSecToString ( CSSHourMinSec chms )
 {
+    static string str = "";
     SSHourMinSec hms ( chms.sign, chms.hour, chms.min, chms.sec );
-    static string str = hms.toString();
+    str = hms.toString();
     return str.c_str();
 }
 
 // C wrappers for C++ SSVector classes and methods
+
+CSSVector CSSVectorFromXYZ ( double x, double y, double z )
+{
+    CSSVector vec = { x, y, z };
+    return vec;
+}
+
+CSSSpherical CSSSphericalFromLonLatRad ( double lon, double lat, double rad )
+{
+    CSSSpherical sph = { lon, lat, rad };
+    return sph;
+}
 
 CSSVector CSSSphericalToCSSVector ( CSSSpherical csph )
 {
@@ -153,14 +188,14 @@ CSSVector CSSVectorSubtract ( CSSVector cvec1, CSSVector cvec2 )
 
 CSSVector CSSVectorMultiplyBy ( CSSVector cvec, double s )
 {
-    cvec.x *= s; cvec.y *= s; cvec.z *= s;
-    return cvec;
+    CSSVector cvec1 = { cvec.x * s, cvec.y * s, cvec.z * s };
+    return cvec1;
 }
 
 CSSVector CSSVectorDivideBy ( CSSVector cvec, double s )
 {
-    cvec.x /= s; cvec.y /= s; cvec.z /= s;
-    return cvec;
+    CSSVector cvec1 = { cvec.x / s, cvec.y / s, cvec.z / s };
+    return cvec1;
 }
 
 double CSSVectorDotProduct ( CSSVector cvec1, CSSVector cvec2 )
@@ -175,4 +210,268 @@ CSSVector CSSVectorCrossProduct ( CSSVector cvec1, CSSVector cvec2 )
     SSVector x = vec1.crossProduct ( vec2 );
     CSSVector cx = { x.x, x.y, x.z };
     return cx;
+}
+
+// C wrappers for C++ SSMatrix classes and methods
+
+CSSMatrix CSSMatrixIdentity ( void )
+{
+    CSSMatrix cmat =
+    {
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 0.0, 1.0
+    };
+    
+    return cmat;
+}
+
+CSSMatrix CSSMatrixTranspose ( CSSMatrix mat )
+{
+    CSSMatrix matr =
+    {
+        mat.m00, mat.m10, mat.m20,
+        mat.m01, mat.m11, mat.m21,
+        mat.m02, mat.m12, mat.m22
+    };
+    
+    return matr;
+}
+
+CSSMatrix CSSMatrixInverse ( CSSMatrix cmat )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    mat = mat.inverse();
+    
+    CSSMatrix cminv =
+    {
+        mat.m00, mat.m01, mat.m02,
+        mat.m10, mat.m11, mat.m12,
+        mat.m20, mat.m21, mat.m22
+    };
+    
+    return cminv;
+}
+
+double CSSMatrixDeterminant ( CSSMatrix cmat )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    return mat.determinant();
+}
+
+CSSMatrix CSSMatrixMultiplyMatrix ( CSSMatrix cmat1, CSSMatrix cmat2 )
+{
+    SSMatrix mat1 =
+    {
+        cmat1.m00, cmat1.m01, cmat1.m02,
+        cmat1.m10, cmat1.m11, cmat1.m12,
+        cmat1.m20, cmat1.m21, cmat1.m22
+    };
+    
+    SSMatrix mat2 =
+    {
+        cmat2.m00, cmat2.m01, cmat2.m02,
+        cmat2.m10, cmat2.m11, cmat2.m12,
+        cmat2.m20, cmat2.m21, cmat2.m22
+    };
+
+    SSMatrix mat3 = mat1 * mat2;
+    
+    CSSMatrix cmat3 =
+    {
+        mat3.m00, mat3.m01, mat3.m02,
+        mat3.m10, mat3.m11, mat3.m12,
+        mat3.m20, mat3.m21, mat3.m22
+    };
+    
+    return cmat3;
+}
+
+CSSVector CSSMatrixMultiplyVector ( CSSMatrix cmat, CSSVector cvec )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    SSVector vec = { cvec.x, cvec.y, cvec.z };
+    vec = mat * vec;
+    
+    CSSVector cvec1 = { vec.x, vec.y, vec.z };
+    return cvec1;
+}
+
+CSSMatrix CSSMatrixRotate ( CSSMatrix cmat, int axis, double angle )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    mat = mat.rotate ( axis, angle );
+    
+    CSSMatrix cmatr =
+    {
+        mat.m00, mat.m01, mat.m02,
+        mat.m10, mat.m11, mat.m12,
+        mat.m20, mat.m21, mat.m22
+    };
+    
+    return cmatr;
+}
+
+// C wrappers for C++ SSIdentifier classes and methods
+
+CSSIdentifier CSSIdentifierFromString ( const char *str )
+{
+    SSIdentifier ident = SSIdentifier::fromString ( str );
+    return ident;
+}
+
+const char *CSSIdentifierToString ( CSSIdentifier cident )
+{
+    static string str = "";
+    SSIdentifier ident ( cident );
+    str = ident.toString();
+    return str.c_str();
+}
+
+CSSIdentifier CSSIdentifierFromCatalogNumber ( int catalog, int64_t number )
+{
+    SSIdentifier ident ( (SSCatalog) catalog, number );
+    return ident;
+}
+
+char CSSIdentifierGetCatalog ( CSSIdentifier cident )
+{
+    SSIdentifier ident ( cident );
+    return ident.catalog();
+}
+
+int64_t CSSIdentifierGetNumber ( CSSIdentifier cident )
+{
+    SSIdentifier ident ( cident );
+    return ident.identifier();
+}
+
+// C wrappers for C++ SSJPLDEphemeris classes and methods
+
+static SSJPLDEphemeris _jpldeph;
+
+bool CSSJPLDEphemerisOpen ( const char *filename )
+{
+    return _jpldeph.open ( string ( filename ) );
+}
+
+bool CSSJPLDEphemerisIsOpen ( void )
+{
+    return _jpldeph.isOpen();
+}
+
+void CSSJPLDEphemerisClose ( void )
+{
+    _jpldeph.close();
+}
+
+double CSSJPLDEphemerisStartJED ( const char *filename )
+{
+    return _jpldeph.getStartJED();
+}
+
+double CSSJPLDEphemerisStopJED ( void )
+{
+    return _jpldeph.getStopJED();
+}
+
+bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *cpos, CSSVector *cvel )
+{
+    SSVector pos ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    SSVector vel ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+
+    bool result = _jpldeph.compute ( planet, jd, bary, pos, vel );
+    
+    memcpy ( cpos, &pos, sizeof ( pos ) );
+    memcpy ( cvel, &vel, sizeof ( vel ) );
+    
+    return result;
+}
+
+// C wrappers for C++ SSObject definitions, classes and methods
+
+const char *CSSObjectTypeToCode ( int type )
+{
+    static string code = "";
+    code = SSObject::typeToCode ( (SSObjectType) type );
+    return code.c_str();
+}
+
+int CSSObjectTypeFromCode ( const char *cstr )
+{
+    return SSObject::codeToType ( string ( cstr ) );
+}
+
+int CSSObjectGetType ( CSSObjectPtr pObject )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    return pObj->getType();
+}
+
+const char *CSSObjectGetName ( CSSObjectPtr pObject, int i )
+{
+    static string name = "";
+    SSObject *pObj = (SSObject *) pObject;
+    name = pObj->getName ( i );
+    return name.c_str();
+}
+
+CSSIdentifier CSSObjectGetIdentifier ( CSSObjectPtr pObject, int cat )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    return pObj->getIdentifier ( (SSCatalog) cat );
+}
+
+CSSObjectArray *CSSObjectArrayCreate ( void )
+{
+    SSObjectVec *pObjVec = new SSObjectVec;
+    return (CSSObjectArray *) pObjVec;
+}
+
+void CSSObjectArrayDestroy ( CSSObjectArray *pObjArr )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    delete pObjVec;
+}
+
+int CSSImportObjectsFromCSV ( const char *filename, CSSObjectArray *pObjArr )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    return SSImportObjectsFromCSV ( string ( filename ), *pObjVec );
+}
+
+size_t CSSObjectArraySize ( CSSObjectArray *pObjArr )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    return pObjVec->size();
+}
+
+CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    return (CSSObject *) pObjVec->at(i).get();
 }

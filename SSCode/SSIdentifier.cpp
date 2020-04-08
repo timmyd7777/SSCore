@@ -394,6 +394,11 @@ SSIdentifier::SSIdentifier ( void )
     _id = 0;
 }
 
+SSIdentifier::SSIdentifier ( int64_t id )
+{
+    _id = id;
+}
+
 SSIdentifier::SSIdentifier ( SSCatalog catalog, int64_t ident )
 {
     _id = catalog * 10000000000000000LL + ident;

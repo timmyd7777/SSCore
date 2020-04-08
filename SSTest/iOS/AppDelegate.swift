@@ -16,7 +16,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
-        // get path to SSData folder within main bundle as C string for input
+/*      This was the original test code. We've graduated beyond this, but keeping for posterity ... for now.
+
+         // get path to SSData folder within main bundle as C string for input
         
         let inpath = ( Bundle.main.bundlePath.appending ("/SSData") as NSString ).utf8String
         
@@ -28,8 +30,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // call SSTest main() function
         
-        let result = SSTestMain ( inpath, outpath )
+        let SSTestMain ( inpath, outpath )
         return result == 0 ? true : false
+*/
+        return true
     }
 
     // MARK: UISceneSession Lifecycle
