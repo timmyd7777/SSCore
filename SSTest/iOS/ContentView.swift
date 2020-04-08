@@ -75,7 +75,7 @@ func test ( ) -> String
 
     // get path to DE438 file within SSData folder within main bundle
     
-    let path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/DE438/1950_2050.438" )
+    var path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/DE438/1950_2050.438" )
     
     if CSSJPLDEphemerisOpen ( ( path as NSString ).utf8String )
     {
@@ -94,7 +94,25 @@ func test ( ) -> String
         str.append ( "Failed to open DE438 ephemeris file.\n" )
     }
     
-    return str
+    path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/Planets.csv" )
+    
+    let pObjArr = CSSObjectArrayCreate();
+    let n = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr );
+    str.append ( String ( format: "Imported %d planets:\n", n ) );
+    
+    for i in 0..<n
+    {
+        let pObj = CSSObjectGetFromArray ( pObjArr, i )
+        str.append ( String ( cString: CSSObjectGetName ( pObj, 0 ) ) )
+        if i < n - 1 {
+            str.append ( ", " )
+        } else {
+            str.append ( "\n" )
+        }
+    }
+    CSSObjectArrayDestroy ( pObjArr );
+    
+    return str;
 }
 
 struct ContentView: View {

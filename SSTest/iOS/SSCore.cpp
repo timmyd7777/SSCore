@@ -13,6 +13,7 @@
 #include "SSJPLDEphemeris.hpp"
 #include "SSVector.hpp"
 #include "SSMatrix.hpp"
+#include "SSObject.hpp"
 
 // C wrappers for C++ SSTime classes and methods
 
@@ -79,8 +80,9 @@ CSSAngle CSSDegMinSecToRadians ( CSSDegMinSec cdms )
 
 const char *CSSDegMinSecToString ( CSSDegMinSec cdms )
 {
+    static string str = "";
     SSDegMinSec dms ( cdms.sign, cdms.deg, cdms.min, cdms.sec );
-    static string str = dms.toString();
+    str = dms.toString();
     return str.c_str();
 }
 
@@ -101,14 +103,14 @@ CSSHourMinSec CSSHourMinSecFromString ( const char *str )
 CSSAngle CSSHourMinSecToRadians ( CSSHourMinSec chms )
 {
     SSHourMinSec hms ( chms.sign, chms.hour, chms.min, chms.sec );
-    static string str = hms.toString();
     return SSAngle ( hms );
 }
 
 const char *CSSHourMinSecToString ( CSSHourMinSec chms )
 {
+    static string str = "";
     SSHourMinSec hms ( chms.sign, chms.hour, chms.min, chms.sec );
-    static string str = hms.toString();
+    str = hms.toString();
     return str.c_str();
 }
 
@@ -344,8 +346,9 @@ CSSIdentifier CSSIdentifierFromString ( const char *str )
 
 const char *CSSIdentifierToString ( CSSIdentifier cident )
 {
+    static string str = "";
     SSIdentifier ident ( cident );
-    static string str = ident.toString();
+    str = ident.toString();
     return str.c_str();
 }
 
@@ -396,26 +399,6 @@ double CSSJPLDEphemerisStopJED ( void )
     return _jpldeph.getStopJED();
 }
 
-CSSPositionVelocity CSSJPLDEphemerisCompute ( int planet, double jd, bool bary )
-{
-    SSVector pos ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
-    SSVector vel ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
-    
-    CSSPositionVelocity posvel =
-    {
-        { HUGE_VAL, HUGE_VAL, HUGE_VAL },
-        { HUGE_VAL, HUGE_VAL, HUGE_VAL }
-    };
-    
-    if ( _jpldeph.compute ( planet, jd, bary, pos, vel ) )
-    {
-        memcpy ( &posvel.position, &pos, sizeof ( pos ) );
-        memcpy ( &posvel.velocity, &vel, sizeof ( vel ) );
-    }
-    
-    return posvel;
-}
-
 bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *cpos, CSSVector *cvel )
 {
     SSVector pos ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
@@ -427,4 +410,68 @@ bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *cpos
     memcpy ( cvel, &vel, sizeof ( vel ) );
     
     return result;
+}
+
+// C wrappers for C++ SSObject definitions, classes and methods
+
+const char *CSSObjectTypeToCode ( int type )
+{
+    static string code = "";
+    code = SSObject::typeToCode ( (SSObjectType) type );
+    return code.c_str();
+}
+
+int CSSObjectTypeFromCode ( const char *cstr )
+{
+    return SSObject::codeToType ( string ( cstr ) );
+}
+
+int CSSObjectGetType ( CSSObjectPtr pObject )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    return pObj->getType();
+}
+
+const char *CSSObjectGetName ( CSSObjectPtr pObject, int i )
+{
+    static string name = "";
+    SSObject *pObj = (SSObject *) pObject;
+    name = pObj->getName ( i );
+    return name.c_str();
+}
+
+CSSIdentifier CSSObjectGetIdentifier ( CSSObjectPtr pObject, int cat )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    return pObj->getIdentifier ( (SSCatalog) cat );
+}
+
+CSSObjectArray *CSSObjectArrayCreate ( void )
+{
+    SSObjectVec *pObjVec = new SSObjectVec;
+    return (CSSObjectArray *) pObjVec;
+}
+
+void CSSObjectArrayDestroy ( CSSObjectArray *pObjArr )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    delete pObjVec;
+}
+
+int CSSImportObjectsFromCSV ( const char *filename, CSSObjectArray *pObjArr )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    return SSImportObjectsFromCSV ( string ( filename ), *pObjVec );
+}
+
+size_t CSSObjectArraySize ( CSSObjectArray *pObjArr )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    return pObjVec->size();
+}
+
+CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i )
+{
+    SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
+    return (CSSObject *) pObjVec->at(i).get();
 }
