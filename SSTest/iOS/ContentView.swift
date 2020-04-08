@@ -74,9 +74,9 @@ func test ( ) -> String
     str.append ( CSSMatrixToString ( mat: cidm ) )
 
     // get path to DE438 file within SSData folder within main bundle
+    // open DE438.  If succesful, compute and display Earth's barycentric position & velocity
     
     var path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/DE438/1950_2050.438" )
-    
     if CSSJPLDEphemerisOpen ( ( path as NSString ).utf8String )
     {
         str.append ( "Opened DE438 ephemeris file.\n" )
@@ -94,11 +94,36 @@ func test ( ) -> String
         str.append ( "Failed to open DE438 ephemeris file.\n" )
     }
     
-    path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/Planets.csv" )
+    // Open and read bright stars csv data file into object array in memory.
+    // Display number of objects imported; then release object array memory.
     
-    let pObjArr = CSSObjectArrayCreate();
-    let n = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr );
+    path = Bundle.main.bundlePath.appending ( "/SSData/Stars/Brightest.csv" )
+    var pObjArr = CSSObjectArrayCreate();
+    var n = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr )
+    str.append ( String ( format: "Imported %d bright stars.\n", n ) )
+    CSSObjectArrayDestroy ( pObjArr )
+
+    // Open and read bright stars csv data file into object array in memory.
+    // Display number of objects imported; then release object array memory.
+    
+    pObjArr = CSSObjectArrayCreate()
+    path = Bundle.main.bundlePath.appending ( "/SSData/DeepSky/Messier.csv" )
+    let nM = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr )
+    path = Bundle.main.bundlePath.appending ( "/SSData/DeepSky/Caldwell.csv" )
+    let nC = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr )
+    let nMC = CSSObjectArraySize ( pObjArr );
+    str.append ( String ( format: "Imported %d Messier & %d Caldwell objects.\n", nM, nC ) )
+    str.append ( String ( format: "Imported %d total deep sky objects.\n", nMC ) )
+    CSSObjectArrayDestroy ( pObjArr )
+
+    // Open and read Planets.csv data file into object array in memory.
+    
+    path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/Planets.csv" )
+    pObjArr = CSSObjectArrayCreate();
+    n = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr );
     str.append ( String ( format: "Imported %d planets:\n", n ) );
+
+    // Print names of all objects in the array, then destroy.
     
     for i in 0..<n
     {
@@ -110,6 +135,7 @@ func test ( ) -> String
             str.append ( "\n" )
         }
     }
+    
     CSSObjectArrayDestroy ( pObjArr );
     
     return str;
