@@ -19,18 +19,35 @@ func CSSMatrixToString ( mat: CSSMatrix ) -> String
     return str
 }
 
+func CSSVectorToString ( vec: CSSVector ) -> String
+{
+    return String ( format: "%+f %+f %+f\n", vec.x, vec.y, vec.z )
+}
+
 func test ( ) -> String
 {
-    let ctime = CSSTimeFromSystem()
-    let cdate = CSSTimeToCSSDate ( ctime )
-
     var str = "Hello, SSCore!\n"
 
+    // Get current time from system as Julian date, and convert fo calendar date
+    // Get JED and Greenwich Sidereal Time
+    
+    let ctime = CSSTimeFromSystem()
+    let cdate = CSSTimeToCSSDate ( ctime )
+    let jed = CSSTimeGetJulianEphemerisDate ( ctime );
+    let gst = CSSTimeGetSiderealTime ( ctime, 0.0 );
+    let hms = CSSHourMinSecFromRadians ( gst )
+    
+    // Print local date, time, time zone, JD, JED, GST
+    
     str.append ( String ( format: "Current local date is %04d/%02hd/%02.0f\n", cdate.year, cdate.month, floor ( cdate.day ) ) )
     str.append ( String ( format: "Current local time is %02hd:%0h2d:%04.1f\n", cdate.hour, cdate.min, cdate.sec ) )
     str.append ( String ( format: "Local time zone is %+.2f hours east of UTC\n", cdate.zone ) )
     str.append ( String ( format: "Julian Date is %.6f\n", ctime.jd ) )
+    str.append ( String ( format: "Julian Ephemeris Date is %.6f\n", jed ) )
+    str.append ( String ( format: "Greenwich Sidereal Time is %s\n", CSSHourMinSecToString ( hms ) ) )
 
+    // Print some angular constants and do some angle conversions
+    
     str.append ( String ( format: "pi = %.6f\n", kSSPi ) );
     str.append ( String ( format: "1 radian = %.6f deg\n", kSSDegPerRad ) );
     
@@ -42,22 +59,41 @@ func test ( ) -> String
     let chms = CSSHourMinSecFromString ( hmsstr );
     str.append ( String ( format: "%@ hour min sec = %.6f radian\n", hmsstr, CSSHourMinSecToRadians ( chms ) ) )
 
+    // Do some matrix operations which should generate an identity matrix at the end
+    
     var cmat = CSSMatrixIdentity();
+    
     cmat = CSSMatrixRotate ( cmat, 1, 1.0 );
     cmat = CSSMatrixRotate ( cmat, 2, 2.0 );
     cmat = CSSMatrixRotate ( cmat, 3, 3.0 );
 
-    str.append ( "Rotation Matrix:\n" )
-    str.append ( CSSMatrixToString ( mat: cmat ) )
-    
-    str.append ( "Inverse Matrix:\n" )
     let cinv = CSSMatrixInverse ( cmat );
-    str.append ( CSSMatrixToString ( mat: cinv ) )
-    
-    str.append ( "Identity Matrix:\n" )
     let cidm = CSSMatrixMultiplyMatrix ( cinv, cmat );
+
+    str.append ( "Identity Matrix:\n" )
     str.append ( CSSMatrixToString ( mat: cidm ) )
 
+    // get path to DE438 file within SSData folder within main bundle
+    
+    let path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/DE438/1950_2050.438" )
+    
+    if CSSJPLDEphemerisOpen ( ( path as NSString ).utf8String )
+    {
+        str.append ( "Opened DE438 ephemeris file.\n" )
+        var pos = CSSVectorFromXYZ ( 0.0, 0.0, 0.0 )
+        var vel = pos
+        CSSJPLDEphemerisCompute ( 3, jed, true, &pos, &vel );
+        str.append ( "Earth position: " )
+        str.append ( CSSVectorToString ( vec: pos ) )
+        str.append ( "Earth velocity: " )
+        str.append ( CSSVectorToString ( vec: vel ) )
+        CSSJPLDEphemerisClose();
+    }
+    else
+    {
+        str.append ( "Failed to open DE438 ephemeris file.\n" )
+    }
+    
     return str
 }
 

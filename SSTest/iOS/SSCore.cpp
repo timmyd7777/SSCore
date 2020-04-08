@@ -37,6 +37,24 @@ CSSTime CSSTimeFromSystem ( void )
     return cnow;
 }
 
+double CSSTimeGetDeltaT ( CSSTime ctime )
+{
+    SSTime time ( ctime.jd );
+    return time.getDeltaT();
+}
+
+double CSSTimeGetJulianEphemerisDate ( CSSTime ctime )
+{
+    SSTime time ( ctime.jd );
+    return time.getJulianEphemerisDate();
+}
+
+double CSSTimeGetSiderealTime ( CSSTime ctime, double lon )
+{
+    SSTime time ( ctime.jd );
+    return time.getSiderealTime ( lon );
+}
+
 // C wrappers for C++ SSAngle classes and methods
 
 CSSDegMinSec CSSDegMinSecFromRadians ( CSSAngle rad )
@@ -95,6 +113,18 @@ const char *CSSHourMinSecToString ( CSSHourMinSec chms )
 }
 
 // C wrappers for C++ SSVector classes and methods
+
+CSSVector CSSVectorFromXYZ ( double x, double y, double z )
+{
+    CSSVector vec = { x, y, z };
+    return vec;
+}
+
+CSSSpherical CSSSphericalFromLonLatRad ( double lon, double lat, double rad )
+{
+    CSSSpherical sph = { lon, lat, rad };
+    return sph;
+}
 
 CSSVector CSSSphericalToCSSVector ( CSSSpherical csph )
 {
@@ -384,4 +414,17 @@ CSSPositionVelocity CSSJPLDEphemerisCompute ( int planet, double jd, bool bary )
     }
     
     return posvel;
+}
+
+bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *cpos, CSSVector *cvel )
+{
+    SSVector pos ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    SSVector vel ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+
+    bool result = _jpldeph.compute ( planet, jd, bary, pos, vel );
+    
+    memcpy ( cpos, &pos, sizeof ( pos ) );
+    memcpy ( cvel, &vel, sizeof ( vel ) );
+    
+    return result;
 }

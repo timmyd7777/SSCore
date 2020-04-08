@@ -64,6 +64,10 @@ CSSDate CSSTimeToCSSDate ( CSSTime time );
 CSSTime CSSDateToCSSTime ( CSSDate date );
 CSSTime CSSTimeFromSystem ( void );
 
+double CSSTimeGetDeltaT ( CSSTime ctime );
+double CSSTimeGetJulianEphemerisDate ( CSSTime ctime );
+double CSSTimeGetSiderealTime ( CSSTime ctime, double lon );
+
 // C wrappers for C++ SSAngle constants, classes, and methods
 
 const double kSSPi = M_PI;
@@ -134,6 +138,9 @@ typedef struct CSSVector
 }
 CSSVector;
 
+CSSVector CSSVectorFromXYZ ( double x, double y, double z );
+CSSSpherical CSSSphericalFromLonLatRad ( double lon, double lat, double rad );
+
 CSSVector CSSSphericalToCSSVector ( CSSSpherical csph );
 CSSSpherical CSSVectorToCSSSpherical ( CSSVector cvec );
 
@@ -197,7 +204,9 @@ void CSSJPLDEphemerisClose ( void );
 double CSSJPLDEphemerisStartJED ( const char *filename );
 double CSSJPLDEphemerisStopJED ( void );
 
-CSSPositionVelocity CSSJPLDEphemerisCompute ( int planet, double jd, bool bary );
+// CSSPositionVelocity CSSJPLDEphemerisCompute ( int planet, double jd, bool bary );
+
+bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *pos, CSSVector *vel );
 
 #ifdef __cplusplus
 }
