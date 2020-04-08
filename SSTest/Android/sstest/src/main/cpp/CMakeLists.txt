@@ -34,7 +34,16 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSTLE.cpp
              ../../../../../../SSCode/SSUtilities.cpp
              ../../../../../../SSCode/SSVector.cpp
+             ../../../../../../SSTest/SSTest.cpp
         )
+
+# For CMake to locate your header files during compile time,
+# you need to use the include_directories() command and include the path to your header files:
+
+include_directories (
+        ../../../../../../SSCode/
+        ../../../../../../SSTest/
+    )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

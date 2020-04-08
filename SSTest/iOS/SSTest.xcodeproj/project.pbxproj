@@ -86,7 +86,7 @@
 		A3EBE0EB243AE4E800B47EAE /* SSJPLDEphemeris.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSJPLDEphemeris.hpp; sourceTree = "<group>"; };
 		A3EBE0EC243AE4E800B47EAE /* SSCoords.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSCoords.cpp; sourceTree = "<group>"; };
 		A3EBE101243AE69800B47EAE /* SSTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSTest.cpp; path = ../SSTest.cpp; sourceTree = "<group>"; };
-		A3EBE103243AE9A600B47EAE /* SSTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SSTest.h; sourceTree = "<group>"; };
+		A3EBE103243AE9A600B47EAE /* SSTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SSTest.h; path = ../SSTest.h; sourceTree = "<group>"; };
 		A3F3334F243B89D500D27A15 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A3F33351243B89EE00D27A15 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		A3F33355243B8B0100D27A15 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = SOURCE_ROOT; };

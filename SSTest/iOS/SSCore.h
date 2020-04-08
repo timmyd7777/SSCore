@@ -249,9 +249,6 @@ int CSSImportObjectsFromCSV ( const char *filename, CSSObjectArray *pObjArr );
 size_t CSSObjectArraySize ( CSSObjectArray *pObjArr );
 CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i );
 
-// Converts integer object types to two-character type codes and vice-versa.
-
-
 #ifdef __cplusplus
 }
 #endif

@@ -5,7 +5,7 @@ SSCore
 
 SSCore is written in highly portable, modern C++.  It has been tested on MacOS, iOS, Android, Linux, and Windows.  It uses common STL types and language features (string, vector, map; operator overloading) and stack-based memory management wherever possible to produce compact, highly efficient, optimized code.
 
-This repository also includes simple test programs which serve as examples of how to use the API. Build environments for MacOS, iOS, Android, Windows, and Linux are included. The iOS version includes a plain C wrapper for the C++ classes which lets them be used from Swift.
+This repository also includes simple test programs which serve as examples of how to use the API. Build environments for MacOS, iOS, Android, Windows, and Linux are included. The iOS version includes a plain C wrapper for the C++ classes which makes them useable from Swift. The Android version contains Java wrappers and JNI code which allows the C++ classes to be called from either a Java- or Kotlin-based Android environment.
 
 License
 -------
@@ -58,7 +58,7 @@ SSTest
 
 This directory contains a test program (SSTest.cpp), which hopefully serves as an example of how to use the C++ classes in the SSCode directory.  It also contains build environments for MacOS, iOS, Android, Windows, and Linux.  Building and running instructions for each platform follow.
 
-- **_Android:_** instructions TBD
+- **_Android:_** open the **SSTest/Android** project with Android Studio 3.6 or later. Wait a minute for Gradle sync to complete. Then from the **Build** menu, select **Make Project.** After build completes, go to the **Run** menu and select **Debug 'sstest'**.
 - **_MacOS:_** open **SSTest.xcodeproj** in the MacOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**. NOTE: by default, Xcode places the SSTest executable under `~/Library/Developer/Xcode/DerivedData`, so SSTest won't know where to find the `SSData` folder.  To fix this, from Xcode's **File** menu, select **Project Settings...**, then change **Derived Data** to **Project-relative Location** (DerivedData). This puts the `DerivedData` folder, which contains the SSTest executable, into the `SSTest/MacOS` folder adjacent to `SSData`.
 - **_iOS:_** open **SSTest.xcodeproj** in the iOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.  This will launch a test program in the iPhone Simulator.  There is no GUI, just text output which shows how to call the SSCore C++ classes from Swift using a plain-C wrapper (see `ContentView.swift`)
 - **_Linux:_** cd to the `Linux` directory; then type `make`.  After build completes, type `./sstest ../../SSData .` The final . tells the `sstest` executable to place file output into the current directory.
