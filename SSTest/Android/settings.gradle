@@ -1,0 +1,2 @@
+include ':sstest'
+rootProject.name='SSTest'
