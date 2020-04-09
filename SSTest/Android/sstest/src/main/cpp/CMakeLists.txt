@@ -35,8 +35,9 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSUtilities.cpp
              ../../../../../../SSCode/SSVector.cpp
              ../../../../../../SSTest/SSTest.cpp
-             ../jni/com_southernstars_sscore_JSSCalendar.cpp
+             ../jni/com_southernstars_sscore_JSSDate.cpp
              ../jni/com_southernstars_sscore_JSSTime.cpp
+             ../jni/JNIUtilities.cpp
         )
 
 # For CMake to locate your header files during compile time,

@@ -73,6 +73,22 @@ SSDate::SSDate ( SSTime time )
     zone = time.zone;
 }
 
+// Returns an SSDate object representing the calendar date that corresponds
+// to the Julian date in the provided SSTime object, using the calendar system
+// and time zone stored in the SSTime object.
+
+SSDate SSDate::fromJulianDate ( SSTime time )
+{
+    return SSDate ( time );
+}
+
+// Returns an SSTime object representing the Julian Date that corresponds to this calendar date.
+
+SSTime SSDate::toJulianDate ( void )
+{
+    return SSDate ( *this );
+}
+
 // Constructs a time with default values of 1.5 Jan 2000 UTC in the Gregorian calendar.
 
 SSTime::SSTime ( void )
@@ -186,6 +202,14 @@ SSTime SSTime::fromJulianYear ( double year )
 SSTime SSTime::fromBesselianYear ( double year )
 {
     return SSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ), 0.0 );
+}
+
+// Returns the unix time (i.e. seconds since 1.0 Jan 1970 UTC)
+// corresponding to this time object's Julian Date.
+
+time_t SSTime::toUnixTime ( void )
+{
+    return kSecondsPerDay * ( jd - kJ1970 );
 }
 
 // Returns the Julian year corresponding to this time object's Julian Date

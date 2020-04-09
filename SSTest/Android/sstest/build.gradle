@@ -27,7 +27,7 @@ android {
                     '-d', file('src/main/jni').absolutePath,
                     '-classpath', "$sdkDir/platforms/android-29/android.jar:" + localClasspathDir,
                     'com.southernstars.sscore.JSSTime',
-                    'com.southernstars.sscore.JSSCalendar'
+                    'com.southernstars.sscore.JSSDate'
         }
     }
     buildTypes {

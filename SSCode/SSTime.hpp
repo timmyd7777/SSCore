@@ -28,6 +28,8 @@ enum SSCalendar
 
 // Represents an instant in time as a calendar date in a local time zone.
 
+struct SSTime;
+
 struct SSDate
 {
     SSCalendar calendar;   // calendar system: kGregorian or kJulian.
@@ -40,15 +42,16 @@ struct SSDate
     double sec;            // seconds of minute including fractional part; 0 to 59.999...
     
     SSDate ( SSCalendar calendar, double zone, int year, short month, double day, short hour, short min, double sec );
-    SSDate ( class SSTime );
+    SSDate ( SSTime time );
+
+    static SSDate fromJulianDate ( SSTime time );
+    class SSTime toJulianDate ( void );
 };
 
 // Represents an instant in time as a Julian Date.
 
-class SSTime
+struct SSTime
 {
-    public:
-    
     double        jd;              // Julian date in civil time (NOT epehemeris time!)
     double        zone;            // Local time zone to use for converting to local calendar date/time, hours east of Greenwich
     SSCalendar    calendar;        // Calendar system to use for converting to calendar date/time
@@ -77,6 +80,7 @@ class SSTime
     SSTime ( SSDate date );
     
     static SSTime fromSystem ( void );
+    static SSTime fromCalendarDate ( SSDate date ) { return SSTime ( date ); }
     static SSTime fromUnixTime ( time_t time );
     static SSTime fromJulianYear ( double year );
     static SSTime fromBesselianYear ( double year );
