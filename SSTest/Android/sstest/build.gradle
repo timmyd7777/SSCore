@@ -19,6 +19,16 @@ android {
                 cppFlags "-std=c++11"
             }
         }
+        task buildJniHeaders(type: Exec, description: 'Build JNI Headers') {
+            def sdkDir = android.sdkDirectory
+            def localClasspathDir =  file('src/main/java').absolutePath
+
+            commandLine "javah",
+                    '-d', file('src/main/jni').absolutePath,
+                    '-classpath', "$sdkDir/platforms/android-29/android.jar:" + localClasspathDir,
+                    'com.southernstars.sscore.JSSTime',
+                    'com.southernstars.sscore.JSSCalendar'
+        }
     }
     buildTypes {
         release {

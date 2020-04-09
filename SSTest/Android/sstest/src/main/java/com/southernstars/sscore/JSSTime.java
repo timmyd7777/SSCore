@@ -13,13 +13,15 @@ public class JSSTime
         calendar = c;
     }
 
-    public static JSSTime fromSystem()
+    public native static JSSTime fromSystem();
+ /*
     {
         return new JSSTime ( 2451545.0, 0.0, 0 );
     }
-
-    public double getJulianEphemerisDate()
-    {
+*/
+    public native double getJulianEphemerisDate();
+/*    {
         return jd + 0.01;
     }
+*/
 }
