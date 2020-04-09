@@ -6,6 +6,13 @@ public class JSSTime
     public double zone;
     public int calendar;
 
+    JSSTime()
+    {
+        jd = 0.0;
+        zone = 0.0;
+        calendar = 0;
+    }
+
     JSSTime ( double j, double z, int c )
     {
         jd = j;

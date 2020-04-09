@@ -35,6 +35,8 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSUtilities.cpp
              ../../../../../../SSCode/SSVector.cpp
              ../../../../../../SSTest/SSTest.cpp
+             ../jni/com_southernstars_sscore_JSSCalendar.cpp
+             ../jni/com_southernstars_sscore_JSSTime.cpp
         )
 
 # For CMake to locate your header files during compile time,
@@ -43,6 +45,7 @@ add_library( # Sets the name of the library.
 include_directories (
         ../../../../../../SSCode/
         ../../../../../../SSTest/
+        ../jni/
     )
 
 # Searches for a specified prebuilt library and stores the path as a
