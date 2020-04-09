@@ -42,14 +42,14 @@ func test ( ) -> String
     str.append ( String ( format: "Current local date is %04d/%02hd/%02.0f\n", cdate.year, cdate.month, floor ( cdate.day ) ) )
     str.append ( String ( format: "Current local time is %02hd:%0h2d:%04.1f\n", cdate.hour, cdate.min, cdate.sec ) )
     str.append ( String ( format: "Local time zone is %+.2f hours east of UTC\n", cdate.zone ) )
-    str.append ( String ( format: "Julian Date is %.6f\n", ctime.jd ) )
+    str.append ( String ( format: "Julian Date is %.12f\n", ctime.jd ) )
     str.append ( String ( format: "Julian Ephemeris Date is %.6f\n", jed ) )
     str.append ( String ( format: "Greenwich Sidereal Time is %s\n", CSSHourMinSecToString ( hms ) ) )
 
     // Print some angular constants and do some angle conversions
     
     str.append ( String ( format: "pi = %.6f\n", kSSPi ) );
-    str.append ( String ( format: "1 radian = %.6f deg\n", kSSDegPerRad ) );
+    str.append ( String ( format: "1 radian = %.12f deg\n", kSSDegPerRad ) );
     
     let cdms = CSSDegMinSecFromRadians ( 1.0 );
     let dmsstr = String ( cString: CSSDegMinSecToString ( cdms ) )

@@ -21,70 +21,84 @@ jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName )
     return pObject;
 }
 
-void SetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, short value )
+void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value )
+{
+    jclass pClass = pEnv->GetObjectClass ( pObject );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "C" );
+    pEnv->SetCharField ( pObject, fid, value );
+}
+
+void SetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jshort value )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "S" );
     pEnv->SetShortField ( pObject, fid, value );
 }
 
-void SetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, int value )
+void SetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jint value )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "I" );
     pEnv->SetIntField ( pObject, fid, value );
 }
 
-void SetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, int64_t value )
+void SetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jlong value )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "J" );
     pEnv->SetLongField ( pObject, fid, value );
 }
 
-void SetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, float value )
+void SetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jfloat value )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "F" );
     pEnv->SetFloatField ( pObject, fid, value );
 }
 
-void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, double value )
+void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdouble value )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "D" );
     pEnv->SetDoubleField ( pObject, fid, value );
 }
 
-short GetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+jchar GetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+{
+    jclass pClass = pEnv->GetObjectClass ( pObject );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "C" );
+    return pEnv->GetCharField ( pObject, fid );
+}
+
+jshort GetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "S" );
     return pEnv->GetShortField ( pObject, fid );
 }
 
-int GetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+jint GetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "I" );
     return pEnv->GetIntField ( pObject, fid );
 }
 
-int64_t GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+jlong GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "J" );
     return pEnv->GetLongField ( pObject, fid );
 }
 
-float GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+jfloat GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "F" );
     return pEnv->GetFloatField ( pObject, fid );
 }
 
-double GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "D" );

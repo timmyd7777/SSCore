@@ -10,22 +10,30 @@
 #include "SSTime.hpp"
 
 jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName );
-void SetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, short value );
-void SetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, int value );
-void SetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, int64_t value );
-void SetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, float value );
-void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, double value );
+void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value );
+void SetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jshort value );
+void SetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jint value );
+void SetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jlong value );
+void SetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jfloat value );
+void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdouble value );
 
-short GetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
-int GetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
-int64_t GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
-float GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
-double GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jchar GetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jshort GetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jint GetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jlong GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jfloat GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 
 jobject SSTimeToJSSTime ( JNIEnv *pEnv, SSTime &time );
 SSTime JSSTimeToSSTime ( JNIEnv *pEnv, jobject pJSSTime );
 
 jobject SSDateToJSSDate ( JNIEnv *pEnv, SSDate &date );
 SSDate JSSDateToSSDate ( JNIEnv *pEnv, jobject pJSSDate );
+
+jobject SSDegMinSecToJSSDegMinSec ( JNIEnv *pEnv, SSDegMinSec &time );
+SSDegMinSec JSSDegMinSecToSSDegMinSec ( JNIEnv *pEnv, jobject pJSSDegMinSec );
+
+jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, SSHourMinSec &time );
+SSHourMinSec JSSHourMinSecToSSHourMinSec ( JNIEnv *pEnv, jobject pJSSHourMinSec );
 
 #endif // JNIUTILITIES_H

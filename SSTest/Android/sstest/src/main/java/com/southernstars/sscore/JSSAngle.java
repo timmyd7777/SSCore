@@ -1,5 +1,7 @@
 package com.southernstars.sscore;
 
+// Represents an angular value expressed in radians
+
 public class JSSAngle
 {
     public double rad;   // angular value in radians; infinite if unknown/undefined.

@@ -5,7 +5,7 @@
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
 // Classes for converting angular values from radians
-// to degress/hours, minutes, seconds; and vice-versa.
+// to degrees/hours, minutes, seconds; and vice-versa.
 
 #ifndef SSAngle_hpp
 #define SSAngle_hpp

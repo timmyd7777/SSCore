@@ -26,8 +26,11 @@ android {
             commandLine "javah",
                     '-d', file('src/main/jni').absolutePath,
                     '-classpath', "$sdkDir/platforms/android-29/android.jar:" + localClasspathDir,
-                    'com.southernstars.sscore.JSSTime',
-                    'com.southernstars.sscore.JSSDate'
+                    'com.southernstars.sscore.JSSAngle',
+                    'com.southernstars.sscore.JSSDegMinSec',
+                    'com.southernstars.sscore.JSSHourMinSec',
+                    'com.southernstars.sscore.JSSDate',
+                    'com.southernstars.sscore.JSSTime'
         }
     }
     buildTypes {
