@@ -30,6 +30,7 @@ android {
                     'com.southernstars.sscore.JSSDate',
                     'com.southernstars.sscore.JSSDegMinSec',
                     'com.southernstars.sscore.JSSHourMinSec',
+                    'com.southernstars.sscore.JSSMatrix',
                     'com.southernstars.sscore.JSSSpherical',
                     'com.southernstars.sscore.JSSTime',
                     'com.southernstars.sscore.JSSVector'

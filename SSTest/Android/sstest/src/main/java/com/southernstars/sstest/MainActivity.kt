@@ -6,6 +6,17 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.*
 import com.southernstars.sscore.*
 
+fun JSSMatrixToString ( mat: JSSMatrix ): String
+{
+    var str = ""
+
+    str += "%+f %+f %+f\n".format ( mat.m00, mat.m01, mat.m02 )
+    str += "%+f %+f %+f\n".format ( mat.m10, mat.m11, mat.m12 )
+    str += "%+f %+f %+f\n".format ( mat.m20, mat.m21, mat.m22 )
+
+    return str
+}
+
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +77,20 @@ class MainActivity : AppCompatActivity() {
         dms = JSSDegMinSec.fromRadians ( siriusXYZ.angularSeparation ( procyonXYZ ) )
         pa = siriusXYZ.positionAngle ( procyonXYZ )
         str += "Sirius to Procyon (vec): %02d° %02d' %04.1f\" @ %.3f°, %.3f pc\n".format ( dms.deg, dms.min, dms.sec, JSSAngle ( pa ).toDegrees(), d )
+
+        // Do some matrix operations which should generate an identity matrix at the end
+
+        var mat = JSSMatrix.identity()
+
+        mat = mat.rotate (0, 1.0 )
+        mat = mat.rotate (1, 2.0 )
+        mat = mat.rotate (2, 3.0 )
+
+        val inv = mat.inverse()
+        val prd = inv.multiply ( mat )
+
+        str += "Identity Matrix:\n"
+        str += JSSMatrixToString ( prd )
 
         sample_text.text = str
     }

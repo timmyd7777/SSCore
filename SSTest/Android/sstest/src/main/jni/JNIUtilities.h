@@ -9,6 +9,7 @@
 
 #include "SSTime.hpp"
 #include "SSVector.hpp"
+#include "SSMatrix.hpp"
 
 jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName );
 void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value );
@@ -41,6 +42,9 @@ jobject SSSphericalToJSSSpherical ( JNIEnv *pEnv, SSSpherical &spherical );
 SSSpherical JSSSphericalToSSSpherical ( JNIEnv *pEnv, jobject pJSSSpherical );
 
 jobject SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector );
+SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
+
+jobject SSMatrixToJSSMatrix ( JNIEnv *pEnv, SSMatrix &matrix );
 SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
 
 #endif // JNIUTILITIES_H

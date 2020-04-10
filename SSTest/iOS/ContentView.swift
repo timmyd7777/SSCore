@@ -63,9 +63,9 @@ func test ( ) -> String
     
     var cmat = CSSMatrixIdentity();
     
-    cmat = CSSMatrixRotate ( cmat, 1, 1.0 );
-    cmat = CSSMatrixRotate ( cmat, 2, 2.0 );
-    cmat = CSSMatrixRotate ( cmat, 3, 3.0 );
+    cmat = CSSMatrixRotate ( cmat, 0, 1.0 );
+    cmat = CSSMatrixRotate ( cmat, 1, 2.0 );
+    cmat = CSSMatrixRotate ( cmat, 2, 3.0 );
 
     let cinv = CSSMatrixInverse ( cmat );
     let cidm = CSSMatrixMultiplyMatrix ( cinv, cmat );
