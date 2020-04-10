@@ -11,19 +11,19 @@ public class JSSSpherical
     public double lat;    // Latitude coordinate, in radians from -kHalfPi to +kHalfPi.
     public double rad;    // Radial distance from origin of coordinate system, in arbitrary units; 1.0 is a unit vector.
 
-    JSSSpherical()
+    public JSSSpherical()
     {
         lon = lat = rad = 0.0;
     }
 
-    JSSSpherical ( double l, double b )
+    public JSSSpherical ( double l, double b )
     {
         lon = l;
         lat = b;
         rad = 1.0;
     }
 
-    JSSSpherical ( double l, double b, double r )
+    public JSSSpherical ( double l, double b, double r )
     {
         lon = l;
         lat = b;

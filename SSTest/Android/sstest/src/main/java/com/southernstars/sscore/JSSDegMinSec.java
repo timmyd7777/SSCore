@@ -6,12 +6,12 @@ import com.southernstars.sscore.JSSAngle;
 
 public class JSSDegMinSec
 {
-    char sign;        // sign of angle, either '+' or '-'
-    short deg;        // degrees portion of angle, 0 - 360, always positive
-    short min;        // minutes portion of angle, 0 - 59, always positive
-    double sec;       // seconds portion of angle, 0 - 59.999..., always positive
+    public char sign;        // sign of angle, either '+' or '-'
+    public short deg;        // degrees portion of angle, 0 - 360, always positive
+    public short min;        // minutes portion of angle, 0 - 59, always positive
+    public double sec;       // seconds portion of angle, 0 - 59.999..., always positive
 
-    JSSDegMinSec()
+    public JSSDegMinSec()
     {
         sign = '+';
         deg = 0;
@@ -19,7 +19,7 @@ public class JSSDegMinSec
         sec = 0.0;
     }
 
-    JSSDegMinSec ( char p, short d, short m, double s )
+    public JSSDegMinSec ( char p, short d, short m, double s )
     {
         sign = p;
         deg = d;

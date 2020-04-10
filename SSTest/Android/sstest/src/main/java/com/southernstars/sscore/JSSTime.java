@@ -23,28 +23,28 @@ public class JSSTime
     public static double kSiderealPerSolarDays = 1.00273790934;     // Sidereal days per Solar day
     public static double kSolarPerSiderealDays = 0.99726957;        // Days per Sidereal Day
 
-    JSSTime()
+    public JSSTime()
     {
         jd = 0.0;
         zone = 0.0;
         calendar = JSSDate.kGregorian;
     }
 
-    JSSTime ( double j )
+    public JSSTime ( double j )
     {
         jd = jd;
         zone = 0.0;
         calendar = JSSDate.kGregorian;
     }
 
-    JSSTime ( double j, double z )
+    public JSSTime ( double j, double z )
     {
         jd = j;
         zone = z;
         calendar = JSSDate.kGregorian;
     }
 
-    JSSTime ( double j, double z, int c )
+    public JSSTime ( double j, double z, int c )
     {
         jd = j;
         zone = z;

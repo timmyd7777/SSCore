@@ -39,12 +39,33 @@ class MainActivity : AppCompatActivity() {
         str += "pi = %.12f\n".format ( JSSAngle.kPi )
         str += "1 radian = %.12f deg\n".format ( JSSAngle.kDegPerRad )
 
-        val dms = JSSDegMinSec.fromRadians ( 1.0 )
+        var dms = JSSDegMinSec.fromRadians ( 1.0 )
         str += "1 radian = %s deg min sec\n".format ( dms.toString() )
 
         val hmsstr = "12 34 56.7"
         hms = JSSHourMinSec.fromString ( hmsstr )
         str += "%s hour min sec = %.6f radian\n".format ( hmsstr, hms.toRadians() )
+
+        // Compute some angular separations and position angles using spherical and rectangular coordinates
+
+        hms = JSSHourMinSec.fromString ( "06 45 08.92" )
+        dms = JSSDegMinSec.fromString ( "-16 42 58.0" )
+        val sirius = JSSSpherical ( hms.toRadians(), dms.toRadians(), 2.637 )
+        val siriusXYZ = sirius.toVector().normalize()
+
+        hms = JSSHourMinSec.fromString ( "07 39 18.12" )
+        dms = JSSDegMinSec.fromString ( "+05 13 30.0" )
+        val procyon = JSSSpherical ( hms.toRadians(), dms.toRadians(), 3.497 )
+        val procyonXYZ = procyon.toVector().normalize()
+
+        dms = JSSDegMinSec.fromRadians ( sirius.angularSeparation ( procyon ) )
+        var pa = sirius.positionAngle ( procyon )
+        val d = siriusXYZ.distance ( procyonXYZ )
+        str += "Sirius to Procyon (sph): %02d° %02d' %04.1f\" @ %.3f°, %.3f pc\n".format ( dms.deg, dms.min, dms.sec, JSSAngle ( pa ).toDegrees(), d )
+
+        dms = JSSDegMinSec.fromRadians ( siriusXYZ.angularSeparation ( procyonXYZ ) )
+        pa = siriusXYZ.positionAngle ( procyonXYZ )
+        str += "Sirius to Procyon (vec): %02d° %02d' %04.1f\" @ %.3f°, %.3f pc\n".format ( dms.deg, dms.min, dms.sec, JSSAngle ( pa ).toDegrees(), d )
 
         sample_text.text = str
     }

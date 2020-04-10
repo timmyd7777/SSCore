@@ -6,12 +6,12 @@ import com.southernstars.sscore.JSSAngle;
 
 public class JSSHourMinSec
 {
-    char sign;        // sign of angle, either '+' or '-'
-    short hour;       // hours portion of angle, 0 - 23, always positive
-    short min;        // minutes portion of angle, 0 - 59, always positive
-    double sec;       // seconds portion of angle, 0 - 59.999..., always positive
+    public char sign;        // sign of angle, either '+' or '-'
+    public short hour;       // hours portion of angle, 0 - 23, always positive
+    public short min;        // minutes portion of angle, 0 - 59, always positive
+    public double sec;       // seconds portion of angle, 0 - 59.999..., always positive
 
-    JSSHourMinSec()
+    public JSSHourMinSec()
     {
         sign = '+';
         hour = 0;
@@ -19,7 +19,7 @@ public class JSSHourMinSec
         sec = 0.0;
     }
 
-    JSSHourMinSec ( char p, short h, short m, double s )
+    public JSSHourMinSec ( char p, short h, short m, double s )
     {
         sign = p;
         hour = h;

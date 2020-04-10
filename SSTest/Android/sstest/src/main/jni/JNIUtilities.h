@@ -8,6 +8,7 @@
 #include <jni.h>
 
 #include "SSTime.hpp"
+#include "SSVector.hpp"
 
 jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName );
 void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value );
@@ -35,5 +36,11 @@ SSDegMinSec JSSDegMinSecToSSDegMinSec ( JNIEnv *pEnv, jobject pJSSDegMinSec );
 
 jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, SSHourMinSec &time );
 SSHourMinSec JSSHourMinSecToSSHourMinSec ( JNIEnv *pEnv, jobject pJSSHourMinSec );
+
+jobject SSSphericalToJSSSpherical ( JNIEnv *pEnv, SSSpherical &spherical );
+SSSpherical JSSSphericalToSSSpherical ( JNIEnv *pEnv, jobject pJSSSpherical );
+
+jobject SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector );
+SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
 
 #endif // JNIUTILITIES_H

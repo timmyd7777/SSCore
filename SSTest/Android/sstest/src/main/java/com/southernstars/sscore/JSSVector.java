@@ -9,19 +9,19 @@ public class JSSVector
 {
     public double x, y, z;    // Point's distance from origin along X, Y, Z axes, in arbitrary units.
 
-    JSSVector()
+    public JSSVector()
     {
         x = y = z = 0.0;
     }
 
-    JSSVector ( double x, double y, double z )
+    public JSSVector ( double x, double y, double z )
     {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    double magnitude()
+    public double magnitude()
     {
         return Math.sqrt ( x * x + y * y + z * z );
     }
@@ -35,32 +35,32 @@ public class JSSVector
             return new JSSVector();
     }
 
-    JSSVector add ( JSSVector other )
+    public JSSVector add ( JSSVector other )
     {
         return new JSSVector ( x + other.x, y + other.y, z + other. z );
     }
 
-    JSSVector subtract ( JSSVector other )
+    public JSSVector subtract ( JSSVector other )
     {
         return new JSSVector ( x - other.z, y - other.y, z - other.z );
     }
 
-    JSSVector multiplyBy ( double s )
+    public JSSVector multiplyBy ( double s )
     {
         return new JSSVector ( x * s, y * s, z * s );
     }
 
-    JSSVector divideBy ( double s )
+    public JSSVector divideBy ( double s )
     {
         return new JSSVector ( x / s, y / s, z / s );
     }
 
-    double dotProduct ( JSSVector other )
+    public double dotProduct ( JSSVector other )
     {
         return x * other.x + y * other.y + z * other.z;
     }
 
-    JSSVector crossProduct ( JSSVector other )
+    public JSSVector crossProduct ( JSSVector other )
     {
         double u = y * other.z - z * other.y;
         double v = z * other.x - x * other.z;
@@ -69,7 +69,7 @@ public class JSSVector
         return new JSSVector ( u, v, w );
     }
 
-    double distance ( JSSVector other )
+    public double distance ( JSSVector other )
     {
         return subtract ( other ).magnitude();
     }

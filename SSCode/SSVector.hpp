@@ -14,6 +14,8 @@
 
 // Represents a point in a spherical coordinate system (lon/lat, RA/Dec, Az/Alt)
 
+struct SSVector;
+
 struct SSSpherical
 {
     SSAngle lon;    // Longitude coordinate, in radians from 0 to kTwoPi.
@@ -23,7 +25,7 @@ struct SSSpherical
     SSSpherical ( void );
     SSSpherical ( SSAngle lon, SSAngle lat );
     SSSpherical ( SSAngle lon, SSAngle lat, double rad );
-    SSSpherical ( struct SSVector );
+    SSSpherical ( SSVector vec );
 
     SSAngle angularSeparation ( SSSpherical other );
     SSAngle positionAngle ( SSSpherical other );

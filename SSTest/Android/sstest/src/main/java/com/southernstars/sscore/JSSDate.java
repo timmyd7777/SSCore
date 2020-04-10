@@ -14,7 +14,7 @@ public class JSSDate
     public static int kGregorian = 0;        // Gregorian calendar, used after 15 October 1582 (JD 2299161).  Leap years every 4th year, but not every 100th, unless also 400th.
     public static int kJulian = 1;           // Julian calendar, used before 4 October 1582 (JD 2299161).  Leap years every 4 years.
 
-    JSSDate()
+    public JSSDate()
     {
         calendar = kGregorian;
         zone = 0.0;
@@ -26,7 +26,7 @@ public class JSSDate
         sec = 0.0;
     }
 
-    JSSDate ( int c, double z, int y, short m, double d, short h, short n, double s )
+    public JSSDate ( int c, double z, int y, short m, double d, short h, short n, double s )
     {
         calendar = c;
         zone = z;

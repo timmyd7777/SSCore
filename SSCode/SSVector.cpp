@@ -78,12 +78,32 @@ SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
 }
 
 // Returns angular separation in radians from this point in a spherical coordinate system
-// to another point in the same spherical coordinate system.  Both points must have radial
-// distance from the origin set to 1.0, or the returned value will be invalid.
+// to another point in the same spherical coordinate system. This hversine formula, from
+// https://en.wikipedia.org/wiki/Haversine_formula
+// is accurate for all angles from 0 to kPi radians.
+// We ignores both points' radial distances from the origin.
+
+double haversin ( double x )
+{
+    double s = sin ( x * 0.5 );
+    return ( s * s );
+}
 
 SSAngle SSSpherical::angularSeparation ( SSSpherical other )
 {
-    return SSVector ( *this ).angularSeparation ( SSVector ( other ) );
+    double s = haversin ( other.lat - lat ) + cos ( lat ) * cos ( other.lat ) * haversin ( other.lon - lon );
+    s = s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s;
+    return SSAngle ( 2.0 * asin ( sqrt ( s ) ) );
+}
+
+// Returns position angle in radians from this point in a spherical coordinate system
+// to another point in the same spherical coordinate system.
+
+SSAngle SSSpherical::positionAngle ( SSSpherical other )
+{
+    double eta = cos ( other.lat ) * sin ( other.lon - lon );
+    double xi = cos ( lat ) * sin ( other.lat ) - sin ( lat ) * cos ( other.lat ) * cos ( other.lon - lon );
+    return SSAngle ( atan2pi ( eta, xi ) );
 }
 
 // Constructs a rectangular coordinate vector at the origin of the coordinate system
@@ -196,12 +216,39 @@ SSVector SSVector::crossProduct ( SSVector other )
     return ( SSVector ( u, v, w ) );
 }
 
-// Returns the angular separation in radians from this point in a rectangular coordinate system
-// to another point in the same rectangular system, as seen from the origin of the coordinate system.
+// Returns the angular separation in radians from this vector in a rectangular coordinate system
+// to another vector (v) in the same rectangular system, as seen from the origin of the coordinate system.
+// Both vectors must be unit vectors. Formula is accurate for all angles from 0 to kPi radians.
 
-SSAngle SSVector::angularSeparation ( SSVector other )
+SSAngle SSVector::angularSeparation ( SSVector v )
 {
-    return SSAngle ( asin ( dotProduct ( other ) ) );
+    double d = subtract ( v ).magnitude();
+    return SSAngle ( 2.0 * asin ( d / 2.0 ) );
+}
+
+// Returns the position in radians from this vector in a rectangular coordinate system
+// to another vector (v) in the same rectangular system, as seen from the origin of the coordinate system.
+// Both vectors must be unit vectors. Formula is accurate for all position angles from 0 to kTwoPi radians.
+// Position angle is measured eastward (counterclockwise) from north:
+// north = 0, east = kHalfPi, south = kPi, west = kThreeHalvesPi.
+
+SSAngle SSVector::positionAngle ( SSVector v )
+{
+    double nz = sqrt ( 1.0 - z * z );
+    if ( nz == 0.0 )
+        return ( 0.0 );
+
+    double nx = -x * z / nz;
+    double ny = -y * z / nz;
+
+    double ex = -y / nz;
+    double ey =  x / nz;
+
+    double edotv = ex * v.x + ey * v.y;
+    double ndotv = nx * v.x + ny * v.y + nz * v.z;
+
+    double pa = ( edotv == 0.0 && ndotv == 0.0 ) ? 0.0 : atan2pi ( edotv, ndotv );
+    return SSAngle ( pa );
 }
 
 // Returns the distance from this point in a rectangular coordinate system
