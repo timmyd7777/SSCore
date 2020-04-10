@@ -39,7 +39,9 @@ add_library( # Sets the name of the library.
              ../jni/com_southernstars_sscore_JSSDegMinSec.cpp
              ../jni/com_southernstars_sscore_JSSHourMinSec.cpp
              ../jni/com_southernstars_sscore_JSSDate.cpp
+             ../jni/com_southernstars_sscore_JSSSpherical.cpp
              ../jni/com_southernstars_sscore_JSSTime.cpp
+             ../jni/com_southernstars_sscore_JSSVector.cpp
              ../jni/JNIUtilities.cpp
         )
 

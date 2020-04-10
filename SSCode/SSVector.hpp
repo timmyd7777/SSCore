@@ -32,11 +32,11 @@ struct SSSpherical
     SSVector toVectorVelocity ( SSSpherical vsph );
 };
 
-// Represents a point in a rectangular coordinate system.
+// Represents a point in a rectangular (x,y,z) coordinate system.
 
 struct SSVector
 {
-    double x, y, z;    // Point's distance from origin along X, Y, Z axes, in arbitary units.
+    double x, y, z;    // Point's distance from origin along X, Y, Z axes, in arbitrary units.
 
     SSVector ( void );
     SSVector ( double x, double y, double z );
