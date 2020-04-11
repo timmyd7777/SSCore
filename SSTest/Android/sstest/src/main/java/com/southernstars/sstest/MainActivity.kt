@@ -2,6 +2,7 @@ package com.southernstars.sstest
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.content.res.AssetManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.*
 import com.southernstars.sscore.*
@@ -26,6 +27,14 @@ class MainActivity : AppCompatActivity() {
         // Example of a call to a native method
 
         var str = stringFromJNI() + "\n"
+
+        // needed to read files from assets from native code
+
+        val assetMgr = getResources().assets
+        if ( initAssetManager ( assetMgr ) )
+            str += "Successfully initialized asset manager.\n"
+        else
+            str += "Failed to initialize asset manager!\n"
 
         // Get current time from system as Julian date, and convert fo calendar date
         // Get JED and Greenwich Sidereal Time
@@ -94,6 +103,8 @@ class MainActivity : AppCompatActivity() {
 
         sample_text.text = str
     }
+
+    external fun initAssetManager ( mgr:AssetManager ): Boolean
 
     /**
      * A native method that is implemented by the 'sscore-lib' native library,

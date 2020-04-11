@@ -6,10 +6,29 @@
 #define JNIUTILITIES_H
 
 #include <jni.h>
+#include <android/log.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 #include "SSTime.hpp"
 #include "SSVector.hpp"
 #include "SSMatrix.hpp"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* hijack fopen and route it through the android asset system so that
+   we can pull things out of our packagesk APK */
+
+void android_fopen_set_asset_manager(AAssetManager* manager);
+FILE* android_fopen(const char* fname, const char* mode);
+
+#define fopen(name, mode) android_fopen(name, mode)
+
+#ifdef __cplusplus
+}
+#endif
 
 jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName );
 void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value );
