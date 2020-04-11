@@ -61,9 +61,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
 
-task copyFiles(type: Copy)
-
-copyFiles {
+task copyAssets ( type: Copy ) {
     description = 'Copies selected files from the common SSData folder into assets/SSData'
     from ( '../../../SSData' ) {
         include 'SolarSystem/Planets.csv'
@@ -83,6 +81,10 @@ copyFiles {
     into 'src/main/assets/SSData'
 }
 
-preBuild.dependsOn copyFiles
-clean.dependsOn copyFiles
-clean.mustRunAfter copyFiles
+task deleteAssets ( type: Delete ) {
+    delete 'src/main/assets/SSData'
+}
+
+preBuild.dependsOn copyAssets
+clean.dependsOn deleteAssets
+
