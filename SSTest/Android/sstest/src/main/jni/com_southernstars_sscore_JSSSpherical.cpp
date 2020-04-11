@@ -87,5 +87,5 @@ JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSSpherical_positionAng
 {
     SSSpherical thisSph = JSSSphericalToSSSpherical ( pEnv, pJThisSph );
     SSSpherical thatSph = JSSSphericalToSSSpherical ( pEnv, pJThatSph );
-    return thisSph.angularSeparation ( thatSph );
+    return thisSph.positionAngle ( thatSph );
 }

@@ -82,6 +82,7 @@ JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSVector_angularSeparat
  * Method:    positionAngle
  * Signature: (Lcom/southernstars/sscore/JSSVector;)D
  */
+
 JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSVector_positionAngle ( JNIEnv *pEnv, jobject pJSSThisVec, jobject pJSSThatVec )
 {
     SSVector thisVec = JSSVectorToSSVector ( pEnv, pJSSThisVec );
