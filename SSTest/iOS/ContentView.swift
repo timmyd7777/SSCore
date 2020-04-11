@@ -35,7 +35,7 @@ func test ( ) -> String
     let cdate = CSSTimeToCSSDate ( ctime )
     let jed = CSSTimeGetJulianEphemerisDate ( ctime );
     let gst = CSSTimeGetSiderealTime ( ctime, 0.0 );
-    let hms = CSSHourMinSecFromRadians ( gst )
+    var hms = CSSHourMinSecFromRadians ( gst )
     
     // Print local date, time, time zone, JD, JED, GST
     
@@ -48,16 +48,37 @@ func test ( ) -> String
 
     // Print some angular constants and do some angle conversions
     
-    str.append ( String ( format: "pi = %.6f\n", kSSPi ) );
-    str.append ( String ( format: "1 radian = %.12f deg\n", kSSDegPerRad ) );
+    str.append ( String ( format: "pi = %.6f\n", kSSPi ) )
+    str.append ( String ( format: "1 radian = %.12f deg\n", kSSDegPerRad ) )
     
-    let cdms = CSSDegMinSecFromRadians ( 1.0 );
-    let dmsstr = String ( cString: CSSDegMinSecToString ( cdms ) )
+    var dms = CSSDegMinSecFromRadians ( 1.0 )
+    let dmsstr = String ( cString: CSSDegMinSecToString ( dms ) )
     str.append ( String ( format: "1 radian = %s deg min sec\n", ( dmsstr as NSString ).utf8String ?? "" ) )
     
     let hmsstr = "12 34 56.7"
     let chms = CSSHourMinSecFromString ( hmsstr );
     str.append ( String ( format: "%@ hour min sec = %.6f radian\n", hmsstr, CSSHourMinSecToRadians ( chms ) ) )
+
+    // Compute some angular separations and position angles using spherical and rectangular coordinates
+
+    hms = CSSHourMinSecFromString ( "06 45 08.92" )
+    dms = CSSDegMinSecFromString ( "-16 42 58.0" )
+    let sirius = CSSSpherical ( lon:CSSHourMinSecToRadians ( hms ), lat:CSSDegMinSecToRadians ( dms ), rad:2.637 )
+    let siriusXYZ = CSSVectorNormalize ( CSSSphericalToCSSVector ( sirius ) )
+
+    hms = CSSHourMinSecFromString ( "07 39 18.12" )
+    dms = CSSDegMinSecFromString ( "+05 13 30.0" )
+    let procyon = CSSSpherical ( lon:CSSHourMinSecToRadians ( hms ), lat:CSSDegMinSecToRadians ( dms ), rad:3.497 )
+    let procyonXYZ = CSSVectorNormalize ( CSSSphericalToCSSVector ( procyon ) )
+
+    dms = CSSDegMinSecFromRadians ( CSSSphericalAngularSeparation ( sirius, procyon ) )
+    var pa = CSSSphericalPositionAngle ( sirius, procyon )
+    let d = CSSVectorDistance ( siriusXYZ, procyonXYZ )
+    str.append ( String ( format:"Sirius to Procyon (sph): %02d° %02d' %04.1f\" @ %.3f°, %.3f pc\n", dms.deg, dms.min, dms.sec, pa * kSSDegPerRad, d ) )
+
+    dms = CSSDegMinSecFromRadians ( CSSVectorAngularSeparation ( siriusXYZ, procyonXYZ ) )
+    pa = CSSVectorPositionAngle ( siriusXYZ, procyonXYZ )
+    str.append ( String ( format:"Sirius to Procyon (vec): %02d° %02d' %04.1f\" @ %.3f°, %.3f pc\n", dms.deg, dms.min, dms.sec, pa * kSSDegPerRad, d ) )
 
     // Do some matrix operations which should generate an identity matrix at the end
     

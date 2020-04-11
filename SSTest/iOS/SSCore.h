@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <math.h>
 
 #ifdef __cplusplus
@@ -62,7 +63,15 @@ CSSDate;
 
 CSSDate CSSTimeToCSSDate ( CSSTime time );
 CSSTime CSSDateToCSSTime ( CSSDate date );
+
 CSSTime CSSTimeFromSystem ( void );
+CSSTime CSSTimeFromUnixTime ( time_t utime );
+CSSTime CSSTimeFromJulianYear ( double year );
+CSSTime CSSTimeFromBesselianYear ( double year );
+
+time_t CSSTimeToUnixTime ( CSSTime ctime );
+double CSSTimeToJulianYear ( CSSTime ctime );
+double CSSTimeToBesselianYear ( CSSTime ctime );
 
 double CSSTimeGetDeltaT ( CSSTime ctime );
 double CSSTimeGetJulianEphemerisDate ( CSSTime ctime );
@@ -147,7 +156,11 @@ CSSSpherical CSSVectorToCSSSpherical ( CSSVector cvec );
 CSSVector CSSSphericalCSSVectorVelocity ( CSSSpherical pos, CSSSpherical vel );
 CSSSpherical CSSVectorToCSSSphericalVelocity ( CSSVector pos, CSSVector vel );
 
+double CSSSphericalAngularSeparation ( CSSSpherical csph1, CSSSpherical csph2 );
+double CSSSphericalPositionAngle ( CSSSpherical csph1, CSSSpherical csph2 );
+
 double CSSVectorMagnitude ( CSSVector cvec );
+double CSSVectorDistance ( CSSVector cvec1, CSSVector cvec2 );
 CSSVector CSSVectorNormalize ( CSSVector cvec );
 
 CSSVector CSSVectorAdd ( CSSVector cvec1, CSSVector cvec2 );
@@ -157,6 +170,9 @@ CSSVector CSSVectorDivideBy ( CSSVector cvec, double s );
 
 double CSSVectorDotProduct ( CSSVector v1, CSSVector v2 );
 CSSVector CSSVectorCrossProduct ( CSSVector v1, CSSVector v2 );
+
+double CSSVectorAngularSeparation ( CSSVector cvec1, CSSVector cvec2 );
+double CSSVectorPositionAngle ( CSSVector cvec1, CSSVector cvec2 );
 
 // C wrappers for C++ SSMatrix classes and methods
 

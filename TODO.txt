@@ -1,6 +1,16 @@
 SSCore/SSData To-Do's and Wishlist
 ==================================
 
+SSAngle
+--------
+- split into separate files for SSDegMinSec, SSHourMinSec, SSAngle
+- remove sign from SSHourMinSec?
+- change sign in SSDegMinSec from char '+' or '-' to boolean pos = true or false
+
+SSCoords
+--------
+- consolidate all conversions to a single convert() routine.
+
 SSConstellation
 ---------------
 - add routine to find constellation from (RA,Dec) coords
@@ -28,7 +38,7 @@ SSJPLDEphemeris
 
 SSMatrix
 --------
-- code inverse() routine to return inverse of matrix
+- use enumerated type as axis parameter to rotate() method.
 
 SSObject
 --------
@@ -55,7 +65,14 @@ SSTLE
 
 SSTime
 ------
+- split into separate files for SSDate and SSTime
+- remove calendar and zone from SSTime?
 - add Moslem and Jewish calendars
+
+SSVector
+--------
+- split into separate files for SSSpherical and SSVector
+- fix forumula for SSVector::positionAngle
 
 Other
 -----
@@ -64,13 +81,11 @@ Other
 - implement ephemeris routines for major solar system moons
 - implement VSOP2013 and ELPMPP02
 - implement P.S. low-precision planetary position computation routines
+- find better means for handling enumerated types across all languages
 
 Building and Running
 --------------------
-- Clean up and compete makefile for linux builds.
-- Add iOS test program
-- Add Android test program.  Will need replacement routine for getline(), etc. that can
+- Android test will need replacement routine for getline(), etc. that can
   read data files from APK and OBB.  Add JNI.
-- Add Obj-C bridging classes for swift.
 
--Tim DeBenedictis (timd@southernstars.com) 5 April 2020
+-Tim DeBenedictis (timd@southernstars.com) 10 April 2020

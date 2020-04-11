@@ -38,6 +38,52 @@ CSSTime CSSTimeFromSystem ( void )
     return cnow;
 }
 
+CSSTime CSSTimeFromCalendarDate ( CSSDate cdate )
+{
+    SSTime time ( SSDate ( (SSCalendar) cdate.calendar, cdate.zone, cdate.year, cdate.month, cdate.day, cdate.hour, cdate.min, cdate.sec ) );
+    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    return ctime;
+}
+
+CSSTime CSSTimeFromUnixTime ( time_t utime )
+{
+    SSTime time = SSTime::fromUnixTime ( utime );
+    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    return ctime;
+}
+
+CSSTime CSSTimeFromJulianYear ( double year )
+{
+    SSTime time = SSTime::fromJulianYear ( year );
+    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    return ctime;
+}
+
+CSSTime CSSTimeFromBesselianYear ( double year )
+{
+    SSTime time = SSTime::fromBesselianYear ( year );
+    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    return ctime;
+}
+
+time_t CSSTimeToUnixTime ( CSSTime ctime )
+{
+    SSTime time ( ctime.jd );
+    return time.toUnixTime();
+}
+
+double CSSTimeToJulianYear ( CSSTime ctime )
+{
+    SSTime time ( ctime.jd );
+    return time.toJulianYear();
+}
+
+double CSSTimeToBesselianYear ( CSSTime ctime )
+{
+    SSTime time ( ctime.jd );
+    return time.toBesselianYear();
+}
+
 double CSSTimeGetDeltaT ( CSSTime ctime )
 {
     SSTime time ( ctime.jd );
@@ -128,6 +174,20 @@ CSSSpherical CSSSphericalFromLonLatRad ( double lon, double lat, double rad )
     return sph;
 }
 
+double CSSSphericalAngularSeparation ( CSSSpherical csph1, CSSSpherical csph2 )
+{
+    SSSpherical sph1 ( csph1.lon, csph1.lat, csph1.rad );
+    SSSpherical sph2 ( csph2.lon, csph2.lat, csph2.rad );
+    return sph1.angularSeparation ( sph2 );
+}
+
+double CSSSphericalPositionAngle ( CSSSpherical csph1, CSSSpherical csph2 )
+{
+    SSSpherical sph1 ( csph1.lon, csph1.lat, csph1.rad );
+    SSSpherical sph2 ( csph2.lon, csph2.lat, csph2.rad );
+    return sph1.positionAngle ( sph2 );
+}
+
 CSSVector CSSSphericalToCSSVector ( CSSSpherical csph )
 {
     SSVector vec ( SSSpherical ( csph.lon, csph.lat, csph.rad ) );
@@ -198,6 +258,11 @@ CSSVector CSSVectorDivideBy ( CSSVector cvec, double s )
     return cvec1;
 }
 
+double CSSVectorDistance ( CSSVector cvec1, CSSVector cvec2 )
+{
+    return CSSVectorMagnitude ( CSSVectorSubtract ( cvec1, cvec2 ) );
+}
+
 double CSSVectorDotProduct ( CSSVector cvec1, CSSVector cvec2 )
 {
     return cvec1.x * cvec2.x + cvec1.y * cvec2.y + cvec1.z * cvec2.z;
@@ -210,6 +275,20 @@ CSSVector CSSVectorCrossProduct ( CSSVector cvec1, CSSVector cvec2 )
     SSVector x = vec1.crossProduct ( vec2 );
     CSSVector cx = { x.x, x.y, x.z };
     return cx;
+}
+
+double CSSVectorAngularSeparation ( CSSVector cvec1, CSSVector cvec2 )
+{
+    SSVector vec1 ( cvec1.x, cvec1.y, cvec1.z );
+    SSVector vec2 ( cvec2.x, cvec2.y, cvec2.z );
+    return vec1.angularSeparation ( vec2 );
+}
+
+double CSSVectorPositionAngle ( CSSVector cvec1, CSSVector cvec2 )
+{
+    SSVector vec1 ( cvec1.x, cvec1.y, cvec1.z );
+    SSVector vec2 ( cvec2.x, cvec2.y, cvec2.z );
+    return vec1.positionAngle ( vec2 );
 }
 
 // C wrappers for C++ SSMatrix classes and methods
