@@ -7,6 +7,11 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.*
 import com.southernstars.sscore.*
 
+fun JSSVectorToString ( vec: JSSVector ): String
+{
+    return "%+f %+f %+f\n".format ( vec.x, vec.y, vec.z )
+}
+
 fun JSSMatrixToString ( mat: JSSMatrix ): String
 {
     var str = ""
@@ -100,6 +105,31 @@ class MainActivity : AppCompatActivity() {
 
         str += "Identity Matrix:\n"
         str += JSSMatrixToString ( prd )
+
+        // Open JPL ephemeris file.  if successful, compute Earth's current position and velocity.
+
+        var path = "SSData/SolarSystem/DE438/1950_2050.438"
+        if ( JSSJPLDEphemeris.open ( path ) )
+        {
+            str += "Opened DE438 ephemeris file.\n"
+            val jed0 = JSSJPLDEphemeris.getStartJED()
+            val jed1 = JSSJPLDEphemeris.getStopJED()
+            str += "JED %.1f to %.1f\n".format ( jed0, jed1 )
+            val nconst = JSSJPLDEphemeris.getConstantNumber()
+            val cname0 = JSSJPLDEphemeris.getConstantName ( 0 )
+            val cval0 = JSSJPLDEphemeris.getConstantValue ( 0 )
+            str += "%d constants; %s=%f\n".format ( nconst, cname0, cval0 )
+            var pos = JSSVector ( 0.0, 0.0, 0.0 )
+            var vel = JSSVector ( 0.0, 0.0, 0.0 )
+            JSSJPLDEphemeris.compute ( 3, jed, true, pos, vel )
+            str += "Earth position: " + JSSVectorToString ( pos )
+            str += "Earth velocity: " + JSSVectorToString ( vel )
+            JSSJPLDEphemeris.close()
+        }
+        else
+        {
+            str += "Failed to open DE438 ephemeris file.\n"
+        }
 
         sample_text.text = str
     }

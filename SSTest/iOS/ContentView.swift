@@ -101,8 +101,15 @@ func test ( ) -> String
     if CSSJPLDEphemerisOpen ( ( path as NSString ).utf8String )
     {
         str.append ( "Opened DE438 ephemeris file.\n" )
+        let jed0 = CSSJPLDEphemerisGetStartJED()
+        let jed1 = CSSJPLDEphemerisGetStopJED()
+        str.append ( String ( format:"JED %.1f to %.1f\n", jed0, jed1 ) )
+        let cnum = CSSJPLDEphemerisGetConstantCount()
+        let cname0 = String ( cString:CSSJPLDEphemerisGetConstantName ( 0 ) )
+        let cval0 = CSSJPLDEphemerisGetConstantValue ( 0 );
+        str.append ( String ( format:"%d constants; %@=%f\n", cnum, cname0, cval0 ) )
         var pos = CSSVectorFromXYZ ( 0.0, 0.0, 0.0 )
-        var vel = pos
+        var vel = CSSVectorFromXYZ ( 0.0, 0.0, 0.0 )
         CSSJPLDEphemerisCompute ( 3, jed, true, &pos, &vel );
         str.append ( "Earth position: " )
         str.append ( CSSVectorToString ( vec: pos ) )

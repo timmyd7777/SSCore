@@ -5,15 +5,18 @@
 jobject SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector )
 {
     jobject pJSSVector = CreateJObject ( pEnv, "com/southernstars/sscore/JSSVector" );
+    SSVectorToJSSVector ( pEnv, vector, pJSSVector );
+    return pJSSVector;
+}
 
+void SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector, jobject pJSSVector )
+{
     if ( pJSSVector != nullptr )
     {
         SetDoubleField ( pEnv, pJSSVector, "x", vector.x );
         SetDoubleField ( pEnv, pJSSVector, "y", vector.y );
         SetDoubleField ( pEnv, pJSSVector, "z", vector.z );
     }
-
-    return pJSSVector;
 }
 
 SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector )

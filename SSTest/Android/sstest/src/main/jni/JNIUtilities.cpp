@@ -40,7 +40,6 @@ static int android_close(void* cookie)
     return 0;
 }
 
-
 FILE *android_fopen ( const char *fname, const char *mode )
 {
     if(mode[0] == 'w') return NULL;
@@ -50,23 +49,6 @@ FILE *android_fopen ( const char *fname, const char *mode )
         return NULL;
 
     return funopen ( asset, android_read, android_write, android_seek, android_close );
-}
-
-jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName )
-{
-    jclass pClass = pEnv->FindClass ( pClassName );
-    if ( pClass == NULL )
-        return NULL;
-
-    jmethodID mid = pEnv->GetMethodID ( pClass, "<init>", "()V" );
-    if ( mid == NULL )
-        return NULL;
-
-    jobject pObject = pEnv->NewObject ( pClass, mid );
-    if ( pObject == NULL )
-        return NULL;
-
-    return pObject;
 }
 
 // This JNI function correspond to an initAssetManager() method present in your MainActivity's
@@ -89,6 +71,23 @@ Java_com_southernstars_sstest_MainActivity_initAssetManager ( JNIEnv *env, jobje
         android_fopen_set_asset_manager(mgr);
         return true;
     }
+}
+
+jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName )
+{
+    jclass pClass = pEnv->FindClass ( pClassName );
+    if ( pClass == NULL )
+        return NULL;
+
+    jmethodID mid = pEnv->GetMethodID ( pClass, "<init>", "()V" );
+    if ( mid == NULL )
+        return NULL;
+
+    jobject pObject = pEnv->NewObject ( pClass, mid );
+    if ( pObject == NULL )
+        return NULL;
+
+    return pObject;
 }
 
 void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value )

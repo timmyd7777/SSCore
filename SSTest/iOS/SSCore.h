@@ -210,8 +210,13 @@ bool CSSJPLDEphemerisOpen ( const char *filename );
 bool CSSJPLDEphemerisIsOpen ( void );
 void CSSJPLDEphemerisClose ( void );
 
-double CSSJPLDEphemerisStartJED ( const char *filename );
-double CSSJPLDEphemerisStopJED ( void );
+int CSSJPLDEphemerisGetConstantCount ( void );
+const char *CSSJPLDEphemerisGetConstantName ( int i );
+double CSSJPLDEphemerisGetConstantValue ( int i );
+
+double CSSJPLDEphemerisGetStartJED ( void );
+double CSSJPLDEphemerisGetStopJED ( void );
+double CSSJPLDEphemerisGetStep ( void );
 
 bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *pos, CSSVector *vel );
 

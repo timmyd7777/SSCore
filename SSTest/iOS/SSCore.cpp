@@ -468,14 +468,36 @@ void CSSJPLDEphemerisClose ( void )
     _jpldeph.close();
 }
 
-double CSSJPLDEphemerisStartJED ( const char *filename )
+int CSSJPLDEphemerisGetConstantCount ( void )
+{
+    return SSJPLDEphemeris::getConstantNumber();
+}
+
+const char *CSSJPLDEphemerisGetConstantName ( int i )
+{
+    static string name = "";
+    name = SSJPLDEphemeris::getConstantName ( i );
+    return name.c_str();
+}
+
+double CSSJPLDEphemerisGetConstantValue ( int i )
+{
+    return SSJPLDEphemeris::getConstantValue ( i );
+}
+
+double CSSJPLDEphemerisGetStartJED ( void )
 {
     return _jpldeph.getStartJED();
 }
 
-double CSSJPLDEphemerisStopJED ( void )
+double CSSJPLDEphemerisGetStopJED ( void )
 {
     return _jpldeph.getStopJED();
+}
+
+double CSSJPLDEphemerisGetStep ( void )
+{
+    return _jpldeph.getStep();
 }
 
 bool CSSJPLDEphemerisCompute ( int planet, double jd, bool bary, CSSVector *cpos, CSSVector *cvel )

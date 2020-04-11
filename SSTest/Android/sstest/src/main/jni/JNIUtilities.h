@@ -14,21 +14,8 @@
 #include "SSVector.hpp"
 #include "SSMatrix.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* hijack fopen and route it through the android asset system so that
-   we can pull things out of our packagesk APK */
-
-void android_fopen_set_asset_manager(AAssetManager* manager);
-FILE* android_fopen(const char* fname, const char* mode);
-
-#define fopen(name, mode) android_fopen(name, mode)
-
-#ifdef __cplusplus
-}
-#endif
+void android_fopen_set_asset_manager ( AAssetManager* manager );
+FILE *android_fopen ( const char* fname, const char* mode );
 
 jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName );
 void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value );
@@ -61,6 +48,7 @@ jobject SSSphericalToJSSSpherical ( JNIEnv *pEnv, SSSpherical &spherical );
 SSSpherical JSSSphericalToSSSpherical ( JNIEnv *pEnv, jobject pJSSSpherical );
 
 jobject SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector );
+void SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector, jobject pJSSVector );
 SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
 
 jobject SSMatrixToJSSMatrix ( JNIEnv *pEnv, SSMatrix &matrix );
