@@ -37,9 +37,9 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 
 **Coding Style Standards**
 
-Comment copiously, especially function/method parameters and struct/class members. Use lots of whitespace, avoid TABs, and indent using four whitespaces. Braces use ANSI/ISO/BSD style, **_not_** K&R style. Private member variable names start with underscores. Raw pointer variable names start with p. Constants start with k.
+I comment copiously, especially function/method parameters and struct/class members. I use lots of whitespace, avoid TABs, and indent using four whitespaces. My braces use ANSI/ISO/BSD style, **_not_** K&R style. I start private member variable names with underscores. Raw pointer variable names start with p. Constants start with k.
 
-Functions should only have one return. Never use gotos. Split up functions longer than a page. Use polymorphism and avoid downcasting. Every rule has exceptions.
+Other general rules: functions should only have one return. Never use gotos. Split up functions longer than a page. Use polymorphism and avoid downcasting. Every rule has exceptions.
 
 SSData
 ------
@@ -67,4 +67,4 @@ This directory contains a test program (SSTest.cpp), which hopefully serves as a
 Version History
 ---------------
 
-Version 1.0, 10 Apr 2020: Initial public release.
+Version 1.0, 12 Apr 2020: Initial public release.
