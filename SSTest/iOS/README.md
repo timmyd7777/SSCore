@@ -1,4 +1,4 @@
-SSCode iOS Test App
+SSCore iOS Test App
 ===================
 
 This is the SSCore test app for iOS. It includes a plain C wrapper for the C++ classes which makes them useable from Swift. There is no need for this wrapper in Objective-C iOS apps, since Objective-C can call C++ code directly.
