@@ -5,22 +5,13 @@
 /*
  * Class:     com_southernstars_sscore_JSSObjectArray
  * Method:    create
- * Signature: ()Lcom/southernstars/sscore/JSSObjectArray;
+ * Signature: ()V
  */
 
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObjectArray_create ( JNIEnv *pEnv, jclass pJObjectArrayClass )
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObjectArray_create ( JNIEnv *pEnv, jobject pJObjectArray )
 {
-    SSObjectVec *pObjectVec = new SSObjectVec ( 0 );
-    if ( pObjectVec == nullptr )
-        return nullptr;
-
-    jobject pJObjectArray = CreateJObject ( pEnv, "com/southernstars/sscore/JSSObjectArray" );
-    if ( pJObjectArray )
-        SetLongField ( pEnv, pJObjectArray, "pObjectVec", (long) pObjectVec );
-    else
-        delete pObjectVec;
-
-    return pJObjectArray;
+    SSObjectVec *pObjectVec = new SSObjectVec;
+    SetLongField ( pEnv, pJObjectArray, "pObjectVec", (long) pObjectVec );
 }
 
 /*
@@ -32,8 +23,20 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObjectArray_create ( 
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObjectArray_destroy ( JNIEnv *pEnv, jobject pJObjectArray )
 {
     SSObjectVec *pObjectVec = (SSObjectVec *) GetLongField ( pEnv, pJObjectArray, "pObjectVec" );
-    delete pObjectVec;
     SetLongField ( pEnv, pJObjectArray, "pObjectVec", 0 );
+    delete pObjectVec;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    size
+ * Signature: ()I
+ */
+
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_size ( JNIEnv *pEnv, jobject pJObjectArray )
+{
+    SSObjectVec *pObjectVec = (SSObjectVec *) GetLongField ( pEnv, pJObjectArray, "pObjectVec" );
+    return pObjectVec ? (size_t) pObjectVec->size() : 0;
 }
 
 /*

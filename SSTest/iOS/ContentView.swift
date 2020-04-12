@@ -131,7 +131,7 @@ func test ( ) -> String
     str.append ( String ( format: "Imported %d bright stars.\n", n ) )
     CSSObjectArrayDestroy ( pObjArr )
 
-    // Open and read bright stars csv data file into object array in memory.
+    // Open and Messier and Caldwell csv data files into object array in memory.
     // Display number of objects imported; then release object array memory.
     
     pObjArr = CSSObjectArrayCreate()

@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_southernstars_sscore_JSSObjectArray
  * Method:    create
- * Signature: ()Lcom/southernstars/sscore/JSSObjectArray;
+ * Signature: ()V
  */
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObjectArray_create
-  (JNIEnv *, jclass);
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObjectArray_create
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_southernstars_sscore_JSSObjectArray
@@ -21,6 +21,14 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObjectArray_create
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObjectArray_destroy
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    size
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_size
   (JNIEnv *, jobject);
 
 /*

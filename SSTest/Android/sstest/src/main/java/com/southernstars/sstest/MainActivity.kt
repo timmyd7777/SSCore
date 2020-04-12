@@ -131,11 +131,30 @@ class MainActivity : AppCompatActivity() {
             str += "Failed to open DE438 ephemeris file.\n"
         }
 
+        // Open and read bright stars csv data file into object array in memory.
+        // Display number of objects imported; then release object array memory.
+
+        var stars = JSSObjectArray()
+        var nS = stars.importFromCSV ( "SSData/Stars/Brightest.csv" )
+        str += "Imported %d bright stars.\n".format ( nS )
+        stars.destroy()
+
+        // Open and Messier and Caldwell csv data files into object array in memory.
+        // Display number of objects imported; then release object array memory.
+
+        var deepsky = JSSObjectArray()
+        val nM = deepsky.importFromCSV ( "SSData/DeepSky/Messier.csv" )
+        val nC = deepsky.importFromCSV ( "SSData/DeepSky/Caldwell.csv" )
+        val nMC = deepsky.size()
+        str += "Imported %d Messier & %d Caldwell objects.\n".format ( nM, nC )
+        str += "Imported %d total deep sky objects.\n".format ( nMC )
+        deepsky.destroy()
+
         // Read planetary data file
 
-        var planets = JSSObjectArray.create()
-        var n = planets.importFromCSV ( "SSData/SolarSystem/Planets.csv" );
-        str += "Imported %d planets.\n".format ( n );
+        var planets = JSSObjectArray()
+        var nP = planets.importFromCSV ( "SSData/SolarSystem/Planets.csv" )
+        str += "Imported %d planets.\n".format ( nP )
 
         sample_text.text = str
     }
