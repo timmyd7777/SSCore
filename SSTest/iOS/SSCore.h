@@ -195,6 +195,38 @@ CSSMatrix CSSMatrixRotate ( CSSMatrix mat, int axis, double angle );
 
 // C wrappers for C++ SSIdentifier classes and methods
 
+static int kCSSCatUnknown = 0;        // Unknown catalog
+
+static int kCSSCatJPLanet = 1;        // JPL NAIF planet/moon identifiers (Mercury = 1, Venus = 2, etc.)
+static int kCSSCatAstNum = 2;         // Numbered asteroids (Ceres = 1, Pallas = 2, etc.)
+static int kCSSCatComNum = 3;         // Numbered periodic comets (Halley = 1, Encke = 2, etc.)
+static int kCSSCatNORADSat = 4;       // NORAD satellite catalog (ISS = 25544, HST = 20580, etc.)
+
+static int kCSSCatBayer = 10;         // Bayer star letters (Alpha CMa, etc.)
+static int kCSSCatFlamsteed = 11;     // Flamsteed star numbers (9 CMa, etc.)
+static int kCSSCatGCVS = 12;          // General Catalog of Variable Stars (R And, etc.)
+static int kCSSCatHR = 13;            // Harvard Revised (Yale Bright Star) catalog
+static int kCSSCatGJ = 14;            // Gliese-Jahreiss Catalog of Nearby Stars
+static int kCSSCatHD = 15;            // Henry Draper star catalog
+static int kCSSCatSAO = 16;           // Sminthsonian Astrophysical Observatory star catalogstatic int kCSS
+static int kCSSCatBD = 17;            // Bonner Durchmusterung star catalog
+static int kCSSCatCD = 18;            // Cordoba Durchmusterung star catalog
+static int kCSSCatCP = 19;            // Cape Photographic Durchmusterung star catalog
+static int kCSSCatHIP = 20;           // Hipparcos star catalog
+static int kCSSCatWDS = 21;           // Washington Double Star catalog
+
+static int kCSSCatMessier = 30;       // Messier deep sky objects
+static int kCSSCatCaldwell = 31;      // Caldwell deep sky objects
+static int kCSSCatNGC = 32;           // New General Catalog of deep sky objects
+static int kCSSCatIC = 33;            // Index Catalog of deep sky objects
+static int kCSSCatMel = 34;           // Melotte Catalog of open clusters
+static int kCSSCatLBN = 35;           // Lynds Bright Nebula catalog
+static int kCSSCatPNG = 36;           // Galactic Planetary Nebulae (Strasbourg-ESO)
+static int kCSSCatPK = 37;            // Perek-Kohoutek Catalog (planetary nebulae)
+static int kCSSCatPGC = 38;           // Principal Galaxy Catalog
+static int kCSSCatUGC = 39;           // Uppsala Galaxy Catalog
+static int kCSSCatUGCA = 40;          // Uppsala Galaxy Catalog Appendix
+
 typedef int64_t CSSIdentifier;
 
 CSSIdentifier CSSIdentifierFromString ( const char *str );
