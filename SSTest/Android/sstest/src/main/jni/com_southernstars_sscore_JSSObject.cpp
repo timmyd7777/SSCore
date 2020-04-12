@@ -2,6 +2,23 @@
 #include "JNIUtilities.h"
 #include "SSObject.hpp"
 
+jobject SSObjectToJSSObject ( JNIEnv *pEnv, SSObject *pObject )
+{
+    if ( pObject == nullptr )
+        return NULL;
+
+    jobject pJSSObject = CreateJObject ( pEnv, "com/southernstars/sscore/JSSObject" );
+    if ( pJSSObject )
+        SetLongField ( pEnv, pJSSObject, "pObject", (jlong) pObject );
+
+    return pJSSObject;
+}
+
+SSObject *JSSObjectToSSObject (JNIEnv *pEnv, jobject pJSSObject )
+{
+    return (SSObject *) ( GetLongField ( pEnv, pJSSObject, "pObject" ) );
+}
+
 /*
  * Class:     com_southernstars_sscore_JSSObject
  * Method:    typeToCode
@@ -10,7 +27,8 @@
 
 JNIEXPORT jstring JNICALL Java_com_southernstars_sscore_JSSObject_typeToCode ( JNIEnv *pEnv, jclass pClassJSSObject, jint type )
 {
-    return nullptr;
+    string code = SSObject::typeToCode ( (SSObjectType) type );
+    return pEnv->NewStringUTF ( code.c_str() );
 }
 
 /*
@@ -19,9 +37,12 @@ JNIEXPORT jstring JNICALL Java_com_southernstars_sscore_JSSObject_typeToCode ( J
  * Signature: (Ljava/lang/String;)I
  */
 
-JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObject_codeToType ( JNIEnv *pEnv, jclass pClassJSSObject, jstring pJCode )
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObject_codeToType ( JNIEnv *pEnv, jclass pClassJSSObject, jstring pJCodeString )
 {
-    return 0;
+    const char *pCodeString = pEnv->GetStringUTFChars ( pJCodeString, nullptr );
+    int type = SSObject::codeToType ( pCodeString );
+    pEnv->ReleaseStringUTFChars ( pJCodeString, pCodeString );
+    return type;
 }
 
 /*
@@ -32,7 +53,8 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObject_codeToType ( JNIE
 
 JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObject_getType ( JNIEnv *pEnv, jobject pJObject )
 {
-    return 0;
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    return pObj ? pObj->getType() : kTypeNonexistent;
 }
 
 /*
@@ -43,7 +65,9 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObject_getType ( JNIEnv 
 
 JNIEXPORT jstring JNICALL Java_com_southernstars_sscore_JSSObject_getName ( JNIEnv *pEnv, jobject pJObject, jint i )
 {
-    return nullptr;
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    const char *pName = pObj ?  pObj->getName ( i ).c_str() : "";
+    return pEnv->NewStringUTF ( pName );
 }
 
 /*
@@ -52,9 +76,11 @@ JNIEXPORT jstring JNICALL Java_com_southernstars_sscore_JSSObject_getName ( JNIE
  * Signature: (I)Lcom/southernstars/sscore/JSSIdentifier;
  */
 
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObject_getIdentifier ( JNIEnv *pEnv, jobject pJObject, jint i )
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObject_getIdentifier ( JNIEnv *pEnv, jobject pJObject, jint catalog )
 {
-    return nullptr;
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    SSIdentifier ident = pObj ? pObj->getIdentifier ( (SSCatalog) catalog ) : SSIdentifier ( 0 );
+    return SSIdentifierToJSSIdentifier ( pEnv, ident );
 }
 
 /*
@@ -65,7 +91,9 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObject_getIdentifier 
 
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObject_getDirection ( JNIEnv *pEnv, jobject pJObject )
 {
-    return nullptr;
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    SSVector direction = pObj ? pObj->getDirection() : SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    return SSVectorToJSSVector ( pEnv, direction );
 }
 
 /*
@@ -76,9 +104,9 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObject_getDirection (
 
 JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSObject_getDistance ( JNIEnv *pEnv, jobject pJObject )
 {
-    return 0.0;
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    return pObj ? pObj->getDistance() : HUGE_VAL;
 }
-
 
 /*
  * Class:     com_southernstars_sscore_JSSObject
@@ -88,7 +116,8 @@ JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSObject_getDistance ( 
 
 JNIEXPORT jfloat JNICALL Java_com_southernstars_sscore_JSSObject_getMagnitude ( JNIEnv *pEnv, jobject pJObject )
 {
-    return 0.0;
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    return pObj ? pObj->getMagnitude() : HUGE_VAL;
 }
 
 /*
@@ -97,9 +126,11 @@ JNIEXPORT jfloat JNICALL Java_com_southernstars_sscore_JSSObject_getMagnitude ( 
  * Signature: (Lcom/southernstars/sscore/JSSVector;)V
  */
 
-JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObject_setDirection ( JNIEnv *pEnv, jobject pJObject )
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObject_setDirection ( JNIEnv *pEnv, jobject pJObject, jobject pJDirection )
 {
-
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    if ( pObj )
+        pObj->setDirection ( JSSVectorToSSVector ( pEnv, pJDirection ) );
 }
 
 /*
@@ -110,7 +141,9 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObject_setDirection ( JN
 
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObject_setDistance ( JNIEnv *pEnv, jobject pJObject, jdouble distance )
 {
-
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    if ( pObj )
+        pObj->setDistance ( distance );
 }
 
 /*
@@ -121,5 +154,7 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObject_setDistance ( JNI
 
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSObject_setMagnitude ( JNIEnv *pEnv, jobject pJObject, jfloat magnitude )
 {
-
+    SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
+    if ( pObj )
+        pObj->setMagnitude ( magnitude );
 }

@@ -13,6 +13,8 @@
 #include "SSTime.hpp"
 #include "SSVector.hpp"
 #include "SSMatrix.hpp"
+#include "SSIdentifier.hpp"
+#include "SSObject.hpp"
 
 void android_fopen_set_asset_manager ( AAssetManager* manager );
 FILE *android_fopen ( const char* fname, const char* mode );
@@ -53,5 +55,11 @@ SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
 
 jobject SSMatrixToJSSMatrix ( JNIEnv *pEnv, SSMatrix &matrix );
 SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
+
+jobject SSIdentifierToJSSIdentifier ( JNIEnv *pEnv, SSIdentifier &ident );
+SSIdentifier JSSIdentifierToIdentifier (JNIEnv *pEnv, jobject pJSSIdentifier );
+
+jobject SSObjectToJSSObject ( JNIEnv *pEnv, SSObject *pObject );
+SSObject *JSSObjectToSSObject (JNIEnv *pEnv, jobject pJSSObject );
 
 #endif // JNIUTILITIES_H

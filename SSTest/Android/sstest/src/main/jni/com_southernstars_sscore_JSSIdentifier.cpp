@@ -2,6 +2,19 @@
 #include "JNIUtilities.h"
 #include "SSIdentifier.hpp"
 
+jobject SSIdentifierToJSSIdentifier ( JNIEnv *pEnv, SSIdentifier &ident )
+{
+    jobject pJSSIdentifier = CreateJObject ( pEnv, "com/southernstars/sscore/JSSIdentifier" );
+    if ( pJSSIdentifier )
+        SetLongField ( pEnv, pJSSIdentifier, "id", ident );
+    return pJSSIdentifier;
+}
+
+SSIdentifier JSSIdentifierToIdentifier (JNIEnv *pEnv, jobject pJSSIdentifier )
+{
+    return SSIdentifier ( GetLongField ( pEnv, pJSSIdentifier, "id" ) );
+}
+
 /*
  * Class:     com_southernstars_sscore_JSSIdentifier
  * Method:    fromString
@@ -12,11 +25,7 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSIdentifier_fromString
 {
     const char *pCString = pEnv->GetStringUTFChars ( pJString, nullptr );
     SSIdentifier ident = SSIdentifier::fromString ( pCString );
-    pEnv->ReleaseStringUTFChars ( pJString, pCString );
-    jobject pJSSIdentifier = CreateJObject ( pEnv, "com/southernstars/sscore/JSSIdentifier" );
-    if ( pJSSIdentifier )
-        SetLongField ( pEnv, pJSSIdentifier, "id", ident );
-    return pJSSIdentifier;
+    return SSIdentifierToJSSIdentifier ( pEnv, ident );
 }
 
 /*

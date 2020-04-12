@@ -154,7 +154,19 @@ class MainActivity : AppCompatActivity() {
 
         var planets = JSSObjectArray()
         var nP = planets.importFromCSV ( "SSData/SolarSystem/Planets.csv" )
-        str += "Imported %d planets.\n".format ( nP )
+        str += "Imported %d planets: ".format ( nP )
+
+        // Print names of all objects in the array, then destroy.
+        // Deliberately overrun the array to test handling this error condition.
+
+        for ( i in 0 .. nP )
+        {
+            var planet = planets.getObject ( i )
+            str += planet?.getName ( 0 ) ?: "null 11th successfully caught."
+            str += if ( i < nP ) ", " else "\n"
+        }
+
+        planets.destroy()
 
         sample_text.text = str
     }

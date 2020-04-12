@@ -33,6 +33,14 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_size
 
 /*
  * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    getObject
+ * Signature: (I)Lcom/southernstars/sscore/JSSObject;
+ */
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObjectArray_getObject
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
  * Method:    importFromCSV
  * Signature: (Ljava/lang/String;)I
  */
