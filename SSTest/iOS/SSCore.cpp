@@ -530,21 +530,63 @@ int CSSObjectTypeFromCode ( const char *cstr )
 int CSSObjectGetType ( CSSObjectPtr pObject )
 {
     SSObject *pObj = (SSObject *) pObject;
-    return pObj->getType();
+    return pObj ? pObj->getType() : kTypeNonexistent;
 }
 
 const char *CSSObjectGetName ( CSSObjectPtr pObject, int i )
 {
     static string name = "";
     SSObject *pObj = (SSObject *) pObject;
-    name = pObj->getName ( i );
+    name = pObj ? pObj->getName ( i ) : "";
     return name.c_str();
 }
 
 CSSIdentifier CSSObjectGetIdentifier ( CSSObjectPtr pObject, int cat )
 {
     SSObject *pObj = (SSObject *) pObject;
-    return pObj->getIdentifier ( (SSCatalog) cat );
+    return pObj ? pObj->getIdentifier ( (SSCatalog) cat ) : SSIdentifier ( 0 );
+}
+
+CSSVector CSSObjectGetDirection  ( CSSObjectPtr pObject )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    SSVector dir = pObj ? pObj->getDirection() : SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    CSSVector direction = { dir.x, dir.y, dir.z };
+    return direction;
+}
+
+double CSSObjectGetDistance ( CSSObjectPtr pObject )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    return pObj ? pObj->getDistance() : HUGE_VAL;
+}
+
+float CSSObjectGetMagnitude ( CSSObjectPtr pObject )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    return pObj ? pObj->getMagnitude() : HUGE_VAL;
+}
+
+void CSSObjectSetDirection  ( CSSObjectPtr pObject, CSSVector dir )
+{
+    SSVector direction = { dir.x, dir.y, dir.z };
+    SSObject *pObj = (SSObject *) pObject;
+    if ( pObj )
+        pObj->setDirection ( direction );
+}
+
+void CSSObjectSetDirection  ( CSSObjectPtr pObject, double distance )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    if ( pObj )
+        pObj->setDistance ( distance );
+}
+
+void CSSObjectSetMagnitude  ( CSSObjectPtr pObject, float magnitude )
+{
+    SSObject *pObj = (SSObject *) pObject;
+    if ( pObj )
+        pObj->setMagnitude ( magnitude );
 }
 
 CSSObjectArray *CSSObjectArrayCreate ( void )
@@ -574,5 +616,5 @@ size_t CSSObjectArraySize ( CSSObjectArray *pObjArr )
 CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i )
 {
     SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
-    return (CSSObject *) pObjVec->at(i).get();
+    return (CSSObject *) ( pObjVec && i >= 0 && i < pObjVec->size() ? pObjVec->at(i).get() : nullptr );
 }

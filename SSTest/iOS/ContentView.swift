@@ -152,16 +152,13 @@ func test ( ) -> String
     str.append ( String ( format: "Imported %d planets:\n", n ) );
 
     // Print names of all objects in the array, then destroy.
-    
-    for i in 0..<n
+    // Deliberately overrun the array to test handling this error condition.
+
+    for i in 0...n
     {
         let pObj = CSSObjectGetFromArray ( pObjArr, i )
-        str.append ( String ( cString: CSSObjectGetName ( pObj, 0 ) ) )
-        if i < n - 1 {
-            str.append ( ", " )
-        } else {
-            str.append ( "\n" )
-        }
+        str.append ( pObj == nil ? "null 11th successfully caught" : String ( cString: CSSObjectGetName ( pObj, 0 ) ) )
+        str.append ( i < n ? ", " : "\n" )
     }
     
     CSSObjectArrayDestroy ( pObjArr );
