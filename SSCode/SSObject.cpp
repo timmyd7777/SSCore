@@ -228,7 +228,7 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
 {
     // Open file; return on failure.
 
-    ifstream file ( filename );
+    FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
         return 0;
 
@@ -237,7 +237,7 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
     string line = "";
     int numObjects = 0;
 
-    while ( getline ( file, line ) )
+    while ( fgetline ( file, line ) )
     {
         // Attempt to create solar system object from CSV file line; if successful add to object vector.
         
@@ -270,7 +270,8 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
         }
     }
     
-    // Return number of objects added to object vector.  File will be closed automatically.
-    
+    // Close file. Return number of objects added to object vector.
+
+    fclose ( file );
     return numObjects;
 }

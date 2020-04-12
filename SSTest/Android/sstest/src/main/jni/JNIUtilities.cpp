@@ -34,18 +34,24 @@ static fpos_t android_seek ( void* cookie, fpos_t offset, int whence )
     return AAsset_seek ( (AAsset*)cookie, offset, whence );
 }
 
-static int android_close(void* cookie)
+static int android_close ( void* cookie )
 {
     AAsset_close ( (AAsset *) cookie );
     return 0;
 }
 
-FILE *android_fopen ( const char *fname, const char *mode )
-{
-    if(mode[0] == 'w') return NULL;
+// Wrapper for fopen() that opens files in assets folder within APK.
 
-    AAsset *asset = AAssetManager_open ( android_asset_manager, fname, 0 );
-    if ( !asset )
+FILE *android_fopen ( const char *name, const char *mode )
+{
+    // If opening file for writing, or if android asset manager is
+    // not initialized, just open the file the old fashioned way.
+
+    if ( mode[0] == 'w' || android_asset_manager == NULL )
+        return fopen ( name, mode );
+
+    AAsset *asset = AAssetManager_open ( android_asset_manager, name, 0 );
+    if ( ! asset )
         return NULL;
 
     return funopen ( asset, android_read, android_write, android_seek, android_close );

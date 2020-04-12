@@ -35,6 +35,21 @@ string getcwd(void)
 
 #endif
 
+// Wrapper for fgets() that reads into a C++ string (line)
+// from a C FILE pointer (file) opened for reading in text mode.
+// Returns true if successful or false on failure (end-of-file, etc.)
+
+bool fgetline ( FILE *file, string &line )
+{
+    char buffer[1024] = { 0 };
+
+    if ( fgets ( buffer, sizeof ( buffer ), file ) == NULL )
+        return false;
+
+    line = string ( buffer );
+    return true;
+}
+
 // Returns a C++ string which has leading and trailing whitespace
 // trimmed from the input string (does not modify input string).
 

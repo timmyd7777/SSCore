@@ -131,6 +131,12 @@ class MainActivity : AppCompatActivity() {
             str += "Failed to open DE438 ephemeris file.\n"
         }
 
+        // Read planetary data file
+
+        var planets = JSSObjectArray.create()
+        var n = planets.importFromCSV ( "SSData/SolarSystem/Planets.csv" );
+        str += "Imported %d planets.\n".format ( n );
+
         sample_text.text = str
     }
 

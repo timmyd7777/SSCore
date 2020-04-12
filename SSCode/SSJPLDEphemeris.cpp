@@ -6,15 +6,6 @@
 
 #include "SSJPLDEphemeris.hpp"
 
-// on Androidm, hijack fopen and route it through the android asset system
-// so that we can pull things out of our package's APK. From:
-// http://www.50ply.com/blog/2013/01/19/loading-compressed-android-assets-with-file-pointer/
-
-#ifdef ANDROID
-FILE *android_fopen ( const char* fname, const char* mode );
-#define fopen(name,mode) android_fopen ( name, mode )
-#endif
-
 // Code is based on "C version software for the JPL planetary ephemerides"
 // by Piotr A. Dybczynski (dybol@amu.edu.pl),
 // Astronomical Observatory of the A. Mickiewicz Universty,
