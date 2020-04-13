@@ -74,6 +74,15 @@ protected:
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
 
+    static bool computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
+    void computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
+    void computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
+    void computeSatellitePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
+    float computeMagnitude ( double rad, double dist, double phase );
+    float computeAsteroidMagnitude ( double rad, double dist, double phase, double hmag, double gmag );
+    float computeCometMagnitude ( double rad, double dist, double hmag, double kmag );
+    float computeSatelliteMagnitude ( double dist, double phase, double stdmag );
+
 public:
     
     SSPlanet ( SSObjectType type );
@@ -91,6 +100,13 @@ public:
     float getGMagnitude ( void ) { return _Gmag; }
     float getRadius ( void ) { return _radius; }
     
+    static double phaseAngle ( SSVector position, SSVector direction );
+    double phaseAngle ( void );
+    
+    static double illumination ( double phase );
+    double illumination ( void );
+    
+    void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeEphemeris ( SSDynamics &dyn );
     
     // imports/exports from/to CSV-format text string

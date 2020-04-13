@@ -49,15 +49,15 @@ Here is a C++ example which reads an vector of objects from a data file in CSV f
     int n = SSImportObjectsFromCSV ( "path/to/data/file.csv", objvec )
     SSObjectPtr pObject = objvec[0];
     SSVector dir = pObject->getDirection();
-    // memory is freed automatically when objvec goes out of scope`
+    // memory is freed automatically when objvec goes out of scope
 
 Here is the equivalent Java wrapper code:
 
-    JSSObjectArray jObjArr = JSSObjectArray();
+    JSSObjectArray jObjArr = new JSSObjectArray();
     int n = jObjArr.importFromCSV ( "path/to/data/file.csv", jObjArr );
     JSSObject jObj = pObjArr.getObject ( 0 );
     JSSVector dir = jObj.getDirection();
-    // memory is freed automatically when jObjArr goes out of scope`
+    // memory is freed automatically when jObjArr is garbage-collected
 
 And finally Kotlin calls to the Java wrapper:
 
