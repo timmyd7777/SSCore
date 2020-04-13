@@ -15,7 +15,7 @@ Wrapping SSCore C++ in Java
 
 **MainActivity.kt** shows how to call the SSCore C++ classes from Kotlin using Java wrapper classes in **sstest/src/main/java/com/southernstars/sscore**. This is a work in progress, but there are enough Java and JNI wrappers around the essential C++ classes to demonstrate the design pattern.
 
-The wrapper works like this: for every C++ classe (`SSTime, SSAngle`, etc.) there is a corresponding Java class, named with a ‘J’ in front (`JSSTime, JSSAngle`, etc.). Those Java classes instantiate the equivalent C++ classes, and call the corresponding methods, via a JNI bridge.
+The wrapper works like this: for every C++ class (`SSTime, SSAngle`, etc.) there is a corresponding Java class, named with a ‘J’ in front (`JSSTime, JSSAngle`, etc.). Those Java classes instantiate the equivalent C++ classes, and call the corresponding methods, via a JNI bridge.
  
 Here an example in C++:
  

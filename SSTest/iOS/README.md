@@ -15,7 +15,7 @@ Wrapping SSCore C++ in C
 
 **ContentView.swift** shows how to call the SSCore C++ classes from Swift using the plain C wrapper in **SSCore.cpp** and **SSCore.h** This wrapper is a work in progress, but contains enough C code around the essential C++ classes to demonstrate the design pattern.
 
-The wrapper works like this: for every C++ classe (`SSTime, SSAngle`, etc.) there is a corresponding C struct, named with a ‘C’ in front (`CSSTime, CSSAngle`, etc.). That struct is always passed as the first argument to C functions which encapsulate the equivalent methods of the C++ classes.  C++ constructors or static methods are implemented as C functions without any such struct input as the first argument.
+The wrapper works like this: for every C++ class (`SSTime, SSAngle`, etc.) there is a corresponding C struct, named with a ‘C’ in front (`CSSTime, CSSAngle`, etc.). That struct is always passed as the first argument to C functions which encapsulate the equivalent methods of the C++ classes.  C++ constructors or static methods are implemented as C functions without any such struct input as the first argument.
  
 Here an example in C++:
  
