@@ -44,9 +44,36 @@ void SSPlanet::computePositionVelocity ( double jed, double lt, SSVector &pos, S
 // Light travel time to planet (lt) is in days; may be zero for first approximation.
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
 
-bool SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )
+void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )
 {
-    return SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel );
+    if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
+        return;
+ 
+    static SSMatrix orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
+    SSOrbit orb;
+    
+    if ( id == kMercury )
+        orb = SSOrbit::getMercuryOrbit ( jed - lt );
+    else if ( id == kVenus )
+        orb = SSOrbit::getVenusOrbit ( jed - lt );
+    else if ( id == kEarth )
+        orb = SSOrbit::getEarthOrbit ( jed - lt );
+    else if ( id == kMars )
+        orb = SSOrbit::getMarsOrbit ( jed - lt );
+    else if ( id == kJupiter )
+        orb = SSOrbit::getJupiterOrbit ( jed - lt );
+    else if ( id == kSaturn )
+        orb = SSOrbit::getSaturnOrbit ( jed - lt );
+    else if ( id == kUranus )
+        orb = SSOrbit::getUranusOrbit ( jed - lt );
+    else if ( id == kNeptune )
+        orb = SSOrbit::getNeptuneOrbit ( jed - lt );
+    else if ( id == kPluto )
+        orb = SSOrbit::getPlutoOrbit ( jed - lt );
+
+    orb.toPositionVelocity ( jed - lt, pos, vel );
+    pos = orbMat.multiply ( pos );
+    vel = orbMat.multiply ( vel );
 }
 
 // Computes asteroid or comet's heliocentric position and velocity vectors in AU and AU/day.
@@ -221,7 +248,7 @@ float SSPlanet::computeMagnitude ( double rad, double dist, double phase )
     else if ( id == kLuna )
         mag = computeAsteroidMagnitude ( rad, dist, phase, 0.21, 0.25 );
     else if ( _type == kTypeMoon )
-        mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, _Gmag );
+        mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, isinf ( _Gmag ) ? 0.15 : _Gmag );
     else if ( _type == kTypeAsteroid )
         mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, _Gmag );
     else if ( _type == kTypeComet )
@@ -287,11 +314,11 @@ void SSPlanet::computeEphemeris ( SSDynamics &dyn )
 
     // Recompute planet's position and velocity antedated for light time.
     // Compute apparent direction vector and distance to planet from observer's position.
-    
+    // Apply aberration of light.
+
     computePositionVelocity ( dyn.jde, lt, _position, _velocity );
     _direction = ( _position - dyn.obsPos ).normalize ( _distance );
-    
-    // TODO: Aberration?
+    _direction = dyn.addAberration ( _direction );
     
     // Compute planet's phase angle and visual magnitude.
     

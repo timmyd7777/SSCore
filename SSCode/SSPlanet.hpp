@@ -74,7 +74,6 @@ protected:
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
 
-    static bool computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
     void computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeSatellitePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
@@ -106,6 +105,7 @@ public:
     static double illumination ( double phase );
     double illumination ( void );
     
+    static void computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
     void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeEphemeris ( SSDynamics &dyn );
     

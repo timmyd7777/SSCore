@@ -21,7 +21,7 @@ SSCoords::SSCoords ( double jd, double lon, double lat )
     this->epoch = jd;
     this->lon = lon;
     this->lat = lat;
-    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl ) );
+    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl * cos ( obq + de ) ) );
     
     preMat = getPrecessionMatrix ( jd );
     nutMat = getNutationMatrix ( obq, dl, de );

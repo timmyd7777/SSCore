@@ -219,6 +219,49 @@ void TestJPLDEphemeris ( string inputDir )
     jpldeph.close();
 }
 
+void TestSolarEphemeris ( string inputDir, string outputDir )
+{
+    SSObjectVec solsys;
+    
+    string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
+    if ( ! SSJPLDEphemeris::open ( ephemFile ) )
+        cout << "Failed to open " << ephemFile << endl;
+
+    SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Planets.csv", solsys );
+    SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", solsys );
+    cout << "Imported " << solsys.size() << " solar system objects." << endl;
+    
+    SSTime now = SSTime ( SSDate ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 ) ); // SSTime::fromSystem();
+    SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ) };
+    SSDynamics dyn ( now, here.lon, here.lat );
+    
+    for ( int i = 0; i < 11 && i < solsys.size(); i++ )
+    {
+        SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
+        if ( p == nullptr )
+            continue;
+        
+        p->computeEphemeris ( dyn );
+        SSSpherical dir ( p->getDirection() );
+        dir = dyn.coords.toEquatorial ( dir );
+        SSHourMinSec ra ( dir.lon );
+        SSDegMinSec dec ( dir.lat );
+        double dist = p->getDistance();
+        float mag = p->getMagnitude();
+
+        cout << p->getName ( 0 ) << ":" << endl;
+        cout << "RA:   " << ra.toString() << endl;
+        cout << "Dec:  " << dec.toString() << endl;
+        if ( dist > 0.1 )
+            cout << "Dist: " << format ( "%.6f AU", dist ) << endl;
+        else
+            cout << "Dist: " << format ( "%.0f km", dist * SSDynamics::kKmPerAU ) << endl;
+        cout << "Mag:  " << format ( "%+.2f", mag ) << endl << endl;
+    }
+
+    SSJPLDEphemeris::close();
+}
+
 // Android redirects stdout & stderr output to /dev/null. This uses Android logging functions to send
 // output to logcat. From https://stackoverflow.com/questions/8870174/is-stdcout-usable-in-android-ndk
 
@@ -298,6 +341,8 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
+    TestSolarEphemeris ( inpath, outpath );
+/*
     TestSatellites ( inpath, outpath );
     TestJPLDEphemeris ( inpath );
     TestSolarSystem ( inpath, outpath );
@@ -305,7 +350,6 @@ int main ( int argc, const char *argv[] )
     TestStars ( inpath, outpath );
     TestDeepSky ( inpath, outpath );
     
-/*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
     cout << "Imported " << numcom << " MPC comets" << endl;

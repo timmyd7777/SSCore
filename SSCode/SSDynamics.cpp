@@ -8,17 +8,19 @@
 
 #include <map>
 #include "SSDynamics.hpp"
+#include "SSPlanet.hpp"
 
 SSDynamics::SSDynamics ( double jd, double lon, double lat ) : coords ( jd, lon, lat )
 {
     jde = SSTime ( jd ).getJulianEphemerisDate();
     orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
-    getPlanetPositionVelocity ( kEarth, jde, obsPos, obsVel );
+    SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, jde, 0.0, obsPos, obsVel );
     
-    SSSpherical geodetic ( coords.lst, coords.lat, 0.0 );
-    SSVector geocentric = SSDynamics::toGeocentric ( geodetic, kKmPerEarthRadii / kKmPerAU, kEarthFlattening );
+    SSSpherical geodetic ( coords.lst, coords.lat, 0.026 );
+    SSVector geocentric = SSDynamics::toGeocentric ( geodetic, kKmPerEarthRadii, kEarthFlattening );
     
-    obsPos = obsPos.add ( coords.fromEquatorial ( geocentric ) );
+    geocentric = coords.fromEquatorial ( geocentric );
+    obsPos = obsPos.add ( geocentric / kKmPerAU );
 }
 
 SSVector SSDynamics::toGeocentric ( SSSpherical geodetic, double a, double f )
@@ -65,14 +67,34 @@ SSSpherical SSDynamics::toGeodetic ( SSVector geocentric, double a, double f )
     return SSSpherical ( lon, lat, h );
 }
 
-SSVector SSDynamics::addAberration ( SSVector funDir )
+// Adds aberration of light to an apparent direction unit vector (p)
+// in the fundamental J2000 equatorial frame. Returns the "aberrated"
+// vector; p itself is not modified. Uses relativatic formula from
+// The Explanatory Supplement to the Astronomical Almanac, p. 129.
+// Observer's heliocentric velocity must have been calcualted previously!
+
+SSVector SSDynamics::addAberration ( SSVector p )
 {
-    return ( funDir + obsVel / kLightAUPerDay ).normalize();
+    SSVector v = obsVel / kLightAUPerDay;
+    
+    double beta = sqrt ( 1.0 - v * v );
+    double dot = v * p;
+    double s = 1.0 + dot / ( 1.0 + beta );
+    double n = 1.0 + dot;
+    double px = ( p.x * beta + v.x * s ) / n;
+    double py = ( p.y * beta + v.y * s ) / n;
+    double pz = ( p.z * beta + v.z * s ) / n;
+
+    return SSVector ( px, py, pz );
 }
 
-SSVector SSDynamics::subtractAberration ( SSVector aberrFunDir )
+// Removes aberration from an apparent unit direction vector (p)
+// in the fundamental J2000 equatorial frame. Returns the "un-aberrated"
+// vector; p itself is not modified. Uses non-relativistic approximation.
+
+SSVector SSDynamics::subtractAberration ( SSVector p )
 {
-    return aberrFunDir.subtract ( obsVel.divideBy ( kLightAUPerDay ) ).normalize();
+    return ( p - obsVel / kLightAUPerDay ).normalize();
 }
 
 // Given a positive or negative red shift (z), returns the equivalent radial velocity
@@ -168,13 +190,13 @@ void SSDynamics::getMoonPositionVelocity ( SSPlanetID id, double jde, SSVector &
     lonecl += SSAngle::fromDegrees ( lon_corr +
             -1.274 * sin ( Mm - 2 * D )          // (the Evection)
             +0.658 * sin ( 2 * D )               // (the Variation)
-            -0.186 * sin ( Ms )                // (the Yearly Equation)
+            -0.186 * sin ( Ms )                  // (the Yearly Equation)
             -0.059 * sin ( 2 * Mm - 2 * D )
             -0.057 * sin ( Mm - 2 * D + Ms )
             +0.053 * sin ( Mm + 2 * D )
             +0.046 * sin ( 2 * D - Ms )
             +0.041 * sin ( Mm - Ms)
-            -0.035 * sin ( D )                 // (the Parallactic Equation)
+            -0.035 * sin ( D )                   // (the Parallactic Equation)
             -0.031 * sin ( Mm + Ms )
             -0.015 * sin ( 2 * F - 2 * D )
             +0.011 * sin ( Mm - 4 * D ) );
