@@ -28,6 +28,7 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSObject.cpp
              ../../../../../../SSCode/SSOrbit.cpp
              ../../../../../../SSCode/SSPlanet.cpp
+             ../../../../../../SSCode/SSPSEphemeris.cpp
              ../../../../../../SSCode/SSStar.cpp
              ../../../../../../SSCode/SSTime.cpp
              ../../../../../../SSCode/SSTLE.cpp
