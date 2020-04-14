@@ -21,8 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\SSCode\SSAngle.cpp" />
     <ClCompile Include="..\..\SSCode\SSConstellation.cpp" />
-    <ClCompile Include="..\..\SSCode\SSCoords.cpp" />
-    <ClCompile Include="..\..\SSCode\SSDynamics.cpp" />
+    <ClCompile Include="..\..\SSCode\SSCoordinates.cpp" />
     <ClCompile Include="..\..\SSCode\SSIdentifier.cpp" />
     <ClCompile Include="..\..\SSCode\SSImportGJ.cpp" />
     <ClCompile Include="..\..\SSCode\SSImportHIP.cpp" />
@@ -44,8 +43,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp" />
     <ClInclude Include="..\..\SSCode\SSConstellation.hpp" />
-    <ClInclude Include="..\..\SSCode\SSCoords.hpp" />
-    <ClInclude Include="..\..\SSCode\SSDynamics.hpp" />
+    <ClInclude Include="..\..\SSCode\SSCoordinates.hpp" />
     <ClInclude Include="..\..\SSCode\SSIdentifier.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportGJ.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportHIP.hpp" />
