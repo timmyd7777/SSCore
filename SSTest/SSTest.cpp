@@ -50,7 +50,7 @@ void TestTime ( void )
     cout << "Current local time is " << format ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
     cout << "Current Julian Date is " << format ( "%.6f", now.jd ) << endl;
 
-    cout << "Current working directory is " << getcwd() << endl;
+    cout << "Current working directory is " << getcwd() << endl << endl;
 };
 
 void TestSatellites ( string inputDir, string outputDir )
@@ -224,16 +224,25 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
     SSObjectVec solsys;
     
     string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
-    if ( ! SSJPLDEphemeris::open ( ephemFile ) )
-        cout << "Failed to open " << ephemFile << endl;
+    if ( SSJPLDEphemeris::open ( ephemFile ) )
+        cout << "Successfully opened JPL DE438 ephemeris file." << endl;
+    else
+        cout << "Failed to open JPL DE438 ephemeris file " << ephemFile << endl;
 
     SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Planets.csv", solsys );
     SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", solsys );
     cout << "Imported " << solsys.size() << " solar system objects." << endl;
     
-    SSTime now = SSTime ( SSDate ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 ) ); // SSTime::fromSystem();
-    SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ) };
-    SSDynamics dyn ( now, here.lon, here.lat );
+    SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
+    SSTime time = SSTime ( date ); // SSTime::fromSystem();
+    SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
+    SSDynamics dyn ( time, here.lon, here.lat, here.rad );
+    
+    cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
+    cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
+    cout << format ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;
+    cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
+    cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
     
     for ( int i = 0; i < 11 && i < solsys.size(); i++ )
     {

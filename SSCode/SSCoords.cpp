@@ -14,13 +14,14 @@
 // Julian Date (jd) and geographic longitude/latitude (both in radians,
 // east and noth are positive).
 
-SSCoords::SSCoords ( double jd, double lon, double lat )
+SSCoords::SSCoords ( double jd, double lon, double lat, double alt )
 {
     getNutationConstants ( jd, de, dl );
     this->obq = getObliquity ( jd );
     this->epoch = jd;
     this->lon = lon;
     this->lat = lat;
+    this->alt = alt;
     this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl * cos ( obq + de ) ) );
     
     preMat = getPrecessionMatrix ( jd );

@@ -10,18 +10,25 @@
 #include "SSDynamics.hpp"
 #include "SSPlanet.hpp"
 
-SSDynamics::SSDynamics ( double jd, double lon, double lat ) : coords ( jd, lon, lat )
+SSDynamics::SSDynamics ( double jd, double lon, double lat, double alt ) : coords ( jd, lon, lat, alt )
 {
     jde = SSTime ( jd ).getJulianEphemerisDate();
     orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
     SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, jde, 0.0, obsPos, obsVel );
     
-    SSSpherical geodetic ( coords.lst, coords.lat, 0.026 );
+    SSSpherical geodetic ( coords.lst, coords.lat, coords.alt );
     SSVector geocentric = SSDynamics::toGeocentric ( geodetic, kKmPerEarthRadii, kEarthFlattening );
     
     geocentric = coords.fromEquatorial ( geocentric );
     obsPos = obsPos.add ( geocentric / kKmPerAU );
 }
+
+// Converts geodetic longitude, latitude, altitude to geocentric X, Y, Z vector.
+// geodetic.lon and .lat are in radians; geo.rad is altitude above geoid in same
+// units as equatorial radius of geoid ellipse (a). Geoid flattening (f) is ratio
+// (a - b)/(a), where b is polar radius of geoid ellipse. Rectangular XYZ vector
+// is returned in same units as (a).
+// Formula from "The Astronomical Almanac for the Year 1990", pp. K11-K13.
 
 SSVector SSDynamics::toGeocentric ( SSSpherical geodetic, double a, double f )
 {
@@ -37,6 +44,10 @@ SSVector SSDynamics::toGeocentric ( SSSpherical geodetic, double a, double f )
     
     return SSVector ( x, y, z );
 }
+
+// Converts geocentric X,Y,Z vector to geodetic longitude, latitude altitude.
+// Geoid equatorial radius (a) and flattening (f) are as for SSDynamis::toGeocentric().
+// Algorithm is from "The Astronomical Almanac for the Year 1990", pp. K11-K13.
 
 SSSpherical SSDynamics::toGeodetic ( SSVector geocentric, double a, double f )
 {

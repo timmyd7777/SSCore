@@ -33,7 +33,8 @@ class SSCoords
 public:
     double      epoch;          // precession epoch [Julian Date]
     double      lon;            // observer's longitude [radians, east positive]
-    double      lat;            // obseerver's latitude [radians, north positive]
+    double      lat;            // observer's latitude [radians, north positive]
+    double      alt;            // observer's altitude above geoid [kilometers]
     double      lst;            // local apparent sidereal time [radians]
     double      obq;            // mean obliquity of ecliptic at current epoch [radians]
     double      de;             // nutation in obliquity [radians]
@@ -46,7 +47,7 @@ public:
     SSMatrix    horMat;         // transforms from fundamental to current local horizon frame.
     SSMatrix    galMat;         // transforms from fundamental to galactic frame
     
-    SSCoords ( double epoch, double lon, double lat );
+    SSCoords ( double epoch, double lon, double lat, double alt );
     
     static double getObliquity ( double epoch );
     static void   getNutationConstants ( double jd, double &de, double &dl );

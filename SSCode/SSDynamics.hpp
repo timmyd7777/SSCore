@@ -39,8 +39,7 @@ class SSDynamics
     static constexpr double kLYPerParsec = kAUPerParsec / kAUPerLY;                 // Light years per parsec = 3.261563777179643
     static constexpr double kParsecPerLY = kAUPerLY / kAUPerParsec;                 // Parsecs per light year
 
-    
-    SSDynamics ( double jd, double lon, double lat );
+    SSDynamics ( double jd, double lon, double lat, double alt );
     
     static SSVector toGeocentric ( SSSpherical geodetic, double re, double f );
     static SSSpherical toGeodetic ( SSVector geocentric, double re, double f );
