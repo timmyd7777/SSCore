@@ -232,6 +232,9 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
     SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", solsys );
     cout << "Imported " << solsys.size() << " solar system objects." << endl;
     
+    int nsat = SSImportSatellitesFromTLE ( inputDir + "/SolarSystem/Satellites/visual.txt", solsys );
+    cout << "Imported " << nsat << " artificial satellites." << endl;
+
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
     SSTime time = SSTime ( date ); // SSTime::fromSystem();
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
@@ -243,10 +246,20 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
     cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
     cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
     
-    for ( int i = 0; i < 11 && i < solsys.size(); i++ )
+    for ( int i = 0; i < solsys.size(); i++ )
     {
         SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
         if ( p == nullptr )
+            continue;
+        
+        // Skip everything except the first 10 objects and the ISS.
+        
+        bool skip = i < 11 ? false : true;
+        if ( p->getType() == kTypeSatellite )
+            if ( p->getIdentifier() == SSIdentifier ( kCatNORADSat, 25544 ) )
+                skip = false;
+
+        if ( skip )
             continue;
         
         p->computeEphemeris ( coords );

@@ -36,7 +36,11 @@ void SSPlanet::computePositionVelocity ( double jed, double lt, SSVector &pos, S
     else if ( _type == kTypeAsteroid || _type == kTypeComet )
         computeMinorPlanetPositionVelocity ( jed, lt, pos, vel );
     else if ( _type == kTypeSatellite )
-        computeSatellitePositionVelocity ( jed, lt, pos, vel );
+    {
+        SSSatellite *pSat = dynamic_cast<SSSatellite *> ( this );
+        if ( pSat )
+            pSat->computePositionVelocity ( jed, lt, pos, vel );
+    }
 }
 
 // Computes major planet's heliocentric position and velocity vectors in AU and AU/day.
@@ -129,50 +133,6 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     vel += primaryVel[p];
 }
 
-// Computes Earth satellite's heliocentric position and velocity vectors in AU and AU/day.
-// Current time (jed) is Julian Ephemeris Date in dynamic time (TDT), not civil time (UTC).
-// Light travel time to satellite (lt) is in days; may be zero for first approximation.
-// Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
-
-void SSPlanet::computeSatellitePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel )
-{
-    static SSVector earthPos, earthVel;
-    static SSMatrix earthMat;
-    static double earthJED = 0.0, deltaT = 0.0;
-    
-    // compute satellite position & velocity relative to Earth, antedated for light time.
-    // Recompute Earth's position and velocity relative to Sun if JED has changed.
-    // Asssume Earth's velocity is constant over light time duration.
-    
-    if ( jed != earthJED )
-    {
-        computeMajorPlanetPositionVelocity ( kEarth, jed, 0.0, earthPos, earthVel );
-        earthJED = jed;
-        deltaT = SSTime ( jed ).getDeltaT() / SSTime::kSecondsPerDay;
-        earthMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
-    }
-
-    SSTLE tle;
-    
-    // Satellite's orbit epoch is Julian Date, not JED, so subtract Delta T.
-    // Output position and velocity vectors are in km and km/sec; convert to AU and AU/day;
-    // Satellite orbit elements are referred to current equator, not J2000 equator,
-    // so transform output position and velocity from current to J2000 equatorial frame.
-    
-    tle.toPositionVelocity ( jed - deltaT - lt, pos, vel );
-    
-    pos /= SSCoordinates::kKmPerAU;
-    vel /= SSCoordinates::kKmPerAU / SSTime::kSecondsPerDay;
-    
-    pos = earthMat * pos;
-    vel = earthMat * vel;
-    
-    // Add Earth's position (antedated for light time) and velocity to satellite position and velocity.
-    
-    pos += earthPos - earthVel * lt;
-    vel += earthVel;
-}
-
 // Returns solar system object's phase angle in radians.
 // Object's heliocentric position vector (position) is in AU, but units don't matter.
 // Object's apparent direction seen from observer (direction) must be a unit vector.
@@ -254,7 +214,7 @@ float SSPlanet::computeMagnitude ( double rad, double dist, double phase )
     else if ( _type == kTypeComet )
         mag = computeCometMagnitude ( rad, dist, _Hmag, _Gmag );
     else if ( _type == kTypeSatellite )
-        mag = computeSatelliteMagnitude ( dist * SSCoordinates::kKmPerAU, phase, _Hmag );
+        mag = SSSatellite::computeSatelliteMagnitude ( dist * SSCoordinates::kKmPerAU, phase, _Hmag );
     
     return mag;
 }
@@ -283,22 +243,6 @@ float SSPlanet::computeAsteroidMagnitude ( double rad, double dist, double phase
 float SSPlanet::computeCometMagnitude ( double rad, double dist, double h, double k )
 {
     return h + 5.0 * log10 ( dist ) + 2.5 * k * log10 ( rad );
-}
-
-// Computes satellite visual magnitude.
-// Satellite's distance from observer (dist) is in kilometers.
-// Satellite's phase angle (phase) is in radians.
-// Standard magnitude is at 1000 km range, and 50% illumination.
-// Formula from http://www.prismnet.com/~mmccants/tles/mccdesc.html
-
-float SSPlanet::computeSatelliteMagnitude ( double dist, double phase, double stdmag )
-{
-    double mag = HUGE_VAL;
-    
-    if ( phase < M_PI )
-        mag = stdmag - 15.75 + 2.5 * log10 ( dist * dist / ( ( 1.0 + cos ( phase ) ) / 2.0 ) );
-    
-    return mag;
 }
 
 // Computes this solar system object's position, direction, distance, and magnitude.
@@ -332,6 +276,14 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
 SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr )
 {
     return dynamic_cast<SSPlanet *> ( ptr.get() );
+}
+
+// Downcasts generic SSObject pointer to SSSatellite pointer.
+// Returns nullptr if input pointer is not an instance of SSPlanet!
+
+SSSatellitePtr SSGetSatellitePtr ( SSObjectPtr ptr )
+{
+    return dynamic_cast<SSSatellite *> ( ptr.get() );
 }
 
 // Returns CSV string from planet data, including identifier and names.
@@ -417,4 +369,122 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     pPlanet->setNames ( names );
 
     return pObject;
+}
+
+// Constructs a satellite object from an input Two-Line Element descriptor (tle).
+
+SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )
+{
+    _tle = tle;
+
+    _names.push_back ( tle.name );
+    _names.push_back ( tle.desig );
+    
+    _id = SSIdentifier ( kCatNORADSat, tle.norad );
+    
+    // TODO: also copy orbit into _orbit
+}
+
+// Computes satellite visual magnitude.
+// Satellite's distance from observer (dist) is in kilometers.
+// Satellite's phase angle (phase) is in radians.
+// Standard magnitude is at 1000 km range, and 50% illumination.
+// Formula from http://www.prismnet.com/~mmccants/tles/mccdesc.html
+
+float SSSatellite::computeSatelliteMagnitude ( double dist, double phase, double stdmag )
+{
+    double mag = HUGE_VAL;
+    
+    if ( phase < M_PI )
+        mag = stdmag - 15.75 + 2.5 * log10 ( dist * dist / ( ( 1.0 + cos ( phase ) ) / 2.0 ) );
+    
+    return mag;
+}
+
+// Computes this satellite's magnitude using above formula.
+// Satellite's distance from sun (rad) and from observer (dist) are both in AU.
+// Satellite's phase angle (phase) is in radians.
+// Satellite's heliocentric position and apparent direction vectors must already be calculated!
+
+float SSSatellite::computeMagnitude ( double rad, double dist, double phase )
+{
+    return computeSatelliteMagnitude ( dist * SSCoordinates::kKmPerAU, phase, _Hmag );
+}
+
+// Computes Earth satellite's heliocentric position and velocity vectors in AU and AU/day.
+// Current time (jed) is Julian Ephemeris Date in dynamic time (TDT), not civil time (UTC).
+// Light travel time to satellite (lt) is in days; may be zero for first approximation.
+// Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
+
+void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel )
+{
+    static SSVector earthPos, earthVel;
+    static SSMatrix earthMat;
+    static double earthJED = 0.0, deltaT = 0.0;
+    
+    // compute satellite position & velocity relative to Earth, antedated for light time.
+    // Recompute Earth's position and velocity relative to Sun if JED has changed.
+    // Asssume Earth's velocity is constant over light time duration.
+    
+    if ( jed != earthJED )
+    {
+        computeMajorPlanetPositionVelocity ( kEarth, jed, 0.0, earthPos, earthVel );
+        earthJED = jed;
+        deltaT = SSTime ( jed ).getDeltaT() / SSTime::kSecondsPerDay;
+        earthMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
+    }
+
+    // Satellite's orbit epoch is Julian Date, not JED, so subtract Delta T.
+    // Output position and velocity vectors are in km and km/sec; convert to AU and AU/day;
+    // Satellite orbit elements are referred to current equator, not J2000 equator,
+    // so transform output position and velocity from current to J2000 equatorial frame.
+    
+    _tle.toPositionVelocity ( jed - deltaT - lt, pos, vel );
+    
+    pos /= SSCoordinates::kKmPerAU;
+    vel /= SSCoordinates::kKmPerAU / SSTime::kSecondsPerDay;
+    
+    pos = earthMat * pos;
+    vel = earthMat * vel;
+    
+    // Add Earth's position (antedated for light time) and velocity to satellite position and velocity.
+    
+    pos += earthPos - earthVel * lt;
+    vel += earthVel;
+}
+
+// Imports satellites from TLE-formatted text file (filename).
+// Imported satellites are appended to the input vector of SSObjects (satellites).
+// Returns number of satellites successfully imported.
+
+int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int numSats = 0;
+    SSTLE tle;
+    
+    while ( tle.read ( file ) == 0 )
+    {
+        // Attempt to create solar system object from TLE; if successful add to object vector.
+        
+        SSSatellite *pSat = new SSSatellite ( tle );
+        if ( pSat )
+        {
+            satellites.push_back ( SSObjectPtr ( pSat ) );
+            numSats++;
+        }
+    }
+    
+    // Close file. Return number of objects added to object vector.
+
+//    fclose ( file );
+    return numSats;
 }

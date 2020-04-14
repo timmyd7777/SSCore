@@ -120,8 +120,9 @@ string SSObject::toCSV ( void )
 
 // Default implementation of compteEphemeris; overridden by subclasses.
 
-void SSObject::computeEphemeris ( SSCoordinates &dyn )
+void SSObject::computeEphemeris ( SSCoordinates &coords )
 {
+    
 }
 
 // Given a vector of smart pointers to SSObject, creates a mapping of SSIdentifiers

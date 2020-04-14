@@ -13,6 +13,7 @@
 #include "SSObject.hpp"
 #include "SSOrbit.hpp"
 #include "SSCoordinates.hpp"
+#include "SSTLE.hpp"
 
 enum SSPlanetID
 {
@@ -77,11 +78,9 @@ protected:
 
     void computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
-    void computeSatellitePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
-    float computeMagnitude ( double rad, double dist, double phase );
+
     float computeAsteroidMagnitude ( double rad, double dist, double phase, double hmag, double gmag );
     float computeCometMagnitude ( double rad, double dist, double hmag, double kmag );
-    float computeSatelliteMagnitude ( double dist, double phase, double stdmag );
 
 public:
     
@@ -94,7 +93,7 @@ public:
     void setGMagnitude ( float gmag ) { _Gmag = gmag; }
     void setRadius ( float radius ) { _radius = radius; }
 
-    SSIdentifier getIdentifier ( SSIdentifier ident ) { return _id; }
+    SSIdentifier getIdentifier ( void ) { return _id; }
     SSOrbit getOrbit ( void ) { return _orbit; }
     float getHMagnitude ( void ) { return _Hmag; }
     float getGMagnitude ( void ) { return _Gmag; }
@@ -107,8 +106,9 @@ public:
     double illumination ( void );
     
     static void computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
-    void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
-    void computeEphemeris ( SSCoordinates &coords );
+    virtual void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
+    virtual float computeMagnitude ( double rad, double dist, double phase );
+    virtual void computeEphemeris ( SSCoordinates &coords );
     
     // imports/exports from/to CSV-format text string
     
@@ -116,13 +116,37 @@ public:
     string toCSV ( void );
 };
 
+// Subclass of solar system object for artificial Earth satellites.
+// Includes methods for computing position and velocity from TLE elements via SGP4/SDP4 orbit model
+// and computing visual magnitude with McCants formula.
+
+class SSSatellite : public SSPlanet
+{
+protected:
+    SSTLE _tle;
+    
+public:
+    
+    SSSatellite ( SSTLE &tle );
+    
+    SSTLE getTLE ( void ) { return _tle; }
+
+    virtual void  computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
+    virtual float computeMagnitude ( double rad, double dist, double phase );
+    static  float computeSatelliteMagnitude ( double dist, double phase, double stdmag );
+};
+
 // convenient aliases for pointers to various subclasses of SSPlanet
 
 typedef SSPlanet *SSPlanetPtr;
+typedef SSSatellite *SSSatellitePtr;
 
-// Downcasts a pointer from SSObject base class to SSPlanet subclass.
-// Returns nullptr if input object pointer is not actually an SSPlanet.
+// Downcasts a pointer from SSObject base class to SSPlanet or SSSatellite subclass.
+// Returns nullptr if input object pointer is not actually an SSPlanet or SSSatellite.
 
 SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr );
+SSSatellitePtr SSGetSatellitePtr ( SSObjectPtr ptr );
+
+int SSImportSatellitesFromTLE ( const string &path, SSObjectVec &satellites );
 
 #endif /* SSPlanet_hpp */

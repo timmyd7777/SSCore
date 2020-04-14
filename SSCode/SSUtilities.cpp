@@ -37,6 +37,7 @@ string getcwd(void)
 
 // Wrapper for fgets() that reads into a C++ string (line)
 // from a C FILE pointer (file) opened for reading in text mode.
+// Discards any terminating newline to emulate behavior of C++ getline().
 // Returns true if successful or false on failure (end-of-file, etc.)
 
 bool fgetline ( FILE *file, string &line )
@@ -46,6 +47,10 @@ bool fgetline ( FILE *file, string &line )
     if ( fgets ( buffer, sizeof ( buffer ), file ) == NULL )
         return false;
 
+    size_t len = strlen ( buffer );
+    if ( buffer[ len - 1 ] == '\n' )
+        buffer[ len - 1 ] = 0;
+    
     line = string ( buffer );
     return true;
 }
