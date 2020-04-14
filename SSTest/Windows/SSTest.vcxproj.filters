@@ -78,6 +78,9 @@
     <ClCompile Include="..\..\SSCode\SSCoordinates.cpp">
       <Filter>Source Files\SSCode</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSPSEphemeris.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp">
@@ -135,6 +138,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SSCode\SSCoordinates.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSPSEphemeris.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
