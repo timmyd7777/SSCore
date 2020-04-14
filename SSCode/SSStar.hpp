@@ -69,7 +69,7 @@ public:
     float getParallax ( void ) { return _parallax; }
     float getRadVel ( void ) { return _radvel; }
     
-    void computeEphemeris ( SSDynamics &dyn );
+    void computeEphemeris ( SSCoordinates &dyn );
     
     // imports/exports from/to CSV-format text string
     

@@ -45,7 +45,7 @@ struct SSDate
     SSDate ( SSTime time );
 
     static SSDate fromJulianDate ( SSTime time );
-    class SSTime toJulianDate ( void );
+    SSTime toJulianDate ( void );
 };
 
 // Represents an instant in time as a Julian Date.

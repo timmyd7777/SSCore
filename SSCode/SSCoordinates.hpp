@@ -1,14 +1,15 @@
-// SSCoords.hpp
+// SSCoordinates.hpp
 // SSCore
 //
 // Created by Tim DeBenedictis on 2/28/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
 // This class converts rectangular and spherical coordinates between different astronomical reference frames
-// at a particular time and geographic location.
+// at a particular time and geographic location. It also handles precession, nutation, aberration, refraction,
+// and other coordinate-related issues.
 
-#ifndef SSCoords_hpp
-#define SSCoords_hpp
+#ifndef SSCoordinates_hpp
+#define SSCoordinates_hpp
 
 #include <stdio.h>
 #include "SSAngle.hpp"
@@ -28,9 +29,10 @@ enum SSFrame
 
 // This class converts coordinates between the principal astronomical reference frames.
 
-class SSCoords
+class SSCoordinates
 {
 public:
+    double      jed;            // Julian Ephemeris Date, i.e. Julian Date with Delta-T added
     double      epoch;          // precession epoch [Julian Date]
     double      lon;            // observer's longitude [radians, east positive]
     double      lat;            // observer's latitude [radians, north positive]
@@ -47,7 +49,22 @@ public:
     SSMatrix    horMat;         // transforms from fundamental to current local horizon frame.
     SSMatrix    galMat;         // transforms from fundamental to galactic frame
     
-    SSCoords ( double epoch, double lon, double lat, double alt );
+    SSVector    obsPos;         // observer's heliocentric position in fundamental J2000 equatorial frame (ICRS) [AU]
+    SSVector    obsVel;         // observer's heliocentric velocity in fundamental J2000 equatorial frame (ICRS) [AU/day]
+
+    static constexpr double kKmPerAU = 149597870.700;                               // kilometers per Astronomical Unit (IAU 2012)
+    static constexpr double kKmPerEarthRadii = 6378.137;                            // kilometers per equatorial Earth radius (WGS84)
+    static constexpr double kEarthFlattening = 1 / 298.257;                         // Earth ellipsoid flattening factor (WGS84)
+    static constexpr double kLightKmPerSec = 299792.458;                            // Speed of light in kilometers per second
+    static constexpr double kLightAUPerDay = kLightKmPerSec * 86400.0 / kKmPerAU;   // Speed of lignt in astronomical units per day = 173.144
+    static constexpr double kAUPerParsec = SSAngle::kArcsecPerRad;                  // Astronomical units per parsec = 206264.806247
+    static constexpr double kParsecPerAU = 1.0 / kAUPerParsec;                      // Parsecs per astronomical unit
+    static constexpr double kAUPerLY = kLightAUPerDay * 365.25;                     // Astronomical units per light year = 63241.077084 (assuming Julian year of exactly 365.25 days)
+    static constexpr double kLYPerAU = 1.0 / kAUPerLY;                              // Light years per astronomical unit
+    static constexpr double kLYPerParsec = kAUPerParsec / kAUPerLY;                 // Light years per parsec = 3.261563777179643
+    static constexpr double kParsecPerLY = kAUPerLY / kAUPerParsec;                 // Parsecs per light year
+
+    SSCoordinates ( double epoch, double lon, double lat, double alt );
     
     static double getObliquity ( double epoch );
     static void   getNutationConstants ( double jd, double &de, double &dl );
@@ -81,12 +98,21 @@ public:
     SSSpherical fromHorizon ( SSSpherical horSph );
     SSSpherical fromHorizon ( SSSpherical horSph, bool refract );
 
-    SSVector      transform ( SSFrame from, SSFrame to, SSVector vec );
+    SSVector    transform ( SSFrame from, SSFrame to, SSVector vec );
     SSSpherical transform ( SSFrame from, SSFrame to, SSSpherical sph );
     
+    SSVector addAberration ( SSVector direction );
+    SSVector subtractAberration ( SSVector direction );
+    
+    static double redShiftToRadVel ( double z );
+    static double radVelToRedShift ( double rv );
+    
+    static SSVector toGeocentric ( SSSpherical geodetic, double re, double f );
+    static SSSpherical toGeodetic ( SSVector geocentric, double re, double f );
+
     static SSAngle refractionAngle ( SSAngle alt, bool a );
     static SSAngle toRefractedAltitude ( SSAngle alt );
     static SSAngle fromRefractedAltitude ( SSAngle alt );
 };
 
-#endif /* SSCoords_hpp */
+#endif /* SSCoordinates_hpp */

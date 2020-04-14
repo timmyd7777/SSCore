@@ -6,7 +6,7 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 //
 
-#include "SSDynamics.hpp"
+#include "SSCoordinates.hpp"
 #include "SSImportHIP.hpp"
 #include "SSImportNGCIC.hpp"
 
@@ -426,14 +426,14 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 
         // Get redshift and convert to radial velocity as fraction of light speed.
         
-        motion.rad = tokens[23].empty() ? HUGE_VAL : SSDynamics::redShiftToRadVel ( strtofloat ( tokens[23] ) );
+        motion.rad = tokens[23].empty() ? HUGE_VAL : SSCoordinates::redShiftToRadVel ( strtofloat ( tokens[23] ) );
         
         // Get distance in megaparsecs and convert to light years.  Prefer metric distance over redshift-derived.
         
         if ( ! tokens[25].empty() )
-            coords.rad = strtofloat ( tokens[25] ) * 1.0e6 * SSDynamics::kLYPerParsec;
+            coords.rad = strtofloat ( tokens[25] ) * 1.0e6 * SSCoordinates::kLYPerParsec;
         else if ( ! tokens[24].empty() )
-            coords.rad = strtofloat ( tokens[24] ) * 1.0e6 * SSDynamics::kLYPerParsec;
+            coords.rad = strtofloat ( tokens[24] ) * 1.0e6 * SSCoordinates::kLYPerParsec;
         
         // Get Hubble morphological type
         
@@ -555,13 +555,13 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         
         string strRV = trim ( line.substr ( 127, 6 ) );
         if ( ! strRV.empty() )
-            motion.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+            motion.rad = strtofloat ( strRV ) / SSCoordinates::kLightKmPerSec;
 
         // Get distance in parsecs and convert to light years
 
         string strDist = trim ( line.substr ( 55, 5 ) );
         if ( ! strDist.empty() )
-            coords.rad = strtofloat ( strDist ) * SSDynamics::kLYPerParsec;
+            coords.rad = strtofloat ( strDist ) * SSCoordinates::kLYPerParsec;
         
         // Get angular diameter in arcmin and convert to radians
         
@@ -658,13 +658,13 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
         
         string strRV = trim ( line.substr ( 177, 6 ) );
         if ( ! strRV.empty() )
-            motion.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+            motion.rad = strtofloat ( strRV ) / SSCoordinates::kLightKmPerSec;
 
         // Get distance in kiloparsecs and convert to light years
 
         string strDist = trim ( line.substr ( 67, 5 ) );
         if ( ! strDist.empty() )
-            coords.rad = strtofloat ( strDist ) * 1000.0 * SSDynamics::kLYPerParsec;
+            coords.rad = strtofloat ( strDist ) * 1000.0 * SSCoordinates::kLYPerParsec;
         
         // Get half-light radius in arcmin and convert to diameter in radians
         
@@ -762,7 +762,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
             // Get distance in kiloparsecs and convert to light years
             
             string distStr = trim ( line.substr ( 22, 6 ) );
-            float dist = distStr.empty() ? HUGE_VAL : strtofloat ( distStr ) * 1000.0 * SSDynamics::kLYPerParsec;
+            float dist = distStr.empty() ? HUGE_VAL : strtofloat ( distStr ) * 1000.0 * SSCoordinates::kLYPerParsec;
             if ( isinf ( dist ) )
                 continue;
             
@@ -840,7 +840,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
             // If valid, store radial velocity in mapping of PNG identifiers
 
             string velStr = trim ( line.substr ( 12, 6 ) );
-            float radVel = strtofloat ( velStr ) / SSDynamics::kLightKmPerSec;
+            float radVel = strtofloat ( velStr ) / SSCoordinates::kLightKmPerSec;
             if ( radVel != 0.0 )
                 velMap[ident] = radVel;
         }
@@ -856,7 +856,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
     // Set up matrix for precessing B1950 coordinates and proper motion to J2000.
     // Read file line-by-line until we reach end-of-file.
 
-    SSMatrix precession = SSCoords::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
+    SSMatrix precession = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
     int numNebulae = 0;
 
     while ( getline ( file, line ) )

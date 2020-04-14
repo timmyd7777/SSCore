@@ -14,7 +14,7 @@
 #include "SSPlanet.hpp"
 #include "SSStar.hpp"
 #include "SSConstellation.hpp"
-#include "SSDynamics.hpp"
+#include "SSCoordinates.hpp"
 
 typedef map<SSObjectType,string> SSTypeStringMap;
 typedef map<string,SSObjectType> SSStringTypeMap;
@@ -120,7 +120,7 @@ string SSObject::toCSV ( void )
 
 // Default implementation of compteEphemeris; overridden by subclasses.
 
-void SSObject::computeEphemeris ( SSDynamics &dyn )
+void SSObject::computeEphemeris ( SSCoordinates &dyn )
 {
 }
 

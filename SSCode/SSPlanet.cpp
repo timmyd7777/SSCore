@@ -4,7 +4,7 @@
 // Created by Tim DeBenedictis on 3/15/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 
-#include "SSDynamics.hpp"
+#include "SSCoordinates.hpp"
 #include "SSPlanet.hpp"
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
@@ -49,7 +49,7 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
     if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
         return;
  
-    static SSMatrix orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
+    static SSMatrix orbMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
     SSOrbit orb;
     
     if ( id == kMercury )
@@ -83,7 +83,7 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
 
 void SSPlanet::computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel )
 {
-    static SSMatrix matrix = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
+    static SSMatrix matrix = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
     _orbit.toPositionVelocity ( jed - lt, pos, vel );
     pos = matrix.multiply ( pos );
     vel = matrix.multiply ( vel );
@@ -149,7 +149,7 @@ void SSPlanet::computeSatellitePositionVelocity ( double jed, double lt, SSVecto
         computeMajorPlanetPositionVelocity ( kEarth, jed, 0.0, earthPos, earthVel );
         earthJED = jed;
         deltaT = SSTime ( jed ).getDeltaT() / SSTime::kSecondsPerDay;
-        earthMat = SSCoords::getPrecessionMatrix ( jed ).transpose();
+        earthMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
     }
 
     SSTLE tle;
@@ -161,8 +161,8 @@ void SSPlanet::computeSatellitePositionVelocity ( double jed, double lt, SSVecto
     
     tle.toPositionVelocity ( jed - deltaT - lt, pos, vel );
     
-    pos /= SSDynamics::kKmPerAU;
-    vel /= SSDynamics::kKmPerAU / SSTime::kSecondsPerDay;
+    pos /= SSCoordinates::kKmPerAU;
+    vel /= SSCoordinates::kKmPerAU / SSTime::kSecondsPerDay;
     
     pos = earthMat * pos;
     vel = earthMat * vel;
@@ -254,7 +254,7 @@ float SSPlanet::computeMagnitude ( double rad, double dist, double phase )
     else if ( _type == kTypeComet )
         mag = computeCometMagnitude ( rad, dist, _Hmag, _Gmag );
     else if ( _type == kTypeSatellite )
-        mag = computeSatelliteMagnitude ( dist * SSDynamics::kKmPerAU, phase, _Hmag );
+        mag = computeSatelliteMagnitude ( dist * SSCoordinates::kKmPerAU, phase, _Hmag );
     
     return mag;
 }
@@ -302,23 +302,23 @@ float SSPlanet::computeSatelliteMagnitude ( double dist, double phase, double st
 }
 
 // Computes this solar system object's position, direction, distance, and magnitude.
-// The current Julian Ephemeris Date and observer position are input in the SSDynamics object (dyn).
+// The current Julian Ephemeris Date and observer position are input in the SSCoordinates object (coords).
 
-void SSPlanet::computeEphemeris ( SSDynamics &dyn )
+void SSPlanet::computeEphemeris ( SSCoordinates &coords )
 {
     // Compute planet's heliocentric position and velocity at current JED.
     // Compute distance and light time to planet.
     
-    computePositionVelocity ( dyn.jde, 0.0, _position, _velocity );
-    double lt = ( _position - dyn.obsPos ).magnitude() / dyn.kLightAUPerDay;
+    computePositionVelocity ( coords.jed, 0.0, _position, _velocity );
+    double lt = ( _position - coords.obsPos ).magnitude() / coords.kLightAUPerDay;
 
     // Recompute planet's position and velocity antedated for light time.
     // Compute apparent direction vector and distance to planet from observer's position.
     // Apply aberration of light.
 
-    computePositionVelocity ( dyn.jde, lt, _position, _velocity );
-    _direction = ( _position - dyn.obsPos ).normalize ( _distance );
-    _direction = dyn.addAberration ( _direction );
+    computePositionVelocity ( coords.jed, lt, _position, _velocity );
+    _direction = ( _position - coords.obsPos ).normalize ( _distance );
+    _direction = coords.addAberration ( _direction );
     
     // Compute planet's phase angle and visual magnitude.
     
@@ -341,7 +341,7 @@ string SSPlanet::toCSV ( void )
     string csv = SSObject::typeToCode ( _type ) + ",";
     
     if ( _type == kTypeMoon )
-        csv += isinf ( _orbit.q ) ? "," : format ( "%.0f,", _orbit.q * SSDynamics::kKmPerAU );
+        csv += isinf ( _orbit.q ) ? "," : format ( "%.0f,", _orbit.q * SSCoordinates::kKmPerAU );
     else
         csv += isinf ( _orbit.q ) ? "," : format ( "%.8f,", _orbit.q );
 
@@ -388,7 +388,7 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     orbit.t = fields[8].empty() ? HUGE_VAL : strtofloat64 ( fields[8] );
 
     if ( orbit.q > 1000.0 )
-        orbit.q /= SSDynamics::kKmPerAU;
+        orbit.q /= SSCoordinates::kKmPerAU;
     
     float h = fields[9].empty() ? HUGE_VAL : strtofloat ( fields[9] );
     float g = fields[10].empty() ? HUGE_VAL : strtofloat ( fields[10] );

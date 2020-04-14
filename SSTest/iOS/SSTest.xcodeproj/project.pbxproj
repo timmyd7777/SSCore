@@ -27,8 +27,7 @@
 		A3EBE0FC243AE4E800B47EAE /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E4243AE4E800B47EAE /* SSVector.cpp */; };
 		A3EBE0FD243AE4E800B47EAE /* SSImportMPC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E5243AE4E800B47EAE /* SSImportMPC.cpp */; };
 		A3EBE0FE243AE4E800B47EAE /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E7243AE4E800B47EAE /* SSMatrix.cpp */; };
-		A3EBE0FF243AE4E800B47EAE /* SSDynamics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E9243AE4E800B47EAE /* SSDynamics.cpp */; };
-		A3EBE100243AE4E800B47EAE /* SSCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0EC243AE4E800B47EAE /* SSCoords.cpp */; };
+		A3EBE100243AE4E800B47EAE /* SSCoordinates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0EC243AE4E800B47EAE /* SSCoordinates.cpp */; };
 		A3EBE102243AE69800B47EAE /* SSTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE101243AE69800B47EAE /* SSTest.cpp */; };
 		A3EBE104243AE9A600B47EAE /* SSTest.h in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE103243AE9A600B47EAE /* SSTest.h */; };
 		A3F33350243B89D500D27A15 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A3F3334F243B89D500D27A15 /* Preview Assets.xcassets */; };
@@ -50,10 +49,9 @@
 		A3EBE0C7243AE4E800B47EAE /* SSObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSObject.cpp; sourceTree = "<group>"; };
 		A3EBE0C8243AE4E800B47EAE /* SSMatrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSMatrix.hpp; sourceTree = "<group>"; };
 		A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSConstellation.cpp; sourceTree = "<group>"; };
-		A3EBE0CA243AE4E800B47EAE /* SSDynamics.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSDynamics.hpp; sourceTree = "<group>"; };
 		A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSIdentifier.cpp; sourceTree = "<group>"; };
 		A3EBE0CC243AE4E800B47EAE /* SSJPLDEphemeris.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSJPLDEphemeris.cpp; sourceTree = "<group>"; };
-		A3EBE0CD243AE4E800B47EAE /* SSCoords.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSCoords.hpp; sourceTree = "<group>"; };
+		A3EBE0CD243AE4E800B47EAE /* SSCoordinates.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSCoordinates.hpp; sourceTree = "<group>"; };
 		A3EBE0CE243AE4E800B47EAE /* SSTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSTime.cpp; sourceTree = "<group>"; };
 		A3EBE0CF243AE4E800B47EAE /* SSImportGJ.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportGJ.hpp; sourceTree = "<group>"; };
 		A3EBE0D0243AE4E800B47EAE /* SSImportSKY2000.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportSKY2000.cpp; sourceTree = "<group>"; };
@@ -81,10 +79,9 @@
 		A3EBE0E6243AE4E800B47EAE /* SSObject.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSObject.hpp; sourceTree = "<group>"; };
 		A3EBE0E7243AE4E800B47EAE /* SSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSMatrix.cpp; sourceTree = "<group>"; };
 		A3EBE0E8243AE4E800B47EAE /* SSConstellation.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSConstellation.hpp; sourceTree = "<group>"; };
-		A3EBE0E9243AE4E800B47EAE /* SSDynamics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSDynamics.cpp; sourceTree = "<group>"; };
 		A3EBE0EA243AE4E800B47EAE /* SSIdentifier.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSIdentifier.hpp; sourceTree = "<group>"; };
 		A3EBE0EB243AE4E800B47EAE /* SSJPLDEphemeris.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSJPLDEphemeris.hpp; sourceTree = "<group>"; };
-		A3EBE0EC243AE4E800B47EAE /* SSCoords.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSCoords.cpp; sourceTree = "<group>"; };
+		A3EBE0EC243AE4E800B47EAE /* SSCoordinates.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSCoordinates.cpp; sourceTree = "<group>"; };
 		A3EBE101243AE69800B47EAE /* SSTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSTest.cpp; path = ../SSTest.cpp; sourceTree = "<group>"; };
 		A3EBE103243AE9A600B47EAE /* SSTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SSTest.h; path = ../SSTest.h; sourceTree = "<group>"; };
 		A3F3334F243B89D500D27A15 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -143,10 +140,8 @@
 				A3EBE0D3243AE4E800B47EAE /* SSAngle.hpp */,
 				A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */,
 				A3EBE0E8243AE4E800B47EAE /* SSConstellation.hpp */,
-				A3EBE0EC243AE4E800B47EAE /* SSCoords.cpp */,
-				A3EBE0CD243AE4E800B47EAE /* SSCoords.hpp */,
-				A3EBE0E9243AE4E800B47EAE /* SSDynamics.cpp */,
-				A3EBE0CA243AE4E800B47EAE /* SSDynamics.hpp */,
+				A3EBE0EC243AE4E800B47EAE /* SSCoordinates.cpp */,
+				A3EBE0CD243AE4E800B47EAE /* SSCoordinates.hpp */,
 				A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */,
 				A3EBE0EA243AE4E800B47EAE /* SSIdentifier.hpp */,
 				A3EBE0DB243AE4E800B47EAE /* SSImportGJ.cpp */,
@@ -267,7 +262,7 @@
 				A3EBE0F2243AE4E800B47EAE /* SSImportSKY2000.cpp in Sources */,
 				A3EBE0FA243AE4E800B47EAE /* SSStar.cpp in Sources */,
 				A3F33359243B8B0100D27A15 /* ContentView.swift in Sources */,
-				A3EBE100243AE4E800B47EAE /* SSCoords.cpp in Sources */,
+				A3EBE100243AE4E800B47EAE /* SSCoordinates.cpp in Sources */,
 				A3EBE0F1243AE4E800B47EAE /* SSTime.cpp in Sources */,
 				A3EBE0F9243AE4E800B47EAE /* SSUtilities.cpp in Sources */,
 				A3EBE0EF243AE4E800B47EAE /* SSIdentifier.cpp in Sources */,
@@ -286,7 +281,6 @@
 				A3EBE0F4243AE4E800B47EAE /* SSImportGJ.cpp in Sources */,
 				A3EBE0EE243AE4E800B47EAE /* SSConstellation.cpp in Sources */,
 				A3EBE0F8243AE4E800B47EAE /* SSImportNGCIC.cpp in Sources */,
-				A3EBE0FF243AE4E800B47EAE /* SSDynamics.cpp in Sources */,
 				A3EBE0F5243AE4E800B47EAE /* SSImportHIP.cpp in Sources */,
 				A3EBE0FB243AE4E800B47EAE /* SSPlanet.cpp in Sources */,
 				A3EBE0F6243AE4E800B47EAE /* SSAngle.cpp in Sources */,

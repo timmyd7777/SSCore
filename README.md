@@ -21,10 +21,9 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 
 - **_SSAngle:_** Classes for converting angular values from radians to degress/hours, minutes, seconds; and vice-versa.
 - **_SSConstellation:_** This subclass of SSObject stores information for constellations and asterisms, including the official IAU constellation names, abbreviations, boundaries; and shape/figure data.
-- **_SSCoords:_** This class converts rectangular and spherical coordinates between different astronomical reference frames (fundamental/ICRS, equatorial, ecliptic, galactic, local horizon) at a particular time and geographic location.
+- **_SSCoordinates:_** This class converts rectangular and spherical coordinates between different astronomical reference frames (fundamental/ICRS, equatorial, ecliptic, galactic, local horizon) at a particular time and geographic location. It also handles precession, nutation, aberration, refraction, and other coordinate-related issues.
 - **_SSIdentifier:_** This class represents object identifiers used in a wide variety of astronomical catalogs with a unified system of 64-bit integers, and contains methods for converting identifiers from string representations ("HR 7001", "NGC 1976", etc.) to 64-bit integers and vice-versa.
 - **_SSJPLDEphemeris:_** This class reads JPL's binary DE43x series of ephemeris files and computes very fast, accurate lunar and planetary positions from them.
-- **_SSDynamics:_** Implements solar system and stellar dynamics. Computes position, motion, and visual magnitude of all types of celestial objects, as seen by an observer from a particular time and location, in a unified fashion.
 - **_SSMatrix:_** Represents a 3x3 matrix, with routines for performing matrix and vector-matrix arithmetic.
 - **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations, etc.)
 - **_SSOrbit:_** This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.

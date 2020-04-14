@@ -11,9 +11,8 @@
 #include <TargetConditionals.h>
 #endif
 
-#include "SSCoords.hpp"
+#include "SSCoordinates.hpp"
 #include "SSOrbit.hpp"
-#include "SSDynamics.hpp"
 #include "SSPlanet.hpp"
 #include "SSStar.hpp"
 #include "SSConstellation.hpp"
@@ -236,7 +235,7 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
     SSTime time = SSTime ( date ); // SSTime::fromSystem();
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
-    SSDynamics dyn ( time, here.lon, here.lat, here.rad );
+    SSCoordinates coords ( time, here.lon, here.lat, here.rad );
     
     cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
     cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
@@ -250,9 +249,9 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
         if ( p == nullptr )
             continue;
         
-        p->computeEphemeris ( dyn );
+        p->computeEphemeris ( coords );
         SSSpherical dir ( p->getDirection() );
-        dir = dyn.coords.toEquatorial ( dir );
+        dir = coords.toEquatorial ( dir );
         SSHourMinSec ra ( dir.lon );
         SSDegMinSec dec ( dir.lat );
         double dist = p->getDistance();
@@ -264,7 +263,7 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
         if ( dist > 0.1 )
             cout << "Dist: " << format ( "%.6f AU", dist ) << endl;
         else
-            cout << "Dist: " << format ( "%.0f km", dist * SSDynamics::kKmPerAU ) << endl;
+            cout << "Dist: " << format ( "%.0f km", dist * coords.kKmPerAU ) << endl;
         cout << "Mag:  " << format ( "%+.2f", mag ) << endl << endl;
     }
 
@@ -351,14 +350,13 @@ int main ( int argc, const char *argv[] )
     string outpath ( argv[2] );
     
     TestSolarEphemeris ( inpath, outpath );
-/*
     TestSatellites ( inpath, outpath );
     TestJPLDEphemeris ( inpath );
     TestSolarSystem ( inpath, outpath );
     TestConstellations ( inpath, outpath );
     TestStars ( inpath, outpath );
     TestDeepSky ( inpath, outpath );
-    
+/*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
     cout << "Imported " << numcom << " MPC comets" << endl;
@@ -457,7 +455,7 @@ int main ( int argc, const char *argv[] )
             
     SSTime now = SSTime::fromSystem();
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 55.3 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 09.7 ) ) };
-    SSDynamics dyn ( now.jd, here.lon, here.lat );
+    SSCoordinates dyn ( now.jd, here.lon, here.lat );
     
 //    SSTime now ( SSDate ( kSSGregorian, -5.0, 1971, 12, 28, 11, 44, 0.0 ) );
     SSDate date = ( now );
@@ -524,7 +522,7 @@ int main ( int argc, const char *argv[] )
 
     double jde = now.getJulianEphemerisDate();
     SSOrbit orb = SSOrbit::getEarthOrbit ( jde );
-    SSMatrix orbMat = SSCoords::getEclipticMatrix ( SSCoords::getObliquity ( SSTime::kJ2000 ) );
+    SSMatrix orbMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
     
     SSVector pos, vel;
     orb.toPositionVelocity ( jde, pos, vel );
@@ -566,7 +564,7 @@ int main ( int argc, const char *argv[] )
     
     printf ( "Moon RA   = %02hd %02hd %05.2f\n", ra.hour, ra.min, ra.sec );
     printf ( "Moon Dec  = %c%02hd %02hd %04.1f\n", dec.sign, dec.deg, dec.min, dec.sec );
-    printf ( "Moon Dist = %f ER\n", equ.rad * SSDynamics::kKmPerAU );
+    printf ( "Moon Dist = %f ER\n", equ.rad * SSCoordinates::kKmPerAU );
 
     SSVector v1 ( 1.0, 2.0, 3.0 );
     SSVector v2 ( 4.0, 5.0, 6.0 );

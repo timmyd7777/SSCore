@@ -4,7 +4,7 @@
 //  Created by Tim DeBenedictis on 3/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
-#include "SSDynamics.hpp"
+#include "SSCoordinates.hpp"
 #include "SSImportSKY2000.hpp"
 
 #include <algorithm>
@@ -326,12 +326,12 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         
         double plx = strtofloat ( strPlx );
         if ( plx > 0.001 )
-            position.rad = SSDynamics::kLYPerParsec / plx;
+            position.rad = SSCoordinates::kLYPerParsec / plx;
         
         // Get radial velocity in km/sec and convert to fraction of light speed (light years per year).
         
         if ( ! strRV.empty() )
-            velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+            velocity.rad = strtofloat ( strRV ) / SSCoordinates::kLightKmPerSec;
         
         // Get Johnson V magnitude
         

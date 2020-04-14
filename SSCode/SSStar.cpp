@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <map>
 
-#include "SSDynamics.hpp"
+#include "SSCoordinates.hpp"
 #include "SSStar.hpp"
 
 // Constructs single star with a specific object type code.
@@ -100,11 +100,11 @@ void SSStar::sortIdentifiers ( void )
     sort ( _idents.begin(), _idents.end(), compareSSIdentifiers );
 }
 
-void SSStar::computeEphemeris ( SSDynamics &dyn )
+void SSStar::computeEphemeris ( SSCoordinates &coords )
 {
     if ( _parallax > 0.0 )
     {
-        _direction = _position + _velocity * ( dyn.jde - SSTime::kJ2000 );
+        _direction = _position + _velocity * ( coords.jed - SSTime::kJ2000 );
         _distance = _direction.magnitude();
         _direction /= _distance;
         _magnitude = _Vmag + 5.0 * log10 ( _distance * _parallax );
@@ -124,7 +124,7 @@ void SSStar::computeEphemeris ( SSDynamics &dyn )
 
 void SSStar::setFundamentalCoords ( SSSpherical coords )
 {
-    _parallax = isinf ( coords.rad ) ? 0.0 : SSDynamics::kLYPerParsec / coords.rad;
+    _parallax = isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
 
     if ( _parallax <= 0.0 || isinf ( coords.rad ) )
         coords.rad = 1.0;
@@ -144,7 +144,7 @@ void SSStar::setFundamentalCoords ( SSSpherical coords )
 
 void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 {
-    _parallax = isinf ( coords.rad ) ? 0.0 : SSDynamics::kLYPerParsec / coords.rad;
+    _parallax = isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
     _radvel = motion.rad;
 
     if ( _parallax <= 0.0 )
@@ -168,7 +168,7 @@ void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 SSSpherical SSStar::getFundamentalCoords ( void )
 {
     SSSpherical coords = _position.toSpherical();
-    coords.rad = ( isinf ( _parallax ) || _parallax == 0.0 ) ? HUGE_VAL : SSDynamics::kLYPerParsec / _parallax;
+    coords.rad = ( isinf ( _parallax ) || _parallax == 0.0 ) ? HUGE_VAL : SSCoordinates::kLYPerParsec / _parallax;
     return coords;
 }
 
@@ -206,8 +206,8 @@ string SSStar::toCSV1 ( void )
     csv += isinf ( _Vmag ) ? "," : format ( "%+.2f,", _Vmag );
     csv += isinf ( _Bmag ) ? "," : format ( "%+.2f,", _Bmag );
     
-    csv += isinf ( distance ) ? "," : format ( "%.3E,", distance * SSDynamics::kParsecPerLY );
-    csv += isinf ( _radvel ) ? "," : format ( "%+.1f,", _radvel * SSDynamics::kLightKmPerSec );
+    csv += isinf ( distance ) ? "," : format ( "%.3E,", distance * SSCoordinates::kParsecPerLY );
+    csv += isinf ( _radvel ) ? "," : format ( "%+.1f,", _radvel * SSCoordinates::kLightKmPerSec );
     
     // If spectrum contains a comma, put it in quotes.
     
@@ -356,8 +356,8 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     float vmag = fields[5].empty() ? HUGE_VAL : strtofloat ( fields[5] );
     float bmag = fields[6].empty() ? HUGE_VAL : strtofloat ( fields[6] );
     
-    float dist = fields[7].empty() ? HUGE_VAL : strtofloat ( fields[7] ) * SSDynamics::kLYPerParsec;
-    float radvel = fields[8].empty() ? HUGE_VAL : strtofloat ( fields[8] ) / SSDynamics::kLightKmPerSec;
+    float dist = fields[7].empty() ? HUGE_VAL : strtofloat ( fields[7] ) * SSCoordinates::kLYPerParsec;
+    float radvel = fields[8].empty() ? HUGE_VAL : strtofloat ( fields[8] ) / SSCoordinates::kLightKmPerSec;
     string spec = trim ( fields[9] );
     
     // For remaining fields, attempt to parse an identifier.

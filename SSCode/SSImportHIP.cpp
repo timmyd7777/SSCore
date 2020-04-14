@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "SSDynamics.hpp"
+#include "SSCoordinates.hpp"
 #include "SSImportHIP.hpp"
 
 // Cleans up some oddball conventions in the Hipparcos star name identification tables
@@ -86,7 +86,7 @@ int SSImportHIPNames ( const char *filename, SSIdentifierNameMap &nameMap )
 
 // Updates star coordinates and motion for space velocity from the input julian year (jyear) to 2000.0
 // and for precession from an input equinox to J2000, using a rotation matrix (pMatrix) as returned by
-// SSCoords::getPrecessionMatrxx() - but use transpose of matrix returned by that function!
+// SSCoordinates::getPrecessionMatrxx() - but use transpose of matrix returned by that function!
 // Pass null pointer for pMatrix if coords and motion alread refer to equinox J2000.
 // This function uses a rigorous transformation which is accurate in all parts of the sky.
 
@@ -174,7 +174,7 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
         
         float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
         if ( plx > 0.0 )
-            position.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
+            position.rad = 1000.0 * SSCoordinates::kLYPerParsec / plx;
         
         // Convert proper motion to radians per year
         
@@ -187,7 +187,7 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
         // Convert radial velocity from km/sec to fraction of light speed
         
         if ( ! strRV.empty() )
-            velocity.rad = strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+            velocity.rad = strtofloat ( strRV ) / SSCoordinates::kLightKmPerSec;
         
         // Get Johnson V magnitude; get B magnitude from B-V color index.
         
@@ -309,7 +309,7 @@ int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
         {
             float plx = strtofloat ( strPlx );
             if ( plx > 1.0 )
-                position.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
+                position.rad = 1000.0 * SSCoordinates::kLYPerParsec / plx;
         }
         
         // Add single Hipparcos identifier and empty name string.
@@ -432,7 +432,7 @@ int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap 
         
         float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
         if ( plx > 0.0 )
-            position.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
+            position.rad = 1000.0 * SSCoordinates::kLYPerParsec / plx;
         
         // Set up name and identifier vectors.
 

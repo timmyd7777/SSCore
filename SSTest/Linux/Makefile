@@ -3,8 +3,7 @@ SOURCEDIR=../../SSCode
 SOURCES=../SSTest.cpp \
 $(SOURCEDIR)/SSAngle.cpp \
 $(SOURCEDIR)/SSConstellation.cpp \
-$(SOURCEDIR)/SSCoords.cpp \
-$(SOURCEDIR)/SSDynamics.cpp \
+$(SOURCEDIR)/SSCoordinates.cpp \
 $(SOURCEDIR)/SSIdentifier.cpp \
 $(SOURCEDIR)/SSImportMPC.cpp \
 $(SOURCEDIR)/SSJPLDEphemeris.cpp \
@@ -21,8 +20,7 @@ $(SOURCEDIR)/SSVector.cpp \
 HEADERS=\
 $(SOURCEDIR)/SSAngle.hpp \
 $(SOURCEDIR)/SSConstellation.cpp \
-$(SOURCEDIR)/SSCoords.hpp \
-$(SOURCEDIR)/SSDynamics.hpp \
+$(SOURCEDIR)/SSCoordinates.hpp \
 $(SOURCEDIR)/SSIdentifier.hpp \
 $(SOURCEDIR)/SSImportMPC.hpp \
 $(SOURCEDIR)/SSJPLDEphemeris.hpp \

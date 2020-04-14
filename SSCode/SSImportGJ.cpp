@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "SSDynamics.hpp"
+#include "SSCoordinates.hpp"
 #include "SSImportHIP.hpp"
 #include "SSImportGJ.hpp"
 
@@ -85,7 +85,7 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 
     // Set up matrix for precessing B1950 coordinates and proper motion to J2000
     
-    SSMatrix precession = SSCoords::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
+    SSMatrix precession = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
     
     // Read file line-by-line until we reach end-of-file
 
@@ -164,11 +164,11 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         
         float plx = strtofloat ( strPlx );
         if ( plx > 1.0 )
-            coords.rad = 1000.0 * SSDynamics::kLYPerParsec / plx;
+            coords.rad = 1000.0 * SSCoordinates::kLYPerParsec / plx;
         
         // Get radial velocity in km/sec and convert to light speed.
         
-        motion.rad = strRV.empty() ? HUGE_VAL : strtofloat ( strRV ) / SSDynamics::kLightKmPerSec;
+        motion.rad = strRV.empty() ? HUGE_VAL : strtofloat ( strRV ) / SSCoordinates::kLightKmPerSec;
         
         // Get Johnson V magnitude
         
@@ -392,7 +392,7 @@ int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &sta
         SSStarPtr pHIPStar = SSGetStarPtr ( SSIdentifierToObject ( hipID, map, hipStars ) );
         if ( pHIPStar != nullptr )
         {
-            coords.rad = SSDynamics::kLYPerParsec / pHIPStar->getParallax();
+            coords.rad = SSCoordinates::kLYPerParsec / pHIPStar->getParallax();
             motion.rad = pHIPStar->getRadVel();
 
             vmag = pHIPStar->getVMagnitude();

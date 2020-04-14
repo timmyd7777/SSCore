@@ -12,6 +12,7 @@
 
 #include "SSObject.hpp"
 #include "SSOrbit.hpp"
+#include "SSCoordinates.hpp"
 
 enum SSPlanetID
 {
@@ -107,7 +108,7 @@ public:
     
     static void computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
     void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
-    void computeEphemeris ( SSDynamics &dyn );
+    void computeEphemeris ( SSCoordinates &coords );
     
     // imports/exports from/to CSV-format text string
     

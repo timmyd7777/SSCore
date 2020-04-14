@@ -89,7 +89,7 @@ public:
     virtual string getName ( int i );                           // returns copy of i-th name string
     virtual SSIdentifier getIdentifier ( SSCatalog cat );       // returns identifier in the specified catalog, or null identifier if object has none in that catalog.
     virtual bool addIdentifier ( SSIdentifier ident );          // adds the specified identifier to the object, only if the ident is valid and not already present.
-    virtual void computeEphemeris ( class SSDynamics &dyn );    // computes direction, distance, magnitude for the given dynamical state
+    virtual void computeEphemeris ( class SSCoordinates &dyn );    // computes direction, distance, magnitude for the given dynamical state
 
     virtual string toCSV ( void );
 };

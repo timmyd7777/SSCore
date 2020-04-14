@@ -20,8 +20,7 @@ add_library( # Sets the name of the library.
              native-lib.cpp
              ../../../../../../SSCode/SSAngle.cpp
              ../../../../../../SSCode/SSConstellation.cpp
-             ../../../../../../SSCode/SSCoords.cpp
-             ../../../../../../SSCode/SSDynamics.cpp
+             ../../../../../../SSCode/SSCoordinates.cpp
              ../../../../../../SSCode/SSIdentifier.cpp
              ../../../../../../SSCode/SSImportMPC.cpp
              ../../../../../../SSCode/SSJPLDEphemeris.cpp
