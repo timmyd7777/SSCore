@@ -7,11 +7,21 @@
 #include "SSPSEphemeris.hpp"
 #include "SSTime.hpp"
 
+// Computes Sun's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
+
 SSSpherical SSPSEphemeris::sun ( double jed, SSVector &pos, SSVector &vel )
 {
     pos = vel = SSVector ( 0.0, 0.0, 0.0 );
     return SSSpherical ( 0.0, 0.0, 0.0 );
 }
+
+// Computes Mercury's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
 
 // For Mercury, Venus, Earth, and Mars we can ignore all perturbations.
 
@@ -20,20 +30,40 @@ SSSpherical SSPSEphemeris::mercury ( double jed, SSVector &pos, SSVector &vel )
     return toEcliptic ( mercuryOrbit ( jed ), pos, vel );
 }
 
+// Computes Venus's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
+
 SSSpherical SSPSEphemeris::venus ( double jed, SSVector &pos, SSVector &vel )
 {
     return toEcliptic ( venusOrbit ( jed ), pos, vel );
 }
+
+// Computes Earth's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
 
 SSSpherical SSPSEphemeris::earth ( double jed, SSVector &pos, SSVector &vel )
 {
     return toEcliptic ( earthOrbit ( jed ), pos, vel );
 }
 
+// Computes Mars's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
+
 SSSpherical SSPSEphemeris::mars ( double jed, SSVector &pos, SSVector &vel )
 {
     return toEcliptic ( marsOrbit ( jed ), pos, vel );
 }
+
+// Computes Jupiter's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
 
 SSSpherical SSPSEphemeris::jupiter ( double jed, SSVector &pos, SSVector &vel )
 {
@@ -57,6 +87,11 @@ SSSpherical SSPSEphemeris::jupiter ( double jed, SSVector &pos, SSVector &vel )
     pos = SSVector ( ecl );
     return ecl;
 }
+
+// Computes Saturn's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
 
 SSSpherical SSPSEphemeris::saturn ( double jed, SSVector &pos, SSVector &vel )
 {
@@ -83,6 +118,11 @@ SSSpherical SSPSEphemeris::saturn ( double jed, SSVector &pos, SSVector &vel )
     return ecl;
 }
 
+// Computes Uranus's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
+
 SSSpherical SSPSEphemeris::uranus ( double jed, SSVector &pos, SSVector &vel )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
@@ -103,6 +143,11 @@ SSSpherical SSPSEphemeris::uranus ( double jed, SSVector &pos, SSVector &vel )
     return ecl;
 }
 
+// Computes Neptune's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
+
 SSSpherical SSPSEphemeris::neptune ( double jed, SSVector &pos, SSVector &vel )
 {
     // the "great Uranus-Neptune term", which has a period of 4220 years and an amplitude of about one degree
@@ -110,6 +155,13 @@ SSSpherical SSPSEphemeris::neptune ( double jed, SSVector &pos, SSVector &vel )
     
     return toEcliptic ( neptuneOrbit ( jed ), pos, vel );
 }
+
+// Computes Pluto's heliocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of AU and AU per day. Returns equivalent heliocentric spherical coordinates:
+// ecliptic longitude and latitude in radians, and heliocentic distance in AU.
+// The formulae below are a curve-fit to numerical integration, and are valid
+// from about 1800 to 2100. Pluto's velocity is not computed.
 
 SSSpherical SSPSEphemeris::pluto ( double jed, SSVector &pos, SSVector &vel )
 {
@@ -144,6 +196,12 @@ SSSpherical SSPSEphemeris::pluto ( double jed, SSVector &pos, SSVector &vel )
     pos = SSVector ( ecl );
     return ecl;
 }
+
+// Computes Moon's geocentric position (pos) and velocity (vel) at a specific
+// Julian Ephemersi Date (jed) referred to the ecliptic of that date, in units
+// of Earth-radii and Earth-radii per day. Returns equivalent geocentric spherical
+// coordinates: ecliptic longitude and latitude in radians, and geocentric distance
+// in Earth-radii.
 
 SSSpherical SSPSEphemeris::moon ( double jed, SSVector &pos, SSVector &vel )
 {
@@ -190,6 +248,9 @@ SSSpherical SSPSEphemeris::moon ( double jed, SSVector &pos, SSVector &vel )
     return ecl;
 }
 
+// Returns Mercury's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
+
 SSOrbit SSPSEphemeris::mercuryOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
@@ -200,8 +261,11 @@ SSOrbit SSPSEphemeris::mercuryOrbit ( double jed )
     double N = mod2pi ( degtorad (  48.3313 + 3.24587e-5 * d ) );
     double w = mod2pi ( degtorad (  29.1241 + 1.01444e-5 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 4.0923344368 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 4.0923344368 ) );
 }
+
+// Returns Venus's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
 
 SSOrbit SSPSEphemeris::venusOrbit ( double jed )
 {
@@ -213,8 +277,11 @@ SSOrbit SSPSEphemeris::venusOrbit ( double jed )
     double N = mod2pi ( degtorad ( 76.6799 + 2.46590E-5 * d ) );
     double w = mod2pi ( degtorad ( 54.8910 + 1.38374E-5 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 1.6021302244 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 1.6021302244 ) );
 }
+
+// Returns Earth's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
 
 SSOrbit SSPSEphemeris::earthOrbit ( double jed )
 {
@@ -224,10 +291,13 @@ SSOrbit SSPSEphemeris::earthOrbit ( double jed )
     double i = 0.0;
     double M = mod2pi ( degtorad ( 356.0470 + 0.9856002585 * d ) );
     double N = 0.0;
-    double w = mod2pi ( degtorad ( 282.9404 + 4.70935e-5 * d ) );   // TODO: should this be 102.9404 + ... ???
+    double w = mod2pi ( degtorad ( 102.9404 + 4.70935e-5 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 0.9856002585 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 0.9856002585 ) );
 }
+
+// Returns Mars's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
 
 SSOrbit SSPSEphemeris::marsOrbit ( double jed )
 {
@@ -239,8 +309,11 @@ SSOrbit SSPSEphemeris::marsOrbit ( double jed )
     double N = mod2pi ( degtorad (  49.5574 + 2.11081e-5 * d ) );
     double w = mod2pi ( degtorad ( 286.5016 + 2.92961E-5 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 0.5240207766 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 0.5240207766 ) );
 }
+
+// Returns Jupiter's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
 
 SSOrbit SSPSEphemeris::jupiterOrbit ( double jed )
 {
@@ -252,8 +325,11 @@ SSOrbit SSPSEphemeris::jupiterOrbit ( double jed )
     double N = mod2pi ( degtorad ( 100.4542 + 2.76854E-5 * d ) );
     double w = mod2pi ( degtorad ( 273.8777 + 1.64505E-5 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 0.0830853001 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 0.0830853001 ) );
 }
+
+// Returns Saturn's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
 
 SSOrbit SSPSEphemeris::saturnOrbit ( double jed )
 {
@@ -265,8 +341,11 @@ SSOrbit SSPSEphemeris::saturnOrbit ( double jed )
     double N = mod2pi ( degtorad ( 113.6634 + 2.38980E-5 * d ) );
     double w = mod2pi ( degtorad ( 339.3939 + 2.97661E-5 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 0.0334442282 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 0.0334442282 ) );
 }
+
+// Returns Uranus's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
 
 SSOrbit SSPSEphemeris::uranusOrbit ( double jed )
 {
@@ -278,8 +357,11 @@ SSOrbit SSPSEphemeris::uranusOrbit ( double jed )
     double N = mod2pi ( degtorad (  74.0005 + 1.3978E-5 * d ) );
     double w = mod2pi ( degtorad (  96.6612 + 3.0565E-5 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 0.011725806 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 0.011725806 ) );
 }
+
+// Returns Neptune's mean heliocentric orbital elements referred to the ecliptic
+// of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
 
 SSOrbit SSPSEphemeris::neptuneOrbit ( double jed )
 {
@@ -291,8 +373,11 @@ SSOrbit SSPSEphemeris::neptuneOrbit ( double jed )
     double N = mod2pi ( degtorad ( 131.7806 + 3.0173E-5 * d ) );
     double w = mod2pi ( degtorad ( 272.8461 - 6.027E-6 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 0.005995147 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 0.005995147 ) );
 }
+
+// Returns Moon's mean geocentric orbital elements referred to the ecliptic
+// of Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in Earth-radii.
 
 SSOrbit SSPSEphemeris::moonOrbit ( double jed )
 {
@@ -304,7 +389,7 @@ SSOrbit SSPSEphemeris::moonOrbit ( double jed )
     double N = mod2pi ( degtorad ( 125.1228 -  0.0529538083 * d ) );
     double w = mod2pi ( degtorad ( 318.0634 +  0.1643573223 * d ) );
 
-    return SSOrbit ( jed, a * 1.0 - e, e, i, w, N, M, degtorad ( 13.0649929509 ) );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, N, M, degtorad ( 13.0649929509 ) );
 }
 
 // Converts ecliptic spherical coordinates (ecliptic) at a particular Julian Ephemeris Date (jed)

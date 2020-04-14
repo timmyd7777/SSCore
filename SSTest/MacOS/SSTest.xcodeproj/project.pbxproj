@@ -26,6 +26,7 @@
 		A378CE9B243A482000F4B018 /* SSTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A378CE9A243A482000F4B018 /* SSTest.cpp */; };
 		A3AAE7B3242972E70035E668 /* SSImportNGCIC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3AAE7B1242972E70035E668 /* SSImportNGCIC.cpp */; };
 		A3BFC838242BEDB2001CBE62 /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */; };
+		A3ED2F90244614A00040ECE5 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */; };
 		A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */; };
 /* End PBXBuildFile section */
 
@@ -80,6 +81,8 @@
 		A3AAE7B2242972E70035E668 /* SSImportNGCIC.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSImportNGCIC.hpp; sourceTree = "<group>"; };
 		A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSConstellation.cpp; sourceTree = "<group>"; };
 		A3BFC837242BEDB2001CBE62 /* SSConstellation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSConstellation.hpp; sourceTree = "<group>"; };
+		A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSPSEphemeris.cpp; sourceTree = "<group>"; };
+		A3ED2F8F244614A00040ECE5 /* SSPSEphemeris.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSPSEphemeris.hpp; sourceTree = "<group>"; };
 		A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportGJ.cpp; sourceTree = "<group>"; };
 		A3F759A7242EEB9300FCDE16 /* SSImportGJ.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSImportGJ.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,6 +136,8 @@
 				A358D99C24147D3E009078A6 /* SSOrbit.hpp */,
 				A30545C3241EE07900197F8A /* SSPlanet.cpp */,
 				A30545C4241EE07900197F8A /* SSPlanet.hpp */,
+				A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */,
+				A3ED2F8F244614A00040ECE5 /* SSPSEphemeris.hpp */,
 				A30545C6241EF45000197F8A /* SSStar.cpp */,
 				A30545C7241EF45000197F8A /* SSStar.hpp */,
 				4703A8862404EF7F00BDD11C /* SSTime.cpp */,
@@ -219,6 +224,7 @@
 				4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */,
 				A358CF12243779F200B39D5C /* SSJPLDEphemeris.cpp in Sources */,
 				4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */,
+				A3ED2F90244614A00040ECE5 /* SSPSEphemeris.cpp in Sources */,
 				A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */,
 				A3BFC838242BEDB2001CBE62 /* SSConstellation.cpp in Sources */,
 				A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */,

@@ -78,6 +78,7 @@ protected:
 
     void computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
+    static void computePSPlanetMoonPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
 
     float computeAsteroidMagnitude ( double rad, double dist, double phase, double hmag, double gmag );
     float computeCometMagnitude ( double rad, double dist, double hmag, double kmag );

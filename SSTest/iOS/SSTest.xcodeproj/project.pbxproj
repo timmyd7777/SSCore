@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A30485FD243CCFF300052789 /* SSCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30485FC243CCFF300052789 /* SSCore.cpp */; };
 		A31CDC05243B76A800573D03 /* SSData in Resources */ = {isa = PBXBuildFile; fileRef = A31CDC04243B76A800573D03 /* SSData */; };
+		A322CA7F24467485004E0670 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A322CA7D24467485004E0670 /* SSPSEphemeris.cpp */; };
 		A3EBE0ED243AE4E800B47EAE /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0C7243AE4E800B47EAE /* SSObject.cpp */; };
 		A3EBE0EE243AE4E800B47EAE /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */; };
 		A3EBE0EF243AE4E800B47EAE /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */; };
@@ -43,6 +44,8 @@
 		A30485FC243CCFF300052789 /* SSCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSCore.cpp; sourceTree = "<group>"; };
 		A30DBCCA243AE47500E9CC82 /* SSTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SSTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A31CDC04243B76A800573D03 /* SSData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SSData; path = ../../SSData; sourceTree = "<group>"; };
+		A322CA7D24467485004E0670 /* SSPSEphemeris.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSPSEphemeris.cpp; sourceTree = "<group>"; };
+		A322CA7E24467485004E0670 /* SSPSEphemeris.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSPSEphemeris.hpp; sourceTree = "<group>"; };
 		A35E293A243B73B400089CFD /* SSTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SSTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		A3EBE0C5243AE4E800B47EAE /* SSVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSVector.hpp; sourceTree = "<group>"; };
 		A3EBE0C6243AE4E800B47EAE /* SSImportMPC.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportMPC.hpp; sourceTree = "<group>"; };
@@ -164,6 +167,8 @@
 				A3EBE0D4243AE4E800B47EAE /* SSOrbit.hpp */,
 				A3EBE0E3243AE4E800B47EAE /* SSPlanet.cpp */,
 				A3EBE0D8243AE4E800B47EAE /* SSPlanet.hpp */,
+				A322CA7D24467485004E0670 /* SSPSEphemeris.cpp */,
+				A322CA7E24467485004E0670 /* SSPSEphemeris.hpp */,
 				A3EBE0E2243AE4E800B47EAE /* SSStar.cpp */,
 				A3EBE0D7243AE4E800B47EAE /* SSStar.hpp */,
 				A3EBE0CE243AE4E800B47EAE /* SSTime.cpp */,
@@ -270,6 +275,7 @@
 				A30485FD243CCFF300052789 /* SSCore.cpp in Sources */,
 				A3EBE0F0243AE4E800B47EAE /* SSJPLDEphemeris.cpp in Sources */,
 				A3EBE102243AE69800B47EAE /* SSTest.cpp in Sources */,
+				A322CA7F24467485004E0670 /* SSPSEphemeris.cpp in Sources */,
 				A3EBE0ED243AE4E800B47EAE /* SSObject.cpp in Sources */,
 				A3EBE0FE243AE4E800B47EAE /* SSMatrix.cpp in Sources */,
 				A3EBE0FD243AE4E800B47EAE /* SSImportMPC.cpp in Sources */,

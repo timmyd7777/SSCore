@@ -6,8 +6,12 @@
 
 #include "SSCoordinates.hpp"
 #include "SSPlanet.hpp"
+#include "SSPSEphemeris.hpp"
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
+
+static bool _lighttime = false;
+static bool _aberration = true;
 
 SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
 {
@@ -52,7 +56,9 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
 {
     if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
         return;
- 
+    
+    computePSPlanetMoonPositionVelocity ( id, jed, lt, pos, vel );
+#if 0
     static SSMatrix orbMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
     SSOrbit orb;
     
@@ -78,6 +84,53 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
     orb.toPositionVelocity ( jed - lt, pos, vel );
     pos = orbMat.multiply ( pos );
     vel = orbMat.multiply ( vel );
+#endif
+}
+
+void SSPlanet::computePSPlanetMoonPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )
+{
+    static double orbMatJED = 0.0;
+    static SSMatrix orbMat;
+    
+    if ( jed != orbMatJED )
+    {
+        SSMatrix eclMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( jed ) );
+        SSMatrix preMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
+        orbMat = preMat * eclMat;
+        orbMatJED = jed;
+    }
+
+    SSSpherical ecl;
+    
+    if ( id == kSun )
+        ecl = SSPSEphemeris::sun ( jed - lt, pos, vel );
+    if ( id == kMercury )
+        ecl = SSPSEphemeris::mercury ( jed - lt, pos, vel );
+    else if ( id == kVenus )
+        ecl = SSPSEphemeris::venus ( jed - lt, pos, vel );
+    else if ( id == kEarth )
+        ecl = SSPSEphemeris::earth ( jed - lt, pos, vel );
+    else if ( id == kMars )
+        ecl = SSPSEphemeris::mars ( jed - lt, pos, vel );
+    else if ( id == kJupiter )
+        ecl = SSPSEphemeris::jupiter ( jed - lt, pos, vel );
+    else if ( id == kSaturn )
+        ecl = SSPSEphemeris::saturn ( jed - lt, pos, vel );
+    else if ( id == kUranus )
+        ecl = SSPSEphemeris::uranus ( jed - lt, pos, vel );
+    else if ( id == kNeptune )
+        ecl = SSPSEphemeris::neptune ( jed - lt, pos, vel );
+    else if ( id == kPluto )
+        ecl = SSPSEphemeris::pluto ( jed - lt, pos, vel );
+    else if ( id == kLuna )
+    {
+        ecl = SSPSEphemeris::moon ( jed - lt, pos, vel );
+        pos *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+        vel *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+    }
+    
+    pos = orbMat * pos;
+    vel = orbMat * vel;
 }
 
 // Computes asteroid or comet's heliocentric position and velocity vectors in AU and AU/day.
@@ -103,16 +156,23 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     static SSVector primaryPos[10], primaryVel[10];
     static double primaryJED[10] = { 0.0 };
 
-    // Special case: use JPL ephemeris to compute Earth's Moon's heliocentric position and velocity directly.
+    // Special case for Moon: use JPL ephemeris to compute heliocentric position and velocity directly;
+    // or if that fails, use PS ephemeris to compute Moon's geocentric position and velocity.
     
     if ( _id.identifier() == kLuna )
+    {
         if ( SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
             return;
+        
+        computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
+    }
+    else
+    {
+        // Compute moon's position and velocity relative to its primary planet.
+        
+        computeMinorPlanetPositionVelocity ( jed, lt, pos, vel );
+    }
     
-    // Compute moon's position and velocity relative to its primary planet.
-    
-    computeMinorPlanetPositionVelocity ( jed, lt, pos, vel );
-
     // Get primary planet identifier.
     
     int p = (int) _id.identifier() / 100;
@@ -260,9 +320,12 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     // Compute apparent direction vector and distance to planet from observer's position.
     // Apply aberration of light.
 
-    computePositionVelocity ( coords.jed, lt, _position, _velocity );
+    if ( _lighttime )
+        computePositionVelocity ( coords.jed, lt, _position, _velocity );
     _direction = ( _position - coords.obsPos ).normalize ( _distance );
-    _direction = coords.addAberration ( _direction );
+    
+    if ( _aberration )
+        _direction = coords.addAberration ( _direction );
     
     // Compute planet's phase angle and visual magnitude.
     

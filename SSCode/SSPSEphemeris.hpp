@@ -19,6 +19,10 @@
 class SSPSEphemeris
 {
 public:
+    
+    // compute heliocentric position and velocity at Julian Ephemeris Date
+    // in AU and AU/day referred to ecliptic of date; return ecliptic lon, lat, dist.
+    
     static SSSpherical sun ( double jed, SSVector &pos, SSVector &vel );
     static SSSpherical mercury ( double jed, SSVector &pos, SSVector &vel );
     static SSSpherical venus ( double jed, SSVector &pos, SSVector &vel );
@@ -29,8 +33,11 @@ public:
     static SSSpherical uranus ( double jed, SSVector &pos, SSVector &vel );
     static SSSpherical neptune ( double jed, SSVector &pos, SSVector &vel );
     static SSSpherical pluto ( double jed, SSVector &pos, SSVector &vel );
-    static SSSpherical moon ( double jed, SSVector &pos, SSVector &vel );
+    static SSSpherical moon ( double jed, SSVector &pos, SSVector &vel );   // geocentric, in Earth-radii and Earth-radii per day!
 
+    // return mean helioncentric orbit elements at Julian Ephemeris Date
+    // referred to ecliptic of date; q in AU except for Moon.
+    
     static SSOrbit mercuryOrbit ( double jed );
     static SSOrbit venusOrbit ( double jed );
     static SSOrbit earthOrbit ( double jed );
@@ -39,8 +46,10 @@ public:
     static SSOrbit saturnOrbit ( double jed );
     static SSOrbit uranusOrbit ( double jed );
     static SSOrbit neptuneOrbit ( double jed );
-    static SSOrbit moonOrbit ( double jed );
+    static SSOrbit moonOrbit ( double jed );    // geocentric; q in Earth-radii
 
+    // internal conversion routines
+    
     static SSSpherical toEcliptic ( SSOrbit orbit, SSVector &pos, SSVector &vel );
     static SSSpherical toEcliptic ( SSOrbit orbit );
     static SSVector toEquatorial ( SSSpherical coords, double jed, double epoch );

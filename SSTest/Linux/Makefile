@@ -11,6 +11,7 @@ $(SOURCEDIR)/SSMatrix.cpp \
 $(SOURCEDIR)/SSObject.cpp \
 $(SOURCEDIR)/SSOrbit.cpp \
 $(SOURCEDIR)/SSPlanet.cpp \
+$(SOURCEDIR)/SSPSEphemeris.cpp \
 $(SOURCEDIR)/SSStar.cpp \
 $(SOURCEDIR)/SSTime.cpp \
 $(SOURCEDIR)/SSTLE.cpp \
@@ -28,6 +29,7 @@ $(SOURCEDIR)/SSMatrix.hpp \
 $(SOURCEDIR)/SSObject.hpp \
 $(SOURCEDIR)/SSOrbit.hpp \
 $(SOURCEDIR)/SSPlanet.hpp \
+$(SOURCEDIR)/SSPSEphemeris.hpp \
 $(SOURCEDIR)/SSStar.hpp \
 $(SOURCEDIR)/SSTime.hpp \
 $(SOURCEDIR)/SSTLE.hpp \
