@@ -10,7 +10,7 @@
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
 
-static bool _lighttime = false;
+static bool _lighttime = true;
 static bool _aberration = true;
 
 SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
