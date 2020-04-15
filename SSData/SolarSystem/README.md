@@ -101,6 +101,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 
 - **_visual.txt_** is the [Visual](http://www.celestrak.com/NORAD/elements/visual.txt) (brightest) satellite list from [CelesTrak](http://www.celestrak.com)
 - **_all.txt_** is the [complete](https://www.n2yo.com/tle2/3line.tle) satellite list from [N2YO](https://www.n2yo.com)
+- **_mcnames.txt_** is Mike McCants' satellite [names file](https://www.prismnet.com/~mmccants/tles/mcnames.zip), which contains satellite size and magnitude information.
 
 **Revision History**
 

@@ -551,3 +551,100 @@ int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites 
 //    fclose ( file );
     return numSats;
 }
+
+
+// Imports a Mike McCants satellite names file, here:
+// https://www.prismnet.com/~mmccants/tles/mcnames.zip
+// into a map of McName structs indexed by NORAD number.
+// Returns number of McNames imported from file.
+
+int SSImportMcNames ( const string &filename, McNameMap &mcnames )
+{
+    // Open file; return on failure.
+
+    FILE *file = fopen ( filename.c_str(), "r" );
+    if ( ! file )
+        return 0;
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int nMcNames = 0;
+    
+    while ( fgetline ( file, line ) )
+    {
+        McName mcname = { 0, "", 0.0, 0.0, 0.0, 0.0 };
+        
+        // Attempt to read McName from line.
+        
+        size_t len = line.length();
+        if ( len < 5 )
+            continue;
+        
+        mcname.norad = strtoint ( line.substr ( 0, 5 ) );
+        if ( mcname.norad == 0 )
+            continue;
+
+        mcname.name = len > 22 ? trim ( line.substr ( 6, 17 ) ) : "";
+        mcname.len = len > 26 ? strtofloat ( line.substr ( 22, 4 ) ) : 0.0;
+        mcname.wid = len > 31 ? strtofloat ( line.substr ( 27, 4 ) ) : 0.0;
+        mcname.dep = len > 36 ? strtofloat ( line.substr ( 32, 4 ) ) : 0.0;
+        mcname.mag = len > 41 ? strtofloat ( line.substr ( 37, 4 ) ) : 0.0;
+        
+        if ( mcname.mag == 0.0 )
+            mcname.mag = HUGE_VAL;
+        
+        mcnames.insert ( { mcname.norad, mcname } );
+        nMcNames++;
+    }
+    
+    // Close file. Return number of objects added to object vector.
+
+    fclose ( file );
+    return nMcNames;
+}
+
+// Imports satellite standard magnitudes and sizes from Mike McCants satellite
+// names file, found here: https://www.prismnet.com/~mmccants/tles/mcnames.zip
+// Magnitudes and sizes are inserted into the vector of SSObjects (objects),
+// which may contain any solar system objects in addition to satellites.
+// Returns number of McCants magnitudes & sizes successfully imported.
+
+int SSImportMcNames ( const string &filename, SSObjectVec &objects )
+{
+    McNameMap mcnamemap;
+    
+    // First read the McNames file; return 0 if we fail.
+    
+    int n = SSImportMcNames ( filename, mcnamemap );
+    if ( n == 0 || mcnamemap.size() == 0 )
+        return 0;
+    
+    // For each object in the solar system object vector...
+    
+    n = 0;
+    for ( SSObjectPtr pObj : objects )
+    {
+        // If the object is not a satellite, continue
+        
+        SSSatellite *pSat = SSGetSatellitePtr ( pObj );
+        if ( pSat == nullptr )
+            continue;
+        
+        // Get satellite's NORAD number. Look for McName record with same number.
+        // If we find one, copy McName magnitude and size into satellite.
+        
+        int norad = pSat->getTLE().norad;
+        McName mcname = mcnamemap[norad];
+        if ( mcname.norad == norad )
+        {
+            pSat->setHMagnitude ( mcname.mag );
+            pSat->setRadius ( mcname.len / 1000.0 );
+            n++;
+        }
+    }
+    
+    // Return total number of McName records matched.
+    
+    return n;
+}

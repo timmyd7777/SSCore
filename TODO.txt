@@ -9,19 +9,13 @@ SSAngle
 
 SSCoords
 --------
-- consolidate all conversions to a single convert() routine.
+- implement rise/transit/set time computation (?)
 
 SSConstellation
 ---------------
 - add routine to find constellation from (RA,Dec) coords
 - deal with precession from B1875 -> J2000 consistently
 - interpolate constellation boundaries when reading from file
-
-SSDynamics
-----------
-- implement rise/transit/set time computation
-- needs a lot of work to unify ephemeris computation from different sources
-- rename to SSPhysics?
 
 SSIdentifier
 ------------
@@ -48,19 +42,21 @@ SSObject
   
 SSPlanet
 --------
-- add SSSatellite subclass
+- needs general cleanup.
+- Move #ifedf'd out code in computeMajorPlanetPositionVelocity to SSOrbit?
 
 SSStar
 ------
 - add SSBinaryStar subclass.
 - add binary star orbit catalog import
+- star absolute to apparent magnitudes and vice-versa
 
 SSTLE
 -----
 - add TLE and revolution numbers to exported TLEs so they exactly match the imported versions.
 - deal with argp more consistently, or get rid of it completely
 - add EFECtoECI() and ECItoECEF routines()
-- add import routines for McCants magnitude files, JE9PEL amateur radio data
+- add import routines for JE9PEL amateur radio data
 - add iridium flare computation
 
 SSTime
@@ -76,16 +72,17 @@ SSVector
 
 Other
 -----
-- implement routines for computing solar system object visual magnitudes
-- star absolute to apparent magnitudes and vice-versa
 - implement ephemeris routines for major solar system moons
 - implement VSOP2013 and ELPMPP02
-- implement P.S. low-precision planetary position computation routines
 - find better means for handling enumerated types across all languages
 
-Building and Running
---------------------
-- Android test will need replacement routine for getline(), etc. that can
-  read data files from APK and OBB.  Add JNI.
+Android
+-------
+- android_fopen() should only use asset manager if file path starts with "assets:"
+- additional JNI for SSCoordinates, SSStar, SSPlanet
+
+iOS
+---
+- additional C wrapper for SSCoordinates, SSStar, SSPlanet
 
 -Tim DeBenedictis (timd@southernstars.com) 10 April 2020

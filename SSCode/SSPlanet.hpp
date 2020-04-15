@@ -148,6 +148,20 @@ typedef SSSatellite *SSSatellitePtr;
 SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr );
 SSSatellitePtr SSGetSatellitePtr ( SSObjectPtr ptr );
 
+// Holds satellite size and magnitude data from Mike McCants' satellite names file.
+
+struct McName
+{
+    int    norad;         // NORAD number
+    string name;          // Spacecraft name
+    float  len, wid, dep; // Dimensions in meters
+    float  mag;           // Magnitude at 1000 km range, 50% illumination.
+};
+
+typedef map<int,McName> McNameMap;
+
 int SSImportSatellitesFromTLE ( const string &path, SSObjectVec &satellites );
+int SSImportMcNames ( const string &path, McNameMap &mcnames );
+int SSImportMcNames ( const string &filename, SSObjectVec &objects );
 
 #endif /* SSPlanet_hpp */

@@ -235,6 +235,9 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
     int nsat = SSImportSatellitesFromTLE ( inputDir + "/SolarSystem/Satellites/visual.txt", solsys );
     cout << "Imported " << nsat << " artificial satellites." << endl;
 
+    int nnames = SSImportMcNames ( inputDir + "/SolarSystem/Satellites/mcnames.txt", solsys );
+    cout << "Imported " << nnames << " McCants satellite names." << endl;
+
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
     SSTime time = SSTime ( date ); // SSTime::fromSystem();
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
