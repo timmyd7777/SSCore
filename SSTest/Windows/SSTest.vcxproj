@@ -33,6 +33,7 @@
     <ClCompile Include="..\..\SSCode\SSObject.cpp" />
     <ClCompile Include="..\..\SSCode\SSOrbit.cpp" />
     <ClCompile Include="..\..\SSCode\SSPlanet.cpp" />
+    <ClCompile Include="..\..\SSCode\SSPSEphemeris.cpp" />
     <ClCompile Include="..\..\SSCode\SSStar.cpp" />
     <ClCompile Include="..\..\SSCode\SSTime.cpp" />
     <ClCompile Include="..\..\SSCode\SSTLE.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\..\SSCode\SSObject.hpp" />
     <ClInclude Include="..\..\SSCode\SSOrbit.hpp" />
     <ClInclude Include="..\..\SSCode\SSPlanet.hpp" />
+    <ClInclude Include="..\..\SSCode\SSPSEphemeris.hpp" />
     <ClInclude Include="..\..\SSCode\SSStar.hpp" />
     <ClInclude Include="..\..\SSCode\SSTime.hpp" />
     <ClInclude Include="..\..\SSCode\SSTLE.hpp" />
