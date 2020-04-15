@@ -5,7 +5,7 @@
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
 // This class reads JPL's binary DE43x series of ephemeris files
-// and computes very fast, accurate lunar and planetary positions from them.
+// and computes very fast, sub-arcsecond-accurate lunar and planetary positions from them.
 
 #ifndef SSJPLEphemeris_hpp
 #define SSJPLEphemeris_hpp

@@ -42,6 +42,10 @@ SSCoordinates::SSCoordinates ( double jd, double lon, double lat, double alt )
     
     geocentric = fromEquatorial ( geocentric );
     obsPos = obsPos.add ( geocentric / kKmPerAU );
+    
+    starMotion = true;
+    aberration = true;
+    lighttime = true;
 }
 
 // Computes constants needed to compute precession from J2000 to a specific Julian Date (jd).
@@ -335,13 +339,13 @@ SSSpherical SSCoordinates::toGeodetic ( SSVector geocentric, double a, double f 
     return SSSpherical ( lon, lat, h );
 }
 
-// Adds aberration of light to an apparent direction unit vector (p)
+// Applies aberration of light to an apparent direction unit vector (p)
 // in the fundamental J2000 equatorial frame. Returns the "aberrated"
 // vector; p itself is not modified. Uses relativatic formula from
 // The Explanatory Supplement to the Astronomical Almanac, p. 129.
 // Observer's heliocentric velocity must have been calcualted previously!
 
-SSVector SSCoordinates::addAberration ( SSVector p )
+SSVector SSCoordinates::applyAberration ( SSVector p )
 {
     SSVector v = obsVel / kLightAUPerDay;
     
@@ -360,7 +364,7 @@ SSVector SSCoordinates::addAberration ( SSVector p )
 // in the fundamental J2000 equatorial frame. Returns the "un-aberrated"
 // vector; p itself is not modified. Uses non-relativistic approximation.
 
-SSVector SSCoordinates::subtractAberration ( SSVector p )
+SSVector SSCoordinates::removeAberration ( SSVector p )
 {
     return ( p - obsVel / kLightAUPerDay ).normalize();
 }
@@ -411,14 +415,14 @@ SSAngle SSCoordinates::refractionAngle ( SSAngle alt, bool a )
 
 // Returns refracted (apparent) altitude from true (geometric) altitude
 
-SSAngle SSCoordinates::toRefractedAltitude ( SSAngle alt )
+SSAngle SSCoordinates::applyRefraction ( SSAngle alt )
 {
     return alt + SSCoordinates::refractionAngle ( alt, true );
 }
 
 // Returns true (geometric) from refracted (apparent) altitude
 
-SSAngle SSCoordinates::fromRefractedAltitude ( SSAngle alt )
+SSAngle SSCoordinates::removeRefraction ( SSAngle alt )
 {
     return alt - SSCoordinates::refractionAngle ( alt, false );
 }

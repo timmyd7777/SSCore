@@ -100,21 +100,56 @@ void SSStar::sortIdentifiers ( void )
     sort ( _idents.begin(), _idents.end(), compareSSIdentifiers );
 }
 
+// Compute star's apparent direction, distance, and magnitude at the Julian Ephemeris Date
+// specified inside the SSCoordinates object.
+// TODO: there are a lot of numerical inaccuracies here.  Needs re-thinking!
+
 void SSStar::computeEphemeris ( SSCoordinates &coords )
 {
-    if ( _parallax > 0.0 )
+    // If applying stellar space motion, first add star's space velocity * years since J2000 to its J2000 position.
+    // Normalize result to get its apparent direction unit vector. If star's J2000 parallax is known, get its current
+    // distance in AU, and visual magnitude at that distance. If parallax is unknown, its magnitude is same as at J2000.
+
+    if ( coords.starMotion )
     {
-        _direction = _position + _velocity * ( coords.jed - SSTime::kJ2000 );
-        _distance = _direction.magnitude();
-        _direction /= _distance;
-        _magnitude = _Vmag + 5.0 * log10 ( _distance * _parallax );
+        _direction = _position + _velocity * ( coords.jed - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
+        _direction = _direction.normalize ( _distance );
+        if ( _parallax > 0.0 )
+        {
+            _distance = coords.kAUPerLY * _distance;
+            _magnitude = _Vmag + 5.0 * log10 ( _parallax * _distance / coords.kAUPerParsec );
+        }
+        else
+        {
+            _distance = HUGE_VAL;
+            _magnitude = _Vmag;
+        }
     }
     else
     {
-        _direction = _position;
-        _distance = HUGE_VAL;
+        // We are ignoring stellar space motion.  If star's parallax is known, get its apparent direction
+        // unit vector by scaling its J2000 position vector (from light years to parsecs!) by its parallax,
+        // and convert to distance in AU. If parallax is unknown, its J2000 position is its direction, and
+        // set its distance to inifinity. In both cases its current visual magnitude is same as at J2000.
+        
+        if ( _parallax > 0.0 )
+        {
+            _direction = _position * ( _parallax / coords.kLYPerParsec );
+            _distance = coords.kAUPerParsec / _parallax;
+        }
+        else
+        {
+            _direction = _position;
+            _distance = HUGE_VAL;
+        }
+        
         _magnitude = _Vmag;
     }
+    
+    // Finally apply aberration of light, if desired.
+    
+    if ( coords.aberration )
+        _direction = coords.applyAberration ( _direction );
 }
 
 // Sets this star's spherical coordinates in the fundamental frame,

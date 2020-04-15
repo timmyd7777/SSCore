@@ -27,7 +27,8 @@ enum SSFrame
     kHorizon = 4,       // local horizon frame; X/Y plane is local horizon, +X is north, +Z is zenith; ; spherical coords are azimuth/altitude
 };
 
-// This class converts coordinates between the principal astronomical reference frames.
+// This class converts coordinates between the principal astronomical reference frames at a particular time and geographic location.
+// It also handles precession, nutation, aberration, refraction, and other coordinate-related issues; and is used in ephemeris computation.
 
 class SSCoordinates
 {
@@ -51,6 +52,10 @@ public:
     
     SSVector    obsPos;         // observer's heliocentric position in fundamental J2000 equatorial frame (ICRS) [AU]
     SSVector    obsVel;         // observer's heliocentric velocity in fundamental J2000 equatorial frame (ICRS) [AU/day]
+
+    bool        starMotion;     // apply stellar space motion when computing star apparent directions; default true.
+    bool        aberration;     // apply aberration of light when computing all object's apparent directions; default true.
+    bool        lighttime;      // apply light time correction when computing solar system object's apparent directions; default true.
 
     static constexpr double kKmPerAU = 149597870.700;                               // kilometers per Astronomical Unit (IAU 2012)
     static constexpr double kKmPerEarthRadii = 6378.137;                            // kilometers per equatorial Earth radius (WGS84)
@@ -101,8 +106,8 @@ public:
     SSVector    transform ( SSFrame from, SSFrame to, SSVector vec );
     SSSpherical transform ( SSFrame from, SSFrame to, SSSpherical sph );
     
-    SSVector addAberration ( SSVector direction );
-    SSVector subtractAberration ( SSVector direction );
+    SSVector applyAberration ( SSVector direction );
+    SSVector removeAberration ( SSVector direction );
     
     static double redShiftToRadVel ( double z );
     static double radVelToRedShift ( double rv );
@@ -111,8 +116,8 @@ public:
     static SSSpherical toGeodetic ( SSVector geocentric, double re, double f );
 
     static SSAngle refractionAngle ( SSAngle alt, bool a );
-    static SSAngle toRefractedAltitude ( SSAngle alt );
-    static SSAngle fromRefractedAltitude ( SSAngle alt );
+    static SSAngle applyRefraction ( SSAngle alt );
+    static SSAngle removeRefraction ( SSAngle alt );
 };
 
 #endif /* SSCoordinates_hpp */

@@ -482,7 +482,7 @@ int main ( int argc, const char *argv[] )
     printf ( "Local Time: %02d:%02d:%04.1f\n", date.hour, date.min, date.sec );
 
     SSSpherical siriusFun = { SSAngle ( SSHourMinSec ( '+', 06, 45, 08.92 ) ), SSAngle ( SSDegMinSec  ( '-', 16, 42, 58.0 ) ) };
-    siriusFun = dyn.addAberration ( siriusFun );
+    siriusFun = dyn.applyAberration ( siriusFun );
     
     SSSpherical siriusEqu = dyn.coords.toEquatorial ( siriusFun );
     SSSpherical siriusEcl = dyn.coords.toEcliptic ( siriusFun );

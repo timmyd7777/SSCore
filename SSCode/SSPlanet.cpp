@@ -10,9 +10,6 @@
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
 
-static bool _lighttime = true;
-static bool _aberration = true;
-
 SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
 {
     _id = SSIdentifier();
@@ -314,18 +311,22 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     // Compute distance and light time to planet.
     
     computePositionVelocity ( coords.jed, 0.0, _position, _velocity );
-    double lt = ( _position - coords.obsPos ).magnitude() / coords.kLightAUPerDay;
 
-    // Recompute planet's position and velocity antedated for light time.
-    // Compute apparent direction vector and distance to planet from observer's position.
-    // Apply aberration of light.
-
-    if ( _lighttime )
-        computePositionVelocity ( coords.jed, lt, _position, _velocity );
-    _direction = ( _position - coords.obsPos ).normalize ( _distance );
+    // If desired, recompute planet's position and velocity antedated for light time.
+    // In theory we should iterate but in practice this gets us sub-arcsecond precision!
     
-    if ( _aberration )
-        _direction = coords.addAberration ( _direction );
+    if ( coords.lighttime )
+    {
+        double lt = ( _position - coords.obsPos ).magnitude() / coords.kLightAUPerDay;
+        computePositionVelocity ( coords.jed, lt, _position, _velocity );
+    }
+
+    // Compute apparent direction vector and distance to planet from observer's position.
+    // If desired, apply aberration of light.
+    
+    _direction = ( _position - coords.obsPos ).normalize ( _distance );
+    if ( coords.aberration )
+        _direction = coords.applyAberration ( _direction );
     
     // Compute planet's phase angle and visual magnitude.
     
