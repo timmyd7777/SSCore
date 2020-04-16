@@ -290,6 +290,8 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << "Imported " << numStars << " nearby stars" << endl;
 
     coords.starMotion = true;
+    coords.aberration = true;
+    
     for ( int i = 0; i < nearStars.size(); i++ )
     {
         SSStar *pStar = SSGetStarPtr ( nearStars[i] );

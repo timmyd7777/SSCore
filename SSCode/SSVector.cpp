@@ -63,27 +63,22 @@ SSVector SSSpherical::toVectorPosition ( void )
 // are motion in radians/time unit and whose (rad) is radial velocity in distance/time unit.
 // Returns x,y,z velocity vector in same distance/time unit as input radial velocity.
 // Based on formulae from http://www.astrosurf.com/jephem/library/li110spherCart_en.htm
+// (although note sign errors in formulae on that page) and "Sky Catalog 2000.0" vol. 1.
 
 SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
 {
-#if 0
-    double x = rad * cos ( lat ) * cos ( lon );
-    double y = rad * cos ( lat ) * sin ( lon );
-    double z = rad * sin ( lat );
-    
-    double vx = vel.rad * x / rad + y * vel.lon + z * vel.lat * cos ( lon );
-    double vy = vel.rad * y / rad - x * vel.lon + z * vel.lat * sin ( lon );
-    double vz = vel.rad * z / rad - rad * vel.lat * cos ( lat );
-#else
     double coslon = cos ( lon );
     double sinlon = sin ( lon );
     double coslat = cos ( lat );
     double sinlat = sin ( lat );
-      
-    double vx = rad * ( - coslat * sinlon * vel.lon - coslon * sinlat * vel.lat ) + coslat * coslon * vel.rad;
-    double vy = rad * (   coslon * coslat * vel.lon - sinlon * sinlat * vel.lat ) + coslat * sinlon * vel.rad;
-    double vz = rad * coslat * vel.lat + sinlat * vel.rad;
-#endif
+
+    double x = rad * coslat * coslon;
+    double y = rad * coslat * sinlon;
+    double z = rad * sinlat;
+    
+    double vx = vel.rad * x / rad - y * vel.lon - z * vel.lat * coslon;
+    double vy = vel.rad * y / rad + x * vel.lon - z * vel.lat * sinlon;
+    double vz = vel.rad * z / rad + rad * vel.lat * coslat;
     
     return SSVector ( vx, vy, vz );
 }
@@ -290,6 +285,7 @@ SSSpherical SSVector::toSpherical ( void )
 // and whose rad is radial distance per time unit; Distance & time units
 // are the same in returned spherical coordinates as for input x,y,z vectors.
 // Based on formulae from http://www.astrosurf.com/jephem/library/li110spherCart_en.htm
+// although note sign errors in formulae on that page!
 
 SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
 {
@@ -305,15 +301,11 @@ SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
         double vx = vvec.x;
         double vy = vvec.y;
         double vz = vvec.z;
-#if 0
-        double vrad = ( x * vx + y * vy + z * vz ) / r;
-        double vlon = ( y * vx - x * vy ) / ( x2 + y2 );
-        double vlat = ( z * ( x * vx + y * vy ) - vz * ( x2 + y2 ) ) / ( r * r * sqrt ( x2 + y2 ) );
-#else
+
         double vrad = ( x * vx + y * vy + z * vz ) / r;
         double vlon = ( x * vy - y * vx ) / ( x2 + y2 );
         double vlat = ( r * vz - z * vrad ) / ( sqrt ( x2 + y2 ) * r );
-#endif
+
         return SSSpherical ( vlon, vlat, vrad );
     }
 }
