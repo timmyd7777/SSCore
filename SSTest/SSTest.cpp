@@ -249,6 +249,9 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
     cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
     
+    coords.aberration = true;
+    coords.lighttime = true;
+    
     for ( int i = 0; i < solsys.size(); i++ )
     {
         SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
@@ -322,15 +325,6 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << "Dist: " << format ( "%.3f pc", dist ) << endl;
         cout << "Mag:  " << format ( "%+.2f", mag ) << endl << endl;
     }
-}
-
-void TestStarEphemeris ( string inputDir, string outputDir )
-{
-    SSObjectVec nearest, brightest;
-    
-    int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearest );
-    cout << "Imported " << numStars << " nearby stars" << endl;
-    
 }
 
 // Android redirects stdout & stderr output to /dev/null. This uses Android logging functions to send

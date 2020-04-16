@@ -10,6 +10,11 @@
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
 
+#define USE_VPEPHEMERIS 0
+#if USE_VPEPHEMERIS
+#include "SSVPEphemeris.hpp"
+#endif
+
 SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
 {
     _id = SSIdentifier();
@@ -53,8 +58,13 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
 {
     if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
         return;
-    
+
+#if USE_VPEPHEMERIS
+    SSVPEphemeris::fundamentalPositionVelocity ( id, jed - lt, pos, vel );
+#else
     computePSPlanetMoonPositionVelocity ( id, jed, lt, pos, vel );
+#endif
+    
 #if 0
     static SSMatrix orbMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
     SSOrbit orb;
@@ -160,8 +170,16 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     {
         if ( SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
             return;
-        
+
         computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
+
+#if USE_VPEPHEMERIS
+        SSVPEphemeris::fundamentalPositionVelocity ( 10, jed - lt, pos, vel );
+        pos *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+        vel *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+#else
+        computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
+#endif
     }
     else
     {
