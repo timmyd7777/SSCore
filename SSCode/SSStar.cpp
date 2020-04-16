@@ -102,47 +102,30 @@ void SSStar::sortIdentifiers ( void )
 
 // Compute star's apparent direction, distance, and magnitude at the Julian Ephemeris Date
 // specified inside the SSCoordinates object.
-// TODO: there are a lot of numerical inaccuracies here.  Needs re-thinking!
 
 void SSStar::computeEphemeris ( SSCoordinates &coords )
 {
-    // If applying stellar space motion, first add star's space velocity * years since J2000 to its J2000 position.
-    // Normalize result to get its apparent direction unit vector. If star's J2000 parallax is known, get its current
-    // distance in AU, and visual magnitude at that distance. If parallax is unknown, its magnitude is same as at J2000.
+    // If applying stellar space motion, first add star's space velocity times years since J2000 to its J2000 position.
+    // Compute delta = ratio of current distance to J2000 distance; then normalize position to get star's apparent direction
+    // as unit vector. If star's J2000 parallax is known, get its current distance in AU.
+    // Get current visual magnitude by adjusting J2000 magnitude for change in distance from J2000.
 
     if ( coords.starMotion )
     {
         _direction = _position + _velocity * ( coords.jed - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
-        _direction = _direction.normalize ( _distance );
-        if ( _parallax > 0.0 )
-        {
-            _distance = coords.kAUPerLY * _distance;
-            _magnitude = _Vmag + 5.0 * log10 ( _parallax * _distance / coords.kAUPerParsec );
-        }
-        else
-        {
-            _distance = HUGE_VAL;
-            _magnitude = _Vmag;
-        }
+        double delta = _direction.magnitude();
+        _direction = _direction / delta;
+        _distance = _parallax > 0.0 ? delta * coords.kAUPerParsec / _parallax : HUGE_VAL;
+        _magnitude = _Vmag + 5.0 * log10 ( delta );
     }
     else
     {
-        // We are ignoring stellar space motion.  If star's parallax is known, get its apparent direction
-        // unit vector by scaling its J2000 position vector (from light years to parsecs!) by its parallax,
-        // and convert to distance in AU. If parallax is unknown, its J2000 position is its direction, and
-        // set its distance to inifinity. In both cases its current visual magnitude is same as at J2000.
+        // We are ignoring stellar space motion, so its apparent direction is the same as its J2000 position
+        // unit vector. If parallax is known, convert to distance in AU; otherwise set infinite distance.
+        // In both cases, star's current visual magnitude equals its J2000 magnitude.
         
-        if ( _parallax > 0.0 )
-        {
-            _direction = _position * ( _parallax / coords.kLYPerParsec );
-            _distance = coords.kAUPerParsec / _parallax;
-        }
-        else
-        {
-            _direction = _position;
-            _distance = HUGE_VAL;
-        }
-        
+        _direction = _position;
+        _distance = _parallax > 0.0 ? coords.kAUPerParsec / _parallax : HUGE_VAL;
         _magnitude = _Vmag;
     }
     
@@ -152,7 +135,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
         _direction = coords.applyAberration ( _direction );
 }
 
-// Sets this star's spherical coordinates in the fundamental frame,
+// Sets this star's spherical coordinates and distance in the fundamental frame,
 // i.e. the star's mean equatorial J2000 coordinates at epoch 2000.
 // The star's RA (coords.lon) and Dec (coords.lat) are in radians.
 // The star's distance in light years (coords.rad) may be infinite if unknown.
@@ -160,11 +143,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
 void SSStar::setFundamentalCoords ( SSSpherical coords )
 {
     _parallax = isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
-
-    if ( _parallax <= 0.0 || isinf ( coords.rad ) )
-        coords.rad = 1.0;
-    
-    _position = coords.toVectorPosition();
+    _position = SSVector ( coords.lon, coords.lat, 1.0 );
 }
 
 // Sets this star's spherical coordinates and proper motion in the fundamental frame
@@ -182,14 +161,15 @@ void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
     _parallax = isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
     _radvel = motion.rad;
 
-    if ( _parallax <= 0.0 )
-    {
-        coords.rad = 1.0;
-        motion.rad = 0.0;
-    }
+    // if distance or radial velocity are unknown, treat them as zero;
+    // otherwise divide radial velocity by distance; set unit distance.
     
-    if ( isinf ( motion.rad ) )
+    if ( isinf ( coords.rad ) || isinf ( motion.rad ) )
         motion.rad = 0.0;
+    else
+        motion.rad /= coords.rad;
+    
+    coords.rad = 1.0;
     
     _position = coords.toVectorPosition();
     _velocity = coords.toVectorVelocity ( motion );

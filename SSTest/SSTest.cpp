@@ -218,7 +218,7 @@ void TestJPLDEphemeris ( string inputDir )
     jpldeph.close();
 }
 
-void TestSolarEphemeris ( string inputDir, string outputDir )
+void TestEphemeris ( string inputDir, string outputDir )
 {
     SSObjectVec solsys;
     
@@ -284,6 +284,50 @@ void TestSolarEphemeris ( string inputDir, string outputDir )
     }
 
     SSJPLDEphemeris::close();
+
+    SSObjectVec nearStars;
+    int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearStars );
+    cout << "Imported " << numStars << " nearby stars" << endl;
+
+    coords.starMotion = true;
+    for ( int i = 0; i < nearStars.size(); i++ )
+    {
+        SSStar *pStar = SSGetStarPtr ( nearStars[i] );
+        if ( pStar == nullptr )
+            continue;
+        
+        // Stop after the first 11 stars.
+        
+         if ( i > 10 )
+            break;
+        
+        pStar->computeEphemeris ( coords );
+        SSSpherical dir ( pStar->getDirection() );
+        dir = coords.toEquatorial ( dir );
+        SSHourMinSec ra ( dir.lon );
+        SSDegMinSec dec ( dir.lat );
+        double dist = pStar->getDistance() / coords.kAUPerParsec;
+        float mag = pStar->getMagnitude();
+
+        string name = pStar->getName ( 0 );
+        if ( name.empty() )
+            name = pStar->getIdentifiers()[0].toString();
+            
+        cout << name << ":" << endl;
+        cout << "RA:   " << ra.toString() << endl;
+        cout << "Dec:  " << dec.toString() << endl;
+        cout << "Dist: " << format ( "%.3f pc", dist ) << endl;
+        cout << "Mag:  " << format ( "%+.2f", mag ) << endl << endl;
+    }
+}
+
+void TestStarEphemeris ( string inputDir, string outputDir )
+{
+    SSObjectVec nearest, brightest;
+    
+    int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearest );
+    cout << "Imported " << numStars << " nearby stars" << endl;
+    
 }
 
 // Android redirects stdout & stderr output to /dev/null. This uses Android logging functions to send
@@ -365,11 +409,11 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
-    TestSolarEphemeris ( inpath, outpath );
-    TestSatellites ( inpath, outpath );
-    TestJPLDEphemeris ( inpath );
-    TestSolarSystem ( inpath, outpath );
-    TestConstellations ( inpath, outpath );
+    TestEphemeris ( inpath, outpath );
+//    TestSatellites ( inpath, outpath );
+//    TestJPLDEphemeris ( inpath );
+//    TestSolarSystem ( inpath, outpath );
+//    TestConstellations ( inpath, outpath );
     TestStars ( inpath, outpath );
     TestDeepSky ( inpath, outpath );
 /*

@@ -50,6 +50,7 @@ SSStar
 - add SSBinaryStar subclass.
 - add binary star orbit catalog import
 - star absolute to apparent magnitudes and vice-versa
+- computeEphemeris() needs rethinking.  Store both _position and _velocity as dimensionless, to simplify calcs?
 
 SSTLE
 -----

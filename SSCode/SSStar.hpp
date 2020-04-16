@@ -26,8 +26,8 @@ protected:
     
     vector<SSIdentifier> _idents;
     
-    SSVector _position;     // heliocentric position in fundamental frame at epoch J2000; in light years if _parallax > 0 or as unit vector if _parallax is zero
-    SSVector _velocity;     // heliocentric space velocity in fundamental frame at epoch J2000, in light years per year (fraction of light speed) if _parallax > 0 or as unit vector if _parallax is zero
+    SSVector _position;     // heliocentric position unit vector in fundamental frame at epoch J2000
+    SSVector _velocity;     // heliocentric space velocity vector in fundamental frame at epoch J2000, divided by distance; infinite if unknown
     
     float   _parallax;      // heliocentric parallax in arcseconds (i.e. reciprocal of distance in parsecs), zero if unknown
     float   _radvel;        // radial velocity as fraction of light speed (i.e. light years per year), infinite if unknown

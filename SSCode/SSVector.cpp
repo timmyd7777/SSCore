@@ -66,6 +66,7 @@ SSVector SSSpherical::toVectorPosition ( void )
 
 SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
 {
+#if 0
     double x = rad * cos ( lat ) * cos ( lon );
     double y = rad * cos ( lat ) * sin ( lon );
     double z = rad * sin ( lat );
@@ -73,6 +74,16 @@ SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
     double vx = vel.rad * x / rad + y * vel.lon + z * vel.lat * cos ( lon );
     double vy = vel.rad * y / rad - x * vel.lon + z * vel.lat * sin ( lon );
     double vz = vel.rad * z / rad - rad * vel.lat * cos ( lat );
+#else
+    double coslon = cos ( lon );
+    double sinlon = sin ( lon );
+    double coslat = cos ( lat );
+    double sinlat = sin ( lat );
+      
+    double vx = rad * ( - coslat * sinlon * vel.lon - coslon * sinlat * vel.lat ) + coslat * coslon * vel.rad;
+    double vy = rad * (   coslon * coslat * vel.lon - sinlon * sinlat * vel.lat ) + coslat * sinlon * vel.rad;
+    double vz = rad * coslat * vel.lat + sinlat * vel.rad;
+#endif
     
     return SSVector ( vx, vy, vz );
 }
@@ -294,11 +305,15 @@ SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
         double vx = vvec.x;
         double vy = vvec.y;
         double vz = vvec.z;
-        
+#if 0
         double vrad = ( x * vx + y * vy + z * vz ) / r;
         double vlon = ( y * vx - x * vy ) / ( x2 + y2 );
         double vlat = ( z * ( x * vx + y * vy ) - vz * ( x2 + y2 ) ) / ( r * r * sqrt ( x2 + y2 ) );
-
+#else
+        double vrad = ( x * vx + y * vy + z * vz ) / r;
+        double vlon = ( x * vy - y * vx ) / ( x2 + y2 );
+        double vlat = ( r * vz - z * vrad ) / ( sqrt ( x2 + y2 ) * r );
+#endif
         return SSSpherical ( vlon, vlat, vrad );
     }
 }
