@@ -8,6 +8,8 @@
 // http://stjarnhimlen.se/comp/ppcomp.html
 // This is the simplest way to compute planetary/lunar positions with an accuracy of 1-2 arc minutes
 // over a thousand-year timespan from the present (accuracy degrades outside that interval).
+// Includes a "one-hour tweak" which dramatically improves accuracy (to 10-20 arcsec)
+// for the Sun and inner planets; see comments in earthOrbit().
 
 #ifndef SSPSEphemeris_hpp
 #define SSPSEphemeris_hpp

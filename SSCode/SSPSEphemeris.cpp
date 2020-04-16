@@ -282,10 +282,15 @@ SSOrbit SSPSEphemeris::venusOrbit ( double jed )
 
 // Returns Earth's mean heliocentric orbital elements referred to the ecliptic
 // of a specific Julian Ephemeris Date (jed).  Periapse distance (orbit.q) is in AU.
+// Moving the Earth forward 1 hour in its orbit makes a 5x-10x accuracy improvement
+// for the Sun and inner planets, negligible change for the outer planets, no change
+// for the Moon. Tested for 1980-10-15, 2000-01-15, 2020-04-15, and 2040-07-15.
+// This suggests a time zone or DST issue somewhere, but I sure as heck can't see it!
+// -TCD 16 April 2020
 
 SSOrbit SSPSEphemeris::earthOrbit ( double jed )
 {
-    double d = jed - SSTime::kJ2000 + 1.5;
+    double d = jed - SSTime::kJ2000 + 1.5 + 60.0 / SSTime::kMinutesPerDay;
     double a = 1.000000; // AU
     double e = 0.016709 - 1.151E-9 * d;
     double i = 0.0;
