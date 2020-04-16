@@ -33,7 +33,8 @@ enum SSFrame
 class SSCoordinates
 {
 public:
-    double      jed;            // Julian Ephemeris Date, i.e. Julian Date with Delta-T added
+    double      jd;             // Julian (Civil) Date, i.e. Julian Date in UTC
+    double      jed;            // Julian Ephemeris Date, i.e. Julian Date with Delta-T added (UTC to TDT)
     double      epoch;          // precession epoch [Julian Date]
     double      lon;            // observer's longitude [radians, east positive]
     double      lat;            // observer's latitude [radians, north positive]
@@ -70,7 +71,10 @@ public:
     static constexpr double kLYPerParsec = kAUPerParsec / kAUPerLY;                 // Light years per parsec = 3.261563777179643
     static constexpr double kParsecPerLY = kAUPerLY / kAUPerParsec;                 // Parsecs per light year
 
-    SSCoordinates ( double epoch, double lon, double lat, double alt );
+    SSCoordinates ( double jd, double lon, double lat, double alt );
+    
+    void setTime ( double jd );
+    void setLocation ( double lon, double lat, double alt );
     
     static double getObliquity ( double epoch );
     static void   getNutationConstants ( double jd, double &de, double &dl );

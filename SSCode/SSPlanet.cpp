@@ -10,6 +10,10 @@
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
 
+// This uses the 1979 Van Flandern - Pulkinnen low-precision planetary ephemeris when JPL DE is unavailable.
+// After investigation, Paul Schlyter's formulae seem more accurate (esp. for Pluto and the Moon) and are
+// much simpler/faster, so there's no need for the original VP version.  But it's here for safekeeping!
+
 #define USE_VPEPHEMERIS 0
 #if USE_VPEPHEMERIS
 #include "SSVPEphemeris.hpp"

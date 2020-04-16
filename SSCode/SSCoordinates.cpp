@@ -18,22 +18,53 @@
 
 SSCoordinates::SSCoordinates ( double jd, double lon, double lat, double alt )
 {
-    jed = SSTime ( jd ).getJulianEphemerisDate();
+    this->lon = lon;
+    this->lat = lat;
+    this->alt = alt;
+    
+    setTime ( jd );
+    
+    starParallax = true;
+    starMotion = true;
+    aberration = true;
+    lighttime = true;
+}
+
+// Changes this coordinate transformation object's Julian Date (jd) and recomputes
+// all of its time-dependent quantites and matrices, without changing the observer's
+// longitude, latitude, or altitude.
+
+void SSCoordinates::setTime ( double jd )
+{
+    this->jd = jd;
+    this->jed = SSTime ( jd ).getJulianEphemerisDate();
 
     getNutationConstants ( jd, de, dl );
     this->obq = getObliquity ( jd );
     this->epoch = jd;
-    this->lon = lon;
-    this->lat = lat;
-    this->alt = alt;
     this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl * cos ( obq + de ) ) );
     
     preMat = getPrecessionMatrix ( jd );
     nutMat = getNutationMatrix ( obq, dl, de );
     equMat = nutMat.multiply ( preMat );
     eclMat = getEclipticMatrix ( - obq - de ).multiply ( equMat );
-    horMat = getHorizonMatrix ( lst, lat ).multiply ( equMat );
     galMat = getGalacticMatrix();
+
+    setLocation ( lon, lat, alt );
+}
+
+// Changes this coordinate transformation object osberver longitude (lon), latitude (lat), and
+// altitude (alt); and recomputes all of its location-dependent quantites and matrices, without\
+// changing the time.  Longitude and latitude in radians; altitude in kilometers.
+
+void SSCoordinates::setLocation ( double lon, double lat, double alt )
+{
+    this->lon = lon;
+    this->lat = lat;
+    this->alt = alt;
+    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl * cos ( obq + de ) ) );
+    
+    horMat = getHorizonMatrix ( lst, lat ).multiply ( equMat );
 
     SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, jed, 0.0, obsPos, obsVel );
     
@@ -42,11 +73,6 @@ SSCoordinates::SSCoordinates ( double jd, double lon, double lat, double alt )
     
     geocentric = fromEquatorial ( geocentric );
     obsPos = obsPos.add ( geocentric / kKmPerAU );
-    
-    starParallax = true;
-    starMotion = true;
-    aberration = true;
-    lighttime = true;
 }
 
 // Computes constants needed to compute precession from J2000 to a specific Julian Date (jd).
