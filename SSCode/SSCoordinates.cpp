@@ -43,6 +43,7 @@ SSCoordinates::SSCoordinates ( double jd, double lon, double lat, double alt )
     geocentric = fromEquatorial ( geocentric );
     obsPos = obsPos.add ( geocentric / kKmPerAU );
     
+    starParallax = true;
     starMotion = true;
     aberration = true;
     lighttime = true;

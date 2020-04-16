@@ -289,6 +289,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearStars );
     cout << "Imported " << numStars << " nearby stars" << endl;
 
+    coords.starParallax = true;
     coords.starMotion = true;
     coords.aberration = true;
     

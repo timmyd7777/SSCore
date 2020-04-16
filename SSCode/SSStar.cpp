@@ -105,30 +105,43 @@ void SSStar::sortIdentifiers ( void )
 
 void SSStar::computeEphemeris ( SSCoordinates &coords )
 {
-    // If applying stellar space motion, first add star's space velocity times years since J2000 to its J2000 position.
-    // Compute delta = ratio of current distance to J2000 distance; then normalize position to get star's apparent direction
-    // as unit vector. If star's J2000 parallax is known, get its current distance in AU.
-    // Get current visual magnitude by adjusting J2000 magnitude for change in distance from J2000.
+    // Start by assuming star's current apparent direction vector is unchanged from J2000.
+    
+    _direction = _position;
 
-    if ( coords.starMotion )
+    // If applying stellar space motion, and the star's space motion is known, add its space velocity
+    // (times years since J2000) to its J2000 position.
+
+    if ( coords.starMotion && ! isinf ( _velocity.x ) )
+        _direction += _velocity * ( coords.jed - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
+    
+    // If applying heliocentric parallax, and the star's parallax is known, subtract the observer's
+    // position divided by the star's J2000 distance.
+    
+    if ( coords.starParallax && _parallax > 0.0 )
+        _direction -= coords.obsPos * ( _parallax / coords.kAUPerParsec );
+
+    // If star's apparent direction is the same as in J2000, we ignored both its space motion and parallax.
+    // If star's parallax is known, convert to distance in AU; otherwise set distance to infinity.
+    // Star's current visual magnitude equals its J2000 magnitude.
+
+    if ( _direction == _position )
     {
-        _direction = _position + _velocity * ( coords.jed - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
+        _distance = _parallax > 0.0 ? coords.kAUPerParsec / _parallax : HUGE_VAL;
+        _magnitude = _Vmag;
+    }
+    else
+    {
+        // If we applied stellar space motion or parallax, compute "delta" (ratio of star's current distance
+        // to its J2000 distance). Then normalize direction to unit vector. If star's J2000 parallax is known,
+        // get its current distance in AU. Get current visual magnitude by adjusting J2000 magnitude for delta.
+
         double delta = _direction.magnitude();
         _direction = _direction / delta;
         _distance = _parallax > 0.0 ? delta * coords.kAUPerParsec / _parallax : HUGE_VAL;
         _magnitude = _Vmag + 5.0 * log10 ( delta );
     }
-    else
-    {
-        // We are ignoring stellar space motion, so its apparent direction is the same as its J2000 position
-        // unit vector. If parallax is known, convert to distance in AU; otherwise set infinite distance.
-        // In both cases, star's current visual magnitude equals its J2000 magnitude.
-        
-        _direction = _position;
-        _distance = _parallax > 0.0 ? coords.kAUPerParsec / _parallax : HUGE_VAL;
-        _magnitude = _Vmag;
-    }
-    
+
     // Finally apply aberration of light, if desired.
     
     if ( coords.aberration )
