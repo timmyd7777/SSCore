@@ -6,6 +6,9 @@
 //
 // This is a C++ wrapper around Paul Shchlyter's C implementation of
 // Van Flandern a& Pulkinnen's "Low-Precision Formulae for Planetary Positions" paper.
+// These seem less accurate than Paul Schlyter's own newer formulae, especially for
+// the Moon and Pluto, and Schlyter's formulae are much simpler and faster.
+// So no real reason to use these, except for historical curiosity.
 
 #ifndef SSVPEphemeris_hpp
 #define SSVPEphemeris_hpp
