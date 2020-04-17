@@ -290,7 +290,7 @@ SSOrbit SSPSEphemeris::venusOrbit ( double jed )
 
 SSOrbit SSPSEphemeris::earthOrbit ( double jed )
 {
-    double d = jed - SSTime::kJ2000 + 1.5 + 60.0 / SSTime::kMinutesPerDay;
+    double d = jed - SSTime::kJ2000 + 1.5 + 1.0 / 24.0;
     double a = 1.000000; // AU
     double e = 0.016709 - 1.151E-9 * d;
     double i = 0.0;
