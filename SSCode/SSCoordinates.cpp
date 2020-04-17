@@ -89,8 +89,11 @@ void SSCoordinates::getPrecessionConstants ( double jd, double &zeta, double &z,
     theta = SSAngle::fromArcsec ( 2004.3109 * t - 0.42665 * t2 - 0.041833 * t3 );
 }
 
-// Computes constants needed to compute nutation from J2000 to a specific Julian date (jd).
-// From Jean Meeus, "Astronomical Algorithms", ch. 22, p. 144.
+// Computes nutation in longitude (dl) and in obliquity (de), both in radians,
+// at a given Julian Date (jd) using the IAU 1980 theory of nutation.
+// This approximation uses linear terms in the fundamental arguments, and the
+// four largest periodic terms, giving an accuracy of 0.5 arcsec (for dl) and
+// 0.1 arcsec (for de). From Jean Meeus, "Astronomical Algorithms", ch. 22, p. 144.
 
 void SSCoordinates::getNutationConstants ( double jd, double &de, double &dl )
 {
