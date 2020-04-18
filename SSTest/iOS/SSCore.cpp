@@ -397,9 +397,10 @@ CSSMatrix CSSMatrixRotate ( CSSMatrix cmat, int axis, double angle )
 
 // C wrappers for C++ SSCoordinates classes and methods
 
-CSSCoordinates *CSSCoordinatesCreate ( double jd, double lon, double lat, double alt )
+CSSCoordinates *CSSCoordinatesCreate ( CSSTime ctime, CSSSpherical loc )
 {
-    SSCoordinates *pCoords = new SSCoordinates ( jd, lon, lat, alt );
+    SSTime time ( ctime.jd, ctime.zone, (SSCalendar) ctime.calendar );
+    SSCoordinates *pCoords = new SSCoordinates ( time, CSSSphericalToSSSpherical ( loc ) );
     return (CSSCoordinates *) pCoords;
 }
 
@@ -420,43 +421,38 @@ void CSSCoordinatesSetLocation ( CSSCoordinates *pCCoords, double lon, double la
 {
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     if ( pCoords )
-        pCoords->setLocation ( lon, lat, alt );
+        pCoords->setLocation ( SSSpherical ( lon, lat, alt ) );
 }
 
-double CSSCoordinatesGetTime ( CSSCoordinates *pCCoords )
+CSSTime CSSCoordinatesGetTime ( CSSCoordinates *pCCoords )
 {
+    SSTime time ( HUGE_VAL );
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
-    return pCoords ? pCoords->jd : HUGE_VAL;
+    if ( pCoords )
+        time = pCoords->getTime();
+    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    return ctime;
+}
+
+CSSSpherical CSSCoordinatesGetLocation ( CSSCoordinates *pCCoords )
+{
+    SSSpherical loc ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        loc = pCoords->getLocation();
+    return CSSSphericalFromSSSpherical ( loc );
 }
 
 double CSSCoordinatesGetJED ( CSSCoordinates *pCCoords )
 {
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
-    return pCoords ? pCoords->jed : HUGE_VAL;
+    return pCoords ? pCoords->getJED() : HUGE_VAL;
 }
 
 double CSSCoordinatesGetLST ( CSSCoordinates *pCCoords )
 {
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
-    return pCoords ? pCoords->lst : HUGE_VAL;
-}
-
-double CSSCoordinatesGetLongitude ( CSSCoordinates *pCCoords )
-{
-    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
-    return pCoords ? pCoords->lon : HUGE_VAL;
-}
-
-double CSSCoordinatesGetLatitude ( CSSCoordinates *pCCoords )
-{
-    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
-    return pCoords ? pCoords->lat : HUGE_VAL;
-}
-
-double CSSCoordinatesGetAltitude ( CSSCoordinates *pCCoords )
-{
-    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
-    return pCoords ? pCoords->alt : HUGE_VAL;
+    return pCoords ? pCoords->getLST() : HUGE_VAL;
 }
 
 CSSVector CSSCoordinatesTransformVector ( CSSCoordinates *pCCoords, int from, int to, CSSVector cvec )

@@ -113,7 +113,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
     // (times years since J2000) to its J2000 position.
 
     if ( coords.starMotion && ! isinf ( _velocity.x ) )
-        _direction += _velocity * ( coords.jed - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
+        _direction += _velocity * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
     
     // If applying heliocentric parallax, and the star's parallax is known, subtract the observer's
     // position divided by the star's J2000 distance.

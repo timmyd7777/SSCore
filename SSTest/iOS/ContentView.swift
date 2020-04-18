@@ -100,12 +100,12 @@ func test ( ) -> String
     let lon = CSSDegMinSecToRadians ( CSSDegMinSecFromString ( "-122 25 09.9" ) )
     let lat = CSSDegMinSecToRadians ( CSSDegMinSecFromString ( "+37 46 29.7" ) )
     let location = CSSSphericalFromLonLatRad ( lon, lat, 0.026 )
-    let coords = CSSCoordinatesCreate ( ctime.jd, lon, lat, 0.026 )
+    let coords = CSSCoordinatesCreate ( ctime, location )
     
     str.append ( String ( format:"Test lon:%+.3f° lat:%+.3f° alt:%.3f km\n",
-        CSSCoordinatesGetLongitude ( coords ) * kSSDegPerRad,
-        CSSCoordinatesGetLatitude ( coords ) * kSSDegPerRad,
-        CSSCoordinatesGetAltitude ( coords ) ) )
+        CSSCoordinatesGetLocation ( coords ).lon * kSSDegPerRad,
+        CSSCoordinatesGetLocation ( coords ).lat * kSSDegPerRad,
+        CSSCoordinatesGetLocation ( coords ).rad ) )
 
     // Now compute some coordinate-related values.
 

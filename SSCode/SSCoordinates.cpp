@@ -11,18 +11,18 @@
 #define max(x,y) (x>y?x:y)
 #endif
 
-// Constructs a coordinate transformation object for a specific Julian Date (jd),
-// geographic longitude (lon), latitude (lat), and altitude (alt).
+// Constructs a coordinate transformation object for a specific Julian Date (time),
+// geographic longitude (loc.lon), latitude (loc.lat), and altitude (loc.rad).
 // Longitude and latitude are both in radians; east and noth are positive.
 // Altitude is in kilometers above the Earth's ellipsoid.
 
-SSCoordinates::SSCoordinates ( double jd, double lon, double lat, double alt )
+SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
 {
-    this->lon = lon;
-    this->lat = lat;
-    this->alt = alt;
+    _lon = loc.lon;
+    _lat = loc.lat;
+    _alt = loc.rad;
     
-    setTime ( jd );
+    setTime ( time );
     
     starParallax = true;
     starMotion = true;
@@ -30,48 +30,47 @@ SSCoordinates::SSCoordinates ( double jd, double lon, double lat, double alt )
     lighttime = true;
 }
 
-// Changes this coordinate transformation object's Julian Date (jd) and recomputes
+// Changes this coordinate transformation object's Julian Date (time) and recomputes
 // all of its time-dependent quantites and matrices, without changing the observer's
 // longitude, latitude, or altitude.
 
-void SSCoordinates::setTime ( double jd )
+void SSCoordinates::setTime ( SSTime time )
 {
-    this->jd = jd;
-    this->jed = SSTime ( jd ).getJulianEphemerisDate();
+    _jd = time.jd;
+    _jed = time.getJulianEphemerisDate();
 
-    getNutationConstants ( jd, de, dl );
-    this->obq = getObliquity ( jd );
-    this->epoch = jd;
-    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl * cos ( obq + de ) ) );
+    getNutationConstants ( _jd, _de, _dl );
+    _obq = getObliquity ( _jd );
+    _lst = time.getSiderealTime ( SSAngle ( _lon + _dl * cos ( _obq + _de ) ) );
     
-    preMat = getPrecessionMatrix ( jd );
-    nutMat = getNutationMatrix ( obq, dl, de );
-    equMat = nutMat.multiply ( preMat );
-    eclMat = getEclipticMatrix ( - obq - de ).multiply ( equMat );
-    galMat = getGalacticMatrix();
+    _preMat = getPrecessionMatrix ( _jd );
+    _nutMat = getNutationMatrix ( _obq, _dl, _de );
+    _equMat = _nutMat * ( _preMat );
+    _eclMat = getEclipticMatrix ( - _obq - _de ) * _equMat;
+    _galMat = getGalacticMatrix();
 
-    setLocation ( lon, lat, alt );
+    setLocation ( SSSpherical ( _lon, _lat, _alt ) );
 }
 
-// Changes this coordinate transformation object osberver longitude (lon), latitude (lat), and
-// altitude (alt); and recomputes all of its location-dependent quantites and matrices, without\
-// changing the time.  Longitude and latitude in radians; altitude in kilometers.
+// Changes this coordinate transformation object's observer longitude (loc.lon), latitude (loc.lat),
+// and altitude (loc.rad); and recomputes all of its location-dependent quantites and matrices,
+// without changing the time.  Longitude and latitude in radians; altitude in kilometers.
 
-void SSCoordinates::setLocation ( double lon, double lat, double alt )
+void SSCoordinates::setLocation ( SSSpherical loc )
 {
-    this->lon = lon;
-    this->lat = lat;
-    this->alt = alt;
-    this->lst = SSTime ( jd ).getSiderealTime ( SSAngle ( lon + dl * cos ( obq + de ) ) );
+    _lon = loc.lon;
+    _lat = loc.lat;
+    _alt = loc.rad;
+    _lst = SSTime ( _jd ).getSiderealTime ( SSAngle ( _lon + _dl * cos ( _obq + _de ) ) );
     
-    horMat = getHorizonMatrix ( lst, lat ).multiply ( equMat );
+    _horMat = getHorizonMatrix ( _lst, _lat ).multiply ( _equMat );
 
-    SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, jed, 0.0, obsPos, obsVel );
+    SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, _jed, 0.0, obsPos, obsVel );
     
-    SSSpherical geodetic ( lst, lat, alt );
+    SSSpherical geodetic ( _lst, _lat, _alt );
     SSVector geocentric = toGeocentric ( geodetic, kKmPerEarthRadii, kEarthFlattening );
     
-    geocentric = fromEquatorial ( geocentric );
+    geocentric = transform ( kEquatorial, kFundamental, geocentric );
     obsPos = obsPos.add ( geocentric / kKmPerAU );
 }
 
@@ -185,134 +184,6 @@ SSMatrix SSCoordinates::getGalacticMatrix ( void )
                       -0.867666135681, -0.198076389622, +0.455983794523 );
 }
 
-// Given a rectangular coordinate vector in the fundamental frame,
-// returns a copy of that vector transformed to the current equatorial frame.
-
-SSVector SSCoordinates::toEquatorial ( SSVector funVec )
-{
-    return equMat * funVec;
-}
-
-// Given a rectangular coordinate vector in the fundamental frame,
-// returns a copy of that vector transformed to the ecliptic frame.
-
-SSVector SSCoordinates::toEcliptic ( SSVector funVec )
-{
-    return eclMat * funVec;
-}
-
-// Given a rectangular coordinate vector in the fundamental frame,
-// returns a copy of that vector transformed to the current local horizon frame.
-
-SSVector SSCoordinates::toHorizon ( SSVector funVec )
-{
-    return horMat * funVec;
-}
-
-// Given a rectangular coordinate vector in the fundamental frame,
-// returns a copy of that vector transformed to the galactic frame.
-
-SSVector SSCoordinates::toGalactic ( SSVector funVec )
-{
-    return galMat * funVec;
-}
-
-// Given a rectangular coordinate vector in the current equatorial frame,
-// returns a copy of that vector transformed to the fundamental frame.
-
-SSVector SSCoordinates::fromEquatorial ( SSVector equVec )
-{
-    return equMat.transpose() * equVec;
-}
-
-// Given a rectangular coordinate vector in the current ecliptic frame,
-// returns a copy of that vector transformed to the fundamental frame.
-
-SSVector SSCoordinates::fromEcliptic ( SSVector eclVec )
-{
-    return eclMat.transpose() * eclVec;
-}
-
-// Given a rectangular coordinate vector in the galactic frame,
-// returns a copy of that vector transformed to the fundamental frame.
-
-SSVector SSCoordinates::fromGalactic ( SSVector galVec )
-{
-    return galMat.transpose() * galVec;
-}
-
-// Given a rectangular coordinate vector in the current local horizon frame,
-// returns a copy of that vector transformed to the fundamental frame.
-
-SSVector SSCoordinates::fromHorizon ( SSVector horVec )
-{
-    return horMat.transpose() * horVec;
-}
-
-// Given a spherical coordinates in the fundamental frame, returns a copy
-// of those spherical coords transformed to the current equatorial frame.
-
-SSSpherical SSCoordinates::toEquatorial ( SSSpherical fun )
-{
-    return SSSpherical ( toEquatorial ( SSVector ( fun ) ) );
-}
-
-// Given a spherical coordinates in the fundamental frame, returns a copy
-// of those spherical coords transformed to the current ecliptic frame.
-
-SSSpherical SSCoordinates::toEcliptic ( SSSpherical fun )
-{
-    return SSSpherical ( toEcliptic ( SSVector ( fun ) ) );
-}
-
-// Given a spherical coordinates in the fundamental frame, returns a copy
-// of those spherical coords transformed to the galactic frame.
-
-SSSpherical SSCoordinates::toGalactic ( SSSpherical fun )
-{
-    return SSSpherical ( toGalactic ( SSVector ( fun ) ) );
-}
-
-// Given a spherical coordinates in the fundamental frame, returns a copy
-// of those spherical coords transformed to the current local horizon frame.
-
-SSSpherical SSCoordinates::toHorizon ( SSSpherical fun )
-{
-    return SSSpherical ( toHorizon ( SSVector ( fun ) ) );
-}
-
-// Given a spherical coordinates in the current equatorial frame,
-// returns a copy transformed to the fundamental frame.
-
-SSSpherical SSCoordinates::fromEquatorial ( SSSpherical equ )
-{
-    return SSSpherical ( fromEquatorial ( SSVector ( equ ) ) );
-}
-
-// Given a spherical coordinates in the current ecliptic frame,
-// returns a copy transformed to the fundamental frame.
-
-SSSpherical SSCoordinates::fromEcliptic ( SSSpherical ecl )
-{
-    return SSSpherical ( fromEcliptic ( SSVector ( ecl ) ) );
-}
-
-// Given a spherical coordinates in the galactic frame,
-// returns a copy transformed to the fundamental frame.
-
-SSSpherical SSCoordinates::fromGalactic ( SSSpherical gal )
-{
-    return SSSpherical ( fromGalactic ( SSVector ( gal ) ) );
-}
-
-// Given a spherical coordinates in the current local horizon frame,
-// returns a copy transformed to the fundamental frame.
-
-SSSpherical SSCoordinates::fromHorizon ( SSSpherical hor )
-{
-    return SSSpherical ( fromHorizon ( SSVector ( hor ) ) );
-}
-
 // Transforms a rectangular coordinate vector from one reference frame to another.
 // Returns transformed vector; does not modify input vector.
 
@@ -321,22 +192,22 @@ SSVector SSCoordinates::transform ( SSFrame from, SSFrame to, SSVector vec )
     if ( from != to )
     {
         if ( from == kEquatorial )
-            vec = equMat.transpose() * vec;
+            vec = _equMat.transpose() * vec;
         else if ( from == kEcliptic )
-            vec = eclMat.transpose() * vec;
+            vec = _eclMat.transpose() * vec;
         else if ( from == kGalactic )
-            vec = galMat.transpose() * vec;
+            vec = _galMat.transpose() * vec;
         else if ( from == kHorizon )
-            vec = horMat.transpose() * vec;
+            vec = _horMat.transpose() * vec;
         
         if ( to == kEquatorial )
-            vec = equMat * vec;
+            vec = _equMat * vec;
         else if ( to == kEcliptic )
-            vec = eclMat * vec;
+            vec = _eclMat * vec;
         else if ( to == kGalactic )
-            vec = galMat * vec;
+            vec = _galMat * vec;
         else if ( to == kHorizon )
-            vec = horMat * vec;
+            vec = _horMat * vec;
     }
     
     return vec;

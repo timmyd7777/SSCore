@@ -215,18 +215,17 @@ const double kCSSParsecPerLY = kCSSAUPerLY / kCSSAUPerParsec;                 //
 
 typedef struct CSSCoordinates CSSCoordinates;
 
-CSSCoordinates *CSSCoordinatesCreate ( double jd, double lon, double lat, double alt );
+CSSCoordinates *CSSCoordinatesCreate ( CSSTime time, CSSSpherical loc );
 void CSSCoordinatesDestroy ( CSSCoordinates *pCoords );
 
-void CSSCoordinatesSetTime ( CSSCoordinates *pCoords, double jd );
-void CSSCoordinatesSetLocation ( CSSCoordinates *pCoords, double lon, double lat, double alt );
+void CSSCoordinatesSetTime ( CSSCoordinates *pCoords, CSSTime time );
+void CSSCoordinatesSetLocation ( CSSCoordinates *pCoords, CSSSpherical loc );
 
-double CSSCoordinatesGetTime ( CSSCoordinates *pCoords );
+CSSTime CSSCoordinatesGetTime ( CSSCoordinates *pCoords );
+CSSSpherical CSSCoordinatesGetLocation ( CSSCoordinates *pCoords );
+
 double CSSCoordinatesGetJED ( CSSCoordinates *pCoords );
 double CSSCoordinatesGetLST ( CSSCoordinates *pCoords );
-double CSSCoordinatesGetLongitude ( CSSCoordinates *pCoords );
-double CSSCoordinatesGetLatitude ( CSSCoordinates *pCoords );
-double CSSCoordinatesGetAltitude ( CSSCoordinates *pCoords );
 
 CSSVector CSSCoordinatesTransformVector ( CSSCoordinates *pCoords, int from, int to, CSSVector vec );
 CSSSpherical CSSCoordinatesTransformSpherical ( CSSCoordinates *pCoords, int from, int to, CSSSpherical sph );

@@ -241,7 +241,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
     SSTime time = SSTime ( date ); // SSTime::fromSystem();
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
-    SSCoordinates coords ( time, here.lon, here.lat, here.rad );
+    SSCoordinates coords ( time, here );
     
     cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
     cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
@@ -270,7 +270,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         
         p->computeEphemeris ( coords );
         SSSpherical dir ( p->getDirection() );
-        dir = coords.toEquatorial ( dir );
+        dir = coords.transform ( kFundamental, kEquatorial, dir );
         SSHourMinSec ra ( dir.lon );
         SSDegMinSec dec ( dir.lat );
         double dist = p->getDistance();
@@ -309,7 +309,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         
         pStar->computeEphemeris ( coords );
         SSSpherical dir ( pStar->getDirection() );
-        dir = coords.toEquatorial ( dir );
+        dir = coords.transform ( kFundamental, kEquatorial, dir );
         SSHourMinSec ra ( dir.lon );
         SSDegMinSec dec ( dir.lat );
         double dist = pStar->getDistance() / coords.kAUPerParsec;

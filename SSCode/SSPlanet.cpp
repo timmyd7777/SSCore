@@ -332,7 +332,7 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     // Compute planet's heliocentric position and velocity at current JED.
     // Compute distance and light time to planet.
     
-    computePositionVelocity ( coords.jed, 0.0, _position, _velocity );
+    computePositionVelocity ( coords.getJED(), 0.0, _position, _velocity );
 
     // If desired, recompute planet's position and velocity antedated for light time.
     // In theory we should iterate but in practice this gets us sub-arcsecond precision!
@@ -340,7 +340,7 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     if ( coords.lighttime )
     {
         double lt = ( _position - coords.obsPos ).magnitude() / coords.kLightAUPerDay;
-        computePositionVelocity ( coords.jed, lt, _position, _velocity );
+        computePositionVelocity ( coords.getJED(), lt, _position, _velocity );
     }
 
     // Compute apparent direction vector and distance to planet from observer's position.

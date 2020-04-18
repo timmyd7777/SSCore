@@ -32,24 +32,26 @@ enum SSFrame
 
 class SSCoordinates
 {
-public:
-    double      jd;             // Julian (Civil) Date, i.e. Julian Date in UTC
-    double      jed;            // Julian Ephemeris Date, i.e. Julian Date with Delta-T added (UTC to TDT)
-    double      epoch;          // precession epoch [Julian Date]
-    double      lon;            // observer's longitude [radians, east positive]
-    double      lat;            // observer's latitude [radians, north positive]
-    double      alt;            // observer's altitude above geoid [kilometers]
-    double      lst;            // local apparent sidereal time [radians]
-    double      obq;            // mean obliquity of ecliptic at current epoch [radians]
-    double      de;             // nutation in obliquity [radians]
-    double      dl;             // nutation in longitude [radians]
+protected:
     
-    SSMatrix    preMat;         // transforms from fundamental to mean precessed equatorial frame, not including nutation.
-    SSMatrix    nutMat;         // transforms from mean precessed equatorial frame to true equatorial frame, i.e. corrects for nutation.
-    SSMatrix    equMat;         // transforms from fundamental to current true equatorial frame.
-    SSMatrix    eclMat;         // transforms from fundamental to current true ecliptic frame (includes nutation).
-    SSMatrix    horMat;         // transforms from fundamental to current local horizon frame.
-    SSMatrix    galMat;         // transforms from fundamental to galactic frame
+    double      _jd;             // Julian (Civil) Date, i.e. Julian Date in UTC
+    double      _jed;            // Julian Ephemeris Date, i.e. Julian Date with Delta-T added (UTC to TDT)
+    double      _lon;            // observer's longitude [radians, east positive]
+    double      _lat;            // observer's latitude [radians, north positive]
+    double      _alt;            // observer's altitude above geoid [kilometers]
+    double      _lst;            // local apparent sidereal time [radians]
+    double      _obq;            // mean obliquity of ecliptic at current epoch [radians]
+    double      _de;             // nutation in obliquity [radians]
+    double      _dl;             // nutation in longitude [radians]
+    
+    SSMatrix    _preMat;         // transforms from fundamental to mean precessed equatorial frame, not including nutation.
+    SSMatrix    _nutMat;         // transforms from mean precessed equatorial frame to true equatorial frame, i.e. corrects for nutation.
+    SSMatrix    _equMat;         // transforms from fundamental to current true equatorial frame.
+    SSMatrix    _eclMat;         // transforms from fundamental to current true ecliptic frame (includes nutation).
+    SSMatrix    _horMat;         // transforms from fundamental to current local horizon frame.
+    SSMatrix    _galMat;         // transforms from fundamental to galactic frame
+
+public:
     
     SSVector    obsPos;         // observer's heliocentric position in fundamental J2000 equatorial frame (ICRS) [AU]
     SSVector    obsVel;         // observer's heliocentric velocity in fundamental J2000 equatorial frame (ICRS) [AU/day]
@@ -71,10 +73,15 @@ public:
     static constexpr double kLYPerParsec = kAUPerParsec / kAUPerLY;                 // Light years per parsec = 3.261563777179643
     static constexpr double kParsecPerLY = kAUPerLY / kAUPerParsec;                 // Parsecs per light year
 
-    SSCoordinates ( double jd, double lon, double lat, double alt );
+    SSCoordinates ( SSTime time, SSSpherical location );
     
-    void setTime ( double jd );
-    void setLocation ( double lon, double lat, double alt );
+    void setTime ( SSTime time );
+    void setLocation ( SSSpherical location );
+
+    SSTime getTime ( void ) { return SSTime ( _jd ); }
+    SSSpherical getLocation ( void ) { return SSSpherical ( _lon, _lat, _alt ); }
+    double getJED ( void ) { return _jed; }
+    double getLST ( void ) { return _lst; }
     
     static double getObliquity ( double epoch );
     static void   getNutationConstants ( double jd, double &de, double &dl );
@@ -85,28 +92,6 @@ public:
     static SSMatrix getEclipticMatrix ( double obliquity );
     static SSMatrix getHorizonMatrix ( double lst, double lat );
     static SSMatrix getGalacticMatrix ( void );
-
-    SSVector toEquatorial ( SSVector funVec );
-    SSVector toEcliptic ( SSVector funVec );
-    SSVector toHorizon ( SSVector funVec );
-    SSVector toGalactic ( SSVector funVec );
-
-    SSVector fromEquatorial ( SSVector equVec );
-    SSVector fromEcliptic ( SSVector eclVec );
-    SSVector fromHorizon ( SSVector horVec );
-    SSVector fromGalactic ( SSVector galVec );
-
-    SSSpherical toEquatorial ( SSSpherical funSph );
-    SSSpherical toEcliptic ( SSSpherical funSph );
-    SSSpherical toGalactic ( SSSpherical funSph );
-    SSSpherical toHorizon ( SSSpherical funSph );
-    SSSpherical toHorizon ( SSSpherical funSph, bool refract );
-
-    SSSpherical fromEquatorial ( SSSpherical equSph );
-    SSSpherical fromEcliptic ( SSSpherical eclSph );
-    SSSpherical fromGalactic ( SSSpherical galSph );
-    SSSpherical fromHorizon ( SSSpherical horSph );
-    SSSpherical fromHorizon ( SSSpherical horSph, bool refract );
 
     SSVector    transform ( SSFrame from, SSFrame to, SSVector vec );
     SSSpherical transform ( SSFrame from, SSFrame to, SSSpherical sph );
