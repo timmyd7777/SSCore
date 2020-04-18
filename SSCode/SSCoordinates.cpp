@@ -313,6 +313,44 @@ SSSpherical SSCoordinates::fromHorizon ( SSSpherical hor )
     return SSSpherical ( fromHorizon ( SSVector ( hor ) ) );
 }
 
+// Transforms a rectangular coordinate vector from one reference frame to another.
+// Returns transformed vector; does not modify input vector.
+
+SSVector SSCoordinates::transform ( SSFrame from, SSFrame to, SSVector vec )
+{
+    if ( from != to )
+    {
+        if ( from == kEquatorial )
+            vec = equMat.transpose() * vec;
+        else if ( from == kEcliptic )
+            vec = eclMat.transpose() * vec;
+        else if ( from == kGalactic )
+            vec = galMat.transpose() * vec;
+        else if ( from == kHorizon )
+            vec = horMat.transpose() * vec;
+        
+        if ( to == kEquatorial )
+            vec = equMat * vec;
+        else if ( to == kEcliptic )
+            vec = eclMat * vec;
+        else if ( to == kGalactic )
+            vec = galMat * vec;
+        else if ( to == kHorizon )
+            vec = horMat * vec;
+    }
+    
+    return vec;
+}
+
+// Transforms spherical coordinates from one reference frame to another.
+// Returns transformed spherical coordinates; does not modify input coords.
+
+SSSpherical SSCoordinates::transform ( SSFrame from, SSFrame to, SSSpherical sph )
+{
+    SSVector vec ( sph );
+    vec = transform ( from, to, vec );
+    return SSSpherical ( vec );
+}
 
 // Converts geodetic longitude, latitude, altitude to geocentric X, Y, Z vector.
 // geodetic.lon and .lat are in radians; geo.rad is altitude above geoid in same
@@ -359,7 +397,7 @@ SSSpherical SSCoordinates::toGeodetic ( SSVector geocentric, double a, double f 
         }
         while ( fabs ( lat1 - lat ) > 1.0e-8 );
     }
-      else
+    else
     {
         lat = z == 0.0 ? 0.0 : z > 0.0 ? SSAngle::kHalfPi : -SSAngle::kHalfPi;
         c = 1.0 / ( 1.0 - f );

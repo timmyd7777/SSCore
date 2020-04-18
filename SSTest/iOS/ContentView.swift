@@ -94,6 +94,64 @@ func test ( ) -> String
     str.append ( "Identity Matrix:\n" )
     str.append ( CSSMatrixToString ( mat: cidm ) )
 
+    // Create a coordinate transformation object initialized to the longitude and latitude of San Francisco at current time
+    // Wouldn't it be great to have a common API that gets current location on all platforms? (hint, hint)
+    
+    let lon = CSSDegMinSecToRadians ( CSSDegMinSecFromString ( "-122 25 09.9" ) )
+    let lat = CSSDegMinSecToRadians ( CSSDegMinSecFromString ( "+37 46 29.7" ) )
+    let location = CSSSphericalFromLonLatRad ( lon, lat, 0.026 )
+    let coords = CSSCoordinatesCreate ( ctime.jd, lon, lat, 0.026 )
+    
+    str.append ( String ( format:"Test lon:%+.3f° lat:%+.3f° alt:%.3f km\n",
+        CSSCoordinatesGetLongitude ( coords ) * kSSDegPerRad,
+        CSSCoordinatesGetLatitude ( coords ) * kSSDegPerRad,
+        CSSCoordinatesGetAltitude ( coords ) ) )
+
+    // Now compute some coordinate-related values.
+
+    var dl:Double = 0.0
+    var de:Double = 0.0
+    
+    let obq = CSSCoordinatesGetObliquity ( ctime.jd )
+    CSSCoordinatesGetNutationConstants ( ctime.jd, &de, &dl )
+    
+    str.append ( String ( format:"Ecliptic obq: %.6f°\n", obq * kSSDegPerRad ) )
+    str.append ( String ( format:"Nutation lon: %+.1f\" obq: %+.1f\"\n", dl * kSSArcsecPerRad, de * kSSArcsecPerRad ) )
+    
+    var zeta:Double = 0.0
+    var z:Double = 0.0
+    var theta:Double = 0.0
+
+    CSSCoordinatesGetPrecessionConstants ( ctime.jd, &zeta, &z, &theta )
+    str.append ( String ( format:"Precession zeta:%+.1f\" z:%+.1f\" theta:%+.1f\"\n", zeta * kSSArcsecPerRad, z * kSSArcsecPerRad, theta * kSSArcsecPerRad ) )
+
+    let lst = CSSCoordinatesGetLST ( coords );
+    str.append ( String ( format:"Local Sidereal Time: %s\n", CSSHourMinSecToString ( CSSHourMinSecFromRadians ( lst ) ) ) )
+    
+    let geo = CSSCoordinatesToGeocentric ( location, kCSSKmPerEarthRadii, kCSSEarthFlattening )
+    str.append ( String ( format:"Geo X:%+.3f Y:%+.3f Z:%+.3f km\n", geo.x, geo.y, geo.z ) )
+    let loc = CSSCoordinatesToGeodetic ( geo, kCSSKmPerEarthRadii, kCSSEarthFlattening )
+    str.append ( String ( format:"Geo lon:%+.3f° lat:%+.3f° alt:%.3f km\n",
+        loc.lon * kSSDegPerRad, loc.lat * kSSDegPerRad, loc.rad ) )
+    
+    // Set horizon coordinates to due north; then do some coordinate transformations to equatorial, ecliptic, galactic frames.
+    
+    let hor = CSSSphericalFromLonLatRad ( 0.0, 0.0, 1.0 );
+    let equ = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSEquatorial, hor );
+    let ecl = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSEcliptic, hor );
+    let gal = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSGalactic, hor );
+    
+    str.append ( String ( format:"Horizon Az:%.3f° Alt:%+.3f°\n", hor.lon * kSSDegPerRad, hor.lat * kSSDegPerRad ) )
+    str.append ( String ( format:"Equatorial RA:%s Dec:%s\n",
+        CSSHourMinSecToString ( CSSHourMinSecFromRadians ( equ.lon ) ),
+        CSSDegMinSecToString ( CSSDegMinSecFromRadians ( equ.lat ) ) ) )
+    str.append ( String ( format:"Ecliptic lon:%.3f° lat:%+.3f°\n", ecl.lon * kSSDegPerRad, ecl.lat * kSSDegPerRad ) )
+    str.append ( String ( format:"Galactic lon:%.3f° lat:%+.3f°\n", gal.lon * kSSDegPerRad, gal.lat * kSSDegPerRad ) )
+
+    // Finally destroy coordinate transformations object
+    
+    CSSCoordinatesDestroy ( coords );
+    
     // get path to DE438 file within SSData folder within main bundle
     // open DE438.  If succesful, compute and display Earth's barycentric position & velocity
     

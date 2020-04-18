@@ -193,6 +193,66 @@ CSSMatrix CSSMatrixMultiplyMatrix ( CSSMatrix mat1, CSSMatrix mat2 );
 CSSVector CSSMatrixMultiplyVector ( CSSMatrix mat, CSSVector vec );
 CSSMatrix CSSMatrixRotate ( CSSMatrix mat, int axis, double angle );
 
+// C Wrappers for C++ SSCoordinates classes and methods
+
+const int kCSSFundamental = 0;   // ICRS: the mean equatorial reference frame at epoch J2000 (excludes nutation); X/Y plane is Earth's equatorial plane, +X toward vernal equinox, +Z toward north pole; spherical coords are RA/Dec
+const int kCSSEquatorial = 1;    // equatorial frame at a specific epoch (including nutation); X/Y plane is Earth's equatorial plane, +X toward vernal equinox, +Z toward north pole; spherical coords are RA/Dec
+const int kCSSEcliptic = 2;      // ecliptic frame at a specific epoch (includes nutation); X/Y plane is Earth's orbital plane; +X toward vernal equinox, +Z toward north ecliptic pole; spherical coords are ccliptic lon/lat
+const int kCSSGalactic = 3;      // galactic frame; fixed relative to ICRS; X/Y plane is galactic equator; +X toward galactic center, +Z toward north galactic pole; spherical coords are galactic lon/lat
+const int kCSSHorizon = 4;       // local horizon frame; X/Y plane is local horizon, +X is north, +Z is zenith; ; spherical coords are azimuth/altitude
+
+const double kCSSKmPerAU = 149597870.700;                                     // kilometers per Astronomical Unit (IAU 2012)
+const double kCSSKmPerEarthRadii = 6378.137;                                  // kilometers per equatorial Earth radius (WGS84)
+const double kCSSEarthFlattening = 1 / 298.257;                               // Earth ellipsoid flattening factor (WGS84)
+const double kCSSLightKmPerSec = 299792.458;                                  // Speed of light in kilometers per second
+const double kCSSLightAUPerDay = kCSSLightKmPerSec * 86400.0 / kCSSKmPerAU;   // Speed of lignt in astronomical units per day = 173.144
+const double kCSSAUPerParsec = kSSArcsecPerRad;                               // Astronomical units per parsec = 206264.806247
+const double kCSSParsecPerAU = 1.0 / kCSSAUPerParsec;                         // Parsecs per astronomical unit
+const double kCSSAUPerLY = kCSSLightAUPerDay * 365.25;                        // Astronomical units per light year = 63241.077084 (assuming Julian year of exactly 365.25 days)
+const double kCSSLYPerAU = 1.0 / kCSSAUPerLY;                                 // Light years per astronomical unit
+const double kCSSLYPerParsec = kCSSAUPerParsec / kCSSAUPerLY;                 // Light years per parsec = 3.261563777179643
+const double kCSSParsecPerLY = kCSSAUPerLY / kCSSAUPerParsec;                 // Parsecs per light year
+
+typedef struct CSSCoordinates CSSCoordinates;
+
+CSSCoordinates *CSSCoordinatesCreate ( double jd, double lon, double lat, double alt );
+void CSSCoordinatesDestroy ( CSSCoordinates *pCoords );
+
+void CSSCoordinatesSetTime ( CSSCoordinates *pCoords, double jd );
+void CSSCoordinatesSetLocation ( CSSCoordinates *pCoords, double lon, double lat, double alt );
+
+double CSSCoordinatesGetTime ( CSSCoordinates *pCoords );
+double CSSCoordinatesGetJED ( CSSCoordinates *pCoords );
+double CSSCoordinatesGetLST ( CSSCoordinates *pCoords );
+double CSSCoordinatesGetLongitude ( CSSCoordinates *pCoords );
+double CSSCoordinatesGetLatitude ( CSSCoordinates *pCoords );
+double CSSCoordinatesGetAltitude ( CSSCoordinates *pCoords );
+
+CSSVector CSSCoordinatesTransformVector ( CSSCoordinates *pCoords, int from, int to, CSSVector vec );
+CSSSpherical CSSCoordinatesTransformSpherical ( CSSCoordinates *pCoords, int from, int to, CSSSpherical sph );
+
+double CSSCoordinatesGetObliquity ( double jd );
+void   CSSCoordinatesGetNutationConstants ( double jd, double *de, double *dl );
+void   CSSCoordinatesGetPrecessionConstants ( double jd, double *zeta, double *z, double *theta );
+CSSMatrix CSSCoordinatesGetPrecessionMatrix ( double jd );
+CSSMatrix CSSCoordinatesGetNutationMatrix ( double obliquity, double dl, double de );
+CSSMatrix CSSCoordinatesGetEclipticMatrix ( double obliquity );
+CSSMatrix CSSCoordinatesGetHorizonMatrix ( double lst, double lat );
+CSSMatrix CSSCoordinatesGetGalacticMatrix ( void );
+
+CSSVector CSSCoordinatessApplyAberration ( CSSCoordinates *pCoords, CSSVector direction );
+CSSVector CSSCoordinatesRemoveAberration ( CSSCoordinates *pCoords, CSSVector direction );
+
+double CSSCoordinatesRedShiftToRadVel ( double z );
+double CSSCoordinatesRadVelToRedShift ( double rv );
+
+CSSVector CSSCoordinatesToGeocentric ( CSSSpherical geodetic, double re, double f );
+CSSSpherical CSSCoordinatesToGeodetic ( CSSVector geocentric, double re, double f );
+
+double CSSCoordinatesRefractionAngle ( double alt, bool a );
+double CSSCoordinatesApplyRefraction ( double alt );
+double CSSCoordinatesRemoveRefraction ( double alt );
+
 // C wrappers for C++ SSIdentifier classes and methods
 
 static int kCSSCatUnknown = 0;        // Unknown catalog

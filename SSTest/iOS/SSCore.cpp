@@ -9,6 +9,7 @@
 
 #include "SSTime.hpp"
 #include "SSAngle.hpp"
+#include "SSCoordinates.hpp"
 #include "SSIdentifier.hpp"
 #include "SSJPLDEphemeris.hpp"
 #include "SSVector.hpp"
@@ -162,6 +163,28 @@ const char *CSSHourMinSecToString ( CSSHourMinSec chms )
 
 // C wrappers for C++ SSVector classes and methods
 
+CSSSpherical CSSSphericalFromSSSpherical ( SSSpherical &sph )
+{
+    CSSSpherical csph = { sph.lon, sph.lat, sph.rad };
+    return csph;
+}
+
+SSSpherical CSSSphericalToSSSpherical ( const CSSSpherical &csph )
+{
+    return SSSpherical ( csph.lon, csph.lat, csph.rad );
+}
+
+CSSVector CSSVectorFromSSVector ( const SSVector &vec )
+{
+    CSSVector cvec = { vec.x, vec.y, vec.z };
+    return cvec;
+}
+
+SSVector CSSVectorToSSVector ( const CSSVector &cvec )
+{
+    return SSVector ( cvec.x, cvec.y, cvec.z );
+}
+
 CSSVector CSSVectorFromXYZ ( double x, double y, double z )
 {
     CSSVector vec = { x, y, z };
@@ -191,15 +214,13 @@ double CSSSphericalPositionAngle ( CSSSpherical csph1, CSSSpherical csph2 )
 CSSVector CSSSphericalToCSSVector ( CSSSpherical csph )
 {
     SSVector vec ( SSSpherical ( csph.lon, csph.lat, csph.rad ) );
-    CSSVector cvec = { vec.x, vec.y, vec.z };
-    return cvec;
+    return CSSVectorFromSSVector ( vec );
 }
 
 CSSSpherical CSSVectorToCSSSpherical ( CSSVector cvec )
 {
     SSSpherical sph ( SSVector ( cvec.x, cvec.y, cvec.z ) );
-    CSSSpherical csph = { sph.lon, sph.lat, sph.rad };
-    return csph;
+    return CSSSphericalFromSSSpherical ( sph );
 }
 
 CSSVector CSSSphericalCSSVectorVelocity ( CSSSpherical cpos, CSSSpherical cvel )
@@ -207,8 +228,7 @@ CSSVector CSSSphericalCSSVectorVelocity ( CSSSpherical cpos, CSSSpherical cvel )
     SSSpherical spos ( cpos.lon, cpos.lat, cpos.rad );
     SSSpherical svel ( cvel.lon, cvel.lat, cvel.rad );
     SSVector vvel = spos.toVectorVelocity ( svel );
-    CSSVector cvec = { vvel.x, vvel.y, vvel.z };
-    return cvec;
+    return CSSVectorFromSSVector ( vvel );
 }
 
 CSSSpherical CSSVectorToCSSSphericalVelocity ( CSSVector cpos, CSSVector cvel )
@@ -216,8 +236,7 @@ CSSSpherical CSSVectorToCSSSphericalVelocity ( CSSVector cpos, CSSVector cvel )
     SSVector vpos ( cpos.x, cpos.y, cpos.z );
     SSVector vvel ( cvel.x, cvel.y, cvel.z );
     SSSpherical svel = vpos.toSphericalVelocity ( vvel );
-    CSSSpherical csph = { svel.lon, svel.lat, svel.rad };
-    return csph;
+    return CSSSphericalFromSSSpherical ( svel );
 }
 
 double CSSVectorMagnitude ( CSSVector cvec )
@@ -230,8 +249,7 @@ CSSVector CSSVectorNormalize ( CSSVector cvec )
 {
     SSVector vec ( cvec.x, cvec.y, cvec.z );
     vec = vec.normalize();
-    cvec.x = vec.x; cvec.y = vec.y; cvec.z = vec.z;
-    return cvec;
+    return CSSVectorFromSSVector ( vec );
 }
 
 CSSVector CSSVectorAdd ( CSSVector cvec1, CSSVector cvec2 )
@@ -273,8 +291,7 @@ CSSVector CSSVectorCrossProduct ( CSSVector cvec1, CSSVector cvec2 )
     SSVector vec1 ( cvec1.x, cvec1.y, cvec1.z );
     SSVector vec2 ( cvec2.x, cvec2.y, cvec2.z );
     SSVector x = vec1.crossProduct ( vec2 );
-    CSSVector cx = { x.x, x.y, x.z };
-    return cx;
+    return CSSVectorFromSSVector ( x );
 }
 
 double CSSVectorAngularSeparation ( CSSVector cvec1, CSSVector cvec2 )
@@ -292,6 +309,30 @@ double CSSVectorPositionAngle ( CSSVector cvec1, CSSVector cvec2 )
 }
 
 // C wrappers for C++ SSMatrix classes and methods
+
+SSMatrix CSSMatrixToSSMatrix ( const CSSMatrix &cmat )
+{
+    SSMatrix mat =
+    {
+        cmat.m00, cmat.m01, cmat.m02,
+        cmat.m10, cmat.m11, cmat.m12,
+        cmat.m20, cmat.m21, cmat.m22
+    };
+    
+    return mat;
+}
+
+CSSMatrix CSSMatrixFromSSMatrix ( const SSMatrix &mat )
+{
+    CSSMatrix cmat =
+    {
+        mat.m00, mat.m01, mat.m02,
+        mat.m10, mat.m11, mat.m12,
+        mat.m20, mat.m21, mat.m22
+    };
+    
+    return cmat;
+}
 
 CSSMatrix CSSMatrixIdentity ( void )
 {
@@ -319,100 +360,223 @@ CSSMatrix CSSMatrixTranspose ( CSSMatrix mat )
 
 CSSMatrix CSSMatrixInverse ( CSSMatrix cmat )
 {
-    SSMatrix mat =
-    {
-        cmat.m00, cmat.m01, cmat.m02,
-        cmat.m10, cmat.m11, cmat.m12,
-        cmat.m20, cmat.m21, cmat.m22
-    };
-    
+    SSMatrix mat = CSSMatrixToSSMatrix ( cmat );
     mat = mat.inverse();
-    
-    CSSMatrix cminv =
-    {
-        mat.m00, mat.m01, mat.m02,
-        mat.m10, mat.m11, mat.m12,
-        mat.m20, mat.m21, mat.m22
-    };
-    
-    return cminv;
+    return CSSMatrixFromSSMatrix ( mat );
 }
 
 double CSSMatrixDeterminant ( CSSMatrix cmat )
 {
-    SSMatrix mat =
-    {
-        cmat.m00, cmat.m01, cmat.m02,
-        cmat.m10, cmat.m11, cmat.m12,
-        cmat.m20, cmat.m21, cmat.m22
-    };
-    
+    SSMatrix mat = CSSMatrixToSSMatrix ( cmat );
     return mat.determinant();
 }
 
 CSSMatrix CSSMatrixMultiplyMatrix ( CSSMatrix cmat1, CSSMatrix cmat2 )
 {
-    SSMatrix mat1 =
-    {
-        cmat1.m00, cmat1.m01, cmat1.m02,
-        cmat1.m10, cmat1.m11, cmat1.m12,
-        cmat1.m20, cmat1.m21, cmat1.m22
-    };
-    
-    SSMatrix mat2 =
-    {
-        cmat2.m00, cmat2.m01, cmat2.m02,
-        cmat2.m10, cmat2.m11, cmat2.m12,
-        cmat2.m20, cmat2.m21, cmat2.m22
-    };
-
+    SSMatrix mat1 = CSSMatrixToSSMatrix ( cmat1 );
+    SSMatrix mat2 = CSSMatrixToSSMatrix ( cmat2 );
     SSMatrix mat3 = mat1 * mat2;
-    
-    CSSMatrix cmat3 =
-    {
-        mat3.m00, mat3.m01, mat3.m02,
-        mat3.m10, mat3.m11, mat3.m12,
-        mat3.m20, mat3.m21, mat3.m22
-    };
-    
-    return cmat3;
+    return CSSMatrixFromSSMatrix ( mat3 );
 }
 
 CSSVector CSSMatrixMultiplyVector ( CSSMatrix cmat, CSSVector cvec )
 {
-    SSMatrix mat =
-    {
-        cmat.m00, cmat.m01, cmat.m02,
-        cmat.m10, cmat.m11, cmat.m12,
-        cmat.m20, cmat.m21, cmat.m22
-    };
-    
+    SSMatrix mat = CSSMatrixToSSMatrix ( cmat );
     SSVector vec = { cvec.x, cvec.y, cvec.z };
     vec = mat * vec;
-    
     CSSVector cvec1 = { vec.x, vec.y, vec.z };
     return cvec1;
 }
 
 CSSMatrix CSSMatrixRotate ( CSSMatrix cmat, int axis, double angle )
 {
-    SSMatrix mat =
-    {
-        cmat.m00, cmat.m01, cmat.m02,
-        cmat.m10, cmat.m11, cmat.m12,
-        cmat.m20, cmat.m21, cmat.m22
-    };
-    
+    SSMatrix mat = CSSMatrixToSSMatrix ( cmat );
     mat = mat.rotate ( axis, angle );
-    
-    CSSMatrix cmatr =
-    {
-        mat.m00, mat.m01, mat.m02,
-        mat.m10, mat.m11, mat.m12,
-        mat.m20, mat.m21, mat.m22
-    };
-    
-    return cmatr;
+    return CSSMatrixFromSSMatrix ( mat );
+}
+
+// C wrappers for C++ SSCoordinates classes and methods
+
+CSSCoordinates *CSSCoordinatesCreate ( double jd, double lon, double lat, double alt )
+{
+    SSCoordinates *pCoords = new SSCoordinates ( jd, lon, lat, alt );
+    return (CSSCoordinates *) pCoords;
+}
+
+void CSSCoordinatesDestroy ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    delete pCoords;
+}
+
+void CSSCoordinatesSetTime ( CSSCoordinates *pCCoords, double jd )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        pCoords->setTime ( jd );
+}
+
+void CSSCoordinatesSetLocation ( CSSCoordinates *pCCoords, double lon, double lat, double alt )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        pCoords->setLocation ( lon, lat, alt );
+}
+
+double CSSCoordinatesGetTime ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->jd : HUGE_VAL;
+}
+
+double CSSCoordinatesGetJED ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->jed : HUGE_VAL;
+}
+
+double CSSCoordinatesGetLST ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->lst : HUGE_VAL;
+}
+
+double CSSCoordinatesGetLongitude ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->lon : HUGE_VAL;
+}
+
+double CSSCoordinatesGetLatitude ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->lat : HUGE_VAL;
+}
+
+double CSSCoordinatesGetAltitude ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->alt : HUGE_VAL;
+}
+
+CSSVector CSSCoordinatesTransformVector ( CSSCoordinates *pCCoords, int from, int to, CSSVector cvec )
+{
+    SSVector vec ( cvec.x, cvec.y, cvec.z );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        vec = pCoords->transform ( (SSFrame) from, (SSFrame) to, vec );
+    return CSSVectorFromSSVector ( vec );
+}
+
+CSSSpherical CSSCoordinatesTransformSpherical ( CSSCoordinates *pCCoords, int from, int to, CSSSpherical csph )
+{
+    SSSpherical sph ( csph.lon, csph.lat, csph.rad );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        sph = pCoords->transform ( (SSFrame) from, (SSFrame) to, sph );
+    return CSSSphericalFromSSSpherical ( sph );
+}
+
+double CSSCoordinatesGetObliquity ( double jd )
+{
+    return SSCoordinates::getObliquity ( jd );
+}
+
+void CSSCoordinatesGetNutationConstants ( double jd, double *de, double *dl )
+{
+    SSCoordinates::getNutationConstants ( jd, *de, *dl );
+}
+
+void CSSCoordinatesGetPrecessionConstants ( double jd, double *zeta, double *z, double *theta )
+{
+    SSCoordinates::getPrecessionConstants ( jd, *zeta, *z, *theta );
+}
+
+CSSMatrix CSSCoordinatesGetPrecessionMatrix ( double jd )
+{
+    SSMatrix mat = SSCoordinates::getPrecessionMatrix ( jd );
+    return CSSMatrixFromSSMatrix ( mat );
+}
+
+CSSMatrix CSSCoordinatesGetNutationMatrix ( double obliquity, double dl, double de )
+{
+    SSMatrix mat = SSCoordinates::getNutationMatrix ( obliquity, dl, de );
+    return CSSMatrixFromSSMatrix ( mat );
+}
+
+CSSMatrix CSSCoordinatesGetEclipticMatrix ( double obliquity )
+{
+    SSMatrix mat = SSCoordinates::getEclipticMatrix ( obliquity );
+    return CSSMatrixFromSSMatrix ( mat );
+}
+
+CSSMatrix CSSCoordinatesGetHorizonMatrix ( double lst, double lat )
+{
+    SSMatrix mat = SSCoordinates::getHorizonMatrix ( lst, lat );
+    return CSSMatrixFromSSMatrix ( mat );
+}
+
+CSSMatrix CSSCoordinatesGetGalacticMatrix ( void )
+{
+    SSMatrix mat = SSCoordinates::getGalacticMatrix();
+    return CSSMatrixFromSSMatrix ( mat );
+}
+
+CSSVector CSSCoordinatessApplyAberration ( CSSCoordinates *pCCoords, CSSVector cdir )
+{
+    SSVector dir ( cdir.x, cdir.y, cdir.z );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        dir = pCoords->applyAberration ( dir );
+    return CSSVectorFromSSVector ( dir );
+}
+
+CSSVector CSSCoordinatesRemoveAberration ( CSSCoordinates *pCCoords, CSSVector cdir )
+{
+    SSVector dir ( cdir.x, cdir.y, cdir.z );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        dir = pCoords->removeAberration ( dir );
+    return CSSVectorFromSSVector ( dir );
+}
+
+double CSSCoordinatesRedShiftToRadVel ( double z )
+{
+    return SSCoordinates::redShiftToRadVel ( z );
+}
+
+double CSSCoordinatesRadVelToRedShift ( double rv )
+{
+    return SSCoordinates::radVelToRedShift ( rv );
+}
+
+CSSVector CSSCoordinatesToGeocentric ( CSSSpherical csph, double re, double f )
+{
+    SSSpherical sph = CSSSphericalToSSSpherical ( csph );
+    SSVector vec = SSCoordinates::toGeocentric ( sph, re, f );
+    return CSSVectorFromSSVector ( vec );
+}
+
+CSSSpherical CSSCoordinatesToGeodetic ( CSSVector cvec, double re, double f )
+{
+    SSVector vec = CSSVectorToSSVector ( cvec );
+    SSSpherical sph = SSCoordinates::toGeodetic ( vec, re, f );
+    return CSSSphericalFromSSSpherical ( sph );
+}
+
+double CSSCoordinatesRefractionAngle ( double alt, bool a )
+{
+    return SSCoordinates::refractionAngle ( alt, a );
+}
+
+double CSSCoordinatesApplyRefraction ( double alt )
+{
+    return SSCoordinates::applyRefraction ( alt );
+}
+
+double CSSCoordinatesRemoveRefraction ( double alt )
+{
+    return SSCoordinates::removeRefraction ( alt );
 }
 
 // C wrappers for C++ SSIdentifier classes and methods
