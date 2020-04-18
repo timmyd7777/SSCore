@@ -66,11 +66,10 @@ string SSDegMinSec::toString ( void )
         return format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
 }
 
-// Constructs an angular value in hours, minutes, seconds with the given sign.
+// Constructs an angular value in hours, minutes, seconds.
 
-SSHourMinSec::SSHourMinSec ( char c, short h, short m, double s )
+SSHourMinSec::SSHourMinSec ( short h, short m, double s )
 {
-    sign = c;
     hour = h;
     min = m;
     sec = s;
@@ -81,8 +80,7 @@ SSHourMinSec::SSHourMinSec ( char c, short h, short m, double s )
 
 SSHourMinSec::SSHourMinSec ( double hours )
 {
-    sign = hours >= 0.0 ? '+' : '-';
-    hours = fabs ( hours );
+    hours = mod24h ( hours );
     hour = hours;
     min = 60.0 * ( hours - hour );
     sec = 3600.0 * ( hours - hour - min / 60.0 );
@@ -107,8 +105,7 @@ SSHourMinSec::SSHourMinSec ( string str ) : SSHourMinSec ( strtodeg ( str ) )
 
 double SSHourMinSec::toHours ( void )
 {
-    double h = hour + min / 60.0 + sec / 3600.0;
-    return sign == '-' ? -h : h;
+    return hour + min / 60.0 + sec / 3600.0;
 }
 
 // Converts an angle in hours, minutes, seconds to a string.
@@ -149,7 +146,7 @@ SSAngle::SSAngle ( SSDegMinSec dms )
 
 SSAngle::SSAngle ( SSHourMinSec hms )
 {
-    _rad = kRadPerHour * ( hms.hour + hms.min / 60.0 + hms.sec / 3600.0 ) * ( hms.sign == '+' ? 1 : -1 );
+    _rad = kRadPerHour * ( hms.hour + hms.min / 60.0 + hms.sec / 3600.0 );
 }
 
 // Constructs an angle in radians from an angle in arcseconds (360*60*60=1296000 arcseconds per circle)

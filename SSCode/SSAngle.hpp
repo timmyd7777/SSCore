@@ -12,7 +12,7 @@
 
 #include "SSUtilities.hpp"
 
-// Represents an angular value expressed in degrees, minutes, seconds
+// Represents an angular value expressed in positive or negative degrees, minutes, seconds
 
 struct SSDegMinSec
 {
@@ -31,17 +31,17 @@ struct SSDegMinSec
 };
 
 // Represents an angular value expressed in hours, minutes, seconds
+// Always positive, in range 0 to 24 hours.
 
 struct SSHourMinSec
 {
-    char sign;        // sign of angle, either '+' or '-'
     short hour;       // hours portion of angle, 0 - 23, always positive
     short min;        // minutes portion of angle, 0 - 59, always positive
     double sec;       // seconds portion of angle, 0 - 59.999..., always positive
 
     SSHourMinSec ( string s );
     SSHourMinSec ( double hours );
-    SSHourMinSec ( char sign, short hour, short min, double sec );
+    SSHourMinSec ( short hour, short min, double sec );
     SSHourMinSec ( class SSAngle );
 
     double toHours ( void );

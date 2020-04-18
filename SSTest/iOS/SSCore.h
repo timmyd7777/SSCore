@@ -106,7 +106,6 @@ CSSDegMinSec;
 
 typedef struct CSSHourMinSec
 {
-    char   sign;      // sign of angle, either '+' or '-'
     short  hour;      // hours portion of angle, 0 - 23, always positive
     short  min;       // minutes portion of angle, 0 - 59, always positive
     double sec;       // seconds portion of angle, 0 - 59.999..., always positive

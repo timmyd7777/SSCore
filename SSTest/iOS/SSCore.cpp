@@ -136,27 +136,27 @@ const char *CSSDegMinSecToString ( CSSDegMinSec cdms )
 CSSHourMinSec CSSHourMinSecFromRadians ( CSSAngle rad )
 {
     SSHourMinSec hms ( (SSAngle) rad );
-    CSSHourMinSec chms = { hms.sign, hms.hour, hms.min, hms.sec };
+    CSSHourMinSec chms = { hms.hour, hms.min, hms.sec };
     return chms;
 }
 
 CSSHourMinSec CSSHourMinSecFromString ( const char *str )
 {
     SSHourMinSec hms ( str );
-    CSSHourMinSec chms = { hms.sign, hms.hour, hms.min, hms.sec };
+    CSSHourMinSec chms = { hms.hour, hms.min, hms.sec };
     return chms;
 }
 
 CSSAngle CSSHourMinSecToRadians ( CSSHourMinSec chms )
 {
-    SSHourMinSec hms ( chms.sign, chms.hour, chms.min, chms.sec );
+    SSHourMinSec hms ( chms.hour, chms.min, chms.sec );
     return SSAngle ( hms );
 }
 
 const char *CSSHourMinSecToString ( CSSHourMinSec chms )
 {
     static string str = "";
-    SSHourMinSec hms ( chms.sign, chms.hour, chms.min, chms.sec );
+    SSHourMinSec hms ( chms.hour, chms.min, chms.sec );
     str = hms.toString();
     return str.c_str();
 }

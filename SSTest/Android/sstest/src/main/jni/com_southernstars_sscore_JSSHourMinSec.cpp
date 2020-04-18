@@ -8,7 +8,6 @@ jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, SSHourMinSec &hms )
 
     if ( pJSSHourMinSec != nullptr )
     {
-        SetCharField ( pEnv, pJSSHourMinSec, "sign", hms.sign );
         SetShortField ( pEnv, pJSSHourMinSec, "hour", hms.hour );
         SetShortField ( pEnv, pJSSHourMinSec, "min", hms.min );
         SetDoubleField ( pEnv, pJSSHourMinSec, "sec", hms.sec );
@@ -19,12 +18,11 @@ jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, SSHourMinSec &hms )
 
 SSHourMinSec JSSHourMinSecToSSHourMinSec ( JNIEnv *pEnv, jobject pJSSHourMinSec )
 {
-    char sign = GetCharField ( pEnv, pJSSHourMinSec, "sign" );
     short hour = GetShortField ( pEnv, pJSSHourMinSec, "hour" );
     short min = GetShortField ( pEnv, pJSSHourMinSec, "min" );
     double sec = GetDoubleField ( pEnv, pJSSHourMinSec, "sec" );
 
-    return SSHourMinSec ( sign, hour, min, sec );
+    return SSHourMinSec ( hour, min, sec );
 }
 
 /*
