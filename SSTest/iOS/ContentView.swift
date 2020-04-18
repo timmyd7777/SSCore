@@ -125,7 +125,7 @@ func test ( ) -> String
     CSSCoordinatesGetPrecessionConstants ( ctime.jd, &zeta, &z, &theta )
     str.append ( String ( format:"Precession zeta:%+.1f\" z:%+.1f\" theta:%+.1f\"\n", zeta * kSSArcsecPerRad, z * kSSArcsecPerRad, theta * kSSArcsecPerRad ) )
 
-    let lst = CSSCoordinatesGetLST ( coords );
+    let lst = CSSCoordinatesGetLST ( coords )
     str.append ( String ( format:"Local Sidereal Time: %s\n", CSSHourMinSecToString ( CSSHourMinSecFromRadians ( lst ) ) ) )
     
     let geo = CSSCoordinatesToGeocentric ( location, kCSSKmPerEarthRadii, kCSSEarthFlattening )
@@ -136,10 +136,10 @@ func test ( ) -> String
     
     // Set horizon coordinates to due north; then do some coordinate transformations to equatorial, ecliptic, galactic frames.
     
-    let hor = CSSSphericalFromLonLatRad ( 0.0, 0.0, 1.0 );
-    let equ = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSEquatorial, hor );
-    let ecl = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSEcliptic, hor );
-    let gal = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSGalactic, hor );
+    let hor = CSSSphericalFromLonLatRad ( 0.0, 0.0, 1.0 )
+    let equ = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSEquatorial, hor )
+    let ecl = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSEcliptic, hor )
+    let gal = CSSCoordinatesTransformSpherical ( coords, kCSSHorizon, kCSSGalactic, hor )
     
     str.append ( String ( format:"Horizon Az:%.3f° Alt:%+.3f°\n", hor.lon * kSSDegPerRad, hor.lat * kSSDegPerRad ) )
     str.append ( String ( format:"Equatorial RA:%s Dec:%s\n",
