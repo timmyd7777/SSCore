@@ -26,6 +26,7 @@ void SetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jint v
 void SetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jlong value );
 void SetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jfloat value );
 void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdouble value );
+void SetDoubleValue ( JNIEnv *pEnv, jobject pDouble, jdouble value );
 
 jchar GetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jshort GetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
@@ -33,30 +34,31 @@ jint GetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jlong GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jfloat GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jdouble GetDoubleValue ( JNIEnv *pEnv, jobject pDouble );
 
-jobject SSTimeToJSSTime ( JNIEnv *pEnv, SSTime &time );
+jobject SSTimeToJSSTime ( JNIEnv *pEnv, const SSTime &time );
 SSTime JSSTimeToSSTime ( JNIEnv *pEnv, jobject pJSSTime );
 
-jobject SSDateToJSSDate ( JNIEnv *pEnv, SSDate &date );
+jobject SSDateToJSSDate ( JNIEnv *pEnv, const SSDate &date );
 SSDate JSSDateToSSDate ( JNIEnv *pEnv, jobject pJSSDate );
 
-jobject SSDegMinSecToJSSDegMinSec ( JNIEnv *pEnv, SSDegMinSec &time );
+jobject SSDegMinSecToJSSDegMinSec ( JNIEnv *pEnv, const SSDegMinSec &dms );
 SSDegMinSec JSSDegMinSecToSSDegMinSec ( JNIEnv *pEnv, jobject pJSSDegMinSec );
 
-jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, SSHourMinSec &time );
+jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, const SSHourMinSec &hms );
 SSHourMinSec JSSHourMinSecToSSHourMinSec ( JNIEnv *pEnv, jobject pJSSHourMinSec );
 
-jobject SSSphericalToJSSSpherical ( JNIEnv *pEnv, SSSpherical &spherical );
+jobject SSSphericalToJSSSpherical ( JNIEnv *pEnv, const SSSpherical &spherical );
 SSSpherical JSSSphericalToSSSpherical ( JNIEnv *pEnv, jobject pJSSSpherical );
 
-jobject SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector );
-void SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector, jobject pJSSVector );
+jobject SSVectorToJSSVector ( JNIEnv *pEnv, const SSVector &vector );
+void SSVectorToJSSVector ( JNIEnv *pEnv, const SSVector &vector, jobject pJSSVector );
 SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
 
-jobject SSMatrixToJSSMatrix ( JNIEnv *pEnv, SSMatrix &matrix );
+jobject SSMatrixToJSSMatrix ( JNIEnv *pEnv, const SSMatrix &matrix );
 SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
 
-jobject SSIdentifierToJSSIdentifier ( JNIEnv *pEnv, SSIdentifier &ident );
+jobject SSIdentifierToJSSIdentifier ( JNIEnv *pEnv, const SSIdentifier &ident );
 SSIdentifier JSSIdentifierToIdentifier (JNIEnv *pEnv, jobject pJSSIdentifier );
 
 jobject SSObjectToJSSObject ( JNIEnv *pEnv, SSObject *pObject );

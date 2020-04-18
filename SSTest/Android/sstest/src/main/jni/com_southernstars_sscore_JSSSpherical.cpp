@@ -2,7 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSVector.hpp"
 
-jobject SSSphericalToJSSSpherical ( JNIEnv *pEnv, SSSpherical &spherical )
+jobject SSSphericalToJSSSpherical ( JNIEnv *pEnv, const SSSpherical &spherical )
 {
     jobject pJSSSpherical = CreateJObject ( pEnv, "com/southernstars/sscore/JSSSpherical" );
 

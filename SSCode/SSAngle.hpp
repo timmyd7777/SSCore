@@ -89,7 +89,7 @@ public:
     static SSAngle fromDegrees ( double degrees );
     static SSAngle fromHours ( double hours );
  
-    operator double() { return _rad; }
+    operator double() const { return _rad; }
 
     SSAngle operator + ( double k ) { return SSAngle ( _rad + k ); }
     SSAngle operator - ( double k ) { return SSAngle ( _rad - k ); }

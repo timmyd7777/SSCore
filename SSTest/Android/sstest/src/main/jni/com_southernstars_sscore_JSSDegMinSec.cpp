@@ -2,7 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSAngle.hpp"
 
-jobject SSDegMinSecToJSSDegMinSec ( JNIEnv *pEnv, SSDegMinSec &dms )
+jobject SSDegMinSecToJSSDegMinSec ( JNIEnv *pEnv, const SSDegMinSec &dms )
 {
     jobject pJSSDegMinSec = CreateJObject ( pEnv, "com/southernstars/sscore/JSSDegMinSec" );
 

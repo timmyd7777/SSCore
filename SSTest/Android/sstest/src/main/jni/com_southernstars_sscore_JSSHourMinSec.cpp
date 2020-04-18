@@ -2,7 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSAngle.hpp"
 
-jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, SSHourMinSec &hms )
+jobject SSHourMinSecToJSSHourMinSec ( JNIEnv *pEnv, const SSHourMinSec &hms )
 {
     jobject pJSSHourMinSec = CreateJObject ( pEnv, "com/southernstars/sscore/JSSHourMinSec" );
 

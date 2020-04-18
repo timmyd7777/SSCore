@@ -71,7 +71,7 @@ struct SSTime
     static constexpr double kSiderealPerSolarDays = 1.00273790934;     // Sidereal days per Solar day
     static constexpr double kSolarPerSiderealDays = 0.99726957;        // Days per Sidereal Day
 
-    operator double () { return jd; }
+    operator double () const { return jd; }
     
     SSTime ( void );
     SSTime ( double jd );

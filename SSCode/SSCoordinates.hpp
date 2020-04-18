@@ -83,12 +83,12 @@ public:
     double getJED ( void ) { return _jed; }
     double getLST ( void ) { return _lst; }
     
-    static double getObliquity ( double epoch );
+    static double getObliquity ( double jd );
     static void   getNutationConstants ( double jd, double &de, double &dl );
     static void   getPrecessionConstants ( double jd, double &zeta, double &z, double &theta );
 
-    static SSMatrix getPrecessionMatrix ( double epoch );
-    static SSMatrix getNutationMatrix ( double onliquity, double nutLon, double nutObq );
+    static SSMatrix getPrecessionMatrix ( double jd );
+    static SSMatrix getNutationMatrix ( double obliquity, double nutLon, double nutObq );
     static SSMatrix getEclipticMatrix ( double obliquity );
     static SSMatrix getHorizonMatrix ( double lst, double lat );
     static SSMatrix getGalacticMatrix ( void );

@@ -36,6 +36,7 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSVector.cpp
              ../../../../../../SSTest/SSTest.cpp
              ../jni/com_southernstars_sscore_JSSAngle.cpp
+             ../jni/com_southernstars_sscore_JSSCoordinates.cpp
              ../jni/com_southernstars_sscore_JSSDate.cpp
              ../jni/com_southernstars_sscore_JSSDegMinSec.cpp
              ../jni/com_southernstars_sscore_JSSHourMinSec.cpp

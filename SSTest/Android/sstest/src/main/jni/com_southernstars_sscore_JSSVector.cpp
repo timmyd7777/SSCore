@@ -2,14 +2,14 @@
 #include "JNIUtilities.h"
 #include "SSVector.hpp"
 
-jobject SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector )
+jobject SSVectorToJSSVector ( JNIEnv *pEnv, const SSVector &vector )
 {
     jobject pJSSVector = CreateJObject ( pEnv, "com/southernstars/sscore/JSSVector" );
     SSVectorToJSSVector ( pEnv, vector, pJSSVector );
     return pJSSVector;
 }
 
-void SSVectorToJSSVector ( JNIEnv *pEnv, SSVector &vector, jobject pJSSVector )
+void SSVectorToJSSVector ( JNIEnv *pEnv, const SSVector &vector, jobject pJSSVector )
 {
     if ( pJSSVector != nullptr )
     {

@@ -2,7 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSIdentifier.hpp"
 
-jobject SSIdentifierToJSSIdentifier ( JNIEnv *pEnv, SSIdentifier &ident )
+jobject SSIdentifierToJSSIdentifier ( JNIEnv *pEnv, const SSIdentifier &ident )
 {
     jobject pJSSIdentifier = CreateJObject ( pEnv, "com/southernstars/sscore/JSSIdentifier" );
     if ( pJSSIdentifier )

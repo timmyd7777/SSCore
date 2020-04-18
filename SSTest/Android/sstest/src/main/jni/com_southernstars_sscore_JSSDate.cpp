@@ -2,7 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSTime.hpp"
 
-jobject SSDateToJSSDate ( JNIEnv *pEnv, SSDate &date )
+jobject SSDateToJSSDate ( JNIEnv *pEnv, const SSDate &date )
 {
     jobject pJSSDate = CreateJObject ( pEnv, "com/southernstars/sscore/JSSDate" );
 

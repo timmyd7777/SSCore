@@ -2,7 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSMatrix.hpp"
 
-jobject SSMatrixToJSSMatrix ( JNIEnv *pEnv, SSMatrix &matrix )
+jobject SSMatrixToJSSMatrix ( JNIEnv *pEnv, const SSMatrix &matrix )
 {
     jobject pJSSMatrix = CreateJObject ( pEnv, "com/southernstars/sscore/JSSMatrix" );
 

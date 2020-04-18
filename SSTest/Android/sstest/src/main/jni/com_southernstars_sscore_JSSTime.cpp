@@ -2,7 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSTime.hpp"
 
-jobject SSTimeToJSSTime ( JNIEnv *pEnv, SSTime &time )
+jobject SSTimeToJSSTime ( JNIEnv *pEnv, const SSTime &time )
 {
     jobject pJSSTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSTime" );
 
