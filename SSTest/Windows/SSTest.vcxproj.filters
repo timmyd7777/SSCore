@@ -81,6 +81,9 @@
     <ClCompile Include="..\..\SSCode\SSPSEphemeris.cpp">
       <Filter>Source Files\SSCode</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSEvent.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp">
@@ -141,6 +144,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SSCode\SSPSEphemeris.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSEvent.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
