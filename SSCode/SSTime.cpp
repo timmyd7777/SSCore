@@ -405,3 +405,11 @@ SSAngle SSTime::getSiderealTime ( SSAngle lon )
     
     return ( SSAngle::fromDegrees ( gmst ) + lon ).mod2Pi();
 }
+
+// Returns the Julian Dates that corresponds to the start of the local day.
+     
+SSTime SSTime::getLocalMidnight ( void )
+{
+    double jd0 = floor ( jd - 0.5 + zone / 24.0 ) + 0.5 - zone / 24.0;
+    return SSTime ( jd0, zone, calendar );
+}

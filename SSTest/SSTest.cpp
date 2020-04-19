@@ -23,6 +23,7 @@
 #include "SSImportGJ.hpp"
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
+#include "SSEvent.hpp"
 
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
@@ -239,9 +240,10 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << "Imported " << nnames << " McCants satellite names." << endl;
 
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
-    SSTime time = SSTime ( date ); // SSTime::fromSystem();
+    SSTime now = SSTime::fromSystem(); // SSTime ( date ); //
+    date = SSDate ( now );
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
-    SSCoordinates coords ( time, here );
+    SSCoordinates coords ( now, here );
     
     cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
     cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
@@ -252,7 +254,30 @@ void TestEphemeris ( string inputDir, string outputDir )
     coords.aberration = true;
     coords.lighttime = true;
     
-    for ( int i = 0; i < solsys.size(); i++ )
+    // Compute Sun rise/set times
+    
+    if ( solsys.size() > 10 )
+    {
+        SSObjectPtr pSun = solsys[0];
+        SSObjectPtr pMoon = solsys[10];
+
+        SSTime rise = SSEvent::riseTransitSetSearchDay ( now, coords, pSun, -1, -50.0 / SSAngle::kArcminPerRad );
+        date = SSDate ( rise );
+        cout << format ( "Sunrise:  %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl;
+
+        SSTime set  = SSEvent::riseTransitSetSearchDay ( now, coords, pSun,  1, -50.0 / SSAngle::kArcminPerRad );
+        date = SSDate ( set );
+        cout << format ( "Sunset:   %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl;
+
+        rise = SSEvent::riseTransitSetSearchDay ( now, coords, pMoon, -1, -50.0 / SSAngle::kArcminPerRad );
+        date = SSDate ( rise );
+        cout << format ( "Moonrise: %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl;
+
+        set  = SSEvent::riseTransitSetSearchDay ( now, coords, pMoon,  1, -50.0 / SSAngle::kArcminPerRad );
+        date = SSDate ( set );
+        cout << format ( "Moonset:  %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl << endl;
+    }
+        for ( int i = 0; i < solsys.size(); i++ )
     {
         SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
         if ( p == nullptr )

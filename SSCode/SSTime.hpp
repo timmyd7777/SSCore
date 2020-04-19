@@ -48,12 +48,13 @@ struct SSDate
     SSTime toJulianDate ( void );
 };
 
-// Represents an instant in time as a Julian Date.
+// Represents an instant in time as a Julian Date and a local time zone;
+// zone is needed for date conversion, getting system time, and rise/set computation.
 
 struct SSTime
 {
     double        jd;              // Julian date in civil time (NOT epehemeris time!)
-    double        zone;            // Local time zone to use for converting to local calendar date/time, hours east of Greenwich
+    double        zone;            // Local time zone, hours east of Greenwich
     SSCalendar    calendar;        // Calendar system to use for converting to calendar date/time
 
     static constexpr double kJ2000 = 2451545.0;      // JD of standard Julian epoch J2000
@@ -71,8 +72,22 @@ struct SSTime
     static constexpr double kSiderealPerSolarDays = 1.00273790934;     // Sidereal days per Solar day
     static constexpr double kSolarPerSiderealDays = 0.99726957;        // Days per Sidereal Day
 
+    // This operator allows using an SSTime as a double equal to its Juliam Date
+    
     operator double () const { return jd; }
     
+    // These operators preserve the time zone whem adding a time interval in days to an SSTime.
+    
+    SSTime operator + ( double k ) { return SSTime ( jd + k, zone, calendar ); }
+    SSTime operator - ( double k ) { return SSTime ( jd - k, zone, calendar ); }
+    SSTime operator * ( double k ) { return SSTime ( jd * k, zone, calendar ); }
+    SSTime operator / ( double k ) { return SSTime ( jd / k, zone, calendar ); }
+
+    void operator += ( double k ) { jd += k; }
+    void operator -= ( double k ) { jd -= k; }
+    void operator *= ( double k ) { jd *= k; }
+    void operator /= ( double k ) { jd /= k; }
+
     SSTime ( void );
     SSTime ( double jd );
     SSTime ( double jd, double zone );
@@ -94,6 +109,7 @@ struct SSTime
     double  getDeltaT ( void );
     double  getJulianEphemerisDate ( void );
     SSAngle getSiderealTime ( SSAngle lon );
+    SSTime  getLocalMidnight ( void );
 };
 
 #endif /* SSTime_hpp */

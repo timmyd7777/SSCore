@@ -36,6 +36,8 @@ struct SSTLE
     double xno;         // Mean motion (radians/minute)
     bool deep;          // If period > 225 minutes, should use deep space SDP4 ephemeris; see isdeep().
     
+    // pointers to internal arguments used by SGP/SGP4/SDP4 orbit models.
+    
     union
     {
         struct sgp_args *sgp;
@@ -63,6 +65,8 @@ struct SSTLE
 
     bool isdeep ( void );
     void dodeep ( int ientry, struct deep_args *args );
+    
+    // Methods to compute SGP4 orbit from position & velocity
     
     void rvel ( SSVector &pos, SSVector &vel );
     void rv2el ( SSVector &pos, SSVector &vel );
