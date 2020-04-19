@@ -106,9 +106,60 @@ class MainActivity : AppCompatActivity() {
         str += "Identity Matrix:\n"
         str += JSSMatrixToString ( prd )
 
+        // Create a coordinate transformation object initialized to the longitude and latitude of San Francisco at current time
+        // Wouldn't it be great to have a common API that gets current location on all platforms? (hint, hint)
+
+        val lon = JSSDegMinSec.fromString ( "-122 25 09.9" ).toRadians()
+        val lat = JSSDegMinSec.fromString ( "+37 46 29.7" ).toRadians()
+        val location = JSSSpherical ( lon, lat, 0.026 )
+        val coords = JSSCoordinates ( time, location )
+
+        str += "Test lon:%+.3f° lat:%+.3f° alt:%.3f km\n".format (
+            coords.getLocation().lon * JSSAngle.kDegPerRad,
+            coords.getLocation().lat * JSSAngle.kDegPerRad,
+            coords.getLocation().rad )
+
+        // Now compute some coordinate-related values.
+
+        val dl:Double? = 0.0
+        val de:Double? = 0.0
+
+        val obq = JSSCoordinates.getObliquity ( time.jd )
+        JSSCoordinates.getNutationConstants ( time.jd, de, dl )
+
+        str += "Ecliptic obq: %.6f°\n".format ( obq * JSSAngle.kDegPerRad )
+        str += "Nutation lon: %+.1f\" obq: %+.1f\"\n". format ( ( dl ?: 0.0 ) * JSSAngle.kArcsecPerRad, ( de ?: 0.0 ) * JSSAngle.kArcsecPerRad )
+
+        val zeta:Double? = 0.0
+        val z:Double? = 0.0
+        val theta:Double? = 0.0
+
+        JSSCoordinates.getPrecessionConstants ( time.jd, zeta, z, theta )
+        str += "Precession zeta:%+.1f\" z:%+.1f\" theta:%+.1f\"\n".format ( ( zeta ?: 0.0 ) * JSSAngle.kArcsecPerRad, ( z ?: 0.0 ) * JSSAngle.kArcsecPerRad, ( theta ?: 0.0 ) * JSSAngle.kArcsecPerRad )
+
+        val lst = coords.getLST()
+        str += "Local Sidereal Time: %s\n".format ( JSSHourMinSec.fromRadians ( lst ).toString() )
+
+        val geo = JSSCoordinates.toGeocentric ( location, JSSCoordinates.kKmPerEarthRadii, JSSCoordinates.kEarthFlattening )
+        str += "Geo X:%+.3f Y:%+.3f Z:%+.3f km\n".format ( geo.x, geo.y, geo.z )
+        val loc = JSSCoordinates.toGeodetic ( geo, JSSCoordinates.kKmPerEarthRadii, JSSCoordinates.kEarthFlattening )
+        str += "Geo lon:%+.3f° lat:%+.3f° alt:%.3f km\n".format (loc.lon * JSSAngle.kDegPerRad, loc.lat * JSSAngle.kDegPerRad, loc.rad )
+
+        // Set horizon coordinates to due north; then do some coordinate transformations to equatorial, ecliptic, galactic frames.
+
+        val hor = JSSSpherical ( 0.0, 0.0, 1.0 )
+        val equ = coords.transform ( JSSCoordinates.kHorizon, JSSCoordinates.kEquatorial, hor )
+        val ecl = coords.transform ( JSSCoordinates.kHorizon, JSSCoordinates.kEcliptic, hor )
+        val gal = coords.transform ( JSSCoordinates.kHorizon, JSSCoordinates.kGalactic, hor )
+
+        str += "Horizon Az:%.3f° Alt:%+.3f°\n".format ( hor.lon * JSSAngle.kDegPerRad, hor.lat * JSSAngle.kDegPerRad )
+        str += "Equatorial RA:%s Dec:%s\n".format ( JSSHourMinSec.fromRadians ( equ.lon ).toString(), JSSDegMinSec.fromRadians ( equ.lat ).toString() )
+        str += "Ecliptic lon:%.3f° lat:%+.3f°\n".format ( ecl.lon * JSSAngle.kDegPerRad, ecl.lat * JSSAngle.kDegPerRad )
+        str += "Galactic lon:%.3f° lat:%+.3f°\n".format ( gal.lon * JSSAngle.kDegPerRad, gal.lat * JSSAngle.kDegPerRad )
+
         // Open JPL ephemeris file.  if successful, compute Earth's current position and velocity.
 
-        var path = "SSData/SolarSystem/DE438/1950_2050.438"
+        val path = "SSData/SolarSystem/DE438/1950_2050.438"
         if ( JSSJPLDEphemeris.open ( path ) )
         {
             str += "Opened DE438 ephemeris file.\n"
@@ -119,8 +170,8 @@ class MainActivity : AppCompatActivity() {
             val cname0 = JSSJPLDEphemeris.getConstantName ( 0 )
             val cval0 = JSSJPLDEphemeris.getConstantValue ( 0 )
             str += "%d constants; %s=%f\n".format ( nconst, cname0, cval0 )
-            var pos = JSSVector ( 0.0, 0.0, 0.0 )
-            var vel = JSSVector ( 0.0, 0.0, 0.0 )
+            val pos = JSSVector ( 0.0, 0.0, 0.0 )
+            val vel = JSSVector ( 0.0, 0.0, 0.0 )
             JSSJPLDEphemeris.compute ( 3, jed, true, pos, vel )
             str += "Earth position: " + JSSVectorToString ( pos )
             str += "Earth velocity: " + JSSVectorToString ( vel )
@@ -134,15 +185,15 @@ class MainActivity : AppCompatActivity() {
         // Open and read bright stars csv data file into object array in memory.
         // Display number of objects imported; then release object array memory.
 
-        var stars = JSSObjectArray()
-        var nS = stars.importFromCSV ( "SSData/Stars/Brightest.csv" )
+        val stars = JSSObjectArray()
+        val nS = stars.importFromCSV ( "SSData/Stars/Brightest.csv" )
         str += "Imported %d bright stars.\n".format ( nS )
         stars.destroy()
 
         // Open and Messier and Caldwell csv data files into object array in memory.
         // Display number of objects imported; then release object array memory.
 
-        var deepsky = JSSObjectArray()
+        val deepsky = JSSObjectArray()
         val nM = deepsky.importFromCSV ( "SSData/DeepSky/Messier.csv" )
         val nC = deepsky.importFromCSV ( "SSData/DeepSky/Caldwell.csv" )
         val nMC = deepsky.size()
@@ -152,8 +203,8 @@ class MainActivity : AppCompatActivity() {
 
         // Read planetary data file
 
-        var planets = JSSObjectArray()
-        var nP = planets.importFromCSV ( "SSData/SolarSystem/Planets.csv" )
+        val planets = JSSObjectArray()
+        val nP = planets.importFromCSV ( "SSData/SolarSystem/Planets.csv" )
         str += "Imported %d planets: ".format ( nP )
 
         // Print names of all objects in the array, then destroy.
@@ -161,7 +212,7 @@ class MainActivity : AppCompatActivity() {
 
         for ( i in 0 .. nP )
         {
-            var planet = planets.getObject ( i )
+            val planet = planets.getObject ( i )
             str += planet?.getName ( 0 ) ?: "null 11th successfully caught."
             str += if ( i < nP ) ", " else "\n"
         }
