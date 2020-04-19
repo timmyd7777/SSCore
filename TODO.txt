@@ -4,12 +4,15 @@ SSCore/SSData To-Do's and Wishlist
 SSAngle
 --------
 - split into separate files for SSDegMinSec, SSHourMinSec, SSAngle
-- remove sign from SSHourMinSec?
 - change sign in SSDegMinSec from char '+' or '-' to boolean pos = true or false
 
 SSCoords
 --------
-- implement rise/transit/set time computation (?)
+- hide all public member variables and make accessors.
+
+SSEvent
+--------
+- implement satellite pass computation
 
 SSConstellation
 ---------------
@@ -42,7 +45,6 @@ SSObject
   
 SSPlanet
 --------
-- needs general cleanup.
 - Move #ifedf'd out code in computeMajorPlanetPositionVelocity to SSOrbit?
 
 SSStar
@@ -63,13 +65,12 @@ SSTLE
 SSTime
 ------
 - split into separate files for SSDate and SSTime
-- remove calendar and zone from SSTime?
+- remove calendar from SSTime?
 - add Moslem and Jewish calendars
 
 SSVector
 --------
 - split into separate files for SSSpherical and SSVector
-- fix forumula for SSVector::positionAngle
 
 Other
 -----
@@ -80,10 +81,10 @@ Other
 Android
 -------
 - android_fopen() should only use asset manager if file path starts with "assets:"
-- additional JNI for SSCoordinates, SSStar, SSPlanet
+- additional JNI for SSStar, SSPlanet
 
 iOS
 ---
-- additional C wrapper for SSCoordinates, SSStar, SSPlanet
+- additional C wrapper for SSStar, SSPlanet
 
 -Tim DeBenedictis (timd@southernstars.com) 10 April 2020

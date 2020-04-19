@@ -4,6 +4,7 @@ SOURCES=../SSTest.cpp \
 $(SOURCEDIR)/SSAngle.cpp \
 $(SOURCEDIR)/SSConstellation.cpp \
 $(SOURCEDIR)/SSCoordinates.cpp \
+$(SOURCEDIR)/SSEvent.cpp \
 $(SOURCEDIR)/SSIdentifier.cpp \
 $(SOURCEDIR)/SSImportMPC.cpp \
 $(SOURCEDIR)/SSJPLDEphemeris.cpp \
@@ -22,6 +23,7 @@ HEADERS=\
 $(SOURCEDIR)/SSAngle.hpp \
 $(SOURCEDIR)/SSConstellation.cpp \
 $(SOURCEDIR)/SSCoordinates.hpp \
+$(SOURCEDIR)/SSEvent.hpp \
 $(SOURCEDIR)/SSIdentifier.hpp \
 $(SOURCEDIR)/SSImportMPC.hpp \
 $(SOURCEDIR)/SSJPLDEphemeris.hpp \

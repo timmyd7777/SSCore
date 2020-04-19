@@ -21,6 +21,7 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSAngle.cpp
              ../../../../../../SSCode/SSConstellation.cpp
              ../../../../../../SSCode/SSCoordinates.cpp
+             ../../../../../../SSCode/SSEvent.cpp
              ../../../../../../SSCode/SSIdentifier.cpp
              ../../../../../../SSCode/SSImportMPC.cpp
              ../../../../../../SSCode/SSJPLDEphemeris.cpp

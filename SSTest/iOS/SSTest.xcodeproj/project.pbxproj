@@ -10,6 +10,7 @@
 		A30485FD243CCFF300052789 /* SSCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30485FC243CCFF300052789 /* SSCore.cpp */; };
 		A31CDC05243B76A800573D03 /* SSData in Resources */ = {isa = PBXBuildFile; fileRef = A31CDC04243B76A800573D03 /* SSData */; };
 		A322CA7F24467485004E0670 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A322CA7D24467485004E0670 /* SSPSEphemeris.cpp */; };
+		A341DE57244CBBA000F4FB82 /* SSEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A341DE55244CBBA000F4FB82 /* SSEvent.cpp */; };
 		A3EBE0ED243AE4E800B47EAE /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0C7243AE4E800B47EAE /* SSObject.cpp */; };
 		A3EBE0EE243AE4E800B47EAE /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */; };
 		A3EBE0EF243AE4E800B47EAE /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */; };
@@ -46,6 +47,8 @@
 		A31CDC04243B76A800573D03 /* SSData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SSData; path = ../../SSData; sourceTree = "<group>"; };
 		A322CA7D24467485004E0670 /* SSPSEphemeris.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSPSEphemeris.cpp; sourceTree = "<group>"; };
 		A322CA7E24467485004E0670 /* SSPSEphemeris.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSPSEphemeris.hpp; sourceTree = "<group>"; };
+		A341DE55244CBBA000F4FB82 /* SSEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSEvent.cpp; sourceTree = "<group>"; };
+		A341DE56244CBBA000F4FB82 /* SSEvent.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSEvent.hpp; sourceTree = "<group>"; };
 		A35E293A243B73B400089CFD /* SSTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SSTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		A3EBE0C5243AE4E800B47EAE /* SSVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSVector.hpp; sourceTree = "<group>"; };
 		A3EBE0C6243AE4E800B47EAE /* SSImportMPC.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportMPC.hpp; sourceTree = "<group>"; };
@@ -139,6 +142,8 @@
 		A3EBE0C4243AE4E800B47EAE /* SSCode */ = {
 			isa = PBXGroup;
 			children = (
+				A341DE55244CBBA000F4FB82 /* SSEvent.cpp */,
+				A341DE56244CBBA000F4FB82 /* SSEvent.hpp */,
 				A3EBE0DE243AE4E800B47EAE /* SSAngle.cpp */,
 				A3EBE0D3243AE4E800B47EAE /* SSAngle.hpp */,
 				A3EBE0C9243AE4E800B47EAE /* SSConstellation.cpp */,
@@ -268,6 +273,7 @@
 				A3EBE0FA243AE4E800B47EAE /* SSStar.cpp in Sources */,
 				A3F33359243B8B0100D27A15 /* ContentView.swift in Sources */,
 				A3EBE100243AE4E800B47EAE /* SSCoordinates.cpp in Sources */,
+				A341DE57244CBBA000F4FB82 /* SSEvent.cpp in Sources */,
 				A3EBE0F1243AE4E800B47EAE /* SSTime.cpp in Sources */,
 				A3EBE0F9243AE4E800B47EAE /* SSUtilities.cpp in Sources */,
 				A3EBE0EF243AE4E800B47EAE /* SSIdentifier.cpp in Sources */,
