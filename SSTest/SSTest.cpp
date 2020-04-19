@@ -275,6 +275,26 @@ void TestEphemeris ( string inputDir, string outputDir )
 
         date = SSDate ( moonpass.setting.time );
         cout << format ( "Moonset:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, moonpass.setting.azm * SSAngle::kDegPerRad ) << endl << endl;
+
+        SSTime time = SSEvent::nextMoonPhase ( now, pSun, pMoon, SSEvent::kNewMoon );
+        date = SSDate ( time );
+        cout << format ( "New Moon:       %04d/%02hd/%02.0f %02hd:%02hd:%02.0f",
+                date.year, date.month, floor ( date.day ), date.hour, date.min, date.sec ) << endl;
+
+        time = SSEvent::nextMoonPhase ( now, pSun, pMoon, SSEvent::kFirstQuarterMoon );
+        date = SSDate ( time );
+        cout << format ( "First Quarter:  %04d/%02hd/%02.0f %02hd:%02hd:%02.0f",
+                date.year, date.month, floor ( date.day ), date.hour, date.min, date.sec ) << endl;
+
+        time = SSEvent::nextMoonPhase ( now, pSun, pMoon, SSEvent::kFullMoon );
+        date = SSDate ( time );
+        cout << format ( "Full Moon:      %04d/%02hd/%02.0f %02hd:%02hd:%02.0f",
+                date.year, date.month, floor ( date.day ), date.hour, date.min, date.sec ) << endl;
+
+        time = SSEvent::nextMoonPhase ( now, pSun, pMoon, SSEvent::kLastQuarterMoon );
+        date = SSDate ( time );
+        cout << format ( "Last Quarter:   %04d/%02hd/%02.0f %02hd:%02hd:%02.0f",
+                date.year, date.month, floor ( date.day ), date.hour, date.min, date.sec ) << endl << endl;
     }
 
     // Find the ISS
