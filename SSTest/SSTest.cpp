@@ -254,30 +254,64 @@ void TestEphemeris ( string inputDir, string outputDir )
     coords.aberration = true;
     coords.lighttime = true;
     
-    // Compute Sun rise/set times
+    // Compute Sun/Moon rise/transit/set circumstances
     
     if ( solsys.size() > 10 )
     {
         SSObjectPtr pSun = solsys[0];
         SSObjectPtr pMoon = solsys[10];
 
-        SSTime rise = SSEvent::riseTransitSetSearchDay ( now, coords, pSun, -1, -50.0 / SSAngle::kArcminPerRad );
-        date = SSDate ( rise );
-        cout << format ( "Sunrise:  %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl;
+        SSPass sunpass = SSEvent::riseTransitSet ( now, coords, pSun, SSEvent::kSunMoonRiseSetAlt );
+        SSPass moonpass = SSEvent::riseTransitSet ( now, coords, pMoon, SSEvent::kSunMoonRiseSetAlt );
+        
+        date = SSDate ( sunpass.rising.time );
+        cout << format ( "Sunrise:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, sunpass.rising.azm * SSAngle::kDegPerRad ) << endl;
 
-        SSTime set  = SSEvent::riseTransitSetSearchDay ( now, coords, pSun,  1, -50.0 / SSAngle::kArcminPerRad );
-        date = SSDate ( set );
-        cout << format ( "Sunset:   %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl;
+        date = SSDate ( sunpass.setting.time );
+        cout << format ( "Sunset:   %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, sunpass.setting.azm * SSAngle::kDegPerRad ) << endl;
 
-        rise = SSEvent::riseTransitSetSearchDay ( now, coords, pMoon, -1, -50.0 / SSAngle::kArcminPerRad );
-        date = SSDate ( rise );
-        cout << format ( "Moonrise: %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl;
+        date = SSDate ( moonpass.rising.time );
+        cout << format ( "Moonrise: %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, moonpass.rising.azm * SSAngle::kDegPerRad ) << endl;
 
-        set  = SSEvent::riseTransitSetSearchDay ( now, coords, pMoon,  1, -50.0 / SSAngle::kArcminPerRad );
-        date = SSDate ( set );
-        cout << format ( "Moonset:  %02hd:%02hd:%02.0f", date.hour, date.min, date.sec ) << endl << endl;
+        date = SSDate ( moonpass.setting.time );
+        cout << format ( "Moonset:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, moonpass.setting.azm * SSAngle::kDegPerRad ) << endl << endl;
     }
-        for ( int i = 0; i < solsys.size(); i++ )
+
+    // Find the ISS
+    
+    int i = 0;
+    for ( i = 0; i < solsys.size(); i++ )
+    {
+        SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
+        if ( p->getType() == kTypeSatellite )
+            if ( p->getIdentifier() == SSIdentifier ( kCatNORADSat, 25544 ) )
+                break;
+    }
+    
+    // If we found it, find and print all ISS passes in the next day.
+    
+    if ( i < solsys.size() )
+    {
+        vector<SSPass> passes;
+        
+        int numpasses = SSEvent::findSatellitePasses ( coords, solsys[i], now, now + 1.0, 0.0, passes );
+        cout << numpasses << " ISS passes in the next 24 hours:" << endl;
+        for ( i = 0; i < numpasses; i++ )
+        {
+            date = SSDate ( passes[i].rising.time );
+            cout << format ( "Rise:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].rising.azm * SSAngle::kDegPerRad ) << endl;
+
+            date = SSDate ( passes[i].transit.time );
+            cout << format ( "Peak:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].transit.alt * SSAngle::kDegPerRad ) << endl;
+
+            date = SSDate ( passes[i].setting.time );
+            cout << format ( "Set:   %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].setting.azm * SSAngle::kDegPerRad ) << endl << endl;
+        }
+    }
+    
+    // Compute and print ephemeris of solar system objects.
+    
+    for ( int i = 0; i < solsys.size(); i++ )
     {
         SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
         if ( p == nullptr )

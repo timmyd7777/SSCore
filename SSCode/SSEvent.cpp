@@ -86,9 +86,10 @@ SSTime SSEvent::riseTransitSet ( SSTime time, SSCoordinates &coords, SSObjectPtr
 // Computes the time of an object's rise, transit, or set that is closest to an initial starting time (time).
 // All other parameters (coords, pObj, sign, alt) are the same as for riseTransitSet().
 // If the object does not rise, returns -INFINITY; if it does not set, returns +INFINITY.
+// After return, both coords and pObj will be modified (recomputed for the time of the event).
 // Will not work for objects which rise and set multiple times per day, e.g. artifical satellites.
 
-SSTime SSEvent::riseTransitSetSearch ( SSTime time, SSCoordinates coords, SSObjectPtr pObj, int sign, SSAngle alt )
+SSTime SSEvent::riseTransitSetSearch ( SSTime time, SSCoordinates &coords, SSObjectPtr pObj, int sign, SSAngle alt )
 {
     SSTime lasttime = time;
     int i = 0, imax = 10;
@@ -114,9 +115,10 @@ SSTime SSEvent::riseTransitSetSearch ( SSTime time, SSCoordinates coords, SSObje
 // Computes the time an object's rises, transits, or sets on a particular local day (today).
 // All other parameters (coords, pObj, sign, alt) are the same as for riseTransitSet().
 // If the object does not rise or set on the specified local day, returns -INFINITY or +INFINITY.
+// After return, both coords and pObj will be modified (recomputed for the time of the event).
 // Will not work for objects which rise and set multiple times per day, e.g. artifical satellites.
 
-SSTime SSEvent::riseTransitSetSearchDay ( SSTime today, SSCoordinates coords, SSObjectPtr pObj, int sign, SSAngle alt )
+SSTime SSEvent::riseTransitSetSearchDay ( SSTime today, SSCoordinates &coords, SSObjectPtr pObj, int sign, SSAngle alt )
 {
     // Find the julian dates that correspond to the start and end of the local day.
          
@@ -151,4 +153,130 @@ SSTime SSEvent::riseTransitSetSearchDay ( SSTime today, SSCoordinates coords, SS
     }
                 
     return ( time );
+}
+
+// Returns circumstances of an object's overhead pass on a given local day (today) as seen from a
+// particular location (coords), with the altitude for rising and setting (alt) in radians.
+// Transit time and elevation are stored in the returned pass's transit struct.
+// If the object does not rise or set on the specified local day, returns -INFINITY or +INFINITY.
+// After return, both coords and pObj will be restored to their original states.
+// Will not work for objects which rise and set multiple times per day, e.g. artifical satellites.
+
+SSPass SSEvent::riseTransitSet ( SSTime today, SSCoordinates &coords, SSObjectPtr pObj, SSAngle alt )
+{
+    SSTime savetime = coords.getTime();
+    SSPass pass = { 0.0 };
+    SSSpherical hor = { INFINITY, INFINITY, INFINITY };
+    
+    pass.rising.time = riseTransitSetSearchDay ( today, coords, pObj, kRise, alt );
+    if ( ! isinf ( pass.rising.time ) )
+    {
+        hor = coords.transform ( kFundamental, kHorizon, pObj->getDirection() );
+        pass.rising.azm = hor.lon;
+        pass.rising.alt = hor.lat;
+    }
+    
+    pass.transit.time = riseTransitSetSearchDay ( today, coords, pObj, kTransit, 0.0 );
+    if ( ! isinf ( pass.transit.time ) )
+    {
+        hor = coords.transform ( kFundamental, kHorizon, pObj->getDirection() );
+        pass.transit.azm = hor.lon;
+        pass.transit.alt = hor.lat;
+    }
+
+    pass.setting.time = riseTransitSetSearchDay ( today, coords, pObj, kSet, alt );
+    if ( ! isinf ( pass.setting.time ) )
+    {
+        hor = coords.transform ( kFundamental, kHorizon, pObj->getDirection() );
+        pass.setting.azm = hor.lon;
+        pass.setting.alt = hor.lat;
+    }
+
+    // Reset original time and restore object's original ephemeris
+    
+    coords.setTime ( savetime );
+    pObj->computeEphemeris ( coords );
+    
+    return pass;
+}
+
+// Searches for satellite passes seen from a location (coords) between two Julian dates (start to stop).
+// Passes start when satellite's apparent altitude rises above a minimum threshold (minAlt) in radians;
+// passes end when satellite's elevation falls below that threshold.  Peak elevation and time thereof are
+// also recorded in each pass's transit struct. The method returns the total number of passes found, and
+// returns all pass circumstances in the vector of SSPass structs.
+// After return, both coords and pObj will be restored to their original states.
+
+int SSEvent::findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double minAlt, vector<SSPass> &passes )
+{
+    SSTime  savetime = coords.getTime();
+    SSTime  time = 0, step = 0;
+    SSPass  pass = { 0 };
+    SSAngle azm = 0, alt = 0, maxAlt = 0, oldAlt = 0;
+    SSSpherical hor = { INFINITY, INFINITY, INFINITY };
+    
+    for ( time = start; time <= stop; time += step )
+    {
+        // Advance time and recompute satellite's position;
+        // obtain its current elevation and azimuth.
+        
+        coords.setTime ( time );
+        pSat->computeEphemeris ( coords );
+        hor = coords.transform ( kFundamental, kHorizon, pSat->getDirection() );
+        azm = hor.lon;
+        alt = hor.lat;
+        
+        // When the satellite reaches 1 degree below the horizon,
+        // change time step to 1 second for more precision.
+        // Otherwise use a coarse 1-minute time step for speed.
+        
+        if ( hor.lat > -1.0 * SSAngle::kDegPerRad )
+            step = 1.0 / SSTime::kSecondsPerDay;
+        else
+            step = 1.0 / SSTime::kMinutesPerDay;
+        
+        if ( time > start )
+        {
+            // If satellite is above elevation threshold now,
+            // but below it on previous step, pass starts now.
+            
+            if ( alt > minAlt && oldAlt < minAlt )
+            {
+                pass.rising.time = time;
+                pass.rising.azm = azm;
+                pass.rising.alt = alt;
+            }
+            
+            // Search for peak elevation.
+
+            if ( alt > maxAlt )
+            {
+                pass.transit.time = time;
+                pass.transit.azm = azm;
+                pass.transit.alt = alt;
+                maxAlt = alt;
+            }
+            
+            // If satellite is below elevation threshold now,
+            // but above it on previous step, pass starts now.
+
+            if ( oldAlt > minAlt && alt < minAlt )
+            {
+                pass.setting.time = time;
+                pass.setting.azm = azm;
+                pass.setting.alt = alt;
+                passes.push_back ( pass );
+                maxAlt = 0.0;
+            }
+        }
+        
+        oldAlt = alt;
+    }
+    
+    // Reset original time and restore satellite's original ephemeris
+    
+    coords.setTime ( savetime );
+    pSat->computeEphemeris ( coords );
+
+    return (int) passes.size();
 }
