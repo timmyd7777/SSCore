@@ -4,7 +4,6 @@ SSCore/SSData To-Do's and Wishlist
 SSAngle
 --------
 - split into separate files for SSDegMinSec, SSHourMinSec, SSAngle
-- change sign in SSDegMinSec from char '+' or '-' to boolean pos = true or false
 
 SSCoords
 --------
@@ -12,7 +11,7 @@ SSCoords
 
 SSEvent
 --------
-- implement satellite pass computation
+- needs more testing
 
 SSConstellation
 ---------------

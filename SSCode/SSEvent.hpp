@@ -5,8 +5,8 @@
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
 // This class computes times and circumstances of astronomical events like
-// object rising/transit/setting, satellite passes, conjuctions, elongations,
-// and oppositions, etc.
+// object rising/transit/setting, satellite passes, moon phases, conjuctions,
+// oppositions, etc.
 
 #ifndef SSEvent_hpp
 #define SSEvent_hpp
