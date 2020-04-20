@@ -28,6 +28,7 @@ struct SSDegMinSec
     
     double toDegrees ( void );
     string toString ( void );
+    string format ( const string &fmt );
 };
 
 // Represents an angular value expressed in hours, minutes, seconds
@@ -46,6 +47,7 @@ struct SSHourMinSec
 
     double toHours ( void );
     string toString ( void );
+    string format ( const string &fmt );
 };
 
 // Represents an angular value expressed in radians

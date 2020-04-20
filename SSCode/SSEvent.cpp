@@ -336,10 +336,26 @@ SSTime SSEvent::nextMoonPhase ( SSTime time, SSObjectPtr pSun, SSObjectPtr pMoon
     return time;
 }
 
+double object_distance ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2 )
+{
+    SSVector pos1 = pObj1->getDirection() * pObj1->getDistance();
+    SSVector pos2 = pObj2->getDirection() * pObj2->getDistance();
+    
+    return pos1.distance( pos2 );
+}
+
+double object_separation ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2 )
+{
+    SSVector pos1 = pObj1->getDirection();
+    SSVector pos2 = pObj2->getDirection();
+    
+    return pos1.angularSeparation ( pos2 );
+}
+
 // Generic event-finding method.
 // The coordinates (coords) and objects' (pObj1,pObj2) positions will be recomputed/modified by this function!
 
-void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool min, double limit, SSEventFunc func, vector<SSEventTime> events )
+void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool min, double limit, SSEventFunc func, vector<SSEventTime> &events )
 {
     double newVal = 0.0, curVal = 0.0, oldVal = 0.0;
     
@@ -351,11 +367,10 @@ void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr
         coords.setTime ( time );
         
         if ( pObj1 )
-            pObj1->computeEphemeris( coords );
+            pObj1->computeEphemeris ( coords );
         
         if ( pObj2 )
             pObj2->computeEphemeris ( coords );
-        
         
         // Save the current value into the old value, and the new value into the current value,
         // so that when we compute a new distance, we will have three different values we can
@@ -390,9 +405,29 @@ void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr
                 }
                 else
                 {
-                    return ( findEvents ( coords, pObj1, pObj2, time - step * 2.0, time, step / 10.0, min, limit, func, events ) );
+                    findEvents ( coords, pObj1, pObj2, time - step * 2.0, time, step / 10.0, min, limit, func, events );
                 }
             }
         }
     }
+}
+
+void SSEvent::findConjunctions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+{
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, true, INFINITY, object_separation, events );
+}
+
+void SSEvent::findOppositions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+{
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, false, 0.0, object_separation, events );
+}
+
+void SSEvent::findNearestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+{
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, true, INFINITY, object_distance, events );
+}
+
+void SSEvent::findFarthestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+{
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, false, 0.0, object_distance, events );
 }

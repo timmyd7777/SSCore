@@ -63,7 +63,30 @@ string SSDegMinSec::toString ( void )
     if ( sec >= 59.95 )
         return SSDegMinSec ( toDegrees() + ( sign == '-' ? -0.05 : 0.05 ) / 3600.0 ).toString();
     else
-        return format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
+        return ::format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
+}
+
+// Converts an angle in degrees, minutes, seconds to a string with printf()-style format.
+// Still under development: use with caution.
+
+string SSDegMinSec::format ( const string &fmt )
+{
+    if ( sec >= 59.95 )
+        return SSDegMinSec ( toDegrees() + ( sign == '-' ? -0.05 : 0.05 ) / 3600.0 ).format ( fmt );
+    else
+    {
+        size_t n = count ( fmt.begin(), fmt.end(), '%' );
+        if ( n == 4 )
+            return ::format ( fmt.c_str(), sign, deg, min, sec );
+        else if ( n == 3 )
+            return ::format ( fmt.c_str(), deg, min, sec );
+        else if ( n == 2 )
+            return ::format ( fmt.c_str(), deg, min + sec / 60.0 );
+        else if ( n == 1 )
+            return ::format ( fmt.c_str(), deg + min / 60.0 + sec / 3600.0 );
+        else
+            return toString();
+    }
 }
 
 // Constructs an angular value in hours, minutes, seconds.
@@ -118,8 +141,30 @@ string SSHourMinSec::toString ( void )
     if ( sec >= 59.995 )
         return SSHourMinSec ( mod24h ( toHours() + 0.005 / 3600.0 ) ).toString();
     else
-        return format ( "%02hd %02hd %05.2f", hour, min, sec );
+        return ::format ( "%02hd %02hd %05.2f", hour, min, sec );
 }
+
+// Converts an angle in hours, minutes, seconds to a string with printf()-style format.
+// Still under development: use with caution.
+
+string SSHourMinSec::format ( const string &fmt )
+{
+    if ( sec >= 59.995 )
+        return SSDegMinSec ( mod24h ( toHours() + 0.005 / 3600.0 ) ).format ( fmt );
+    else
+    {
+        size_t n = count ( fmt.begin(), fmt.end(), '%' );
+        if ( n == 3 )
+            return ::format ( fmt.c_str(), hour, min, sec );
+        else if ( n == 2 )
+            return ::format ( fmt.c_str(), hour, min + sec / 60.0 );
+        else if ( n == 1 )
+            return ::format ( fmt.c_str(), hour + min / 60.0 + sec / 3600.0 );
+        else
+            return toString();
+    }
+}
+
 
 // Constructs an angle in radians with the defautl value of zero.
 

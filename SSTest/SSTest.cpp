@@ -295,6 +295,22 @@ void TestEphemeris ( string inputDir, string outputDir )
         time = SSEvent::nextMoonPhase ( now, pSun, pMoon, SSEvent::kLastQuarterMoon );
         date = SSDate ( time );
         cout << "Last Quarter:   " << date.format ( "%Y/%m/%d %H:%M:%S" ) << endl << endl;
+        
+        // Find Jupiter-Saturn conjunctions in the next year
+        
+        SSObjectPtr pJup = solsys[5];
+        SSObjectPtr pSat = solsys[6];
+        vector<SSEventTime> conjunctions;
+
+        SSEvent::findConjunctions ( coords, pJup, pSat, now, now + 365.25, conjunctions );
+        cout << conjunctions.size() << " Jupiter-Saturn Conjunctions in the next year:" << endl;
+        for ( int i = 0; i < conjunctions.size(); i++ )
+        {
+            date = SSDate ( conjunctions[i].time );
+            SSDegMinSec sep = SSAngle ( conjunctions[i].value );
+            cout << sep.format ( "%2hd° %2hd' %4.1f\"" ) << " on " << date.format ( "%Y/%m/%d %H:%M:%S" ) << endl;
+        }
+        cout << endl;
     }
 
     // Find the ISS
@@ -315,7 +331,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         vector<SSPass> passes;
         
         int numpasses = SSEvent::findSatellitePasses ( coords, solsys[i], now, now + 1.0, 0.0, passes );
-        cout << numpasses << " ISS passes in the next 24 hours:" << endl;
+        cout << numpasses << " ISS passes in the next day:" << endl;
         for ( i = 0; i < numpasses; i++ )
         {
             date = SSDate ( passes[i].rising.time );
@@ -356,8 +372,8 @@ void TestEphemeris ( string inputDir, string outputDir )
         float mag = p->getMagnitude();
 
         cout << p->getName ( 0 ) << ":" << endl;
-        cout << "RA:   " << ra.toString() << endl;
-        cout << "Dec:  " << dec.toString() << endl;
+        cout << "RA:   " << ra.format ( " %02hdh %02hdm %05.2fs" ) << endl;
+        cout << "Dec:  " << dec.format ( "%c%02hd° %02hd' %04.1f\"" ) << endl;
         if ( dist > 0.1 )
             cout << "Dist: " << format ( "%.6f AU", dist ) << endl;
         else

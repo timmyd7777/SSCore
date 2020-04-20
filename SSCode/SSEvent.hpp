@@ -75,7 +75,11 @@ public:
 
     static SSTime nextMoonPhase ( SSTime time, SSObjectPtr pSun, SSObjectPtr pMoon, double phase );
     
-    static void findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool max, double limit, SSEventFunc func, vector<SSEventTime> events );
+    static void findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool max, double limit, SSEventFunc func, vector<SSEventTime> &events );
+    static void findConjunctions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events );
+    static void findOppositions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events );
+    static void findNearestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events );
+    static void findFarthestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events );
 };
 
 #endif /* SSEvent_hpp */
