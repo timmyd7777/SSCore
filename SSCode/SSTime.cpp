@@ -89,6 +89,24 @@ SSTime SSDate::toJulianDate ( void )
     return SSDate ( *this );
 }
 
+// Converts date to a string using the same format argument(s) as strftime().
+
+string SSDate::format ( const string &fmt )
+{
+    char str[1024] = { 0 };
+    struct tm time = { 0 };
+    
+    time.tm_year = year - 1900;
+    time.tm_mon = month - 1;
+    time.tm_mday = day;
+    time.tm_hour = hour;
+    time.tm_min = min;
+    time.tm_sec = sec;
+    
+    strftime ( str, sizeof ( str ), fmt.c_str(), &time );
+    return string ( str );
+}
+
 // Constructs a time with default values of 1.5 Jan 2000 UTC in the Gregorian calendar.
 
 SSTime::SSTime ( void )

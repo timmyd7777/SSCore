@@ -265,10 +265,10 @@ void TestEphemeris ( string inputDir, string outputDir )
         SSPass moonpass = SSEvent::riseTransitSet ( now, coords, pMoon, SSEvent::kSunMoonRiseSetAlt );
         
         date = SSDate ( sunpass.rising.time );
-        cout << format ( "Sunrise:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, sunpass.rising.azm * SSAngle::kDegPerRad ) << endl;
+        cout << "Sunrise:  " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.rising.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( sunpass.setting.time );
-        cout << format ( "Sunset:   %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, sunpass.setting.azm * SSAngle::kDegPerRad ) << endl;
+        cout << "Sunset:   " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.setting.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( moonpass.rising.time );
         cout << format ( "Moonrise: %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, moonpass.rising.azm * SSAngle::kDegPerRad ) << endl;
