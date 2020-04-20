@@ -225,9 +225,14 @@ func test ( ) -> String
 }
 
 struct ContentView: View {
-    var body: some View {
-        Text ( test() )
-    }
+	var body: some View {
+		ScrollView {
+			VStack {
+				Text(test())
+					.fixedSize(horizontal: false, vertical: true)
+			}
+		}
+	}
 }
 
 struct ContentView_Previews: PreviewProvider {
