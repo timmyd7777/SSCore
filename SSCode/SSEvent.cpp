@@ -280,3 +280,58 @@ int SSEvent::findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTi
 
     return (int) passes.size();
 }
+
+// Returns the Juliam Date of the next moon phase after the current time (time).
+// Objects pSun and pMoon are pointers to the SUn and Moon, respectively.
+// The angular value (phase) corresponds to the desired moon phase in radians:
+// new = 0.0, first quarter = kHalfPi, full = kPi, last quarter = 3 * kPi / 2.
+// The moon's and sun's positions will be recomputed/modified by this function!
+
+SSTime SSEvent::nextMoonPhase ( SSTime time, SSObjectPtr pSun, SSObjectPtr pMoon, double phase )
+{
+    SSSpherical ecl;
+    SSAngle sunlon, moonlon;
+    double dellon = 0.0, deltime = 0.0;
+    int i = 0, imax = 10;
+    
+    // Moon phases are defined from a geocentric perspective,
+    // so set location to the center of the Earth.
+    
+    SSSpherical loc ( 0.0, 0.0, -SSCoordinates::kKmPerEarthRadii );
+    SSCoordinates coords ( time, loc );
+    
+    // Iteratively recompute Sun and Moon's ecliptic longitude until
+    // difference between them equals the desired phase angle.
+    
+    do
+    {
+        coords.setTime ( time );
+        pSun->computeEphemeris ( coords );
+        ecl = coords.transform ( kFundamental, kEcliptic, pSun->getDirection() );
+        sunlon = ecl.lon;
+        
+        pMoon->computeEphemeris ( coords );
+        ecl = coords.transform ( kFundamental, kEcliptic, pMoon->getDirection() );
+        moonlon = ecl.lon;
+
+        // On first iteration, ensure ecliptic longitude delta is negative
+        // so time change on next iteration must be ahead of starting time.
+        
+        dellon = modpi ( moonlon - sunlon - phase );
+        if ( i == 0 && dellon > 0.0 )
+            dellon -= SSAngle::kTwoPi;
+        else
+            dellon = modpi ( moonlon - sunlon - phase );
+        
+        // Estimate time delta needed for ecliptic longitude delta
+        // assuming Moon's synodic period is 29.5 days. Iterate until
+        // time delta is less than 1 minute, or 10 iterations max.
+        
+        deltime = dellon / ( SSAngle::kTwoPi / 29.5 );
+        time -= deltime;
+        i++;
+    }
+    while ( fabs ( deltime ) > ( 1.0 / SSTime::kMinutesPerDay ) && i < imax );
+    
+    return time;
+}

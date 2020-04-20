@@ -46,6 +46,11 @@ public:
     static constexpr double kSunNauticalDawnDuskAlt = -12.0 / SSAngle::kDegPerRad;      // geometric altitude of Sun's apparent disk center at nautical dawn/dusk [radians]
     static constexpr double kSunAstronomicalDawnDuskAlt = -18.0 / SSAngle::kDegPerRad;  // geometric altitude of Sun's apparent disk center at astronomical dawn/dusk [radians]
 
+    static constexpr double kNewMoon = 0.0;
+    static constexpr double kFirstQuarterMoon = SSAngle::kHalfPi;
+    static constexpr double kFullMoon = SSAngle::kPi;
+    static constexpr double kLastQuarterMoon = 3.0 * SSAngle::kHalfPi;
+    
     static SSAngle semiDiurnalArc ( SSAngle lat, SSAngle dec, SSAngle alt );
     
     static SSTime riseTransitSet ( SSTime jd, SSAngle ra, SSAngle dec, int sign, SSAngle lon, SSAngle lat, SSAngle alt );
@@ -55,6 +60,8 @@ public:
 
     static SSPass riseTransitSet ( SSTime today, SSCoordinates &coords, SSObjectPtr pObj, SSAngle alt );
     static int findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double alt, vector<SSPass> &passes );
+
+    static SSTime nextMoonPhase ( SSTime time, SSObjectPtr pSun, SSObjectPtr pMoon, double phase );
 };
 
 #endif /* SSEvent_hpp */
