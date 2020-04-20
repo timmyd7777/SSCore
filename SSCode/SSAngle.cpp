@@ -25,8 +25,8 @@ SSDegMinSec::SSDegMinSec ( double degrees )
 {
     sign = degrees >= 0.0 ? '+' : '-';
     degrees = fabs ( degrees );
-    deg = degrees;
-    min = 60.0 * ( degrees - deg );
+    deg = (int) degrees;
+    min = (int) ( 60.0 * ( degrees - deg ) );
     sec = 3600.0 * ( degrees - deg - min / 60.0 );
 }
 
@@ -81,8 +81,8 @@ SSHourMinSec::SSHourMinSec ( short h, short m, double s )
 SSHourMinSec::SSHourMinSec ( double hours )
 {
     hours = mod24h ( hours );
-    hour = hours;
-    min = 60.0 * ( hours - hour );
+    hour = (int) hours;
+    min = (int) ( 60.0 * ( hours - hour ) );
     sec = 3600.0 * ( hours - hour - min / 60.0 );
 }
 
