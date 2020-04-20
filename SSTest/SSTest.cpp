@@ -472,12 +472,12 @@ int SSTestMain ( const char *inputpath, const char *outputpath )
 
 int main ( int argc, const char *argv[] )
 {
-// This bit of magic gets UTF-8 strings with degree characters to appear correctly on the Windows console;
-// see https://stackoverflow.com/questions/10882277/properly-print-utf8-characters-in-windows-console/46581967
+// This bit of magic makes UTF-8 output with degree characters appear correctly on the Windows console;
+// see https://www.codeproject.com/Articles/34068/Unicode-Output-to-the-Windows-Console
 
 #ifdef _WIN32
-	UINT oldcp = GetConsoleOutputCP();
-	SetConsoleOutputCP ( CP_UTF8 );
+    UINT oldcp = GetConsoleOutputCP();
+    SetConsoleOutputCP ( CP_UTF8 );
 #endif
 
     TestTime();
@@ -734,9 +734,9 @@ int main ( int argc, const char *argv[] )
 */
 
 #ifdef _WIN32
-	SetConsoleOutputCP ( oldcp );
+    SetConsoleOutputCP ( oldcp );
 #endif
 
-	return 0;
+    return 0;
 }
 

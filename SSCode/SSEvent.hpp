@@ -32,6 +32,18 @@ struct SSPass
     SSRTS setting;      // circumstances of setting event
 };
 
+// Describes circumstances of a generic event: conjunction, opposition, etc.
+
+struct SSEventTime
+{
+    SSTime time;        // time of event
+    double value;       // value at time of event (angular distance in radiams, or physical distance in AU, etc.)
+};
+
+// Pointer to generic event-finding function
+
+typedef double (*SSEventFunc) ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2 );
+
 class SSEvent
 {
 public:
@@ -62,6 +74,8 @@ public:
     static int findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double alt, vector<SSPass> &passes );
 
     static SSTime nextMoonPhase ( SSTime time, SSObjectPtr pSun, SSObjectPtr pMoon, double phase );
+    
+    static void findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool max, double limit, SSEventFunc func, vector<SSEventTime> events );
 };
 
 #endif /* SSEvent_hpp */
