@@ -335,3 +335,64 @@ SSTime SSEvent::nextMoonPhase ( SSTime time, SSObjectPtr pSun, SSObjectPtr pMoon
     
     return time;
 }
+
+// Generic event-finding method.
+// The coordinates (coords) and objects' (pObj1,pObj2) positions will be recomputed/modified by this function!
+
+void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool min, double limit, SSEventFunc func, vector<SSEventTime> events )
+{
+    double newVal = 0.0, curVal = 0.0, oldVal = 0.0;
+    
+    for ( SSTime time = start; time <= stop; time += step )
+    {
+        // Compute the ephemerides of the objects at the current time,
+        // then the value of the event function.
+
+        coords.setTime ( time );
+        
+        if ( pObj1 )
+            pObj1->computeEphemeris( coords );
+        
+        if ( pObj2 )
+            pObj2->computeEphemeris ( coords );
+        
+        
+        // Save the current value into the old value, and the new value into the current value,
+        // so that when we compute a new distance, we will have three different values we can
+        // search for a maximum or minimum.
+        
+        if ( curVal > 0.0 )
+            oldVal = curVal;
+            
+        if ( newVal > 0.0 )
+            curVal = newVal;
+
+        // Find the new value of the event function at the current time.
+
+        newVal = func ( coords, pObj1, pObj2 );
+        
+        // If we have an old, current, and new value, see if we have a minimum
+        // or maximum bracketed between the old, current, and new times. If so,
+        // call this method recursively to search the interval between those times
+        // with a search step 10x smaller, until the step is less than 0.001 days.
+        // When we reach that precision, save the time and value, and return.
+
+        if ( oldVal > 0.0 && curVal > 0.0 )
+        {
+            if ( ( min && ( newVal > curVal && curVal < oldVal ) && curVal <= limit )
+            || ( ! min && ( newVal < curVal && curVal > oldVal ) && curVal >= limit ) )
+            {
+                if ( step < 0.001 )
+                {
+                    SSEventTime event = { time - step, curVal };
+                    events.push_back ( event );
+                    return;
+                }
+                else
+                {
+                    return ( findEvents ( coords, pObj1, pObj2, time - step * 2.0, time, step / 10.0, min, limit, func, events ) );
+                }
+            }
+        }
+    }
+}
