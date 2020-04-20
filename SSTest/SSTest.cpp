@@ -476,7 +476,8 @@ int main ( int argc, const char *argv[] )
 // see https://stackoverflow.com/questions/10882277/properly-print-utf8-characters-in-windows-console/46581967
 
 #ifdef _WIN32
-	SetConsoleOutputCP ( 65001 );
+	UINT oldcp = GetConsoleOutputCP();
+	SetConsoleOutputCP ( CP_UTF8 );
 #endif
 
     TestTime();
@@ -731,6 +732,11 @@ int main ( int argc, const char *argv[] )
     printf ( "%lf %lf %lf\n", i.m10, i.m11, i.m12 );
     printf ( "%lf %lf %lf\n", i.m20, i.m21, i.m22 );
 */
-    return 0;
+
+#ifdef _WIN32
+	SetConsoleOutputCP ( oldcp );
+#endif
+
+	return 0;
 }
 
