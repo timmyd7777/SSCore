@@ -470,8 +470,6 @@ int SSTestMain ( const char *inputpath, const char *outputpath )
 
 #endif
 
-#include <windows.h>
-
 int main ( int argc, const char *argv[] )
 {
 // This bit of magic gets UTF-8 strings with degree characters to appear correctly on the Windows console;
