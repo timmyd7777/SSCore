@@ -102,6 +102,9 @@ func test ( ) -> String
     let location = CSSSphericalFromLonLatRad ( lon, lat, 0.026 )
     let coords = CSSCoordinatesCreate ( ctime, location )
     
+    CSSCoordinatesSetTime ( coords, ctime );            // not necessary since we passed these to CSSCoordiantesCreate()
+    CSSCoordinatesSetLocation ( coords, location );     // but we are going to call these APIs anyhow, as a test!
+    
     str.append ( String ( format:"Test lon:%+.3f° lat:%+.3f° alt:%.3f km\n",
         CSSCoordinatesGetLocation ( coords ).lon * kSSDegPerRad,
         CSSCoordinatesGetLocation ( coords ).lat * kSSDegPerRad,

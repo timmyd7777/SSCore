@@ -410,18 +410,20 @@ void CSSCoordinatesDestroy ( CSSCoordinates *pCCoords )
     delete pCoords;
 }
 
-void CSSCoordinatesSetTime ( CSSCoordinates *pCCoords, double jd )
+void CSSCoordinatesSetTime ( CSSCoordinates *pCCoords, CSSTime ctime )
 {
+    SSTime time ( ctime.jd, ctime.zone, (SSCalendar) ctime.calendar );
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     if ( pCoords )
-        pCoords->setTime ( jd );
+        pCoords->setTime ( time );
 }
 
-void CSSCoordinatesSetLocation ( CSSCoordinates *pCCoords, double lon, double lat, double alt )
+void CSSCoordinatesSetLocation ( CSSCoordinates *pCCoords, CSSSpherical cloc )
 {
+    SSSpherical loc ( cloc.lon, cloc.lat, cloc.rad );
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     if ( pCoords )
-        pCoords->setLocation ( SSSpherical ( lon, lat, alt ) );
+        pCoords->setLocation ( loc );
 }
 
 CSSTime CSSCoordinatesGetTime ( CSSCoordinates *pCCoords )
