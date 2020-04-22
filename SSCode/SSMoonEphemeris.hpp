@@ -15,6 +15,7 @@
 class SSMoonEphemeris
 {
     static void jupiterMoonPosition ( int id, double jed, SSVector &pos );
+    static void saturnMoonPosition ( int id, double jed, SSVector &pos );
 };
 
 #endif /* SSMoonEphemeris_hpp */
