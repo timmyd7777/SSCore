@@ -31,6 +31,7 @@
     <ClCompile Include="..\..\SSCode\SSImportSKY2000.cpp" />
     <ClCompile Include="..\..\SSCode\SSJPLDEphemeris.cpp" />
     <ClCompile Include="..\..\SSCode\SSMatrix.cpp" />
+    <ClCompile Include="..\..\SSCode\SSMoonEphemeris.cpp" />
     <ClCompile Include="..\..\SSCode\SSObject.cpp" />
     <ClCompile Include="..\..\SSCode\SSOrbit.cpp" />
     <ClCompile Include="..\..\SSCode\SSPlanet.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\..\SSCode\SSImportSKY2000.hpp" />
     <ClInclude Include="..\..\SSCode\SSJPLDEphemeris.hpp" />
     <ClInclude Include="..\..\SSCode\SSMatrix.hpp" />
+    <ClInclude Include="..\..\SSCode\SSMoonEphemeris.hpp" />
     <ClInclude Include="..\..\SSCode\SSObject.hpp" />
     <ClInclude Include="..\..\SSCode\SSOrbit.hpp" />
     <ClInclude Include="..\..\SSCode\SSPlanet.hpp" />

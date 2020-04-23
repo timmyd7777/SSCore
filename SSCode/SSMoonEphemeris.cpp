@@ -1557,7 +1557,6 @@ void gust86_posn( const double jde, const int isat, double *r )
       break;
 
    default:       /* should never happen */
-      assert( 1);
       return;
    }
 
