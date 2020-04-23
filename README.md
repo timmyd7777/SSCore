@@ -27,6 +27,7 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSJPLDEphemeris:_** This class reads JPL's binary DE43x series of ephemeris files and computes very fast, sub-arcsecond-accurate lunar and planetary positions from them.
 - **_SSPSEphemeris:_** Implements Paul Schlyter's planetary and lunar ephemeris, described [here](http://stjarnhimlen.se/comp/ppcomp.html). This is the simplest way to compute planetary/lunar positions with an accuracy of 1-2 arc minutes; SSCore uses it as a fallback when the JPL DE ephemeris is not available.
 - **_SSMatrix:_** Represents a 3x3 matrix, with routines for performing matrix and vector-matrix arithmetic.
+- **_SSMoonEphemeris:_** Computes positions for the major moons of Mars, Jupiter, Saturn, Uranus, Neptune, and Pluto. For Earth's Moon, use SSJPLDEphemeris or SSPSEphemeris.
 - **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations, etc.)
 - **_SSOrbit:_** This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.
 - **_SSPlanet:_** This subclass of SSObject represents all solar system objects (not just planets, but also moons, asteroids, comets, satellites, etc.)
