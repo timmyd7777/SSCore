@@ -9,6 +9,7 @@ $(SOURCEDIR)/SSIdentifier.cpp \
 $(SOURCEDIR)/SSImportMPC.cpp \
 $(SOURCEDIR)/SSJPLDEphemeris.cpp \
 $(SOURCEDIR)/SSMatrix.cpp \
+$(SOURCEDIR)/SSMoonEphemeris.cpp \
 $(SOURCEDIR)/SSObject.cpp \
 $(SOURCEDIR)/SSOrbit.cpp \
 $(SOURCEDIR)/SSPlanet.cpp \
@@ -28,6 +29,7 @@ $(SOURCEDIR)/SSIdentifier.hpp \
 $(SOURCEDIR)/SSImportMPC.hpp \
 $(SOURCEDIR)/SSJPLDEphemeris.hpp \
 $(SOURCEDIR)/SSMatrix.hpp \
+$(SOURCEDIR)/SSMoonEphemeris.hpp \
 $(SOURCEDIR)/SSObject.hpp \
 $(SOURCEDIR)/SSOrbit.hpp \
 $(SOURCEDIR)/SSPlanet.hpp \
