@@ -209,6 +209,8 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
             result = SSMoonEphemeris::uranusMoonPositionVelocity ( m, jed, pos, vel );
         else if ( p == kNeptune )
             result = SSMoonEphemeris::neptuneMoonPositionVelocity ( m, jed, pos, vel );
+        else if ( p == kPluto )
+            result = SSMoonEphemeris::plutoMoonPositionVelocity ( m, jed, pos, vel );
 
         // Fallback: compute moon's position using Keplerian orbit
         

@@ -20,6 +20,7 @@ public:
     static bool saturnMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
     static bool uranusMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
     static bool neptuneMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
+    static bool plutoMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
 };
 
 #endif /* SSMoonEphemeris_hpp */

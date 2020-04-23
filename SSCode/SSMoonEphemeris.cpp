@@ -1691,6 +1691,31 @@ SSMatrix nereidMatrix ( void )
     return matrix;
 }
 
+SSOrbit charonOrbit ( double jed )
+{
+    double d = jed - 2451545.0;
+    double y = d / 365.25;
+    double a = 19591.0 / SSCoordinates::kKmPerAU;
+    double e = 0.0002;
+    double i = degtorad ( 0.080 );
+    double w = mod2pi ( degtorad ( 146.106 - SSAngle::kTwoPi / ( 10178.040 * y ) ) );
+    double n = mod2pi ( degtorad ( 26.928 + SSAngle::kTwoPi / ( 9020.398 * y ) ) );
+    double m = mod2pi ( degtorad ( 131.070 + 56.3625210 * d ) );
+    double mm = degtorad ( 56.3625210 );
+    
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, n, m, mm );
+}
+
+SSMatrix charonMatrix ( void )
+{
+    double a = 132.993;
+    double d =  -6.613;
+    double j = degtorad ( 90.0 - d );
+    double n = degtorad ( 90.0 + a );
+    
+    return SSMatrix::rotation ( 2, 0, j, 2, n );
+}
+
 // Computes Phobos & Deimos's areo-centric position and velocity vectors, in units of AU and AU/day,
 // in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
 // The moon ID is 401 for Phobos, 402 for Deimons; for any other id, this method returns false.
@@ -1888,6 +1913,26 @@ bool SSMoonEphemeris::neptuneMoonPositionVelocity ( int id, double jed, SSVector
         orbit = nereidOrbit ( jed );
         matrix = nereidMatrix();
     }
+    else
+        return false;
+    
+    orbit.toPositionVelocity ( jed, pos, vel );
+    pos = matrix * pos;
+    vel = matrix * vel;
+    return true;
+}
+
+// Computes Charon's Pluto-centric position and velocity vectors, in units of AU and AU/day,
+// in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
+// The moon ID is 901; for any other id, this method returns false.
+
+bool SSMoonEphemeris::plutoMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
+{
+    SSOrbit orbit;
+    static SSMatrix matrix = charonMatrix();
+
+    if ( id == 901 )
+        orbit = charonOrbit ( jed );
     else
         return false;
     
