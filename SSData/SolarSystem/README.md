@@ -64,6 +64,7 @@ The orbital inclinations, arguments, and nodes are referred to their Laplace Pla
 **Revision History**
 
 Version 1.0 (31 Mar 2020): initial version
+Version 1.1 (22 Apr 2020): fixed absolute magnitudes (H)
 
 Asteroids.txt
 -------------
