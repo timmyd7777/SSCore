@@ -404,55 +404,6 @@ int  calc_jsat_loc( const double jd, double *jsats,
    return( sats_wanted);
 }
 
-void SSMoonEphemeris::jupiterMoonPosition ( int id, double jed, SSVector &pos )
-{
-    double jsats[15] = { 0 };
-    
-    // compute Jupiter-centric position of requested moon, in Jupiter radii,
-    // in ecliptic frame of date.
-    
-    if ( id == 501 )
-    {
-        calc_jsat_loc ( jed, jsats, 1, 0 );
-        pos = SSVector ( jsats[0], jsats[1], jsats[2] );
-    }
-    else if ( id == 502 )
-    {
-        calc_jsat_loc ( jed, jsats, 2, 0 );
-        pos = SSVector ( jsats[3], jsats[4], jsats[5] );
-    }
-    else if ( id == 503 )
-    {
-        calc_jsat_loc ( jed, jsats, 4, 0 );
-        pos = SSVector ( jsats[6], jsats[7], jsats[8] );
-    }
-    else if ( id == 504 )
-    {
-        calc_jsat_loc ( jed, jsats, 8, 0 );
-        pos = SSVector ( jsats[9], jsats[10], jsats[11] );
-    }
-    else
-        return;
-    
-    // convert from Jupiter radii to AU
-    
-    pos *= 71420.0 / SSCoordinates::kKmPerAU;
-    
-    // transform from ecliptic frame of date to J2000 equatorial frame.
-    
-    static double matrixJED = 0.0;
-    static SSMatrix matrix;
-    
-    if ( jed != matrixJED )
-    {
-        SSMatrix eclMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( jed ) );
-        SSMatrix preMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
-        matrix = preMat * eclMat;
-        matrixJED = jed;
-    }
-
-    pos = matrix * pos;
-}
 
 /*
 All references are from G. Dourneau unless otherwise noted.
@@ -915,60 +866,6 @@ void rotate_vector( double *v, const double angle, const int axis)
 
    v[b] = v[b] * cos_ang + v[a] * sin_ang;
    v[a] = temp;
-}
-
-void SSMoonEphemeris::saturnMoonPosition ( int id, double jed, SSVector &pos )
-{
-    SAT_ELEMS elems = { 0 };
-    SSOrbit orbit;
-    
-    if ( id == 601 )
-        elems.sat_no = MIMAS;
-    else if ( id == 602 )
-        elems.sat_no = ENCELADUS;
-    else if ( id == 603 )
-        elems.sat_no = TETHYS;
-    else if ( id == 604 )
-        elems.sat_no = DIONE;
-    else if ( id == 605 )
-        elems.sat_no = RHEA;
-    else if ( id == 606 )
-        elems.sat_no = TITAN;
-    else if ( id == 607 )
-        elems.sat_no = HYPERION;
-    else if ( id == 608 )
-        elems.sat_no = JAPETUS;
-    else if ( id == 609 )
-        elems.sat_no = PHOEBE;
-    else
-        return;
-
-    elems.jd = jed;
-    set_ssat_elems ( &elems, &orbit );
-    
-    SSVector vel;
-    orbit.toPositionVelocity ( jed, pos, vel );
-    
-    elems.loc[0] = pos.x;
-    elems.loc[1] = pos.y;
-    elems.loc[2] = pos.z;
-    
-    if ( id <= 904 )    /* inner 4 satellites are returned in Saturnic */
-      {                            /*  coords so gotta rotate to B1950.0 */
-      rotate_vector( elems.loc, INCL0, 0);
-      rotate_vector( elems.loc, ASC_NODE0, 2);
-      }
-                        /* After above,  elems.loc is ecliptic 1950 coords */
-   rotate_vector( elems.loc, OBLIQUITY_1950, 0);
-                        /* Now,  elems.loc is equatorial 1950 coords */
-
-    pos.x = elems.loc[0];
-    pos.y = elems.loc[1];
-    pos.z = elems.loc[2];
-    
-    static SSMatrix matrix = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
-    pos = matrix * pos;
-                            /* Now, pos is equatorial J2000... */
 }
 
 /* gust86.cpp: functions for Uranian satellite coords
@@ -1694,30 +1591,6 @@ void gust86_posn( const double jde, const int isat, double *r )
       r[i] /= AU_in_km;
 }
 
-void SSMoonEphemeris::uranusMoonPosition ( int id, double jed, SSVector &pos )
-{
-    double rv[6] = { 0 };
-    
-    if ( id == 601 )
-        id = GUST86_ARIEL;
-    else if ( id == 602 )
-        id = GUST86_UMBRIEL;
-    else if ( id == 603 )
-         id = GUST86_TITANIA;
-    else if ( id == 604 )
-        id = GUST86_OBERON;
-    else if ( id == 605 )
-        id = GUST86_MIRANDA;
-    else
-        return;
-    
-    gust86_posn ( jed, id, rv );
-    
-    pos.x = rv[0];
-    pos.y = rv[1];
-    pos.z = rv[2];
-}
-
 SSOrbit phobosOrbit ( double jed )
 {
     double d = jed - 2441266.5;
@@ -1771,31 +1644,6 @@ SSMatrix deimosMatrix ( double jed )
     return SSMatrix::rotation ( 2, 0, ja, 2, na );
 }
 
-void SSMoonEphemeris::marsMoonPosition ( int id, double jed, SSVector &pos )
-{
-    SSOrbit  orbit;
-    SSMatrix matrix;
-    SSVector vel;
-
-    if ( id == 401 )
-    {
-        orbit = phobosOrbit ( jed );
-        matrix = phobosMatrix ( jed );
-    }
-    else if ( id == 402 )
-    {
-        orbit = deimosOrbit ( jed );
-        matrix = deimosMatrix ( jed );
-    }
-    else
-        return;
-    
-    orbit.toPositionVelocity ( jed, pos, vel );
-    
-    pos = matrix * pos;
-    vel = matrix * vel;
-}
-
 SSOrbit tritonOrbit ( double jed )
 {
     double d = jed - 2433282.5;
@@ -1844,11 +1692,192 @@ SSMatrix nereidMatrix ( void )
     return matrix;
 }
 
-void SSMoonEphemeris::neptuneMoonPosition ( int id, double jed, SSVector &pos )
+// Computes Phobos & Deimos's areo-centric position and velocity vectors, in units of AU and AU/day,
+// in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
+// The moon ID is 401 for Phobos, 402 for Deimons; for any other id, this method returns false.
+
+bool SSMoonEphemeris::marsMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
 {
     SSOrbit  orbit;
     SSMatrix matrix;
-    SSVector vel;
+
+    if ( id == 401 )
+    {
+        orbit = phobosOrbit ( jed );
+        matrix = phobosMatrix ( jed );
+    }
+    else if ( id == 402 )
+    {
+        orbit = deimosOrbit ( jed );
+        matrix = deimosMatrix ( jed );
+    }
+    else
+        return false;
+    
+    orbit.toPositionVelocity ( jed, pos, vel );
+    pos = matrix * pos;
+    vel = matrix * vel;
+    return true;
+}
+
+// Computes Jupiter's Galilean moons' Jupiter-centric position vector, in units of AU,
+// in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
+// The moon ID (id) is 501 = Io, 502 = Europa; 503 = Ganymede; 504 = Callisto; for any other moon ID,
+// this method returns false. Velocity vector (vel) is not currently calculated.
+
+bool SSMoonEphemeris::jupiterMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
+{
+    double jsats[15] = { 0 };
+    
+    // compute Jupiter-centric position of requested moon, in Jupiter radii,
+    // in ecliptic frame of date.
+    
+    if ( id == 501 )
+    {
+        calc_jsat_loc ( jed, jsats, 1, 0 );
+        pos = SSVector ( jsats[0], jsats[1], jsats[2] );
+    }
+    else if ( id == 502 )
+    {
+        calc_jsat_loc ( jed, jsats, 2, 0 );
+        pos = SSVector ( jsats[3], jsats[4], jsats[5] );
+    }
+    else if ( id == 503 )
+    {
+        calc_jsat_loc ( jed, jsats, 4, 0 );
+        pos = SSVector ( jsats[6], jsats[7], jsats[8] );
+    }
+    else if ( id == 504 )
+    {
+        calc_jsat_loc ( jed, jsats, 8, 0 );
+        pos = SSVector ( jsats[9], jsats[10], jsats[11] );
+    }
+    else
+        return false;
+    
+    // convert from Jupiter radii to AU
+    
+    pos *= 71420.0 / SSCoordinates::kKmPerAU;
+    
+    // transform from ecliptic frame of date to J2000 equatorial frame.
+    
+    static double matrixJED = 0.0;
+    static SSMatrix matrix;
+    
+    if ( jed != matrixJED )
+    {
+        SSMatrix eclMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( jed ) );
+        SSMatrix preMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
+        matrix = preMat * eclMat;
+        matrixJED = jed;
+    }
+
+    pos = matrix * pos;
+    return true;
+}
+
+// Computes Saturn's major moons' Saturn-centric position vector, in units of AU,
+// in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
+// The moon ID (id) is 601 = Mimas, 602 = Enceladus; 603 = Tethys; 604 = Dione, 605 = Rhea;
+// 606 = Titan; 607 = Hyperion; 608 = Iapetus; 609 = Phoebe; for any other moon ID,
+// this method returns false. Velocity vector (vel) is not currently calculated.
+
+bool SSMoonEphemeris::saturnMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
+{
+    SAT_ELEMS elems = { 0 };
+    SSOrbit orbit;
+    
+    if ( id == 601 )
+        elems.sat_no = MIMAS;
+    else if ( id == 602 )
+        elems.sat_no = ENCELADUS;
+    else if ( id == 603 )
+        elems.sat_no = TETHYS;
+    else if ( id == 604 )
+        elems.sat_no = DIONE;
+    else if ( id == 605 )
+        elems.sat_no = RHEA;
+    else if ( id == 606 )
+        elems.sat_no = TITAN;
+    else if ( id == 607 )
+        elems.sat_no = HYPERION;
+    else if ( id == 608 )
+        elems.sat_no = JAPETUS;
+    else if ( id == 609 )
+        elems.sat_no = PHOEBE;
+    else
+        return false;
+
+    elems.jd = jed;
+    set_ssat_elems ( &elems, &orbit );
+    
+    orbit.toPositionVelocity ( jed, pos, vel );
+    
+    elems.loc[0] = pos.x;
+    elems.loc[1] = pos.y;
+    elems.loc[2] = pos.z;
+    
+    if ( id <= 904 )    /* inner 4 satellites are returned in Saturnic */
+      {                            /*  coords so gotta rotate to B1950.0 */
+      rotate_vector( elems.loc, INCL0, 0);
+      rotate_vector( elems.loc, ASC_NODE0, 2);
+      }
+                        /* After above,  elems.loc is ecliptic 1950 coords */
+   rotate_vector( elems.loc, OBLIQUITY_1950, 0);
+                        /* Now,  elems.loc is equatorial 1950 coords */
+
+    pos.x = elems.loc[0];
+    pos.y = elems.loc[1];
+    pos.z = elems.loc[2];
+    
+    static SSMatrix matrix = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
+    pos = matrix * pos;   /* Now, pos is equatorial J2000. */
+    return true;
+}
+
+// Computes Uranus's major moons' Uranocentric position and velocity vectors, in units of AU and AU/day,
+// in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
+// The moon ID (id) is 701 = Ariel, 702 = Umbriel; 703 = Titania; 704 = Oberon; 705 = Miranda.
+// for any other moon ID, this method returns false.
+
+bool SSMoonEphemeris::uranusMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
+{
+    double rv[6] = { 0 };
+    
+    if ( id == 601 )
+        id = GUST86_ARIEL;
+    else if ( id == 602 )
+        id = GUST86_UMBRIEL;
+    else if ( id == 603 )
+         id = GUST86_TITANIA;
+    else if ( id == 604 )
+        id = GUST86_OBERON;
+    else if ( id == 605 )
+        id = GUST86_MIRANDA;
+    else
+        return false;
+    
+    gust86_posn ( jed, id, rv );
+    
+    pos.x = rv[0];
+    pos.y = rv[1];
+    pos.z = rv[2];
+    
+    vel.x = rv[3] * SSTime::kSecondsPerDay;
+    vel.y = rv[3] * SSTime::kSecondsPerDay;
+    vel.z = rv[3] * SSTime::kSecondsPerDay;
+
+    return true;
+}
+
+// Computes Triton & Nereid's Neptune-centric position and velocity vectors, in units of AU and AU/day,
+// in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
+// The moon ID is 801 for Triton, 802 for Nereid; for any other id, this method returns false.
+
+bool SSMoonEphemeris::neptuneMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
+{
+    SSOrbit  orbit;
+    SSMatrix matrix;
 
     if ( id == 801 )
     {
@@ -1861,10 +1890,10 @@ void SSMoonEphemeris::neptuneMoonPosition ( int id, double jed, SSVector &pos )
         matrix = nereidMatrix();
     }
     else
-        return;
+        return false;
     
     orbit.toPositionVelocity ( jed, pos, vel );
-    
     pos = matrix * pos;
     vel = matrix * vel;
+    return true;
 }

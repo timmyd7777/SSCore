@@ -14,11 +14,12 @@
 
 class SSMoonEphemeris
 {
-    static void marsMoonPosition ( int id, double jed, SSVector &pos );
-    static void jupiterMoonPosition ( int id, double jed, SSVector &pos );
-    static void saturnMoonPosition ( int id, double jed, SSVector &pos );
-    static void uranusMoonPosition ( int id, double jed, SSVector &pos );
-    static void neptuneMoonPosition ( int id, double jed, SSVector &pos );
+public:
+    static bool marsMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
+    static bool jupiterMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
+    static bool saturnMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
+    static bool uranusMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
+    static bool neptuneMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel );
 };
 
 #endif /* SSMoonEphemeris_hpp */

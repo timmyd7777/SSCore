@@ -8,6 +8,7 @@
 #include "SSPlanet.hpp"
 #include "SSPSEphemeris.hpp"
 #include "SSJPLDEphemeris.hpp"
+#include "SSMoonEphemeris.hpp"
 #include "SSTLE.hpp"
 
 // This uses the 1979 Van Flandern - Pulkinnen low-precision planetary ephemeris when JPL DE is unavailable.
@@ -167,6 +168,13 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     static SSVector primaryPos[10], primaryVel[10];
     static double primaryJED[10] = { 0.0 };
 
+    // Get moona and primary planet identifier.
+    
+    int m = (int) _id.identifier();
+    int p = m / 100;
+    if ( p < 0 || p > 9 )
+        p = 0;
+
     // Special case for Moon: use JPL ephemeris to compute heliocentric position and velocity directly;
     // or if that fails, use PS ephemeris to compute Moon's geocentric position and velocity.
     
@@ -189,14 +197,24 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     {
         // Compute moon's position and velocity relative to its primary planet.
         
-        computeMinorPlanetPositionVelocity ( jed, lt, pos, vel );
+        bool result = false;
+        
+        if ( p == kMars )
+            result = SSMoonEphemeris::marsMoonPositionVelocity ( m, jed, pos, vel );
+        else if ( p == kJupiter )
+            result = SSMoonEphemeris::jupiterMoonPositionVelocity ( m, jed, pos, vel );
+        else if ( p == kSaturn )
+            result = SSMoonEphemeris::saturnMoonPositionVelocity ( m, jed, pos, vel );
+        else if ( p == kUranus )
+            result = SSMoonEphemeris::uranusMoonPositionVelocity ( m, jed, pos, vel );
+        else if ( p == kNeptune )
+            result = SSMoonEphemeris::neptuneMoonPositionVelocity ( m, jed, pos, vel );
+
+        // Fallback: compute moon's position using Keplerian orbit
+        
+        if ( ! result )
+            computeMinorPlanetPositionVelocity ( jed, lt, pos, vel );
     }
-    
-    // Get primary planet identifier.
-    
-    int p = (int) _id.identifier() / 100;
-    if ( p < 0 || p > 9 )
-        p = 0;
     
     // If JED has changed since last time we computed primary's position and velocity, recompute them.
     
@@ -218,7 +236,8 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 
 double SSPlanet::phaseAngle ( SSVector position, SSVector direction )
 {
-    return acos ( ( position * direction ) / position.magnitude() );
+    double sundist = position.magnitude();
+    return sundist > 0.0 ? acos ( ( position * direction ) / sundist ) : 0.0;
 }
 
 // Returns this solar system object's phase angle in radians.
@@ -234,7 +253,7 @@ double SSPlanet::phaseAngle ( void )
 
 double SSPlanet::illumination ( double phase )
 {
-    return 1.0 + cos ( phase ) / 2.0;
+    return ( 1.0 + cos ( phase ) ) / 2.0;
 }
 
 // Returns this solar system object's illuminated fraction (from 0.0 to 1.0)

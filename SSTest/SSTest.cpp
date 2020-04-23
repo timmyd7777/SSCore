@@ -326,6 +326,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     
     // If we found it, find and print all ISS passes in the next day.
     
+    coords.setTime ( now );
     if ( i < solsys.size() )
     {
         vector<SSPass> passes;
@@ -347,15 +348,16 @@ void TestEphemeris ( string inputDir, string outputDir )
     
     // Compute and print ephemeris of solar system objects.
     
+    coords.setTime ( now );
     for ( int i = 0; i < solsys.size(); i++ )
     {
         SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
         if ( p == nullptr )
             continue;
         
-        // Skip everything except the first 10 objects and the ISS.
+        // Skip everything except the first 34 solar system objects and the ISS.
         
-        bool skip = i < 11 ? false : true;
+        bool skip = i < 34 ? false : true;
         if ( p->getType() == kTypeSatellite )
             if ( p->getIdentifier() == SSIdentifier ( kCatNORADSat, 25544 ) )
                 skip = false;
@@ -378,11 +380,14 @@ void TestEphemeris ( string inputDir, string outputDir )
             cout << "Dist: " << format ( "%.6f AU", dist ) << endl;
         else
             cout << "Dist: " << format ( "%.0f km", dist * coords.kKmPerAU ) << endl;
-        cout << "Mag:  " << format ( "%+.2f", mag ) << endl << endl;
+        cout << "Mag:  " << format ( "%+.2f", mag ) << endl;
+        cout << "Illum: " << format ( "%.1f%%", p->illumination() * 100.0 ) << endl << endl;
     }
 
     SSJPLDEphemeris::close();
 
+    // Compute and print ephemeris information for the 10 nearest stars
+    
     SSObjectVec nearStars;
     int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearStars );
     cout << "Imported " << numStars << " nearby stars" << endl;
