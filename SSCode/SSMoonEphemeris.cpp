@@ -1653,7 +1653,7 @@ SSOrbit tritonOrbit ( double jed )
     double l = mod2pi ( degtorad ( 200.913 + 61.2588532 * d ) );
     double n = degtorad ( 61.2588532 - 0.57806 );
     
-    return ( SSOrbit ( jed, a * ( 1.0 - e ), e, gamma, 0.0, theta, l - theta, n ) );
+    return ( SSOrbit ( jed, a * ( 1.0 - e ), e, gamma, 0.0, theta, l, n ) );
 }
 
 SSOrbit nereidOrbit ( double jed )
@@ -1841,7 +1841,7 @@ bool SSMoonEphemeris::saturnMoonPositionVelocity ( int id, double jed, SSVector 
     elems.loc[1] = pos.y;
     elems.loc[2] = pos.z;
     
-    if ( id <= 904 )    /* inner 4 satellites are returned in Saturnic */
+    if ( id <= 604 )    /* inner 4 satellites are returned in Saturnic */
       {                            /*  coords so gotta rotate to B1950.0 */
       rotate_vector( elems.loc, INCL0, 0);
       rotate_vector( elems.loc, ASC_NODE0, 2);

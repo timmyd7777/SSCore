@@ -244,7 +244,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << "Imported " << nnames << " McCants satellite names." << endl;
 
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
-    SSTime now = SSTime::fromSystem(); // SSTime ( date ); //
+    SSTime now = SSTime ( date ); // SSTime::fromSystem();
     date = SSDate ( now );
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
     SSCoordinates coords ( now, here );
@@ -381,7 +381,19 @@ void TestEphemeris ( string inputDir, string outputDir )
         else
             cout << "Dist: " << format ( "%.0f km", dist * coords.kKmPerAU ) << endl;
         cout << "Mag:  " << format ( "%+.2f", mag ) << endl;
-        cout << "Illum: " << format ( "%.1f%%", p->illumination() * 100.0 ) << endl << endl;
+        cout << "Illum: " << format ( "%.1f%%", p->illumination() * 100.0 ) << endl;
+        
+        if ( p->getType() == kTypeMoon )
+        {
+            SSPlanet *primary = SSGetPlanetPtr ( solsys[ p->getIdentifier().identifier() / 100 ] );
+            SSSpherical primaryDir ( primary->getDirection() );
+            primaryDir = coords.transform ( kFundamental, kEquatorial, primaryDir );
+            double x = modpi ( dir.lon - primaryDir.lon ) * SSAngle::kArcsecPerRad * cos ( primaryDir.lat );
+            double y = modpi ( dir.lat - primaryDir.lat ) * SSAngle::kArcsecPerRad;
+            cout << format ( "X: %+.1f\" Y: %+.1f\"", x, y ) << endl;
+        }
+        
+        cout << endl;
     }
 
     SSJPLDEphemeris::close();
