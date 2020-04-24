@@ -383,6 +383,8 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << "Mag:  " << format ( "%+.2f", mag ) << endl;
         cout << "Illum: " << format ( "%.1f%%", p->illumination() * 100.0 ) << endl;
         
+        // For moons, print RA (X) and Dec (Y) offset in arcsec from primary planet.
+        
         if ( p->getType() == kTypeMoon )
         {
             SSPlanet *primary = SSGetPlanetPtr ( solsys[ p->getIdentifier().identifier() / 100 ] );

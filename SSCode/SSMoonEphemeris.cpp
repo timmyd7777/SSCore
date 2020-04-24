@@ -1593,6 +1593,10 @@ void gust86_posn( const double jde, const int isat, double *r )
       r[i] /= AU_in_km;
 }
 
+// Returns Phobos's Mars-centric orbital elements at a given Julian Ephemeris Date (jed)
+// referred to a fixed plane approximately equal to Mars's equator.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 342-345.
+
 SSOrbit phobosOrbit ( double jed )
 {
     double d = jed - 2441266.5;
@@ -1609,6 +1613,10 @@ SSOrbit phobosOrbit ( double jed )
     
     return SSOrbit ( jed, a * ( 1.0 - e ), e, gamma, p - theta, theta, m, mm );
 }
+
+// Returns Deimos's Mars-cemtric orbital elements at a given Julian Ephemeris Date (jed)
+// referred to a fixed plane approximately equal to Mars's equator.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 342-345.
 
 SSOrbit deimosOrbit ( double jed )
 {
@@ -1628,6 +1636,9 @@ SSOrbit deimosOrbit ( double jed )
     return SSOrbit ( jed, a * ( 1.0 - e ), e, gamma, p - theta, theta, m, mm );
 }
 
+// Returns matrix for transforming Phobos's XYZ vector to the Earth's J2000 equatorial frame.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 342-345.
+
 SSMatrix phobosMatrix ( double jed )
 {
     double y = ( jed - 2441266.5 ) / 365.25;
@@ -1637,6 +1648,9 @@ SSMatrix phobosMatrix ( double jed )
     return SSMatrix::rotation ( 2, 0, ja, 2, na );
 }
 
+// Returns matrix for transforming Deimos's XYZ vector to the Earth's J2000 equatorial frame.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 342-345.
+
 SSMatrix deimosMatrix ( double jed )
 {
     double y = ( jed - 2441266.5 ) / 365.25;
@@ -1645,6 +1659,10 @@ SSMatrix deimosMatrix ( double jed )
 
     return SSMatrix::rotation ( 2, 0, ja, 2, na );
 }
+
+// Returns Triton's Neptune-centric orbital elements on a given Julian Ephemeris Date (jed).
+// The elements are referred to a fixed plane approximately equal to Neptune's equator.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 373-375.
 
 SSOrbit tritonOrbit ( double jed )
 {
@@ -1658,6 +1676,10 @@ SSOrbit tritonOrbit ( double jed )
     
     return ( SSOrbit ( jed, a * ( 1.0 - e ), e, gamma, 0.0, theta, l, n ) );
 }
+
+// Returns Nereid's Neptune-centric orbital elements on a given Julian Ephemeris Date (jed).
+// The elements are referred to Neptune's B1950 orbit plane.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 375-377.
 
 SSOrbit nereidOrbit ( double jed )
 {
@@ -1675,6 +1697,9 @@ SSOrbit nereidOrbit ( double jed )
     return SSOrbit ( jed, a * ( 1.0 - e ), e, gamma, p - theta, theta, m, mm );
 }
 
+// Returns matrix for transforming Triton's XYZ vector to the Earth's J2000 equatorial frame.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 354-356.
+
 SSMatrix tritonMatrix ( double jed )
 {
     double t = ( jed - SSTime::kJ2000 ) / 36525.0;
@@ -1687,12 +1712,19 @@ SSMatrix tritonMatrix ( double jed )
     return SSMatrix::rotation ( 2, 0, je, 2, ne );
 }
 
+// Returns matrix for transforming Nereid's XYZ vector to the Earth's J2000 equatorial frame.
+// From the Explanatory Supplement to the Astronomical Almanac, pp. 354-356.
+
 SSMatrix nereidMatrix ( void )
 {
     static SSMatrix matrix = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose()
                             * SSMatrix::rotation ( 2, 0, degtorad ( 22.313 ), 2, degtorad ( 3.522 ) );
     return matrix;
 }
+
+// Returns Charon's Pluto-centric orbital elements at a specific Julian Ephemeris Date (jed).
+// The elements are referred to Pluto's equatorial plane.
+// From JPL Planetary Satellite Orbital Parameters, https://ssd.jpl.nasa.gov/?sat_elem
 
 SSOrbit charonOrbit ( double jed )
 {
@@ -1708,6 +1740,9 @@ SSOrbit charonOrbit ( double jed )
     
     return SSOrbit ( jed, a * ( 1.0 - e ), e, i, w, n, m, mm );
 }
+
+// Returns matrix for transforming Charon's XYZ position vector to Earth's J2000 equatorial frame.
+// From JPL Planetary Satellite Orbital Parameters, https://ssd.jpl.nasa.gov/?sat_elem
 
 SSMatrix charonMatrix ( void )
 {
@@ -1843,24 +1878,32 @@ bool SSMoonEphemeris::saturnMoonPositionVelocity ( int id, double jed, SSVector 
     double p[3] = { pos.x, pos.y, pos.z };
     double v[3] = { vel.x, vel.y, vel.z };
     
-    if ( id <= 604 )    /* inner 4 satellites are returned in Saturnic */
-      {                            /*  coords so gotta rotate to B1950.0 */
-      rotate_vector( p, INCL0, 0);
-      rotate_vector( p, ASC_NODE0, 2);
-      rotate_vector( v, INCL0, 0);
-      rotate_vector( v, ASC_NODE0, 2);
-      }
-                        /* After above, p,v is ecliptic 1950 coords */
-   rotate_vector( p, OBLIQUITY_1950, 0);
-   rotate_vector( v, OBLIQUITY_1950, 0);
-                        /* Now, p,v is equatorial 1950 coords */
+    // inner 4 satellites are returned in Saturnic
+    // coords so gotta rotate to B1950.0
+    
+    if ( id <= 604 )
+    {
+        rotate_vector( p, INCL0, 0 );
+        rotate_vector( p, ASC_NODE0, 2 );
+        rotate_vector( v, INCL0, 0 );
+        rotate_vector( v, ASC_NODE0, 2 );
+    }
+    
+    // After above, p,v is ecliptic 1950 coords
+    // Now, transform p,v to equatorial 1950 coords
+    
+    rotate_vector ( p, OBLIQUITY_1950, 0 );
+    rotate_vector ( v, OBLIQUITY_1950, 0 );
 
     pos = SSVector ( p[0], p[1], p[2] );
     vel = SSVector ( v[0], v[1], v[2] );
 
+    // Finally precess pos, vel to equatorial J2000.
+    
     static SSMatrix matrix = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
-    pos = matrix * pos;   /* Now, pos,vel is equatorial J2000. */
+    pos = matrix * pos;
     vel = matrix * vel;
+    
     return true;
 }
 
