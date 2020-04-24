@@ -8,6 +8,8 @@
 // an extended version of Bill Gray's Project Pluto code, used with permission.
 // For Jupiter's Galilean moons, all of the periodic terms have been added here.
 
+#include <string.h>
+
 #include "SSCoordinates.hpp"
 #include "SSMatrix.hpp"
 #include "SSOrbit.hpp"

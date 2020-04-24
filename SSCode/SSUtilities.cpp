@@ -5,13 +5,17 @@
 // Copyright © 2020 Southern Stars. All rights reserved.
 
 #include <cstdarg>
-#include "SSUtilities.hpp"
+#include <string.h>
+#include <stdlib.h>
+#include <limits.h>
 
 #ifdef _WIN32
 #include <direct.h>
 #else
 #include <unistd.h>
 #endif
+
+#include "SSUtilities.hpp"
 
 // Returns path to current working directory as a string
 

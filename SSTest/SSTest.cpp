@@ -244,13 +244,14 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << "Imported " << nnames << " McCants satellite names." << endl;
 
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
-    SSTime now = SSTime ( date ); // SSTime::fromSystem();
+    SSTime now = SSTime::fromSystem(); // SSTime ( date );
     date = SSDate ( now );
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
     SSCoordinates coords ( now, here );
     
     cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
     cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
+    cout << format ( "Test Zone: %+.1f hours", date.zone ) << endl;
     cout << format ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;
     cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
     cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;

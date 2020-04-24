@@ -10,6 +10,8 @@
 // of a satellites position and velocity from its three-line element (TLE) set
 // of orbital parameters.
 
+#include <string.h>
+
 #include "SSUtilities.hpp"
 #include "SSTime.hpp"
 #include "SSTLE.hpp"

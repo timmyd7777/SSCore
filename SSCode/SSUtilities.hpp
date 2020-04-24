@@ -14,12 +14,14 @@
 #include <string>
 #include <vector>
 
-#ifndef max
-#define max(x,y) (x>y?x:y)
+using namespace std;
+
+#ifndef maximum
+#define maximum(x,y) (x>y?x:y)
 #endif
 
-#ifndef min
-#define min(x,y) (x<y?x:y)
+#ifndef minimum
+#define minimum(x,y) (x<y?x:y)
 #endif
 
 // on Android, hijack fopen and route it through the android asset system
@@ -31,9 +33,7 @@ FILE *android_fopen ( const char *fname, const char *mode );
 #define fopen(name,mode) android_fopen(name,mode)
 #endif
 
-using namespace std;
-
-#define M_2PI ( 2 * M_PI )
+#define M_2PI (2*M_PI)
 
 string getcwd ( void );
 bool fgetline ( FILE *infile, string &line );

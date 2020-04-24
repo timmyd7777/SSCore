@@ -42,14 +42,14 @@ $(SOURCEDIR)/SSVector.hpp \
 
 CC=gcc
 CFLAGS=-std=c++11 -I$(SOURCEDIR)
-LDFLAGS=-lstdc++
+LDFLAGS=-lstdc++ -lm
 
 EXECUTABLE=sstest
 
 all:	test
 
 test:	$(SOURCES) $(HEADERS)
-	$(CC) -o $(EXECUTABLE) $(CFLAGS) $(LDFLAGS) $(SOURCES) 
+	$(CC) -o $(EXECUTABLE) $(CFLAGS) $(SOURCES) $(LDFLAGS)
 
 clean:
 	/bin/rm -f *.o $(EXECUTABLE)
