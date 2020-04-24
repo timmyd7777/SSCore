@@ -200,17 +200,17 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
         bool result = false;
         
         if ( p == kMars )
-            result = SSMoonEphemeris::marsMoonPositionVelocity ( m, jed, pos, vel );
+            result = SSMoonEphemeris::marsMoonPositionVelocity ( m, jed - lt, pos, vel );
         else if ( p == kJupiter )
-            result = SSMoonEphemeris::jupiterMoonPositionVelocity ( m, jed, pos, vel );
+            result = SSMoonEphemeris::jupiterMoonPositionVelocity ( m, jed - lt, pos, vel );
         else if ( p == kSaturn )
-            result = SSMoonEphemeris::saturnMoonPositionVelocity ( m, jed, pos, vel );
+            result = SSMoonEphemeris::saturnMoonPositionVelocity ( m, jed - lt, pos, vel );
         else if ( p == kUranus )
-            result = SSMoonEphemeris::uranusMoonPositionVelocity ( m, jed, pos, vel );
+            result = SSMoonEphemeris::uranusMoonPositionVelocity ( m, jed - lt, pos, vel );
         else if ( p == kNeptune )
-            result = SSMoonEphemeris::neptuneMoonPositionVelocity ( m, jed, pos, vel );
+            result = SSMoonEphemeris::neptuneMoonPositionVelocity ( m, jed - lt, pos, vel );
         else if ( p == kPluto )
-            result = SSMoonEphemeris::plutoMoonPositionVelocity ( m, jed, pos, vel );
+            result = SSMoonEphemeris::plutoMoonPositionVelocity ( m, jed - lt, pos, vel );
 
         // Fallback: compute moon's position using Keplerian orbit
         
@@ -227,7 +227,8 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     }
     
     // Add primary's position (antedated for light time) and velocity to moon's position and velocity.
-
+    // We assume primary's velocity is constant over light time duration.
+    
     pos += primaryPos[p] - primaryVel[p] * lt;
     vel += primaryVel[p];
 }
