@@ -1804,7 +1804,7 @@ bool SSMoonEphemeris::jupiterMoonPositionVelocity ( int id, double jed, SSVector
 // in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
 // The moon ID (id) is 601 = Mimas, 602 = Enceladus; 603 = Tethys; 604 = Dione, 605 = Rhea;
 // 606 = Titan; 607 = Hyperion; 608 = Iapetus; 609 = Phoebe; for any other moon ID,
-// this method returns false. Velocity vector (vel) is not currently calculated.
+// this method returns false.
 
 bool SSMoonEphemeris::saturnMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
 {
@@ -1837,25 +1837,27 @@ bool SSMoonEphemeris::saturnMoonPositionVelocity ( int id, double jed, SSVector 
     
     orbit.toPositionVelocity ( jed, pos, vel );
     
-    elems.loc[0] = pos.x;
-    elems.loc[1] = pos.y;
-    elems.loc[2] = pos.z;
+    double p[3] = { pos.x, pos.y, pos.z };
+    double v[3] = { vel.x, vel.y, vel.z };
     
     if ( id <= 604 )    /* inner 4 satellites are returned in Saturnic */
       {                            /*  coords so gotta rotate to B1950.0 */
-      rotate_vector( elems.loc, INCL0, 0);
-      rotate_vector( elems.loc, ASC_NODE0, 2);
+      rotate_vector( p, INCL0, 0);
+      rotate_vector( p, ASC_NODE0, 2);
+      rotate_vector( v, INCL0, 0);
+      rotate_vector( v, ASC_NODE0, 2);
       }
-                        /* After above,  elems.loc is ecliptic 1950 coords */
-   rotate_vector( elems.loc, OBLIQUITY_1950, 0);
-                        /* Now,  elems.loc is equatorial 1950 coords */
+                        /* After above, p,v is ecliptic 1950 coords */
+   rotate_vector( p, OBLIQUITY_1950, 0);
+   rotate_vector( v, OBLIQUITY_1950, 0);
+                        /* Now, p,v is equatorial 1950 coords */
 
-    pos.x = elems.loc[0];
-    pos.y = elems.loc[1];
-    pos.z = elems.loc[2];
-    
+    pos = SSVector ( p[0], p[1], p[2] );
+    vel = SSVector ( v[0], v[1], v[2] );
+
     static SSMatrix matrix = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose();
-    pos = matrix * pos;   /* Now, pos is equatorial J2000. */
+    pos = matrix * pos;   /* Now, pos,vel is equatorial J2000. */
+    vel = matrix * vel;
     return true;
 }
 
