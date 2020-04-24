@@ -855,6 +855,9 @@ static int set_ssat_elems( SAT_ELEMS *elems, SSOrbit *orbit)
    orbit->i = elems->gamma;
    orbit->w = elems->omega - elems->Omega;
    orbit->n = elems->Omega;
+   orbit->mm = n[sat] - ( big_P0_dot[sat] / 100000. ) / 365.25;
+   orbit->mm = degtorad ( fabs ( orbit->mm ) );
+    
    return( 0);
 }
 
@@ -1870,15 +1873,15 @@ bool SSMoonEphemeris::uranusMoonPositionVelocity ( int id, double jed, SSVector 
 {
     double rv[6] = { 0 };
     
-    if ( id == 601 )
+    if ( id == 701 )
         id = GUST86_ARIEL;
-    else if ( id == 602 )
+    else if ( id == 702 )
         id = GUST86_UMBRIEL;
-    else if ( id == 603 )
+    else if ( id == 703 )
          id = GUST86_TITANIA;
-    else if ( id == 604 )
+    else if ( id == 704 )
         id = GUST86_OBERON;
-    else if ( id == 605 )
+    else if ( id == 705 )
         id = GUST86_MIRANDA;
     else
         return false;
@@ -1890,8 +1893,8 @@ bool SSMoonEphemeris::uranusMoonPositionVelocity ( int id, double jed, SSVector 
     pos.z = rv[2];
     
     vel.x = rv[3] * SSTime::kSecondsPerDay;
-    vel.y = rv[3] * SSTime::kSecondsPerDay;
-    vel.z = rv[3] * SSTime::kSecondsPerDay;
+    vel.y = rv[4] * SSTime::kSecondsPerDay;
+    vel.z = rv[5] * SSTime::kSecondsPerDay;
 
     return true;
 }
