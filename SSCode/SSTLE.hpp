@@ -16,6 +16,7 @@
 #include <fstream>
 
 #include "SSVector.hpp"
+#include "SSOrbit.hpp"
 
 using namespace std;
 
@@ -73,6 +74,8 @@ struct SSTLE
 
     void toPositionVelocity ( double jd, SSVector &pos, SSVector &vel );
     void fromPositionVelocity ( double jd, SSVector &pos, SSVector &vel );
+    
+    SSOrbit toOrbit ( double tsince );
 };
 
 #endif /* SSTLE_hpp */

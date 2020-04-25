@@ -490,7 +490,7 @@ SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )
     
     _id = SSIdentifier ( kCatNORADSat, tle.norad );
     
-    // TODO: also copy orbit into _orbit
+    _orbit = tle.toOrbit ( 0.0 );
 }
 
 // Computes satellite visual magnitude.
@@ -530,7 +530,6 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
     static SSMatrix earthMat;
     static double earthJED = 0.0, deltaT = 0.0;
     
-    // compute satellite position & velocity relative to Earth, antedated for light time.
     // Recompute Earth's position and velocity relative to Sun if JED has changed.
     // Asssume Earth's velocity is constant over light time duration.
     
@@ -542,6 +541,7 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
         earthMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
     }
 
+    // Compute satellite position & velocity relative to Earth, antedated for light time.
     // Satellite's orbit epoch is Julian Date, not JED, so subtract Delta T.
     // Output position and velocity vectors are in km and km/sec; convert to AU and AU/day;
     // Satellite orbit elements are referred to current equator, not J2000 equator,

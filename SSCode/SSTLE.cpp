@@ -2259,3 +2259,34 @@ void SSTLE::delargs ( void )
         argp.sgp4 = nullptr;
     }
 }
+
+// Returns Keplerian orbital elements at a specific number of minutes since epoch (tsince).
+// Based on analysis of SGP orbit model, and at least approximately correct, but needs further testing.
+
+SSOrbit SSTLE::toOrbit ( double tsince )
+{
+    // Recover original semimajor axis and mean motion.
+    
+    double cosi = cos ( xincl );
+    double a1 = pow ( xke / xno, ( 2.0 / 3.0 ) );
+    double del1 = ( 0.75 * xj2 * xae * xae * ( 3.0 * cosi * cosi - 1.0 ) ) / ( a1 * a1 * pow ( 1.0 - eo * eo, 1.5 ) );
+    double ao = a1 * ( 1.0 - del1 / 3.0 - del1 * del1 - 134.0 * del1 * del1 * del1 / 81.0 );
+    double del0 = ( 0.75 * xj2 * xae * xae * ( 3.0 * cosi * cosi - 1.0 ) ) /  ( ao * ao * pow ( 1.0 - eo * eo, 1.5 ) );
+    double xnodp = xno / ( 1.0 + del0 );
+    double aodp = ao / ( 1.0 - del0 );
+
+    // Compute secular rates of ascending node and perigee.
+        
+    double po = ao * ( 1.0 - eo * eo );
+    double xnodot = -1.5 * xj2 * xae * xae * xno * cosi / ( po * po );
+    double omegadot = 0.75 * xj2 * xae * xae * xno * ( 5.0 * cosi * cosi - 1.0 ) / ( po * po );
+    
+    // Update the angular elements for secular variations.  The perturbation
+    // to the mean motion is already contained in the SGP-type mean motion.
+    
+    double omegat = fmod2p ( omegao + omegadot * tsince );
+    double xnodet = fmod2p ( xnodeo + xnodot * tsince );
+    double xmt = fmod2p ( xmo + xno * tsince );
+    
+    return SSOrbit ( jdepoch + tsince / xmnpda, aodp * ( 1.0 - eo ), eo, xincl, omegat, xnodet, xmt, xnodp );
+}
