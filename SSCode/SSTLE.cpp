@@ -279,10 +279,15 @@ void unitv( double v[], double u[] )
 
 SSTLE::SSTLE ( void )
 {
-    memset ( this, 0, sizeof ( *this ) );
+    name = desig = "";
+    norad = 0;
+    jdepoch = xndt2o = xndd6o = bstar = xincl = xnodeo = eo = omegao = xmo = xno = 0.0;
+    deep = false;
+    argp.sgp = nullptr;
 }
 
-// copy constructor deletes arg pointer
+// copy constructor nullifies argp pointer; any of the sgp() methods will re-create it.
+// This ensures that deleting this SSTLE won't delete the original SSTLE's argp.
 
 SSTLE::SSTLE ( const SSTLE &other )
 {
