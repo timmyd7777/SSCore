@@ -61,8 +61,8 @@ struct SSTime
 
     static constexpr double kJ2000 = 2451545.0;      // JD of standard Julian epoch J2000
     static constexpr double kJ1970 = 2440587.5;      // JD of standard UNIX time base 1.0 January 1970 UTC
-    static constexpr double kB1950 = 2433282.423;    // JD of standard Besselian epoch B1950
-    static constexpr double kB1900 = 2433282.423;    // JD of standard Besselian epoch B1900
+    static constexpr double kB1950 = 2433282.42346;  // JD of standard Besselian epoch B1950
+    static constexpr double kB1900 = 2415020.31352;  // JD of standard Besselian epoch B1900
 
     static constexpr double kSecondsPerDay = 86400.0;   // Seconds per day
     static constexpr double kMinutesPerDay = 1440.0;    // Seconds per day

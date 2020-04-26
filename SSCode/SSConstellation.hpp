@@ -52,6 +52,11 @@ public:
     
     static SSObjectPtr fromCSV ( string csv );
     string toCSV ( void );
+    
+    // identifies constellation from equatorial cooordinates (B1875 spherical or J2000 rectangular unit vector)
+    
+    static string identify ( double ra, double dec );   // B1875 coordinates
+    static string identify ( SSVector position );       // J2000 coordinates
 };
 
 // convenient alias for pointer to SSConstellation

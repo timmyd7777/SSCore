@@ -255,7 +255,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << format ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;
     cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
     cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
-    
+
     coords.aberration = true;
     coords.lighttime = true;
     
@@ -367,6 +367,7 @@ void TestEphemeris ( string inputDir, string outputDir )
             continue;
         
         p->computeEphemeris ( coords );
+        string con = SSConstellation::identify ( p->getDirection() );
         SSSpherical dir ( p->getDirection() );
         dir = coords.transform ( kFundamental, kEquatorial, dir );
         SSHourMinSec ra ( dir.lon );
@@ -377,6 +378,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << p->getName ( 0 ) << ":" << endl;
         cout << "RA:   " << ra.format ( " %02hdh %02hdm %05.2fs" ) << endl;
         cout << "Dec:  " << dec.format ( "%c%02hd° %02hd' %04.1f\"" ) << endl;
+        cout << "Con:  " << con << endl;
         if ( dist > 0.1 )
             cout << "Dist: " << format ( "%.6f AU", dist ) << endl;
         else
@@ -423,6 +425,7 @@ void TestEphemeris ( string inputDir, string outputDir )
             break;
         
         pStar->computeEphemeris ( coords );
+        string con = SSConstellation::identify ( pStar->getDirection() );
         SSSpherical dir ( pStar->getDirection() );
         dir = coords.transform ( kFundamental, kEquatorial, dir );
         SSHourMinSec ra ( dir.lon );
@@ -437,6 +440,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << name << ":" << endl;
         cout << "RA:   " << ra.toString() << endl;
         cout << "Dec:  " << dec.toString() << endl;
+        cout << "Con:  " << con << endl;
         cout << "Dist: " << format ( "%.3f pc", dist ) << endl;
         cout << "Mag:  " << format ( "%+.2f", mag ) << endl << endl;
     }
