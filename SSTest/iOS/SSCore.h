@@ -27,8 +27,8 @@ const int kSSJulian = 1;                // Julian calendar, used before 4 Octobe
 
 const double kSSJ2000 = 2451545.0;      // JD of standard Julian epoch J2000
 const double kSSJ1970 = 2440587.5;      // JD of standard UNIX time base 1.0 January 1970 UTC
-const double kSSB1950 = 2433282.423;    // JD of standard Besselian epoch B1950
-const double kSSB1900 = 2433282.423;    // JD of standard Besselian epoch B1900
+const double kSSB1950 = 2433282.42346;  // JD of standard Besselian epoch B1950
+const double kSSB1900 = 2415020.31352;  // JD of standard Besselian epoch B1900
 
 const double kSSSecondsPerDay = 86400.0;
 const double kSSMinutesPerDay = 1440.0;

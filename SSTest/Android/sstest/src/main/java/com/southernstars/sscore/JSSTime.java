@@ -10,8 +10,8 @@ public class JSSTime
 
     public static double kJ2000 = 2451545.0;      // JD of standard Julian epoch J2000
     public static double kJ1970 = 2440587.5;      // JD of standard UNIX time base 1.0 January 1970 UTC
-    public static double kB1950 = 2433282.423;    // JD of standard Besselian epoch B1950
-    public static double kB1900 = 2433282.423;    // JD of standard Besselian epoch B1900
+    public static double kB1950 = 2433282.42346;  // JD of standard Besselian epoch B1950
+    public static double kB1900 = 2415020.31352;  // JD of standard Besselian epoch B1900
 
     public static double kSecondsPerDay = 86400.0;          // Seconds per day
     public static double kMinutesPerDay = 1440.0;           // Seconds per day
@@ -66,7 +66,7 @@ public class JSSTime
 
     public static JSSTime fromBesselianYear ( double year )
     {
-        return new JSSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ), 0.0 );
+        return new JSSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ) );
     }
 
     public native JSSDate toCalendarDate();

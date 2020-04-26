@@ -11,11 +11,11 @@ SSCoords
 
 SSEvent
 --------
-- needs more testing
+- write second generic event-finding function to find zero-crossings;
+- rewrite satellite pass finder to use generic functions.
 
 SSConstellation
 ---------------
-- add routine to find constellation from (RA,Dec) coords
 - deal with precession from B1875 -> J2000 consistently
 - interpolate constellation boundaries when reading from file
 
@@ -51,7 +51,6 @@ SSStar
 - add SSBinaryStar subclass.
 - add binary star orbit catalog import
 - star absolute to apparent magnitudes and vice-versa
-- computeEphemeris() needs rethinking.  Store both _position and _velocity as dimensionless, to simplify calcs?
 
 SSTLE
 -----
