@@ -463,14 +463,16 @@ void TestVSOP2013 ( void )
     vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p9.dat", kPluto );
 #endif
     
-    for ( SSTime time = 2411545.0; time <= 2491545.0; time += 40000.0 )
+    // These Julian Ephemeris Dates match the test dates in the test cases provided with VSOP2013.
+    
+    for ( double jed = 2411545.0; jed <= 2491545.0; jed += 40000.0 )
     {
         SSVector pos, vel;
         
-        cout << format ( "%.1f\n", time.jd );
+        cout << format ( "%.1f\n", jed );
         for ( int iplanet = 1; iplanet <= 9; iplanet++ )
         {
-            vsop2013.computePositionVelocity ( iplanet, time, pos, vel );
+            vsop2013.computePositionVelocity ( iplanet, jed, pos, vel );
             cout << format ( "%+14.10f  %+14.10f  %+14.10f  ", pos.x, pos.y, pos.z );
             cout << format ( "%+13.10f  %+13.10f  %+13.10f\n", vel.x, vel.y, vel.z );
         }

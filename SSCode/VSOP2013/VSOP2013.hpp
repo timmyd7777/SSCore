@@ -10,8 +10,11 @@
 // for a 10x - 100x computation performance gain.
 // The embedded C++ VSOP2013 series included here contains 1/100th of the
 // original terms (1/10th for Pluto) but maintains sub-arcsecond agreement
-// with the original series for all planets over the -4000 to +6000 year
+// with the original series for all planets over the -4000 to +8000 year
 // original VSOP2013 timespan.
+// Based on "New analytical planetary theories VSOP2013 and TOP2013", by
+// J.-L. Simon1, G. Francou, A. Fienga, and H. Manche, Astronomy & Astrophysics 557,
+// A49 (May 2013). Machine-readable version at ftp.imcce.fr/pub/ephem/planets/vsop2013
 
 #ifndef VSOP2013_hpp
 #define VSOP2013_hpp
