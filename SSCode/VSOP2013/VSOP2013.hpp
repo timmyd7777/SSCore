@@ -29,7 +29,7 @@ struct VSOP2013Series
     vector<VSOP2013Term> terms;
 };
 
-#define EMBED_SERIES 0   // 1 to include embedded series; 0 to use external data files only
+#define EMBED_SERIES 1   // 1 to include embedded series; 0 to use external data files only
 
 class VSOP2013
 {
