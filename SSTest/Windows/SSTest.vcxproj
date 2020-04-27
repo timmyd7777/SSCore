@@ -41,6 +41,16 @@
     <ClCompile Include="..\..\SSCode\SSTLE.cpp" />
     <ClCompile Include="..\..\SSCode\SSUtilities.cpp" />
     <ClCompile Include="..\..\SSCode\SSVector.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p1.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p2.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p3.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p4.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p5.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p6.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p7.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p8.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p9.cpp" />
     <ClCompile Include="..\SSTest.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +76,7 @@
     <ClInclude Include="..\..\SSCode\SSTLE.hpp" />
     <ClInclude Include="..\..\SSCode\SSUtilities.hpp" />
     <ClInclude Include="..\..\SSCode\SSVector.hpp" />
+    <ClInclude Include="..\..\SSCode\VSOP2013\VSOP2013.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -140,7 +151,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\SSCode;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
@@ -157,7 +168,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\SSCode;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -175,7 +186,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\SSCode;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -195,7 +206,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\SSCode;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

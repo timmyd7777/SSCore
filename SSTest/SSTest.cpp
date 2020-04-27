@@ -271,16 +271,28 @@ void TestEphemeris ( string inputDir, string outputDir )
         SSPass moonpass = SSEvent::riseTransitSet ( now, coords, pMoon, SSEvent::kSunMoonRiseSetAlt );
         
         date = SSDate ( sunpass.rising.time );
-        cout << "Sunrise:  " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.rising.azm * SSAngle::kDegPerRad ) << endl;
+        if ( isinf ( sunpass.rising.time ) )
+            cout << "Sunrise:  none" << endl;
+        else
+            cout << "Sunrise:  " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.rising.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( sunpass.setting.time );
-        cout << "Sunset:   " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.setting.azm * SSAngle::kDegPerRad ) << endl;
+        if ( isinf ( sunpass.setting.time ) )
+            cout << "Sunset:   none" << endl;
+        else
+            cout << "Sunset:   " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.setting.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( moonpass.rising.time );
-        cout << "Moonrise: " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", moonpass.rising.azm * SSAngle::kDegPerRad ) << endl;
+        if ( isinf ( moonpass.rising.time ) )
+            cout << "Moonrise: none" << endl;
+        else
+            cout << "Moonrise: " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", moonpass.rising.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( moonpass.setting.time );
-        cout << "Moonset:  " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", moonpass.setting.azm * SSAngle::kDegPerRad ) << endl << endl;
+        if ( isinf ( moonpass.setting.time ) )
+            cout << "Moonset:  none" << endl << endl;
+        else
+            cout << "Moonset:  " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", moonpass.setting.azm * SSAngle::kDegPerRad ) << endl << endl;
 
         SSTime time = SSEvent::nextMoonPhase ( now, pSun, pMoon, SSEvent::kNewMoon );
         date = SSDate ( time );

@@ -16,6 +16,12 @@
     <Filter Include="Source Files\SSCode">
       <UniqueIdentifier>{727a1652-cf37-4298-9e39-1509f17dcd42}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\SSCode\VSOP2013">
+      <UniqueIdentifier>{1ddefbb7-f6b6-4d3a-a5f9-d16c03cdf7a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VSOP2013">
+      <UniqueIdentifier>{f8cff229-3c4b-4dab-8a19-7ca02c5b2c79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\SSTest.cpp">
@@ -87,6 +93,36 @@
     <ClCompile Include="..\..\SSCode\SSMoonEphemeris.cpp">
       <Filter>Source Files\SSCode</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p1.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p2.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p3.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p4.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p5.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p6.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p7.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p8.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p9.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp">
@@ -154,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="..\..\SSCode\SSMoonEphemeris.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\VSOP2013\VSOP2013.hpp">
+      <Filter>Header Files\VSOP2013</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
