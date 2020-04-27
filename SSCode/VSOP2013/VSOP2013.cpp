@@ -14,6 +14,13 @@
 #define PRINT_SERIES    0       // 1 to comvert input series data files to output .cpp source code
 #define TRUNC_FACTOR    100     // exported seriees truncation factor: 1 exports everything, 10 exports only first tenth; 100 exports only first hundredth, etc,
 
+// Reads a VSOP2013 data file (filename) for the specified planet
+// (iplanet) 1 = Mercury ... 9 = Pluto into this VSOP2013 object.
+// Returns number of lines read from file.
+// If PRINT_SERIES is #defined 1 above, exports the data file as
+// C++ source code to a file with the same name as the input file
+// plus ".cpp" appended.
+
 int VSOP2013::readFile ( const string &filename, int iplanet )
 {
     // Open file; return on failure.
@@ -29,6 +36,7 @@ int VSOP2013::readFile ( const string &filename, int iplanet )
 
     while ( getline ( file, line ) )
     {
+        count++;
         VSOP2013Series ser;
         
         ser.ip = strtoint ( line.substr ( 9, 3 ) );
@@ -41,6 +49,7 @@ int VSOP2013::readFile ( const string &filename, int iplanet )
             if ( ! getline ( file, line ) )
                 break;
             
+            count++;
             VSOP2013Term term;
             
             term.iphi[0]  = strtoint ( line.substr (  6, 3 ) );
@@ -74,7 +83,7 @@ int VSOP2013::readFile ( const string &filename, int iplanet )
             ser.terms.push_back ( term );
         }
         
-         planets[iplanet-1].push_back ( ser );
+        planets[iplanet-1].push_back ( ser );
     }
 
 #if PRINT_SERIES
@@ -85,6 +94,9 @@ int VSOP2013::readFile ( const string &filename, int iplanet )
     
     return count;
 }
+
+// Exports a planet's VSOP2013 series (planet) as C++ source code to an output stream (out).
+// If TRUNC_FACTOR is #defined to be > 1, a trunctated subset of terms are exported.
 
 void VSOP2013::printSeries ( ostream &out, const vector<VSOP2013Series> &planet )
 {
@@ -157,6 +169,9 @@ void VSOP2013::printSeries ( ostream &out, const vector<VSOP2013Series> &planet 
     out << "} } };\n" << endl;   // close final series
 }
 
+// Evaluates this VSOP2013 object's fundamental longitude arguments at
+// time (t) in Julian millenia of 365250 days from J2000 (JD 2451545.0)
+
 void VSOP2013::evalLongitudes ( double t )
 {
     ll[0] =  4.402608631669 +  26087.90314068555 * t;     // Mercury
@@ -178,6 +193,9 @@ void VSOP2013::evalLongitudes ( double t )
     ll[16] = 2.355555638750 + 83286.9142477147 * t;       // Moon (l)
 }
 
+// Evaluates all terms in a particular VSOP2013 seris (ser) at time (t)
+// in Julian millenia of 365250 days from J2000 (JD 2451545.0).
+
 double VSOP2013::evalSeries ( double t, const VSOP2013Series &ser )
 {
     double ta = pow ( t, ser.it );
@@ -194,6 +212,11 @@ double VSOP2013::evalSeries ( double t, const VSOP2013Series &ser )
     
     return ta * sum;
 }
+
+// Returns J2000 ecliptic orbital elements for a planet (iplanet)
+// 1 = Mercury .... 9 = Pluto at a specific Julian Ephemeris Date.
+// This method only works if the planet's VSOP2013 series have been
+// read from a VSOP2013 data file.
 
 SSOrbit VSOP2013::getOrbit ( int iplanet, double jed )
 {
@@ -227,6 +250,9 @@ SSOrbit VSOP2013::getOrbit ( int iplanet, double jed )
     return SSOrbit ( jed, a * ( 1.0 - e ), e, i, mod2pi ( w - n ), mod2pi ( n ), mod2pi ( l - w ), mm );
 }
 
+// Returns mean motion in radians per day for a planet (iplanet)
+// 1 = Mercury .... 9 = Pluto with orbital semimajor axis (a) in AU.
+
 double VSOP2013::getMeanMotion ( int iplanet, double a )
 {
     double gmsol = 2.9591220836841438269e-04;
@@ -246,6 +272,9 @@ double VSOP2013::getMeanMotion ( int iplanet, double a )
     return rgm / pow ( a, 1.5 );
 }
 
+// Rotates a vector from the J2000 ecliptic frame to the ICRS (J2000 equatorial) frame.
+// Returns the equatorial vector; the input ecliptic vector (ecl) is not modified.
+
 SSVector VSOP2013::toEquatorial ( SSVector ecl )
 {
     static double eps = degtorad ( 23.0 + 26.0 / 60.0 + 21.41136 / 3600.0 );
@@ -257,9 +286,14 @@ SSVector VSOP2013::toEquatorial ( SSVector ecl )
     static SSMatrix rot ( cphi, -sphi * ceps,  sphi * seps,
                           sphi,  cphi * ceps, -cphi * seps,
                            0.0,         seps,         ceps );
-
     return rot * ecl;
 }
+
+// Computes a planet's heliocentric position and velocity in the ICRS (J2000 equatorial) frame
+// on a specific Julian Ephemeris Date (jed). The planet (iplanet) is 1 = Mercury .... 9 = Pluto.
+// The position and velocity vectors (pos and vel) are returned in units of AU and AU/day.
+// Computes position/velocity of Earth-Moon Barycenter (not Earth) for iplanet = 3.
+// Returns true if successful or false if planet identifier not recognized.
 
 bool VSOP2013::computePositionVelocity ( int iplanet, double jed, SSVector &pos, SSVector &vel )
 {

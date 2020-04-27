@@ -28,6 +28,16 @@
 		A39A54C0244BDBD00010334B /* SSEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A39A54BE244BDBD00010334B /* SSEvent.cpp */; };
 		A3AAE7B3242972E70035E668 /* SSImportNGCIC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3AAE7B1242972E70035E668 /* SSImportNGCIC.cpp */; };
 		A3BFC838242BEDB2001CBE62 /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */; };
+		A3C22D0424574695004CE083 /* VSOP2013.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22CFA24574695004CE083 /* VSOP2013.cpp */; };
+		A3C22D1524574892004CE083 /* VSOP2013p9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D0C24574892004CE083 /* VSOP2013p9.cpp */; };
+		A3C22D1624574892004CE083 /* VSOP2013p6.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D0D24574892004CE083 /* VSOP2013p6.cpp */; };
+		A3C22D1724574892004CE083 /* VSOP2013p4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D0E24574892004CE083 /* VSOP2013p4.cpp */; };
+		A3C22D1824574892004CE083 /* VSOP2013p7.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D0F24574892004CE083 /* VSOP2013p7.cpp */; };
+		A3C22D1924574892004CE083 /* VSOP2013p3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1024574892004CE083 /* VSOP2013p3.cpp */; };
+		A3C22D1A24574892004CE083 /* VSOP2013p2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1124574892004CE083 /* VSOP2013p2.cpp */; };
+		A3C22D1B24574892004CE083 /* VSOP2013p8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1224574892004CE083 /* VSOP2013p8.cpp */; };
+		A3C22D1C24574892004CE083 /* VSOP2013p1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1324574892004CE083 /* VSOP2013p1.cpp */; };
+		A3C22D1D24574892004CE083 /* VSOP2013p5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1424574892004CE083 /* VSOP2013p5.cpp */; };
 		A3ED2F90244614A00040ECE5 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */; };
 		A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */; };
 /* End PBXBuildFile section */
@@ -87,6 +97,17 @@
 		A3AAE7B2242972E70035E668 /* SSImportNGCIC.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSImportNGCIC.hpp; sourceTree = "<group>"; };
 		A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSConstellation.cpp; sourceTree = "<group>"; };
 		A3BFC837242BEDB2001CBE62 /* SSConstellation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSConstellation.hpp; sourceTree = "<group>"; };
+		A3C22CF924574695004CE083 /* VSOP2013.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VSOP2013.hpp; sourceTree = "<group>"; };
+		A3C22CFA24574695004CE083 /* VSOP2013.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013.cpp; sourceTree = "<group>"; };
+		A3C22D0C24574892004CE083 /* VSOP2013p9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p9.cpp; sourceTree = "<group>"; };
+		A3C22D0D24574892004CE083 /* VSOP2013p6.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p6.cpp; sourceTree = "<group>"; };
+		A3C22D0E24574892004CE083 /* VSOP2013p4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p4.cpp; sourceTree = "<group>"; };
+		A3C22D0F24574892004CE083 /* VSOP2013p7.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p7.cpp; sourceTree = "<group>"; };
+		A3C22D1024574892004CE083 /* VSOP2013p3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p3.cpp; sourceTree = "<group>"; };
+		A3C22D1124574892004CE083 /* VSOP2013p2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p2.cpp; sourceTree = "<group>"; };
+		A3C22D1224574892004CE083 /* VSOP2013p8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p8.cpp; sourceTree = "<group>"; };
+		A3C22D1324574892004CE083 /* VSOP2013p1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p1.cpp; sourceTree = "<group>"; };
+		A3C22D1424574892004CE083 /* VSOP2013p5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VSOP2013p5.cpp; sourceTree = "<group>"; };
 		A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSPSEphemeris.cpp; sourceTree = "<group>"; };
 		A3ED2F8F244614A00040ECE5 /* SSPSEphemeris.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSPSEphemeris.hpp; sourceTree = "<group>"; };
 		A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportGJ.cpp; sourceTree = "<group>"; };
@@ -168,10 +189,29 @@
 				A3AAE7B2242972E70035E668 /* SSImportNGCIC.hpp */,
 				A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */,
 				A3F759A7242EEB9300FCDE16 /* SSImportGJ.hpp */,
+				A3C22CF624574695004CE083 /* VSOP2013 */,
 			);
 			name = SSCode;
 			path = ../../SSCode;
 			sourceTree = SOURCE_ROOT;
+		};
+		A3C22CF624574695004CE083 /* VSOP2013 */ = {
+			isa = PBXGroup;
+			children = (
+				A3C22CF924574695004CE083 /* VSOP2013.hpp */,
+				A3C22CFA24574695004CE083 /* VSOP2013.cpp */,
+				A3C22D1324574892004CE083 /* VSOP2013p1.cpp */,
+				A3C22D1124574892004CE083 /* VSOP2013p2.cpp */,
+				A3C22D1024574892004CE083 /* VSOP2013p3.cpp */,
+				A3C22D0E24574892004CE083 /* VSOP2013p4.cpp */,
+				A3C22D1424574892004CE083 /* VSOP2013p5.cpp */,
+				A3C22D0D24574892004CE083 /* VSOP2013p6.cpp */,
+				A3C22D0F24574892004CE083 /* VSOP2013p7.cpp */,
+				A3C22D1224574892004CE083 /* VSOP2013p8.cpp */,
+				A3C22D0C24574892004CE083 /* VSOP2013p9.cpp */,
+			);
+			path = VSOP2013;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -230,15 +270,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3C22D1724574892004CE083 /* VSOP2013p4.cpp in Sources */,
 				A378CE9B243A482000F4B018 /* SSTest.cpp in Sources */,
 				4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */,
 				A358CF12243779F200B39D5C /* SSJPLDEphemeris.cpp in Sources */,
+				A3C22D1924574892004CE083 /* VSOP2013p3.cpp in Sources */,
+				A3C22D1624574892004CE083 /* VSOP2013p6.cpp in Sources */,
 				4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */,
 				A3ED2F90244614A00040ECE5 /* SSPSEphemeris.cpp in Sources */,
 				A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */,
+				A3C22D1824574892004CE083 /* VSOP2013p7.cpp in Sources */,
 				A3BFC838242BEDB2001CBE62 /* SSConstellation.cpp in Sources */,
+				A3C22D1D24574892004CE083 /* VSOP2013p5.cpp in Sources */,
+				A3C22D1A24574892004CE083 /* VSOP2013p2.cpp in Sources */,
 				A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */,
 				A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */,
+				A3C22D1C24574892004CE083 /* VSOP2013p1.cpp in Sources */,
 				A35D2B4D242941B80092DEA5 /* SSImportHIP.cpp in Sources */,
 				A36F9198240979770038FE04 /* SSCoordinates.cpp in Sources */,
 				4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */,
@@ -251,8 +298,11 @@
 				A30545C8241EF45000197F8A /* SSStar.cpp in Sources */,
 				A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */,
 				A33E45B82438E7F900C15780 /* SSTLE.cpp in Sources */,
+				A3C22D1524574892004CE083 /* VSOP2013p9.cpp in Sources */,
 				A3848E992450E9CD0085973F /* SSMoonEphemeris.cpp in Sources */,
 				A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */,
+				A3C22D0424574695004CE083 /* VSOP2013.cpp in Sources */,
+				A3C22D1B24574892004CE083 /* VSOP2013p8.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

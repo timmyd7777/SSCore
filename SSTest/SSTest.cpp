@@ -28,6 +28,7 @@
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
 #include "SSEvent.hpp"
+#include "VSOP2013.hpp"
 
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
@@ -446,6 +447,36 @@ void TestEphemeris ( string inputDir, string outputDir )
     }
 }
 
+void TestVSOP2013 ( void )
+{
+    VSOP2013 vsop2013;
+
+#if ! EMBED_SERIES
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p1.dat", kMercury );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p2.dat", kVenus );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p3.dat", kEarth );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p4.dat", kMars );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p5.dat", kJupiter );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p6.dat", kSaturn );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p7.dat", kUranus );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p8.dat", kNeptune );
+    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p9.dat", kPluto );
+#endif
+    
+    for ( SSTime time = 2411545.0; time <= 2491545.0; time += 40000.0 )
+    {
+        SSVector pos, vel;
+        
+        cout << format ( "%.1f\n", time.jd );
+        for ( int iplanet = 1; iplanet <= 9; iplanet++ )
+        {
+            vsop2013.computePositionVelocity ( iplanet, time, pos, vel );
+            cout << format ( "%+14.10f  %+14.10f  %+14.10f  ", pos.x, pos.y, pos.z );
+            cout << format ( "%+13.10f  %+13.10f  %+13.10f\n", vel.x, vel.y, vel.z );
+        }
+    }
+}
+
 // Android redirects stdout & stderr output to /dev/null. This uses Android logging functions to send
 // output to logcat. From https://stackoverflow.com/questions/8870174/is-stdcout-usable-in-android-ndk
 
@@ -519,7 +550,7 @@ int main ( int argc, const char *argv[] )
     UINT oldcp = GetConsoleOutputCP();
     SetConsoleOutputCP ( CP_UTF8 );
 #endif
-
+    
     TestTime();
 
     if ( argc < 3 )
@@ -533,6 +564,7 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
+    TestVSOP2013();
     TestEphemeris ( inpath, outpath );
 //    TestSatellites ( inpath, outpath );
 //    TestJPLDEphemeris ( inpath );
