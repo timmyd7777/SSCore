@@ -187,7 +187,8 @@ double VSOP2013::evalSeries ( double t, const VSOP2013Series &ser )
     {
         double phi = 0.0;
         for ( int i = 0; i < 17; i++ )
-            phi += term.iphi[i] * ll[i];
+            if ( term.iphi[i] )
+                phi += term.iphi[i] * ll[i];
         sum += term.s * sin ( phi ) + term.c * cos ( phi );
     }
     
