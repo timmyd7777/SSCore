@@ -36,6 +36,16 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSTLE.cpp
              ../../../../../../SSCode/SSUtilities.cpp
              ../../../../../../SSCode/SSVector.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p1.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p2.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p3.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p4.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p5.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p6.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p7.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p8.cpp
+             ../../../../../../SSCode/VSOP2013/VSOP2013p9.cpp
              ../../../../../../SSTest/SSTest.cpp
              ../jni/com_southernstars_sscore_JSSAngle.cpp
              ../jni/com_southernstars_sscore_JSSCoordinates.cpp
@@ -58,6 +68,7 @@ add_library( # Sets the name of the library.
 
 include_directories (
         ../../../../../../SSCode/
+        ../../../../../../SSCode/VSOP2013
         ../../../../../../SSTest/
         ../jni/
     )
