@@ -29,18 +29,23 @@ struct VSOP2013Series
     vector<VSOP2013Term> terms;
 };
 
-#define EMBED_SERIES 1   // 1 to include embedded series; 0 to use external data files only
+#define EMBED_SERIES 0   // 1 to include embedded series; 0 to use external data files only
 
 class VSOP2013
 {
-public:
+protected:
     double ll[17];
     vector<VSOP2013Series> planets[9];
+    
+public:
     void evalLongitudes ( double t );
     double evalSeries ( double t, const VSOP2013Series &ser );
     void printSeries ( ostream &out, const vector<VSOP2013Series> &planet );
     int readFile ( const string &filename, int iplanet );
     SSOrbit getOrbit ( int iplanet, double jed );
+    double getMeanMotion ( int iplanet, double a );
+    SSVector toEquatorial ( SSVector ecl );
+    bool computePositionVelocity ( int iplanet, double jed, SSVector &pos, SSVector &vel );
 #if EMBED_SERIES
     SSOrbit mercuryOrbit ( double jed );
     SSOrbit venusOrbit ( double jed );

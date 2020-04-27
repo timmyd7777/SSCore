@@ -5,6 +5,7 @@
 // Copyright © 2020 Southern Stars. All rights reserved.
 
 #include "SSUtilities.hpp"
+#include "SSMatrix.hpp"
 #include "VSOP2013.hpp"
 
 #include <iostream>
@@ -21,7 +22,7 @@ int VSOP2013::readFile ( const string &filename, int iplanet )
     if ( ! file )
         return 0;
 
-    // Read file line-by-line until we reach end-of-file
+    // Read file line-by-line until we reach ene-of-file
 
     string line = "";
     int count = 0;
@@ -221,6 +222,71 @@ SSOrbit VSOP2013::getOrbit ( int iplanet, double jed )
     double w = atan2 ( h, k );          // longitude of perihelion
     double n = atan2 ( p, q );          // longitude of ascending node
     double i = 2.0 * asin ( sqrt ( q * q + p * p ) ); // inclination
+    double mm = getMeanMotion ( iplanet, a );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, mod2pi ( w - n ), mod2pi ( n ), mod2pi ( l - w ), mm );
+}
+
+double VSOP2013::getMeanMotion ( int iplanet, double a )
+{
+    double gmsol = 2.9591220836841438269e-04;
+    double gmp[9] =
+    {
+        4.9125474514508118699e-11,
+        7.2434524861627027000e-10,
+        8.9970116036316091182e-10,
+        9.5495351057792580598e-11,
+        2.8253458420837780000e-07,
+        8.4597151856806587398e-08,
+        1.2920249167819693900e-08,
+        1.5243589007842762800e-08,
+        2.1886997654259696800e-12
+    };
+    double rgm = sqrt ( ( iplanet >= 1 && iplanet <= 9 ? gmp[iplanet-1] : 0.0 ) + gmsol );
+    return rgm / pow ( a, 1.5 );
+}
+
+SSVector VSOP2013::toEquatorial ( SSVector ecl )
+{
+    static double eps = degtorad ( 23.0 + 26.0 / 60.0 + 21.41136 / 3600.0 );
+    static double phi = degtorad ( -0.05188 / 3600.0 );
+    static double ceps = cos ( eps );
+    static double seps = sin ( eps );
+    static double cphi = cos ( phi );
+    static double sphi = sin ( phi );
+    static SSMatrix rot ( cphi, -sphi * ceps,  sphi * seps,
+                          sphi,  cphi * ceps, -cphi * seps,
+                           0.0,         seps,         ceps );
+
+    return rot * ecl;
+}
+
+bool VSOP2013::computePositionVelocity ( int iplanet, double jed, SSVector &pos, SSVector &vel )
+{
+    SSOrbit orbit;
     
-    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, mod2pi ( w - n ), mod2pi ( n ), mod2pi ( l - w ), 0.0 );
+    if ( iplanet == 1 )
+        orbit = mercuryOrbit ( jed );
+    else if ( iplanet == 2 )
+        orbit = venusOrbit ( jed );
+    else if ( iplanet == 3 )
+        orbit = earthOrbit ( jed );
+    else if ( iplanet == 4 )
+        orbit = marsOrbit ( jed );
+    else if ( iplanet == 5 )
+        orbit = jupiterOrbit ( jed );
+    else if ( iplanet == 6 )
+        orbit = saturnOrbit ( jed );
+    else if ( iplanet == 7 )
+        orbit = uranusOrbit ( jed );
+    else if ( iplanet == 8 )
+        orbit = neptuneOrbit ( jed );
+    else if ( iplanet == 9 )
+        orbit = plutoOrbit ( jed );
+    else
+        return false;
+    
+    orbit.toPositionVelocity ( jed, pos, vel );
+    pos = toEquatorial ( pos );
+    vel = toEquatorial ( vel );
+    return true;
 }

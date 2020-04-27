@@ -1,4 +1,5 @@
 #include "VSOP2013.hpp"
+#if EMBED_SERIES
 
 static vector<VSOP2013Series> _a = {
 {   3,   1,   0, 326, {
@@ -3046,6 +3047,9 @@ SSOrbit VSOP2013::earthOrbit ( double jed )
     double w = atan2 ( h, k );          // longitude of perihelion
     double n = atan2 ( p, q );          // longitude of ascending node
     double i = 2.0 * asin ( sqrt ( q * q + p * p ) ); // inclination
+    double mm = getMeanMotion ( 3, a );
     
-    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, mod2pi ( w - n ), mod2pi ( n ), mod2pi ( l - w ), 0.0 );
+    return SSOrbit ( jed, a * ( 1.0 - e ), e, i, mod2pi ( w - n ), mod2pi ( n ), mod2pi ( l - w ), mm );
 }
+
+#endif // EMBED_SERIES

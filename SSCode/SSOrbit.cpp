@@ -103,7 +103,7 @@ double SSOrbit::gravityConstant ( double e, double q, double mm )
     {
         a = q / ( 1.0 - e );
         g = mm * sqrt ( a * a * a );
-      }
+    }
     else if ( e == 1.0 )    // Parabolic orbits
     {
         g = mm * sqrt ( 2.0 * q * q * q ) / 3.0;
@@ -211,7 +211,8 @@ void SSOrbit::toPositionVelocity ( double jde, SSVector &pos, SSVector &vel )
 
     solveKeplerEquation ( jde, nu, r );
     mu = gravityConstant ( e, q, mm );
-
+    mu *= mu;
+    
     p = q * ( 1.0 + e );
     h = sqrt ( mu * p );
     dnu = h / ( r * r );
