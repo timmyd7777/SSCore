@@ -4,9 +4,19 @@
 // Created by Tim DeBenedictis on 4/27/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include <unistd.h>
+
+using namespace std;
+
 #include "SSCoordinates.hpp"
 #include "ELPMPP02.hpp"
+
+#define PRINT_SERIES 0  // 1 to comvert input ELPMPP02 series data files to output .cpp source code
 
 #if ELPMPP02_EMBED_SERIES
 
@@ -35993,13 +36003,6 @@ static vector<ELPPertSeries> _dist_pert = {
 //
 //  See example.cpp for an example of using this code.
 //----------------------------------------------------------------
-#include <cmath>
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <string>
-
-using namespace std;
 
 #define PI 3.14159265358979323846
 
@@ -36153,121 +36156,6 @@ void setup_parameters(int corr, Elp_paras &paras, Elp_facs &facs) {
    facs.fB5 = -xa*delnu_nu + dtsm*delnp_nu;
    // factor multiplie A_i for distance
    facs.fA = 1.0 - 2.0/3.0*delnu_nu;
-}
-
-// Read main problem file
-// n is the number of terms in the series, which is stored in the
-//   first line of the data file
-void read_main_problem_file(const char *infile, int &n, int ** &i_main, double * &A_main,
-                            double fA, Elp_facs facs) {
-  double A,B1,B2,B3,B4,B5,B6;
-  int i;
-  ifstream file(infile, ios::in);
-  if (!file) {
-    cerr << "Error in opening " << infile << endl;
-    exit(1);
-  }
-  file >> n;
-  i_main = new int *[n];
-  A_main = new double[n];
-  for (i=0; i<n; i++) i_main[i] = new int[4];
-  for (i=0; i<n; i++) {
-     if (file.eof()) {
-       cerr << "Reached the end of the file " << infile
-            << " before reading all data!" << endl;
-       exit(1);
-     }
-     file >> i_main[i][0] >> i_main[i][1] >> i_main[i][2] >> i_main[i][3]
-          >> A >> B1 >> B2 >> B3 >> B4 >> B5 >> B6;
-     A_main[i] = fA*A + facs.fB1*B1 + facs.fB2*B2 + facs.fB3*B3 +
-                                facs.fB4*B4 + facs.fB5*B5;
-  }
-  file.close();
-}
-
-// Read perturbation file
-// n is the number of terms in the series, which is stored in the
-//   first line of the data file
-void read_perturbation_file(const char *infile, int &n, int ** &i_pert, double * &A_pert,
-                            double * &phase) {
-  int i;
-  ifstream file(infile);
-  if (!file) {
-    cerr << "Error in opening " << infile << endl;
-    exit(1);
-  }
-  file >> n;
-  i_pert = new int *[n];
-  A_pert = new double[n];
-  phase = new double[n];
-  for (i=0; i<n; i++) i_pert[i] = new int[13];
-  for (i=0; i<n; i++) {
-     if (file.eof()) {
-       cerr << "Reached the end of the file " << infile
-            << " before reading all data!" << endl;
-       exit(1);
-     }
-     file >> i_pert[i][0] >> i_pert[i][1] >> i_pert[i][2] >> i_pert[i][3]
-          >> i_pert[i][4] >> i_pert[i][5] >> i_pert[i][6] >> i_pert[i][7]
-          >> i_pert[i][8] >> i_pert[i][9] >> i_pert[i][10] >> i_pert[i][11]
-          >> i_pert[i][12] >> A_pert[i] >> phase[i];
-  }
-  file.close();
-}
-
-// set up coefficients for the ELP/MPP02 series
-void setup_Elp_coefs(Elp_coefs &coefs, Elp_facs facs) {
-  string infile;
-
-  // Main problem
-  infile = "elp_main.long";
-  read_main_problem_file(infile.c_str(), coefs.n_main_long, coefs.i_main_long,
-                         coefs.A_main_long, 1.0, facs);
-  infile = "elp_main.lat";
-  read_main_problem_file(infile.c_str(), coefs.n_main_lat, coefs.i_main_lat,
-                         coefs.A_main_lat, 1.0, facs);
-  infile = "elp_main.dist";
-  read_main_problem_file(infile.c_str(), coefs.n_main_dist, coefs.i_main_dist,
-                         coefs.A_main_dist, facs.fA, facs);
-
-  // perturbation, longitude
-  infile = "elp_pert.longT0";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_longT0, coefs.i_pert_longT0,
-                         coefs.A_pert_longT0, coefs.ph_pert_longT0);
-  infile = "elp_pert.longT1";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_longT1, coefs.i_pert_longT1,
-                         coefs.A_pert_longT1, coefs.ph_pert_longT1);
-  infile = "elp_pert.longT2";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_longT2, coefs.i_pert_longT2,
-                         coefs.A_pert_longT2, coefs.ph_pert_longT2);
-  infile = "elp_pert.longT3";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_longT3, coefs.i_pert_longT3,
-                         coefs.A_pert_longT3, coefs.ph_pert_longT3);
-
-  // perturbation, latitude
-  infile = "elp_pert.latT0";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_latT0, coefs.i_pert_latT0,
-                         coefs.A_pert_latT0, coefs.ph_pert_latT0);
-  infile = "elp_pert.latT1";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_latT1, coefs.i_pert_latT1,
-                         coefs.A_pert_latT1, coefs.ph_pert_latT1);
-  infile = "elp_pert.latT2";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_latT2, coefs.i_pert_latT2,
-                         coefs.A_pert_latT2, coefs.ph_pert_latT2);
-
-  // perturbation, distance
-  infile = "elp_pert.distT0";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_distT0, coefs.i_pert_distT0,
-                         coefs.A_pert_distT0, coefs.ph_pert_distT0);
-  infile = "elp_pert.distT1";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_distT1, coefs.i_pert_distT1,
-                         coefs.A_pert_distT1, coefs.ph_pert_distT1);
-  infile = "elp_pert.distT2";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_distT2, coefs.i_pert_distT2,
-                         coefs.A_pert_distT2, coefs.ph_pert_distT2);
-  infile = "elp_pert.distT3";
-  read_perturbation_file(infile.c_str(), coefs.n_pert_distT3, coefs.i_pert_distT3,
-                         coefs.A_pert_distT3, coefs.ph_pert_distT3);
 }
 
 // Compute the lunar and planetary arguments used in the ELP/MPP02 series
@@ -36471,19 +36359,6 @@ static Elp_paras _paras;
 static Elp_coefs _coefs;
 static Elp_facs _facs;
 
-bool ELPMPP02::open ( const string &datadir )
-{
-    setup_parameters ( 0, _paras, _facs );
-    
-    string cwd = getcwd();
-    if ( chdir ( datadir.c_str() ) != 0 )
-        return false;
-    
-    setup_Elp_coefs ( _coefs, _facs );
-    chdir ( cwd.c_str() );
-    return true;
-}
-
 // Reads main problem series
 
 void read_main_problem_series ( ELPMainSeries &series, int &n, int ** &i_main, double * &A_main, double fA, Elp_facs facs)
@@ -36600,8 +36475,6 @@ ELPMPP02::ELPMPP02 ( void )
     setup_parameters ( 0, _paras, _facs );
 }
 
-#endif
-
 // Reads ELPMPP02 series files from a specific directory (datadir)
 // and initializes Liu ELPMPP02 solution code from them.
 // Returns true if successful or false on failure.
@@ -36667,23 +36540,7 @@ bool ELPMPP02::readSeries ( const string &datadir )
     return true;
 }
 
-bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &vel )
-{
-    static SSMatrix eclequ = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
-    double t = ( jed - 2451545.0 ) / 36525.0;
-    double dt = 0.0001 / 36525.0;
-    
-    getX2000 ( t, _paras, _coefs, pos.x, pos.y, pos.z );
-    getX2000 ( t - dt, _paras, _coefs, vel.x, vel.y, vel.z );
-    
-    vel = ( pos - vel ) / 0.0001;
-//    pos = eclequ * pos / SSCoordinates::kKmPerAU;
-//    vel = eclequ * vel / SSCoordinates::kKmPerAU;
-    
-    return true;
-}
-
-#define PRINT_SERIES 1
+#endif
 
 // Reads ELPMPP02 Main Problem series file (filename) into series (ser).
 // Returns number of lines read from file.  On success, ser.nt should
@@ -36895,4 +36752,30 @@ void ELPMPP02::printPertSeries ( ostream &out, const vector<ELPPertSeries> &pert
         else
             out << "} } };\n";
     }
+}
+
+// Computes Moon's geocentric position and velocity on a specific Julian Ephemeris Date (jed)
+// in units of AU and AU per day, referred to the J2000 mean equatorial frame (ICRS).
+
+bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &vel )
+{
+    static SSMatrix eclequ = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
+    double t = ( jed - 2451545.0 ) / 36525.0;
+    double dt = 0.0001 / 36525.0;
+    
+    // We compute velocity by computing position twice (1/1000th of a day apart)
+    // and differencing the results. While crude, this method gives results accurate
+    // to 5 decimals, and is no more computationally intensive than the mathematically
+    // correct computation. We'll live with this until I fix Liu's code (above).
+    
+    getX2000 ( t, _paras, _coefs, pos.x, pos.y, pos.z );
+    getX2000 ( t - dt, _paras, _coefs, vel.x, vel.y, vel.z );
+    
+    // Transform results to equatorial frame and from km to AU.
+    
+    vel = ( pos - vel ) / 0.0001;
+    pos = eclequ * pos / SSCoordinates::kKmPerAU;
+    vel = eclequ * vel / SSCoordinates::kKmPerAU;
+    
+    return true;
 }
