@@ -299,6 +299,12 @@ bool VSOP2013::computePositionVelocity ( int iplanet, double jed, SSVector &pos,
 {
     SSOrbit orbit;
     
+    if ( iplanet == 0 )
+    {
+        pos = vel = SSVector ( 0.0, 0.0, 0.0 );
+        return true;
+    }
+    
     if ( iplanet == 1 )
         orbit = mercuryOrbit ( jed );
     else if ( iplanet == 2 )
