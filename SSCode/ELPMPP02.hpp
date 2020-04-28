@@ -57,13 +57,13 @@ public:
 
     ELPMPP02 ( void );
 
-    int readMainSeries ( const string &filename );
-    int readPertSeries ( const string &filename );
+    int readMainSeries ( const string &filename, ELPMainSeries &main );
+    int readPertSeries ( const string &filename, vector<ELPPertSeries> &pert );
+    bool readSeries ( const string &datadir );
 
     void printMainSeries ( ostream &out, const ELPMainSeries &main );
     void printPertSeries ( ostream &out, const vector<ELPPertSeries> &pert );
     
-    bool readSeries ( const string &datadir );
     static bool open ( const string &datadir );
     static bool computePositionVelocity ( double jed, SSVector &pos, SSVector &vel );
 };

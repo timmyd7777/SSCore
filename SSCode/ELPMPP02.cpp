@@ -36543,7 +36543,7 @@ void read_perturbation_series ( ELPPertSeries &series, int &n, int ** &i_pert, d
             i_pert[i][k] = series.terms[i].i[k];
         
         A_pert[i] = sqrt ( series.terms[i].s * series.terms[i].s + series.terms[i].c * series.terms[i].c );
-        phase[i] = atan2pi ( series.terms[i].s, series.terms[i].c );
+        phase[i] = atan2 ( series.terms[i].c, series.terms[i].s );
         
         if ( series.iv < 3 )
             A_pert[i] *= SSAngle::kRadPerArcsec;
@@ -36602,18 +36602,68 @@ ELPMPP02::ELPMPP02 ( void )
 
 #endif
 
+// Reads ELPMPP02 series files from a specific directory (datadir)
+// and initializes Liu ELPMPP02 solution code from them.
+// Returns true if successful or false on failure.
+
 bool ELPMPP02::readSeries ( const string &datadir )
 {
-    readMainSeries ( datadir + "ELP_MAIN.S1" );
-    readMainSeries ( datadir + "ELP_MAIN.S2" );
-    readMainSeries ( datadir + "ELP_MAIN.S3" );
+    readMainSeries ( datadir + "ELP_MAIN.S1", mainLon );
+    readMainSeries ( datadir + "ELP_MAIN.S2", mainLat );
+    readMainSeries ( datadir + "ELP_MAIN.S3", mainDist );
     
-    readPertSeries ( datadir + "ELP_PERT.S1" );
-    readPertSeries ( datadir + "ELP_PERT.S2" );
-    readPertSeries ( datadir + "ELP_PERT.S3" );
+    readPertSeries ( datadir + "ELP_PERT.S1", pertLon );
+    readPertSeries ( datadir + "ELP_PERT.S2", pertLat );
+    readPertSeries ( datadir + "ELP_PERT.S3", pertDist );
 
-    setup_parameters ( 0, _paras, _facs );
-//    setup_Elp_series ( _coefs, _facs );
+    // validate main problem series
+    
+    if ( mainLon.nt < 1 || mainLon.nt != mainLon.terms.size() )
+        return false;
+    
+    if ( mainLat.nt < 1 || mainLat.nt !=! mainLat.terms.size() )
+        return false;
+
+    if ( mainDist.nt < 1 || mainDist.nt != mainDist.terms.size() )
+        return false;
+
+    // validate perturbation series
+    
+    if ( pertLon.size() < 4 )
+        return false;
+
+    if ( pertLat.size() < 3 )
+        return false;
+
+    if ( pertDist.size() < 4 )
+        return false;
+
+    // Now set up Liu ELPMPP02 solution code - Main problem first.
+
+    read_main_problem_series ( mainLon, _coefs.n_main_long, _coefs.i_main_long, _coefs.A_main_long, 1.0, _facs );
+    read_main_problem_series ( mainLat, _coefs.n_main_lat, _coefs.i_main_lat, _coefs.A_main_lat, 1.0, _facs );
+    read_main_problem_series ( mainDist, _coefs.n_main_dist, _coefs.i_main_dist, _coefs.A_main_dist, _facs.fA, _facs );
+
+    // perturbation, longitude
+    
+    read_perturbation_series ( pertLon[0], _coefs.n_pert_longT0, _coefs.i_pert_longT0, _coefs.A_pert_longT0, _coefs.ph_pert_longT0 );
+    read_perturbation_series ( pertLon[1], _coefs.n_pert_longT1, _coefs.i_pert_longT1, _coefs.A_pert_longT1, _coefs.ph_pert_longT1 );
+    read_perturbation_series ( pertLon[2], _coefs.n_pert_longT2, _coefs.i_pert_longT2, _coefs.A_pert_longT2, _coefs.ph_pert_longT2 );
+    read_perturbation_series ( pertLon[3], _coefs.n_pert_longT3, _coefs.i_pert_longT3, _coefs.A_pert_longT3, _coefs.ph_pert_longT3);
+
+    // perturbation, latitude
+
+    read_perturbation_series ( pertLat[0], _coefs.n_pert_latT0, _coefs.i_pert_latT0, _coefs.A_pert_latT0, _coefs.ph_pert_latT0 );
+    read_perturbation_series ( pertLat[1], _coefs.n_pert_latT1, _coefs.i_pert_latT1, _coefs.A_pert_latT1, _coefs.ph_pert_latT1 );
+    read_perturbation_series ( pertLat[2], _coefs.n_pert_latT2, _coefs.i_pert_latT2, _coefs.A_pert_latT2, _coefs.ph_pert_latT2 );
+
+    // perturbation, distance
+
+    read_perturbation_series ( pertDist[0], _coefs.n_pert_distT0, _coefs.i_pert_distT0, _coefs.A_pert_distT0, _coefs.ph_pert_distT0 );
+    read_perturbation_series ( pertDist[1], _coefs.n_pert_distT1, _coefs.i_pert_distT1, _coefs.A_pert_distT1, _coefs.ph_pert_distT1 );
+    read_perturbation_series ( pertDist[2], _coefs.n_pert_distT2, _coefs.i_pert_distT2, _coefs.A_pert_distT2, _coefs.ph_pert_distT2 );
+    read_perturbation_series ( pertDist[3], _coefs.n_pert_distT3, _coefs.i_pert_distT3, _coefs.A_pert_distT3, _coefs.ph_pert_distT3 );
+    
     return true;
 }
 
@@ -36629,12 +36679,17 @@ bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &ve
     vel = ( pos - vel ) / 0.0001;
 //    pos = eclequ * pos / SSCoordinates::kKmPerAU;
 //    vel = eclequ * vel / SSCoordinates::kKmPerAU;
+    
     return true;
 }
 
 #define PRINT_SERIES 1
 
-int ELPMPP02::readMainSeries ( const string &filename )
+// Reads ELPMPP02 Main Problem series file (filename) into series (ser).
+// Returns number of lines read from file.  On success, ser.nt should
+// equal ser.terms.size().
+
+int ELPMPP02::readMainSeries ( const string &filename, ELPMainSeries &ser )
 {
     // Open file; return on failure.
 
@@ -36651,7 +36706,6 @@ int ELPMPP02::readMainSeries ( const string &filename )
         return ( count );
     
     count++;
-    ELPMainSeries ser;
     
     if ( line.find ( "LONGITUDE" ) != string::npos )
         ser.iv = 1;
@@ -36688,13 +36742,6 @@ int ELPMPP02::readMainSeries ( const string &filename )
         ser.terms.push_back ( term );
     }
 
-    if ( ser.iv == 1 )
-        mainLon = ser;
-    else if ( ser.iv == 2 )
-        mainLat = ser;
-    else if ( ser.iv == 3 )
-        mainDist = ser;
-    
 #if PRINT_SERIES
     ofstream outfile ( filename + ".cpp" );
     if ( outfile )
@@ -36704,7 +36751,11 @@ int ELPMPP02::readMainSeries ( const string &filename )
     return count;
 }
 
-int ELPMPP02::readPertSeries ( const string &filename )
+// Reads ELPMPP02 Perturbation series file (filename) into series vector (pert).
+// Returns number of lines read from file.  On success, vector should have a nonzero
+// number of ELPPertSeries, and for each, pert[i].nt should equal pert[i].terms.size().
+
+int ELPMPP02::readPertSeries ( const string &filename, vector<ELPPertSeries> &pert )
 {
     // Open file; return on failure.
 
@@ -36717,7 +36768,6 @@ int ELPMPP02::readPertSeries ( const string &filename )
     string line = "";
     int count = 0;
 
-    vector<ELPPertSeries> pert;
     while ( getline ( file, line ) )
     {
         count++;
@@ -36771,7 +36821,7 @@ int ELPMPP02::readPertSeries ( const string &filename )
     return count;
 }
 
-// Exports a planet's VSOP2013 series (planet) as C++ source code to an output stream (out).
+// Exports an ELPMainSeries series (ser) as C++ source code to an output stream (out).
 // If TRUNC_FACTOR is #defined to be > 1, a trunctated subset of terms are exported.
 
 void ELPMPP02::printMainSeries ( ostream &out, const ELPMainSeries &ser )
@@ -36805,7 +36855,7 @@ void ELPMPP02::printMainSeries ( ostream &out, const ELPMainSeries &ser )
     out << "} };\n";
 }
 
-// Exports a planet's VSOP2013 series (planet) as C++ source code to an output stream (out).
+// Exports a vector of ELPPertSeries (pert) as C++ source code to an output stream (out).
 // If TRUNC_FACTOR is #defined to be > 1, a trunctated subset of terms are exported.
 
 void ELPMPP02::printPertSeries ( ostream &out, const vector<ELPPertSeries> &pert )
