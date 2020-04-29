@@ -20,6 +20,18 @@
 #include "SSVPEphemeris.hpp"
 #endif
 
+// This uses the VSOP013 planetary and ELPMPP02 ephemeris when JPL DE is unavailable.
+// These provide sub-arcsecond accuracy over a timespan from years -4000 to +8000,
+// but are much slower than Paul Schlyter's formulae.
+
+#define USE_VSOP2013 1
+#if USE_VSOP2013
+#include "VSOP2013.hpp"
+#include "ELPMPP02.hpp"
+static VSOP2013 _vsop;
+static ELPMPP02 _elp;
+#endif
+
 SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
 {
     _id = SSIdentifier();
@@ -64,7 +76,16 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
     if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
         return;
 
-#if USE_VPEPHEMERIS
+#if USE_VSOP2013
+    _vsop.computePositionVelocity ( id, jed - lt, pos, vel );
+    if ( id == kEarth )
+    {
+        SSVector mpos, mvel;
+        _elp.computePositionVelocity ( jed - lt, mpos, mvel );
+        pos -= mpos * _elp.kMoonEarthMassRatio;
+        vel -= mvel * _elp.kMoonEarthMassRatio;
+    }
+#elif USE_VPEPHEMERIS
     SSVPEphemeris::fundamentalPositionVelocity ( id, jed - lt, pos, vel );
 #else
     computePSPlanetMoonPositionVelocity ( id, jed, lt, pos, vel );
@@ -185,7 +206,9 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 
         computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
 
-#if USE_VPEPHEMERIS
+#if USE_VSOP2013
+        _elp.computePositionVelocity ( jed - lt, pos, vel );
+#elif USE_VPEPHEMERIS
         SSVPEphemeris::fundamentalPositionVelocity ( 10, jed - lt, pos, vel );
         pos *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
         vel *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;

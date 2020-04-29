@@ -1,5 +1,5 @@
 #include "VSOP2013.hpp"
-#if EMBED_SERIES
+#if VSOP2013_EMBED_SERIES
 
 static vector<VSOP2013Series> _a = {
 {   8,   1,   0, 327, {
@@ -3338,4 +3338,4 @@ SSOrbit VSOP2013::neptuneOrbit ( double jed )
     return SSOrbit ( jed, a * ( 1.0 - e ), e, i, mod2pi ( w - n ), mod2pi ( n ), mod2pi ( l - w ), mm );
 }
 
-#endif // EMBED_SERIES
+#endif // VSOP2013_EMBED_SERIES

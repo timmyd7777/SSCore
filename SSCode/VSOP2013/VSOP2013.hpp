@@ -43,7 +43,7 @@ struct VSOP2013Series
     vector<VSOP2013Term> terms;
 };
 
-#define EMBED_SERIES 1   // 1 to include embedded series; 0 to use external data files only
+#define VSOP2013_EMBED_SERIES 1   // 1 to include embedded series; 0 to use external data files only
 
 // This class stores VSOP2013 planetary ephemeris series, reads them from data files,
 // exports them to C++ source code, and computes planetary position/velocity from them.
@@ -64,7 +64,7 @@ public:
     SSVector toEquatorial ( SSVector ecl );
     bool computePositionVelocity ( int iplanet, double jed, SSVector &pos, SSVector &vel );
     
-#if EMBED_SERIES
+#if VSOP2013_EMBED_SERIES
     SSOrbit mercuryOrbit ( double jed );
     SSOrbit venusOrbit ( double jed );
     SSOrbit earthOrbit ( double jed );      // Earth-Moon barycenter

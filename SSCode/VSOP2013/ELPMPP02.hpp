@@ -13,6 +13,9 @@
 // This version uses the original Chapront ELPMPP02 data files instead of Liu's modified files,
 // and optionally embeds the Chapront series data files embedded in source code to avoid reading
 // them from the filesystem. It also computes the Moon's velocity, unlike Liu's version.
+// The ELPMPP02 series embedded in this C++ code contains 1/5th of the "main problem" terms
+// and 1/10th of the "perturbation" terms in the full series, resulting in a 5-10x performance
+// increase and code-size decrease from the full series, yet maintains sub-arcsecond accuracy.
 
 #ifndef ELPMPP02_hpp
 #define ELPMPP02_hpp

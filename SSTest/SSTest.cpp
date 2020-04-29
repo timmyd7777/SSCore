@@ -29,6 +29,7 @@
 #include "SSTLE.hpp"
 #include "SSEvent.hpp"
 #include "VSOP2013.hpp"
+#include "ELPMPP02.hpp"
 
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
@@ -224,44 +225,12 @@ void TestJPLDEphemeris ( string inputDir )
     jpldeph.close();
 }
 
-void TestEphemeris ( string inputDir, string outputDir )
+void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
 {
-    SSObjectVec solsys;
-    
-    string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
-    if ( SSJPLDEphemeris::open ( ephemFile ) )
-        cout << "Successfully opened JPL DE438 ephemeris file." << endl;
-    else
-        cout << "Failed to open JPL DE438 ephemeris file " << ephemFile << endl;
-
-    SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Planets.csv", solsys );
-    SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", solsys );
-    cout << "Imported " << solsys.size() << " solar system objects." << endl;
-    
-    int nsat = SSImportSatellitesFromTLE ( inputDir + "/SolarSystem/Satellites/visual.txt", solsys );
-    cout << "Imported " << nsat << " artificial satellites." << endl;
-
-    int nnames = SSImportMcNames ( inputDir + "/SolarSystem/Satellites/mcnames.txt", solsys );
-    cout << "Imported " << nnames << " McCants satellite names." << endl;
-
-    SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
-    SSTime now = SSTime::fromSystem(); // SSTime ( date );
-    date = SSDate ( now );
-    SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
-    SSCoordinates coords ( now, here );
-    
-    cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
-    cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
-    cout << format ( "Test Zone: %+.1f hours", date.zone ) << endl;
-    cout << format ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;
-    cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
-    cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
-
-    coords.aberration = true;
-    coords.lighttime = true;
+    SSTime now = coords.getTime();
     
     // Compute Sun/Moon rise/transit/set circumstances
-    
+
     if ( solsys.size() > 10 )
     {
         SSObjectPtr pSun = solsys[0];
@@ -270,7 +239,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         SSPass sunpass = SSEvent::riseTransitSet ( now, coords, pSun, SSEvent::kSunMoonRiseSetAlt );
         SSPass moonpass = SSEvent::riseTransitSet ( now, coords, pMoon, SSEvent::kSunMoonRiseSetAlt );
         
-        date = SSDate ( sunpass.rising.time );
+        SSDate date = SSDate ( sunpass.rising.time );
         if ( isinf ( sunpass.rising.time ) )
             cout << "Sunrise:  none" << endl;
         else
@@ -349,7 +318,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << numpasses << " ISS passes in the next day:" << endl;
         for ( i = 0; i < numpasses; i++ )
         {
-            date = SSDate ( passes[i].rising.time );
+            SSDate date = SSDate ( passes[i].rising.time );
             cout << format ( "Rise:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].rising.azm * SSAngle::kDegPerRad ) << endl;
 
             date = SSDate ( passes[i].transit.time );
@@ -359,6 +328,45 @@ void TestEphemeris ( string inputDir, string outputDir )
             cout << format ( "Set:   %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].setting.azm * SSAngle::kDegPerRad ) << endl << endl;
         }
     }
+}
+
+void TestEphemeris ( string inputDir, string outputDir )
+{
+    SSObjectVec solsys;
+    
+    string ephemFile = inputDir + "X/SolarSystem/DE438/1950_2050.438";
+    if ( SSJPLDEphemeris::open ( ephemFile ) )
+        cout << "Successfully opened JPL DE438 ephemeris file." << endl;
+    else
+        cout << "Failed to open JPL DE438 ephemeris file " << ephemFile << endl;
+
+    SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Planets.csv", solsys );
+    SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", solsys );
+    cout << "Imported " << solsys.size() << " solar system objects." << endl;
+    
+    int nsat = SSImportSatellitesFromTLE ( inputDir + "/SolarSystem/Satellites/visual.txt", solsys );
+    cout << "Imported " << nsat << " artificial satellites." << endl;
+
+    int nnames = SSImportMcNames ( inputDir + "/SolarSystem/Satellites/mcnames.txt", solsys );
+    cout << "Imported " << nnames << " McCants satellite names." << endl;
+
+    SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
+    SSTime now = SSTime ( date ); // SSTime::fromSystem(); // SSTime ( date );
+    date = SSDate ( now );
+    SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
+    SSCoordinates coords ( now, here );
+    
+    cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
+    cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
+    cout << format ( "Test Zone: %+.1f hours", date.zone ) << endl;
+    cout << format ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;
+    cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
+    cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
+
+    coords.aberration = true;
+    coords.lighttime = true;
+
+    TestEvents ( coords, solsys );
     
     // Compute and print ephemeris of solar system objects.
     
@@ -459,11 +467,34 @@ void TestEphemeris ( string inputDir, string outputDir )
     }
 }
 
+void TestELPMPP02 ( void )
+{
+    ELPMPP02 elp;
+
+#if ! ELPMPP02_EMBED_SERIES
+    elp.readSeries ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
+#endif
+
+    double testjd[5] = { 2444239.5, 2446239.5, 2448239.5, 2450239.5, 2452239.5 };
+    
+    for ( int i = 0; i < 5; i++ )
+    {
+        SSVector pos, vel;
+        double jed = testjd[i];
+        cout << format ( "%.1f\n", jed );
+        elp.computePositionVelocity ( jed, pos, vel );
+        pos *= SSCoordinates::kKmPerAU;
+        vel *= SSCoordinates::kKmPerAU;
+        cout << format ( "%+13.5f  %+13.5f  %+13.5f  ", pos.x, pos.y, pos.z );
+        cout << format ( "%+13.5f  %+13.5f  %+13.5f\n", vel.x, vel.y, vel.z );
+    }
+}
+
 void TestVSOP2013 ( void )
 {
     VSOP2013 vsop2013;
 
-#if ! EMBED_SERIES
+#if ! VSOP2013_EMBED_SERIES
     vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p1.dat", kMercury );
     vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p2.dat", kVenus );
     vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p3.dat", kEarth );
@@ -578,6 +609,7 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
+    TestELPMPP02();
     TestVSOP2013();
     TestEphemeris ( inpath, outpath );
 //    TestSatellites ( inpath, outpath );
