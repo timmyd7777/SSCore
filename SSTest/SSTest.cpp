@@ -348,7 +348,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << "Imported " << nsat << " artificial satellites." << endl;
 
     int nnames = SSImportMcNames ( inputDir + "/SolarSystem/Satellites/mcnames.txt", solsys );
-    cout << "Imported " << nnames << " McCants satellite names." << endl;
+    cout << "Imported " << nnames << " McCants satellite names." << endl << endl;
 
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
     SSTime now = SSTime ( date ); // SSTime::fromSystem(); // SSTime ( date );
@@ -467,12 +467,15 @@ void TestEphemeris ( string inputDir, string outputDir )
     }
 }
 
-void TestELPMPP02 ( void )
+void TestELPMPP02 ( const string &datadir )
 {
     ELPMPP02 elp;
 
 #if ! ELPMPP02_EMBED_SERIES
-    elp.readSeries ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
+    elp.readSeries ( datadir );
+    cout << "Testing ELPMPP02 using series read from " << datadir << endl;
+#else
+    cout << "Testing ELPMPP02 using embedded series." << endl;
 #endif
 
     double testjd[5] = { 2444239.5, 2446239.5, 2448239.5, 2450239.5, 2452239.5 };
@@ -481,29 +484,34 @@ void TestELPMPP02 ( void )
     {
         SSVector pos, vel;
         double jed = testjd[i];
-        cout << format ( "%.1f\n", jed );
+        cout << format ( "JD %.1f", jed ) << endl;
         elp.computePositionVelocity ( jed, pos, vel );
         pos *= SSCoordinates::kKmPerAU;
         vel *= SSCoordinates::kKmPerAU;
-        cout << format ( "%+13.5f  %+13.5f  %+13.5f  ", pos.x, pos.y, pos.z );
-        cout << format ( "%+13.5f  %+13.5f  %+13.5f\n", vel.x, vel.y, vel.z );
+        cout << format ( "moon pos: %+13.5f  %+13.5f  %+13.5f km  ", pos.x, pos.y, pos.z );
+        cout << format ( "vel: %+13.5f  %+13.5f  %+13.5f km/day", vel.x, vel.y, vel.z ) << endl;
     }
+    
+    cout << endl;
 }
 
-void TestVSOP2013 ( void )
+void TestVSOP2013 ( const string &datadir )
 {
     VSOP2013 vsop2013;
 
 #if ! VSOP2013_EMBED_SERIES
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p1.dat", kMercury );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p2.dat", kVenus );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p3.dat", kEarth );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p4.dat", kMars );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p5.dat", kJupiter );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p6.dat", kSaturn );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p7.dat", kUranus );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p8.dat", kNeptune );
-    vsop2013.readFile ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/VSOP2013p9.dat", kPluto );
+    vsop2013.readFile ( datadir + "VSOP2013p1.dat", kMercury );
+    vsop2013.readFile ( datadir + "VSOP2013p2.dat", kVenus );
+    vsop2013.readFile ( datadir + "VSOP2013p3.dat", kEarth );
+    vsop2013.readFile ( datadir + "VSOP2013p4.dat", kMars );
+    vsop2013.readFile ( datadir + "VSOP2013p5.dat", kJupiter );
+    vsop2013.readFile ( datadir + "VSOP2013p6.dat", kSaturn );
+    vsop2013.readFile ( datadir + "VSOP2013p7.dat", kUranus );
+    vsop2013.readFile ( datadir + "VSOP2013p8.dat", kNeptune );
+    vsop2013.readFile ( datadir + "VSOP2013p9.dat", kPluto );
+    cout << "Testing VSOP2013 using series read from " << datadir << endl;
+#else
+    cout << "Testing VSOP2013 using embedded series." << endl;
 #endif
     
     // These Julian Ephemeris Dates match the test dates in the test cases provided with VSOP2013.
@@ -512,14 +520,16 @@ void TestVSOP2013 ( void )
     {
         SSVector pos, vel;
         
-        cout << format ( "%.1f\n", jed );
+        cout << format ( "JD %.1f\n", jed );
         for ( int iplanet = 1; iplanet <= 9; iplanet++ )
         {
             vsop2013.computePositionVelocity ( iplanet, jed, pos, vel );
-            cout << format ( "%+14.10f  %+14.10f  %+14.10f  ", pos.x, pos.y, pos.z );
-            cout << format ( "%+13.10f  %+13.10f  %+13.10f\n", vel.x, vel.y, vel.z );
+            cout << format ( "planet %d pos: %+14.10f  %+14.10f  %+14.10f AU  ", iplanet, pos.x, pos.y, pos.z );
+            cout << format ( "vel: %+13.10f  %+13.10f  %+13.10f AU/day", vel.x, vel.y, vel.z ) << endl;
         }
     }
+    
+    cout << endl;
 }
 
 // Android redirects stdout & stderr output to /dev/null. This uses Android logging functions to send
@@ -609,8 +619,8 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
-    TestELPMPP02();
-    TestVSOP2013();
+    TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
+    TestVSOP2013 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/" );
     TestEphemeris ( inpath, outpath );
 //    TestSatellites ( inpath, outpath );
 //    TestJPLDEphemeris ( inpath );

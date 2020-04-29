@@ -4372,7 +4372,7 @@ void read_perturbation_series ( const ELPPertSeries &series, int &n, int ** &i_p
     }
 }
 
-// comparison function for sorting ELPMainTerms
+// comparison functions for sorting ELPMainTerms and ELPPertTerms
 
 bool compareELPMainTerms ( const ELPMainTerm &term1, const ELPMainTerm &term2 )
 {
@@ -4385,6 +4385,13 @@ bool compareELPPertTerms ( const ELPPertTerm &term1, const ELPPertTerm &term2 )
     double a2 = sqrt ( term2.c * term2.c + term2.s * term2.s );
     
     return a1 > a2;
+}
+
+static bool _init = false;  // initialization flag ensures series are only loaded once.
+
+ELPMPP02::ELPMPP02 ( void )
+{
+    setup_parameters ( 0, _paras, _facs );
 }
 
 #if ELPMPP02_EMBED_SERIES
@@ -4418,13 +4425,13 @@ void setup_Elp_series ( Elp_coefs &coefs, Elp_facs facs )
     read_perturbation_series ( _dist_pert[3], coefs.n_pert_distT3, coefs.i_pert_distT3, coefs.A_pert_distT3, coefs.ph_pert_distT3 );
 }
 
-static bool _init = false;
+// Copies data from ELPMPP02 series embedded in this C++ source code
+// into Liu's main and perturbation series arrays. Only do this once!
 
-ELPMPP02::ELPMPP02 ( void )
+void ELPMPP02::initSeries ( void )
 {
     if ( ! _init )
     {
-        setup_parameters ( 0, _paras, _facs );
         setup_Elp_series ( _coefs, _facs );
         _init = true;
     }
@@ -4432,17 +4439,15 @@ ELPMPP02::ELPMPP02 ( void )
 
 #else
 
-ELPMPP02::ELPMPP02 ( void )
-{
-    setup_parameters ( 0, _paras, _facs );
-}
-
 // Reads ELPMPP02 series files from a specific directory (datadir)
 // and initializes Liu ELPMPP02 solution code from them.
 // Returns true if successful or false on failure.
 
 bool ELPMPP02::readSeries ( const string &datadir )
 {
+    if ( _init )
+        return true;
+
     readMainSeries ( datadir + "ELP_MAIN.S1", mainLon );
     readMainSeries ( datadir + "ELP_MAIN.S2", mainLat );
     readMainSeries ( datadir + "ELP_MAIN.S3", mainDist );
@@ -4498,7 +4503,10 @@ bool ELPMPP02::readSeries ( const string &datadir )
     read_perturbation_series ( pertDist[1], _coefs.n_pert_distT1, _coefs.i_pert_distT1, _coefs.A_pert_distT1, _coefs.ph_pert_distT1 );
     read_perturbation_series ( pertDist[2], _coefs.n_pert_distT2, _coefs.i_pert_distT2, _coefs.A_pert_distT2, _coefs.ph_pert_distT2 );
     read_perturbation_series ( pertDist[3], _coefs.n_pert_distT3, _coefs.i_pert_distT3, _coefs.A_pert_distT3, _coefs.ph_pert_distT3 );
-    
+
+    // We are successfully initialized!
+
+    _init = true;
     return true;
 }
 
@@ -4679,7 +4687,7 @@ void ELPMPP02::printMainSeries ( ostream &out, const ELPMainSeries &ser )
 }
 
 // Exports a vector of ELPPertSeries (pert) as C++ source code to an output stream (out).
-// If TRUNC_FACTOR is #defined to be > 1, a trunctated subset of terms are exported.
+// If TRUNC_FACTOR is #defined to be > 1, a truncated subset of terms are exported.
 
 void ELPMPP02::printPertSeries ( ostream &out, const vector<ELPPertSeries> &pert )
 {
@@ -4729,7 +4737,16 @@ bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &ve
     static SSMatrix eclequ = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
     double t = ( jed - 2451545.0 ) / 36525.0;
     double dt = 0.0001 / 36525.0;
-    
+
+    // Make sure we have loaded or initialized required series terms.
+
+#if ELPMPP02_EMBED_SERIES
+    initSeries();
+#endif
+
+    if ( ! _init )
+        return false;
+
     // We compute velocity by computing position twice (1/1000th of a day apart)
     // and differencing the results. While crude, this method gives results accurate
     // to 5 decimals, and is no more computationally intensive than the mathematically

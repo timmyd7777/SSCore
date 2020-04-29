@@ -84,14 +84,23 @@ public:
 
     ELPMPP02 ( void );
 
+    // Reads ELPMPP02 series from external data files, or initializes from embedded C++ data.
+
     bool readSeries ( const string &datadir );
+    static void initSeries ( void );
+
+    // Reads Chapront's original ELPMPP02 "main problem" and "perturbation" series data files
 
     int readMainSeries ( const string &filename, ELPMainSeries &main );
     int readPertSeries ( const string &filename, vector<ELPPertSeries> &pert );
 
+    // Exports series to C++ code
+
     void printMainSeries ( ostream &out, const ELPMainSeries &main );
     void printPertSeries ( ostream &out, const vector<ELPPertSeries> &pert );
-    
+
+    // Computes Moon's geocentric position and velocity in AU and AU/day in J2000 equatorial frame (ICRS)
+
     static bool computePositionVelocity ( double jed, SSVector &pos, SSVector &vel );
 };
 

@@ -24,7 +24,7 @@
 // These provide sub-arcsecond accuracy over a timespan from years -4000 to +8000,
 // but are much slower than Paul Schlyter's formulae.
 
-#define USE_VSOP2013 0
+#define USE_VSOP2013 1
 #if USE_VSOP2013
 #include "VSOP2013.hpp"
 #include "ELPMPP02.hpp"
