@@ -8,6 +8,7 @@ SSAngle
 SSCoords
 --------
 - hide all public member variables and make accessors.
+- implement long-term precession algorithm; update to IAU 2006 precession.
 
 SSEvent
 --------
@@ -71,7 +72,6 @@ SSVector
 
 Other
 -----
-- implement VSOP2013 and ELPMPP02
 - find better means for handling enumerated types across all languages
 
 Android
@@ -83,4 +83,4 @@ iOS
 ---
 - additional C wrapper for SSStar, SSPlanet
 
--Tim DeBenedictis (timd@southernstars.com) 10 April 2020
+-Tim DeBenedictis (timd@southernstars.com) 29 April 2020
