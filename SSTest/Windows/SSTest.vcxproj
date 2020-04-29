@@ -41,6 +41,7 @@
     <ClCompile Include="..\..\SSCode\SSTLE.cpp" />
     <ClCompile Include="..\..\SSCode\SSUtilities.cpp" />
     <ClCompile Include="..\..\SSCode\SSVector.cpp" />
+    <ClCompile Include="..\..\SSCode\VSOP2013\ELPMPP02.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p1.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p2.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="..\..\SSCode\SSTLE.hpp" />
     <ClInclude Include="..\..\SSCode\SSUtilities.hpp" />
     <ClInclude Include="..\..\SSCode\SSVector.hpp" />
+    <ClInclude Include="..\..\SSCode\VSOP2013\ELPMPP02.hpp" />
     <ClInclude Include="..\..\SSCode\VSOP2013\VSOP2013.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

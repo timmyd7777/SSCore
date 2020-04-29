@@ -123,6 +123,9 @@
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p9.cpp">
       <Filter>Source Files\SSCode\VSOP2013</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SSCode\VSOP2013\ELPMPP02.cpp">
+      <Filter>Source Files\SSCode\VSOP2013</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp">
@@ -192,6 +195,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SSCode\VSOP2013\VSOP2013.hpp">
+      <Filter>Header Files\VSOP2013</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\VSOP2013\ELPMPP02.hpp">
       <Filter>Header Files\VSOP2013</Filter>
     </ClInclude>
   </ItemGroup>

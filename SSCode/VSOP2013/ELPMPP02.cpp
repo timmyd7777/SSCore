@@ -10,7 +10,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <unistd.h>
 
 #include "SSCoordinates.hpp"
 #include "ELPMPP02.hpp"
