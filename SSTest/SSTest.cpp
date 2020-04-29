@@ -334,7 +334,7 @@ void TestEphemeris ( string inputDir, string outputDir )
 {
     SSObjectVec solsys;
     
-    string ephemFile = inputDir + "X/SolarSystem/DE438/1950_2050.438";
+    string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
     if ( SSJPLDEphemeris::open ( ephemFile ) )
         cout << "Successfully opened JPL DE438 ephemeris file." << endl;
     else

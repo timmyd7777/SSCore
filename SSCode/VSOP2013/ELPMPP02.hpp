@@ -20,6 +20,9 @@
 #ifndef ELPMPP02_hpp
 #define ELPMPP02_hpp
 
+#include <stdint.h>
+#include <vector>
+
 #include "SSVector.hpp"
 
 #define ELPMPP02_EMBED_SERIES 1     // 1 to include embedded series; 0 to use external data files only
@@ -30,7 +33,7 @@ using namespace std;
 
 struct ELPMainTerm
 {
-    char  i[4];      // coefficients of Delaunay arguments
+    int8_t i[4];      // coefficients of Delaunay arguments
     double a;        // coefficient in arcseconds for longitude/latitude, km for distance
     double b[6];     // derivates of a with respect to six constants
 };
@@ -49,7 +52,7 @@ struct ELPMainSeries
 struct ELPPertTerm
 {
     double s, c;    // coefficients of sine and cosine
-    char i[13];     // coefficients of fundamental arguments
+    int8_t i[13];     // coefficients of fundamental arguments
 };
 
 // Represents a complete ELPMPP02 "perturbation" series.

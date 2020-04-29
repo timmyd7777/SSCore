@@ -12,19 +12,15 @@
 #include <string>
 #include <unistd.h>
 
-using namespace std;
-
 #include "SSCoordinates.hpp"
 #include "ELPMPP02.hpp"
 
-#define PRINT_SERIES 0  // 1 to comvert input ELPMPP02 series data files to output .cpp source code
+#define PRINT_SERIES 0  // 1 to convert input ELPMPP02 series data files to output .cpp source code
 #define TRUNC_FACTOR 5  // exported seriees truncation factor: 1 exports everything, 10 exports only first tenth; 100 exports only first hundredth, etc,
 
 #if ELPMPP02_EMBED_SERIES
 
-#include "ELPMPP02.hpp"
-
-static ELPMainSeries _lon_main = { 1, 204, {
+static const ELPMainSeries _lon_main = { 1, 204, {
 {   0,   0,   1,   0,   22639.55000,         0.00,         0.00,    412529.62,         0.00,         0.00,         0.00 },
 {   2,   0,  -1,   0,    4586.43061,     87132.46,      -842.12,     83586.18,      -191.17,        20.31,        -0.17 },
 {   2,   0,   0,   0,    2369.91227,     69551.14,     -1472.50,     10817.07,      -255.36,        22.07,        -0.15 },
@@ -231,7 +227,7 @@ static ELPMainSeries _lon_main = { 1, 204, {
 {   2,   4,   0,   0,       0.01372,         0.35,         1.22,         0.21,         0.00,         0.00,         0.00 }
 } };
 
-static ELPMainSeries _lat_main = { 2, 183, {
+static const ELPMainSeries _lat_main = { 2, 183, {
 {   0,   1,   0,   0,   18461.40000,         0.00,    412529.62,         0.00,         0.00,         0.00,         0.00 },
 {   0,   1,   1,   0,    1010.17430,       -93.16,     22571.83,     18386.36,        -0.76,        -0.17,         0.00 },
 {   0,  -1,   1,   0,     999.70079,      -563.82,     22508.54,     18298.82,        -0.92,        -0.21,         0.00 },
@@ -417,7 +413,7 @@ static ELPMainSeries _lat_main = { 2, 183, {
 {   2,   1,  -1,  -3,       0.01042,         0.25,         0.23,         0.19,         1.87,         0.00,         0.00 }
 } };
 
-static ELPMainSeries _dist_main = { 3, 140, {
+static const ELPMainSeries _dist_main = { 3, 140, {
 {   0,   0,   0,   0,  385000.52719,     -7992.63,       -11.06,     21578.08,        -4.53,        11.39,        -0.06 },
 {   0,   0,   1,   0,  -20905.32206,      6888.23,       -35.83,   -380331.75,        22.31,         1.77,         0.00 },
 {   2,   0,  -1,   0,   -3699.10468,    -63127.05,       818.00,    -67236.74,       147.86,       -15.95,         0.14 },
@@ -560,7 +556,7 @@ static ELPMainSeries _dist_main = { 3, 140, {
 {   4,   0,  -4,   0,      -0.02939,        -0.87,         0.00,        -2.14,         0.00,         0.00,         0.00 }
 } };
 
-static vector<ELPPertSeries> _lon_pert = {
+static const vector<ELPPertSeries> _lon_pert = {
 { 1, 0, 1131, {
 { -1.274921554086e+01, +6.368794709728e+00,   0,   0,   1,   0,   0, -18,  16,   0,   0,   0,   0,   0,   0 },
 { -7.062989999049e+00, +1.158760846981e-04,   0,   1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  -1 },
@@ -1841,7 +1837,7 @@ static vector<ELPPertSeries> _lon_pert = {
 { 1, 3, 0, {
 } } };
 
-static vector<ELPPertSeries> _lat_pert = {
+static const vector<ELPPertSeries> _lat_pert = {
 { 2, 0, 646, {
 { -8.045039999382e+00, -9.969282987996e-05,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1 },
 { +1.756754655786e-01, -1.499956686934e+00,   1,   0,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   0 },
@@ -2553,7 +2549,7 @@ static vector<ELPPertSeries> _lat_pert = {
 { 2, 3, 0, {
 } } };
 
-static vector<ELPPertSeries> _dist_pert = {
+static const vector<ELPPertSeries> _dist_pert = {
 { 3, 0, 1211, {
 { -2.189679448352e-03, +1.058616729945e+00,   2,   0,  -1,   0,   0,   0,   2,   0,  -2,   0,   0,   0,   0 },
 { +3.253561194684e-01, +6.513087890330e-01,   0,   0,   2,   0,   0, -18,  16,   0,   0,   0,   0,   0,   0 },
@@ -4313,7 +4309,7 @@ static Elp_facs _facs;
 
 // Reads main problem series
 
-void read_main_problem_series ( ELPMainSeries &series, int &n, int ** &i_main, double * &A_main, double fA, Elp_facs facs)
+void read_main_problem_series ( const ELPMainSeries &series, int &n, int ** &i_main, double * &A_main, double fA, Elp_facs facs)
 {
     n = series.nt;
     i_main = new int *[n];
@@ -4354,7 +4350,7 @@ void read_main_problem_series ( ELPMainSeries &series, int &n, int ** &i_main, d
 
 // Read perturbation series
 
-void read_perturbation_series ( ELPPertSeries &series, int &n, int ** &i_pert, double * &A_pert, double * &phase)
+void read_perturbation_series ( const ELPPertSeries &series, int &n, int ** &i_pert, double * &A_pert, double * &phase)
 {
     n = series.nt;
     i_pert = new int *[n];

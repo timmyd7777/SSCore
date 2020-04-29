@@ -36,6 +36,7 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSTLE.cpp
              ../../../../../../SSCode/SSUtilities.cpp
              ../../../../../../SSCode/SSVector.cpp
+             ../../../../../../SSCode/VSOP2013/ELPMPP02.cpp
              ../../../../../../SSCode/VSOP2013/VSOP2013.cpp
              ../../../../../../SSCode/VSOP2013/VSOP2013p1.cpp
              ../../../../../../SSCode/VSOP2013/VSOP2013p2.cpp
