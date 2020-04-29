@@ -25,7 +25,7 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSEvent:_** This class computes times and circumstances of astronomical events like object rising/transit/setting, satellite passes, moon phases, conjuctions, oppositions, etc.
 - **_SSIdentifier:_** This class represents object identifiers used in a wide variety of astronomical catalogs with a unified system of 64-bit integers, and contains methods for converting identifiers from string representations ("HR 7001", "NGC 1976", etc.) to 64-bit integers and vice-versa.
 - **_SSJPLDEphemeris:_** This class reads JPL's binary DE43x series of ephemeris files and computes very fast, sub-arcsecond-accurate lunar and planetary positions from them.
-- **_SSPSEphemeris:_** Implements Paul Schlyter's planetary and lunar ephemeris, described [here](http://stjarnhimlen.se/comp/ppcomp.html). This is the simplest way to compute planetary/lunar positions with an accuracy of 1-2 arc minutes; SSCore uses it as a fallback when the JPL DE ephemeris is not available.
+- **_SSPSEphemeris:_** Implements Paul Schlyter's planetary and lunar ephemeris, described [here](http://stjarnhimlen.se/comp/ppcomp.html). This is the simplest way to compute planetary/lunar positions with an accuracy of 1-2 arc minutes; SSCore can use it as a fallback when the JPL DE ephemeris is not available. See note on VSOP2013 below.
 - **_SSMatrix:_** Represents a 3x3 matrix, with routines for performing matrix and vector-matrix arithmetic.
 - **_SSMoonEphemeris:_** Computes positions for the major moons of Mars, Jupiter, Saturn, Uranus, Neptune, and Pluto. For Earth's Moon, use SSJPLDEphemeris or SSPSEphemeris.
 - **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations, etc.)
@@ -36,6 +36,16 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSTLE:_** Routines for reading satellite orbital elements from TLE (Two/Three-Line Element) files, and computing satellite position/velocity from them using the SGP, SGP4, and SDP4 orbit models; and vice-versa.
 - **_SSUtilities:_** A few useful string manipulation, angle conversion, and other utility functions that are not present in standard C++11.
 - **_SSVector:_** Classes for converting points between spherical and rectangular coordinates, and for performing vector arithmetic operations.
+
+**VSOP2013 and ELPMPP02**
+
+The **VSOP2013** folder contains C++ code for two classes which implement the [VSOP2013 planetary ephemeris](ftp.imcce.fr/pub/ephem/planets/vsop2013) and [ELPMPP02 lunar ephemeris](ftp://cyrano-se.obspm.fr/pub/2_lunar_solutions/2_elpmpp02/). These classes can use the original VSOP/ELP ephemeris data files for full precision. They also contain truncated versions of these ephemeris series, embedded directly in the C++ code. These truncated, embedded versions are up to 100x smaller and faster than the original series, yet provide sub-arcsecond agreement with the full-precision series across their entire timespan, from the years -4000 to +8000.
+
+By default, these classes are compiled to use the embedded series. You can strip out the embedded series by `#define VSOP2013_EMBED_SERIES 0` and `#define ELPMPP02_EMBED_SERIES 0` at the top of VSOP2013.hpp and ELPMPP02.hpp, then recompiling. This will make your compiled code several MB smaller. But then you will need to download the VSOP2013 and ELPMPP02 series files, and read them at runtime, to get valid computations.
+
+JPL's DE ephemeris files are much faster than VSOP/ELP, but much bulkier: JPL DE431 requires a 2.3 GB file to cover the same 12,000-year timespan of VSOP2013. So, by default, SSCore uses DE438 for planetary computations from 1950 to 2050; and uses VSOP2013/ELPMPP02 outside those years.
+
+You can build a version of SSCore without any dependency on VSOP2013 or ELPMPP02. Just remove those source files, then `#define USE_VSOP2013 0` at the top of SSPlanet.cpp. The resulting code will use JPL DE438 when available, and fall back to Paul Schlyter's (fast, but not terribly accurate) formulae when DE438 is not available.
 
 **Coding Style Standards**
 
