@@ -314,8 +314,7 @@ void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
     {
         vector<SSPass> passes;
         
-        int numpasses = SSEvent::findSatellitePasses2 ( coords, solsys[i], now, now + 1.0, 0.0, passes, 10 );
-//        int numpasses = SSEvent::findSatellitePasses ( coords, solsys[i], now, now + 1.0, 0.0, passes );
+        int numpasses = SSEvent::findSatellitePasses ( coords, solsys[i], now, now + 1.0, 0.0, passes, 10 );
         cout << numpasses << " ISS passes in the next day:" << endl;
         for ( i = 0; i < numpasses; i++ )
         {

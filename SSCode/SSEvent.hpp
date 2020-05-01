@@ -71,8 +71,7 @@ public:
     static SSTime riseTransitSetSearchDay ( SSTime today, SSCoordinates &coords, SSObjectPtr pObj, int sign, SSAngle alt );
 
     static SSPass riseTransitSet ( SSTime today, SSCoordinates &coords, SSObjectPtr pObj, SSAngle alt );
-    static int findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double alt, vector<SSPass> &passes );
-    static int findSatellitePasses2 ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double minAlt, vector<SSPass> &passes, int maxPasses );
+    static int findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double minAlt, vector<SSPass> &passes, int maxPasses );
 
     static SSTime nextMoonPhase ( SSTime time, SSObjectPtr pSun, SSObjectPtr pMoon, double phase );
     

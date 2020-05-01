@@ -200,87 +200,6 @@ SSPass SSEvent::riseTransitSet ( SSTime today, SSCoordinates &coords, SSObjectPt
     return pass;
 }
 
-// Searches for satellite passes seen from a location (coords) between two Julian dates (start to stop).
-// Passes start when satellite's apparent altitude rises above a minimum threshold (minAlt) in radians;
-// passes end when satellite's elevation falls below that threshold.  Peak elevation and time thereof are
-// also recorded in each pass's transit struct. The method returns the total number of passes found, and
-// returns all pass circumstances in the vector of SSPass structs.
-// After return, both coords and pObj will be restored to their original states.
-
-int SSEvent::findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double minAlt, vector<SSPass> &passes )
-{
-    SSTime  savetime = coords.getTime();
-    SSTime  time = 0, step = 0;
-    SSPass  pass = { 0 };
-    SSAngle azm = 0, alt = 0, maxAlt = 0, oldAlt = 0;
-    SSSpherical hor = { INFINITY, INFINITY, INFINITY };
-    
-    for ( time = start; time <= stop; time += step )
-    {
-        // Advance time and recompute satellite's position;
-        // obtain its current elevation and azimuth.
-        
-        coords.setTime ( time );
-        pSat->computeEphemeris ( coords );
-        hor = coords.transform ( kFundamental, kHorizon, pSat->getDirection() );
-        azm = hor.lon;
-        alt = hor.lat;
-        
-        // When the satellite reaches 1 degree below the horizon,
-        // change time step to 1 second for more precision.
-        // Otherwise use a coarse 1-minute time step for speed.
-        
-        if ( hor.lat > -1.0 * SSAngle::kDegPerRad )
-            step = 1.0 / SSTime::kSecondsPerDay;
-        else
-            step = 1.0 / SSTime::kMinutesPerDay;
-        
-        if ( time > start )
-        {
-            // If satellite is above elevation threshold now,
-            // but below it on previous step, pass starts now.
-            
-            if ( alt > minAlt && oldAlt < minAlt )
-            {
-                pass.rising.time = time;
-                pass.rising.azm = azm;
-                pass.rising.alt = alt;
-            }
-            
-            // Search for peak elevation.
-
-            if ( alt > maxAlt )
-            {
-                pass.transit.time = time;
-                pass.transit.azm = azm;
-                pass.transit.alt = alt;
-                maxAlt = alt;
-            }
-            
-            // If satellite is below elevation threshold now,
-            // but above it on previous step, pass starts now.
-
-            if ( oldAlt > minAlt && alt < minAlt )
-            {
-                pass.setting.time = time;
-                pass.setting.azm = azm;
-                pass.setting.alt = alt;
-                passes.push_back ( pass );
-                maxAlt = 0.0;
-            }
-        }
-        
-        oldAlt = alt;
-    }
-    
-    // Reset original time and restore satellite's original ephemeris
-    
-    coords.setTime ( savetime );
-    pSat->computeEphemeris ( coords );
-
-    return (int) passes.size();
-}
-
 // Returns the Juliam Date of the next moon phase after the current time (time).
 // Objects pSun and pMoon are pointers to the SUn and Moon, respectively.
 // The angular value (phase) corresponds to the desired moon phase in radians:
@@ -508,10 +427,11 @@ void SSEvent::findFarthestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, 
 // Passes start when satellite's apparent altitude rises above a minimum threshold (minAlt) in radians;
 // passes end when satellite's elevation falls below that threshold.  Peak elevation and time thereof are
 // also recorded in each pass's transit struct. The method returns the total number of passes found, and
-// returns all pass circumstances in the vector of SSPass structs.
+// returns all pass circumstances in the vector of SSPass structs.  The function also stops searching when
+// it finds the maximum number of passes (maxPasses).
 // After return, both coords and pObj will be restored to their original states.
 
-int SSEvent::findSatellitePasses2 ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double minAlt, vector<SSPass> &passes, int maxPasses )
+int SSEvent::findSatellitePasses ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double minAlt, vector<SSPass> &passes, int maxPasses )
 {
     SSTime  savetime = coords.getTime();
     
