@@ -285,7 +285,7 @@ void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
         SSObjectPtr pSat = solsys[6];
         vector<SSEventTime> conjunctions;
 
-        SSEvent::findConjunctions ( coords, pJup, pSat, now, now + 365.25, conjunctions );
+        SSEvent::findConjunctions ( coords, pJup, pSat, now, now + 365.25, conjunctions, 10 );
         cout << conjunctions.size() << " Jupiter-Saturn Conjunctions in the next year:" << endl;
         for ( int i = 0; i < conjunctions.size(); i++ )
         {
@@ -314,7 +314,8 @@ void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
     {
         vector<SSPass> passes;
         
-        int numpasses = SSEvent::findSatellitePasses ( coords, solsys[i], now, now + 1.0, 0.0, passes );
+        int numpasses = SSEvent::findSatellitePasses2 ( coords, solsys[i], now, now + 1.0, 0.0, passes, 10 );
+//        int numpasses = SSEvent::findSatellitePasses ( coords, solsys[i], now, now + 1.0, 0.0, passes );
         cout << numpasses << " ISS passes in the next day:" << endl;
         for ( i = 0; i < numpasses; i++ )
         {

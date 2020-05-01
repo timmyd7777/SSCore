@@ -346,20 +346,34 @@ double object_distance ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr p
 
 double object_separation ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2 )
 {
-    SSVector pos1 = pObj1->getDirection();
-    SSVector pos2 = pObj2->getDirection();
+    SSVector dir1 = pObj1->getDirection();
+    SSVector dir2 = pObj2->getDirection();
     
-    return pos1.angularSeparation ( pos2 );
+    return dir1.angularSeparation ( dir2 );
 }
 
-// Generic event-finding method.
+double object_altitude ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2 )
+{
+    SSVector dir = pObj1->getDirection();
+    SSSpherical hor = coords.transform ( kFundamental, kHorizon, dir );
+    return hor.lat;
+}
+
+// Generic event-finding method for "maximum and minimum"-type events. This type of event occurrs when a value
+// (physical distance, angular separation, etc.) reaches a local maximum or minimum above (or below) a certain threshold value (limit).
+// The geographic location from which the event(s) are being sought is in the coordinates object (coords).
+// The object(s) involved in the event are pObj1 and pObj2.
+// The time range to search over (start to stop), is in Julian Dates.
+// The initial search step (step) is in days.
+// The boolean flag (min) instructs whether to search for local minima (true) or maxima (false) of the value.
+// The function (func) returns the value for those objects at a given time.
 // The coordinates (coords) and objects' (pObj1,pObj2) positions will be recomputed/modified by this function!
 
-void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool min, double limit, SSEventFunc func, vector<SSEventTime> &events )
+void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool min, double limit, SSEventFunc func, vector<SSEventTime> &events, int maxEvents )
 {
-    double newVal = 0.0, curVal = 0.0, oldVal = 0.0;
+    double newVal = INFINITY, curVal = INFINITY, oldVal = INFINITY;
     
-    for ( SSTime time = start; time <= stop; time += step )
+    for ( SSTime time = start; time <= stop && events.size() < maxEvents; time += step )
     {
         // Compute the ephemerides of the objects at the current time,
         // then the value of the event function.
@@ -376,10 +390,10 @@ void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr
         // so that when we compute a new distance, we will have three different values we can
         // search for a maximum or minimum.
         
-        if ( curVal > 0.0 )
+        if ( ! isinf ( curVal ) )
             oldVal = curVal;
             
-        if ( newVal > 0.0 )
+        if ( ! isinf ( newVal ) )
             curVal = newVal;
 
         // Find the new value of the event function at the current time.
@@ -389,15 +403,15 @@ void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr
         // If we have an old, current, and new value, see if we have a minimum
         // or maximum bracketed between the old, current, and new times. If so,
         // call this method recursively to search the interval between those times
-        // with a search step 10x smaller, until the step is less than 0.001 days.
+        // with a search step 10x smaller, until the step is less than 1 second.
         // When we reach that precision, save the time and value, and return.
 
-        if ( oldVal > 0.0 && curVal > 0.0 )
+        if ( ! isinf ( oldVal ) && ! isinf ( curVal ) && ! isinf ( newVal ) )
         {
             if ( ( min && ( newVal > curVal && curVal < oldVal ) && curVal <= limit )
             || ( ! min && ( newVal < curVal && curVal > oldVal ) && curVal >= limit ) )
             {
-                if ( step < 0.001 )
+                if ( step < 1.0 / SSTime::kSecondsPerDay )
                 {
                     SSEventTime event = { time - step, curVal };
                     events.push_back ( event );
@@ -405,29 +419,158 @@ void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr
                 }
                 else
                 {
-                    findEvents ( coords, pObj1, pObj2, time - step * 2.0, time, step / 10.0, min, limit, func, events );
+                    findEvents ( coords, pObj1, pObj2, time - step * 2.0, time, step / 10.0, min, limit, func, events, maxEvents );
                 }
             }
         }
     }
 }
 
-void SSEvent::findConjunctions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+// Generic event-finding method for "equality" events. This type of event ocurrs when a value (distance, altitude, declination, etc.)
+// equals a desired target value (target). There are two sub-types of equality event: 1) when the value reaches the target from below,
+// and 2) when the value reaches the target from above.
+// The boolean flag (below) defines which to search for: true = equality from below, false = from above.
+// All other parameters are the same as for findEvents().
+// The coordinates (coords) and objects' (pObj1,pObj2) positions will be recomputed/modified by this function!
+
+void SSEvent::findEqualityEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, double step, bool below, double target, SSEventFunc func, vector<SSEventTime> &events, int maxEvents )
 {
-    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, true, INFINITY, object_separation, events );
+    double curVal = INFINITY, oldVal = INFINITY;
+    
+    for ( SSTime time = start; time <= stop && events.size() < maxEvents; time += step )
+    {
+        // Compute the ephemerides of the objects at the current time,
+        // then the value of the event function.
+
+        coords.setTime ( time );
+        
+        if ( pObj1 )
+            pObj1->computeEphemeris ( coords );
+        
+        if ( pObj2 )
+            pObj2->computeEphemeris ( coords );
+        
+        // Save the current value into the old value, then find
+        // the value of the event function at the current time.
+
+        if ( ! isinf ( curVal ) )
+            oldVal = curVal;
+            
+        curVal = func ( coords, pObj1, pObj2 );
+        
+        // If we have an old and current, and new value, see if we have a minimum
+        // or maximum bracketed between the old, current, and new times. If so,
+        // call this method recursively to search the interval between those times
+        // with a search step 10x smaller, until the step is less than 1 second.
+        // When we reach that precision, save the time and value, and return.
+
+        if ( ! isinf ( oldVal ) && ! isinf ( curVal ) )
+        {
+            if ( ( below && ( curVal >= target && oldVal < target ) )
+            || ( ! below && ( curVal <= target && oldVal > target ) ) )
+            {
+                if ( step < 1.0 / SSTime::kSecondsPerDay )
+                {
+                    SSEventTime event = { time, curVal };
+                    events.push_back ( event );
+                    return;
+                }
+                else
+                {
+                    findEqualityEvents ( coords, pObj1, pObj2, time - step, time, step / 10.0, below, target, func, events, maxEvents );
+                }
+            }
+        }
+    }
 }
 
-void SSEvent::findOppositions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+void SSEvent::findConjunctions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events, int maxEvents )
 {
-    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, false, 0.0, object_separation, events );
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, true, INFINITY, object_separation, events, maxEvents );
 }
 
-void SSEvent::findNearestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+void SSEvent::findOppositions ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events, int maxEvents )
 {
-    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, true, INFINITY, object_distance, events );
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, false, 0.0, object_separation, events, maxEvents );
 }
 
-void SSEvent::findFarthestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events )
+void SSEvent::findNearestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events, int maxEvents )
 {
-    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, false, 0.0, object_distance, events );
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, true, INFINITY, object_distance, events, maxEvents );
+}
+
+void SSEvent::findFarthestDistances ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr pObj2, SSTime start, SSTime stop, vector<SSEventTime> &events, int maxEvents )
+{
+    findEvents ( coords, pObj1, pObj2, start, stop, 1.0, false, 0.0, object_distance, events, maxEvents );
+}
+
+// Searches for satellite passes seen from a location (coords) between two Julian dates (start to stop).
+// Passes start when satellite's apparent altitude rises above a minimum threshold (minAlt) in radians;
+// passes end when satellite's elevation falls below that threshold.  Peak elevation and time thereof are
+// also recorded in each pass's transit struct. The method returns the total number of passes found, and
+// returns all pass circumstances in the vector of SSPass structs.
+// After return, both coords and pObj will be restored to their original states.
+
+int SSEvent::findSatellitePasses2 ( SSCoordinates &coords, SSObjectPtr pSat, SSTime start, SSTime stop, double minAlt, vector<SSPass> &passes, int maxPasses )
+{
+    SSTime  savetime = coords.getTime();
+    
+    while ( true )
+    {
+        // First search for the next satellite rising. Save satellite horizon coords at end of search. Quit if we find none.
+        
+        vector<SSEventTime> risings;
+        findEqualityEvents ( coords, pSat, nullptr, start, stop, 1.0 / SSTime::kMinutesPerDay, true, minAlt, object_altitude, risings, 1 );
+        SSSpherical risingCoords = coords.transform ( kFundamental, kHorizon, pSat->getDirection() );
+        if ( risings.size() == 0 )
+            break;
+
+        // Now search for the next satellite setting, within 1 day after the rising time. Save satellite horizon coords at end of search. Quit if we find none.
+        
+        vector<SSEventTime> settings;
+        findEqualityEvents ( coords, pSat, nullptr, risings[0].time, risings[0].time + 1.0, 1.0 / SSTime::kMinutesPerDay, false, minAlt, object_altitude, settings, 1 );
+        SSSpherical settingCoords = coords.transform ( kFundamental, kHorizon, pSat->getDirection() );
+        if ( settings.size() == 0 )
+            break;
+        
+        // Finally search for the next transit time after rising but before setting. Save satellite horizon coords at end of search. Quit if we find none.
+        
+        vector<SSEventTime> transits;
+        findEvents ( coords, pSat, nullptr, risings[0].time, settings[0].time, ( settings[0].time - risings[0].time ) / 10.0, false, minAlt, object_altitude, transits, 1 );
+        SSSpherical transitCoords = coords.transform ( kFundamental, kHorizon, pSat->getDirection() );
+        if ( transits.size() == 0.0 )
+            break;
+        
+        // We found a complete pass!
+        
+        SSPass pass;
+        
+        pass.rising.time = risings[0].time;
+        pass.rising.azm = risingCoords.lon;
+        pass.rising.alt = risingCoords.lat;
+        
+        pass.transit.time = transits[0].time;
+        pass.transit.azm = transitCoords.lon;
+        pass.transit.alt = transitCoords.lat;
+
+        pass.setting.time = settings[0].time;
+        pass.setting.azm = settingCoords.lon;
+        pass.setting.alt = settingCoords.lat;
+
+        // Save and add to pass vector.  Quit if we've saved max desired number of passes.
+        // Otherwise start search for next satellite rising when satellite sets in current pass.
+        
+        passes.push_back ( pass );
+        if ( passes.size() >= maxPasses )
+            break;
+        
+        start = pass.setting.time;
+    }
+
+    // Reset original time and restore satellite's original ephemeris
+    
+    coords.setTime ( savetime );
+    pSat->computeEphemeris ( coords );
+
+    return (int) passes.size();
 }
