@@ -25,12 +25,12 @@ Here an example in C++:
 In Java, it becomes the following:
  
     JSSTime now = JSSTime.fromSystem();
-    double jed = now.getJulianEphemerisDate());
+    double jed = now.getJulianEphemerisDate();
  
 which look like this in Kotlin:
  
-    let now = JSSTimeFromSystem()
-    let jed = JSSTimeGetJulianEphemerisDate ( now )
+    let now = JSSTime.fromSystem()
+    let jed = now.getJulianEphemerisDate()
 
 A few trivial methods are implemented directly in Java, where the overhead of passing data back-and-forth through JNI would be greater than the slowdown introduced by the java runtime. **JSSVector.java** contains some good examples.  For the most part, the Java SSCore API is closer to the original C++ API than the C wrapper API needed for the Swift iOS test app.
 
