@@ -6,7 +6,7 @@ This is the SSCore test app for Android. It includes Java wrappers and JNI code 
 Building and Running
 --------------------
 
-Open the **SSTest/Android** project with Android Studio 3.6 or later. Wait a minute for Gradle sync to complete. Then from the **Build** menu, select **Make Project.** After the build completes, go to the **Run** menu and select **Debug 'sstest'**. This will launch a test program in the Android Emulator or on your device, if you have one connected.  There is no GUI, just text output.
+Open the **SSTest/Android** project with Android Studio 3.6 or later. You will also need the Android [Native Development Kit](https://developer.android.com/ndk) r20 or later installed in order to compile the C++ code. After opening the SSTest Android Studio project, wait a minute for Gradle sync to complete. Then from the **Build** menu, select **Make Project.** After the build completes, go to the **Run** menu and select **Debug 'sstest'**. This will launch a test program in the Android Emulator or on your device, if you have one connected.  There is no GUI, just text output.
 
 Selected files from the **SSData** folder are copied into the Android SSTest app APK **assets** directory as part of the build process (see **sstest/build.gradle**). Several of the tests read files from this folder, so they needs to be copied to the APK. Functions for reading files in the assets folder from native code using the Android Asset Manager are in **sstest/src/main/jni/JNIUtilities.cpp**.
 
@@ -29,8 +29,8 @@ In Java, it becomes the following:
  
 which look like this in Kotlin:
  
-    let now = CSSTimeFromSystem()
-    let jed = CSSTimeGetJulianEphemerisDate ( now )
+    let now = JSSTimeFromSystem()
+    let jed = JSSTimeGetJulianEphemerisDate ( now )
 
 A few trivial methods are implemented directly in Java, where the overhead of passing data back-and-forth through JNI would be greater than the slowdown introduced by the java runtime. **JSSVector.java** contains some good examples.  For the most part, the Java SSCore API is closer to the original C++ API than the C wrapper API needed for the Swift iOS test app.
 
