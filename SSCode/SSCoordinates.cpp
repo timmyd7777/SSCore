@@ -7,9 +7,7 @@
 #include "SSCoordinates.hpp"
 #include "SSPlanet.hpp"
 
-#ifndef max
-#define max(x,y) (x>y?x:y)
-#endif
+#define NEW_PRECESSION 1    // 1 to use new long-term precession, 0 to use IAU 1976 precession.
 
 // Constructs a coordinate transformation object for a specific Julian Date (time),
 // geographic longitude (loc.lon), latitude (loc.lat), and altitude (loc.rad).
@@ -130,8 +128,6 @@ double SSCoordinates::getObliquity ( double jd )
 // Returns a rotation matrix for transforming rectangular coordinates from the
 // fundamental J2000 mean equatorial frame to the precessed equatorial frame
 // at the specified epoch (expressed as a Julian Date, jd). Does not include nutation!
-
-#define NEW_PRECESSION 1
 
 #if NEW_PRECESSION
 
@@ -282,6 +278,12 @@ SSVector getEquatorPoleVector ( double jed )
     return SSVector ( x, y, z );
 }
 
+// From "New precession expressions, valid for long time intervals",
+// J. Vondrak, N. Capitaine, and P. Wallace, Astronomy & Astrophysics 534, A22 (2011)
+// Accuracy comparable to IAU 2006 precession model around the central epoch J2000.0,
+// a few arcseconds throughout the historical period, and a few tenths of a degree
+// at the ends of the +/-200 millennia time span.
+
 SSMatrix SSCoordinates::getPrecessionMatrix ( double jed )
 {
     SSVector vec = getEclipticPoleVector ( jed );
@@ -296,6 +298,10 @@ SSMatrix SSCoordinates::getPrecessionMatrix ( double jed )
 }
 
 #else
+
+// IAU 1976 expression for precession, from Jean Meeus,
+// "Astronomical Algorithms", ch. 21, p 134.
+// Valid only for a few centuries around the basic epoch, J2000.0.
 
 SSMatrix SSCoordinates::getPrecessionMatrix ( double jd )
 {
@@ -508,12 +514,12 @@ SSAngle SSCoordinates::refractionAngle ( SSAngle alt, bool a )
     
     if ( a == true )
     {
-        h = max ( alt.toDegrees(), -1.9 );
+        h = maximum ( alt.toDegrees(), -1.9 );
         r = 1.02 / tan ( SSAngle::fromDegrees ( h + ( 10.3 / ( h + 5.11 ) ) ) );
     }
     else
     {
-        h = max ( alt.toDegrees(), -1.7 );
+        h = maximum ( alt.toDegrees(), -1.7 );
         r = 1.0 / tan ( SSAngle::fromDegrees ( h + ( 7.31 / ( h + 4.4 ) ) ) );
     }
     

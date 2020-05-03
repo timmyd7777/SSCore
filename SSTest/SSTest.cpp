@@ -532,6 +532,15 @@ void TestVSOP2013 ( const string &datadir )
     cout << endl;
 }
 
+void TestPrecession ( void )
+{
+    SSMatrix p = SSCoordinates::getPrecessionMatrix ( 1219339.078000 );
+    
+    printf ( "%+.12f %+.12f %+.12f\n", p.m00, p.m01, p.m02 );
+    printf ( "%+.12f %+.12f %+.12f\n", p.m10, p.m11, p.m12 );
+    printf ( "%+.12f %+.12f %+.12f\n", p.m20, p.m21, p.m22 );
+}
+
 // Android redirects stdout & stderr output to /dev/null. This uses Android logging functions to send
 // output to logcat. From https://stackoverflow.com/questions/8870174/is-stdcout-usable-in-android-ndk
 
@@ -619,13 +628,15 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
+
     TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
     TestVSOP2013 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/" );
     TestEphemeris ( inpath, outpath );
-//    TestSatellites ( inpath, outpath );
-//    TestJPLDEphemeris ( inpath );
-//    TestSolarSystem ( inpath, outpath );
-//    TestConstellations ( inpath, outpath );
+//  TestPrecession();
+//  TestSatellites ( inpath, outpath );
+//  TestJPLDEphemeris ( inpath );
+//  TestSolarSystem ( inpath, outpath );
+//  TestConstellations ( inpath, outpath );
     TestStars ( inpath, outpath );
     TestDeepSky ( inpath, outpath );
 /*

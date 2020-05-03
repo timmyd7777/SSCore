@@ -7,6 +7,9 @@
 // This class converts rectangular and spherical coordinates between different astronomical reference frames
 // at a particular time and geographic location. It also handles precession, nutation, aberration, refraction,
 // and other coordinate-related issues.
+// Includes new expressions for precession, valid for +/- 200,000 years from the present time,
+// translated from Fortran code in "New precession expressions, valid for long time intervals",
+// by J. Vondrak, N. Capitaine, and P. Wallace, Astronomy & Astrophysics 534, A22 (2011)
 
 #ifndef SSCoordinates_hpp
 #define SSCoordinates_hpp
