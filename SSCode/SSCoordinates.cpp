@@ -114,17 +114,6 @@ void SSCoordinates::getNutationConstants ( double jd, double &de, double &dl )
     de = SSAngle::fromArcsec (   9.20 * cn + 0.57 * c2l + 0.10 * c2l1 - 0.09 * c2n );
 }
 
-// Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
-// planes) at any epoch (expressed as a Julian Date) from 1600 to 2100.  Does not include nutation!
-
-double SSCoordinates::getObliquity ( double jd )
-{
-    double t = ( jd - SSTime::kJ2000 ) / 36525.0;
-    double e = 23.439291 + t * ( -0.0130042 + t * ( -0.00000016 + t * 0.000000504 ) );
-      
-    return SSAngle::fromDegrees ( e );
-}
-
 // Returns a rotation matrix for transforming rectangular coordinates from the
 // fundamental J2000 mean equatorial frame to the precessed equatorial frame
 // at the specified epoch (expressed as a Julian Date, jd). Does not include nutation!
@@ -297,6 +286,17 @@ SSMatrix SSCoordinates::getPrecessionMatrix ( double jed )
                       veq.x, veq.y, veq.z );
 }
 
+// Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
+// planes) in radians, at any epoch (expressed as a Julian Ephemeris Date) from years -200,000 to +200,000.
+
+double SSCoordinates::getObliquity ( double jed )
+{
+    SSVector vec = getEclipticPoleVector ( jed );
+    SSVector veq = getEquatorPoleVector ( jed );
+
+    return vec.angularSeparation ( veq );
+}
+
 #else
 
 // IAU 1976 expression for precession, from Jean Meeus,
@@ -308,6 +308,17 @@ SSMatrix SSCoordinates::getPrecessionMatrix ( double jd )
     double zeta = 0.0, z = 0.0, theta = 0.0;
     getPrecessionConstants ( jd, zeta, z, theta );
     return SSMatrix::rotation ( 3, 2, zeta, 1, theta, 2, z );
+}
+
+// Computes the mean obliquity of the ecliptic (i.e. angle between Earth's equatorial and orbital
+// planes) at any epoch (expressed as a Julian Date) from 1600 to 2100.  Does not include nutation!
+
+double SSCoordinates::getObliquity ( double jd )
+{
+    double t = ( jd - SSTime::kJ2000 ) / 36525.0;
+    double e = 23.439291 + t * ( -0.0130042 + t * ( -0.00000016 + t * 0.000000504 ) );
+      
+    return SSAngle::fromDegrees ( e );
 }
 
 #endif
