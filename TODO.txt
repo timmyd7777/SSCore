@@ -12,8 +12,7 @@ SSCoords
 
 SSEvent
 --------
-- write second generic event-finding function to find zero-crossings;
-- rewrite satellite pass finder to use generic functions.
+- write C wrapper, JNI
 
 SSConstellation
 ---------------

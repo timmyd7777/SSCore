@@ -131,12 +131,180 @@ double SSCoordinates::getObliquity ( double jd )
 // fundamental J2000 mean equatorial frame to the precessed equatorial frame
 // at the specified epoch (expressed as a Julian Date, jd). Does not include nutation!
 
+#define NEW_PRECESSION 1
+
+#if NEW_PRECESSION
+
+SSVector getEclipticPoleVector ( double jed )
+{
+    // Polynomials
+    
+    static double pqpol[2][4] =
+    {
+        { +5851.607687, -0.1189000, -0.00028913, +0.000000101 },
+        { -1600.886300, +1.1689818, -0.00000020, -0.000000437 }
+    };
+
+    // Periodics
+    
+    static double pqper[8][5] =
+    {
+        {  708.15, -5486.751211, -684.661560,   667.666730, -5523.863691 },
+        { 2309.00,   -17.127623, 2446.283880, -2354.886252,  -549.747450 },
+        { 1620.00,  -617.517403,  399.671049,  -428.152441,  -310.998056 },
+        {  492.20,   413.442940, -356.652376,   376.202861,   421.535876 },
+        { 1183.00,    78.614193, -186.387003,   184.778874,   -36.776172 },
+        {  622.00,  -180.732815, -316.800070,   335.321713,  -145.278396 },
+        {  882.00,   -87.676083,  198.296071,  -185.138669,   -34.744450 },
+        {  547.00,    46.140315,  101.135679,  -120.972830,    22.885731 }
+    };
+    
+    // Obliquity at J2000.0 (radians)
+    
+    static double eps0 = 84381.406 * SSAngle::kRadPerArcsec;
+
+    // centuries since J2000
+    
+    double t = ( jed - SSTime::kJ2000 ) / 36525.0;
+    
+    // initialize P_A and Q_A accumulators
+    
+    double p = 0.0, q = 0.0;
+    
+    // Periodic terms.
+    
+    for ( int i = 0; i < 8; i++ )
+    {
+        double w = SSAngle::kTwoPi * t;
+        double a = w / pqper[i][0];
+        double s = sin ( a );
+        double c = cos ( a );
+        p += c * pqper[i][1] + s * pqper[i][3];
+        q += c * pqper[i][2] + s * pqper[i][4];
+    }
+    
+    // Polynomial terms.
+    
+    double w = 1.0;
+    for ( int i = 0; i < 4; i++ )
+    {
+        p += pqpol[0][i] * w;
+        q += pqpol[1][i] * w;
+        w *= t;
+    }
+    
+    // P_A and Q_A (radians).
+    
+    p *= SSAngle::kRadPerArcsec;
+    q *= SSAngle::kRadPerArcsec;
+    
+    // Form the ecliptic pole vector.
+    
+    double z = 1.0 - p * p - q * q;
+    z = z > 0.0 ? sqrt ( z ) : 0.0;
+
+    double s = sin ( eps0 );
+    double c = cos ( eps0 );
+    
+    return SSVector ( p, - q * c - z * s, -q * s + z * c );
+}
+
+SSVector getEquatorPoleVector ( double jed )
+{
+    // Polynomials
+    
+    static double xypol[2][4] =
+    {
+        {  +5453.282155, +0.4252841, -0.00037173, -0.000000152 },
+        { -73750.930350, -0.7675452, -0.00018725, +0.000000231 }
+    };
+
+    // Periodics
+    
+    static double xyper[14][5] =
+    {
+        {  256.75,  -819.940624, 75004.344875,  81491.287984,   1558.515853 },
+        {  708.15, -8444.676815,   624.033993,    787.163481,   7774.939698 },
+        {  274.20,  2600.009459,  1251.136893,   1251.296102,  -2219.534038 },
+        {  241.45,  2755.175630, -1102.212834,  -1257.950837,  -2523.969396 },
+        { 2309.00,  -167.659835, -2660.664980,  -2966.799730,    247.850422 },
+        {  492.20,   871.855056,   699.291817,    639.744522,   -846.485643 },
+        {  396.10,    44.769698,   153.167220,    131.600209,  -1393.124055 },
+        {  288.90,  -512.313065,  -950.865637,   -445.040117,    368.526116 },
+        {  231.10,  -819.415595,   499.754645,    584.522874,    749.045012 },
+        { 1610.00,  -538.071099,  -145.188210,    -89.756563,    444.704518 },
+        {  620.00,  -189.793622,   558.116553,    524.429630,    235.934465 },
+        {  157.87,  -402.922932,   -23.923029,    -13.549067,    374.049623 },
+        {  220.30,   179.516345,  -165.405086,   -210.157124,   -171.330180 },
+        { 1200.00,    -9.814756,     9.344131,    -44.919798,    -22.899655 }
+    };
+    
+    // centuries since J2000
+    
+    double t = ( jed - SSTime::kJ2000 ) / 36525.0;
+    
+    // initialize X and Y accumulators
+    
+    double x = 0.0, y = 0.0;
+    
+    // Periodic terms.
+    
+    for ( int i = 0; i < 14; i++ )
+    {
+        double w = SSAngle::kTwoPi * t;
+        double a = w / xyper[i][0];
+        double s = sin ( a );
+        double c = cos ( a );
+        x += c * xyper[i][1] + s * xyper[i][3];
+        y += c * xyper[i][2] + s * xyper[i][4];
+    }
+    
+    // Polynomial terms.
+    
+    double w = 1.0;
+    for ( int i = 0; i < 4; i++ )
+    {
+        x += xypol[0][i] * w;
+        y += xypol[1][i] * w;
+        w *= t;
+    }
+    
+    // X and Y (direction cosines).
+    
+    x *= SSAngle::kRadPerArcsec;
+    y *= SSAngle::kRadPerArcsec;
+    
+    // Form the equator pole vector.
+    
+    double z = x * x + y * y;
+    z = z < 1.0 ? sqrt ( 1.0 - z ) : 0.0;
+
+    return SSVector ( x, y, z );
+}
+
+SSMatrix SSCoordinates::getPrecessionMatrix ( double jed )
+{
+    SSVector vec = getEclipticPoleVector ( jed );
+    SSVector veq = getEquatorPoleVector ( jed );
+    
+    SSVector eqx = veq.crossProduct ( vec ).normalize();
+    SSVector mid = veq.crossProduct ( eqx );
+    
+    return SSMatrix ( eqx.x, eqx.y, eqx.z,
+                      mid.x, mid.y, mid.z,
+                      veq.x, veq.y, veq.z );
+}
+
+#else
+
 SSMatrix SSCoordinates::getPrecessionMatrix ( double jd )
 {
     double zeta = 0.0, z = 0.0, theta = 0.0;
     getPrecessionConstants ( jd, zeta, z, theta );
     return SSMatrix::rotation ( 3, 2, zeta, 1, theta, 2, z );
 }
+
+#endif
 
 // Returns a rotation matrix which corrects equatorial coordinates for nutation,
 // i.e. transforming rectangular coordinates from the mean to the true equatorial frame.
