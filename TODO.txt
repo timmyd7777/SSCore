@@ -8,7 +8,6 @@ SSAngle
 SSCoords
 --------
 - hide all public member variables and make accessors.
-- implement long-term precession algorithm; update to IAU 2006 precession.
 
 SSEvent
 --------
