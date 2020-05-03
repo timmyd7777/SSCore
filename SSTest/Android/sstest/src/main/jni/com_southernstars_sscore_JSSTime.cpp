@@ -10,7 +10,6 @@ jobject SSTimeToJSSTime ( JNIEnv *pEnv, const SSTime &time )
     {
         SetDoubleField ( pEnv, pJSSTime, "jd", time.jd );
         SetDoubleField ( pEnv, pJSSTime, "zone", time.zone );
-        SetIntField ( pEnv, pJSSTime, "calendar", time.calendar );
     }
 
     return pJSSTime;
@@ -20,11 +19,9 @@ SSTime JSSTimeToSSTime ( JNIEnv *pEnv, jobject pJSSTime )
 {
     double jd = GetDoubleField ( pEnv, pJSSTime, "jd" );
     double zone = GetDoubleField ( pEnv, pJSSTime, "zone" );
-    int calendar = GetIntField ( pEnv, pJSSTime, "calendar" );
 
-    return SSTime ( jd, zone, (SSCalendar) calendar );
+    return SSTime ( jd, zone );
 }
-
 
 /*
  * Class:     com_southernstars_sscore_JSSTime

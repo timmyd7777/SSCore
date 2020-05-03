@@ -90,34 +90,6 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
 #else
     computePSPlanetMoonPositionVelocity ( id, jed, lt, pos, vel );
 #endif
-    
-#if 0
-    static SSMatrix orbMat = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
-    SSOrbit orb;
-    
-    if ( id == kMercury )
-        orb = SSOrbit::getMercuryOrbit ( jed - lt );
-    else if ( id == kVenus )
-        orb = SSOrbit::getVenusOrbit ( jed - lt );
-    else if ( id == kEarth )
-        orb = SSOrbit::getEarthOrbit ( jed - lt );
-    else if ( id == kMars )
-        orb = SSOrbit::getMarsOrbit ( jed - lt );
-    else if ( id == kJupiter )
-        orb = SSOrbit::getJupiterOrbit ( jed - lt );
-    else if ( id == kSaturn )
-        orb = SSOrbit::getSaturnOrbit ( jed - lt );
-    else if ( id == kUranus )
-        orb = SSOrbit::getUranusOrbit ( jed - lt );
-    else if ( id == kNeptune )
-        orb = SSOrbit::getNeptuneOrbit ( jed - lt );
-    else if ( id == kPluto )
-        orb = SSOrbit::getPlutoOrbit ( jed - lt );
-
-    orb.toPositionVelocity ( jed - lt, pos, vel );
-    pos = orbMat.multiply ( pos );
-    vel = orbMat.multiply ( vel );
-#endif
 }
 
 void SSPlanet::computePSPlanetMoonPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )

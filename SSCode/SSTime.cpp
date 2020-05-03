@@ -29,16 +29,16 @@ SSDate::SSDate ( SSCalendar calendar, double zone, int year, short month, double
 }
 
 // Constructs a local calendar date/time from an SSTime object representing a moment in time as a Julian Date.
-// The SSTime object specifies the calendar system and local time zone used for converting to calendar date/time.
+// The SSTime object specifies the local time zone used for converting to calendar date/time.
 // From Jean Meeus, "Astronomical Algorithms", ch. 7, pp. 63-64.
 
-SSDate::SSDate ( SSTime time )
+SSDate::SSDate ( SSTime time, SSCalendar cal )
 {
     double    j = time.jd + 0.5 + time.zone / 24.0;
     int       z = floor ( j ), a = 0;
     double    f = j - z;
     
-    if ( time.calendar == kGregorian )
+    if ( cal == kGregorian )
     {
         a = ( z - 1867216.25 ) / 36524.25;
         a = z + 1 + a - a / 4;
@@ -69,13 +69,13 @@ SSDate::SSDate ( SSTime time )
     min = f * 1440.0 - hour * 60.0;
     sec = f * 86400.0 - hour * 3600.0 - min * 60.0;
 
-    calendar = time.calendar;
+    calendar = cal;
     zone = time.zone;
 }
 
 // Returns an SSDate object representing the calendar date that corresponds
-// to the Julian date in the provided SSTime object, using the calendar system
-// and time zone stored in the SSTime object.
+// to the Julian date in the provided SSTime object, using the time zone
+// stored in the SSTime object.
 
 SSDate SSDate::fromJulianDate ( SSTime time )
 {
@@ -107,42 +107,28 @@ string SSDate::format ( const string &fmt )
     return string ( str );
 }
 
-// Constructs a time with default values of 1.5 Jan 2000 UTC in the Gregorian calendar.
+// Constructs a time with default values of 1.5 Jan 2000 UTC.
 
 SSTime::SSTime ( void )
 {
     jd = kJ2000;
     zone = 0.0;
-    calendar = kGregorian;
 }
 
-// Constructs a time from a specific Julian date in UTC and the Gregorian calendar.
+// Constructs a time from a specific Julian date in UTC.
 
 SSTime::SSTime ( double jd )
 {
     this->jd = jd;
     this->zone = 0.0;
-    this->calendar = kGregorian;
 }
 
-// Constructs a time from a specific Julian date and time zone in hours east of Greenwich,
-// and the Gregorian calendar.
+// Constructs a time from a specific Julian date and time zone in hours east of Greenwich.
 
 SSTime::SSTime ( double jd, double zone )
 {
     this->jd = jd;
     this->zone = zone;
-    this->calendar = kGregorian;
-}
-
-// Constructs a time from a specific Julian date and time zone in hours east of Greenwich,
-// in a specific calendar system.
-
-SSTime::SSTime ( double jd, double zone, SSCalendar cal )
-{
-    this->jd = jd;
-    this->zone = zone;
-    this->calendar = cal;
 }
 
 // Constructs a time from an SSDate object represeting a local calendar date/time.
@@ -168,7 +154,6 @@ SSTime::SSTime ( SSDate date )
 
     jd = floor ( 365.25 * ( date.year + 4716 ) ) + floor ( 30.6001 * ( date.month + 1 ) ) + date.day + b - 1524.5;
     zone = date.zone;
-    calendar = date.calendar;
 }
 
 // Constructs a time from the computer system time; the local time zone is also read from the system.
@@ -429,5 +414,5 @@ SSAngle SSTime::getSiderealTime ( SSAngle lon )
 SSTime SSTime::getLocalMidnight ( void )
 {
     double jd0 = floor ( jd - 0.5 + zone / 24.0 ) + 0.5 - zone / 24.0;
-    return SSTime ( jd0, zone, calendar );
+    return SSTime ( jd0, zone );
 }

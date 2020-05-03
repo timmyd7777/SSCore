@@ -5,10 +5,6 @@ SSAngle
 --------
 - split into separate files for SSDegMinSec, SSHourMinSec, SSAngle
 
-SSCoordinates
---------
-- hide all public member variables and make accessors.
-
 SSEvent
 --------
 - write C wrapper, JNI
@@ -44,10 +40,7 @@ SSObject
 - implement polymorphism correctly: add virtual functions for all of the accessors
   and modifiers unique to subclasses; remove downcasting functions. This will have
   big ripple effect but result in simpler code.
-  
-SSPlanet
---------
-- Move #ifedf'd out code in computeMajorPlanetPositionVelocity to SSOrbit?
+
 
 SSStar
 ------
@@ -65,7 +58,6 @@ SSTLE
 SSTime
 ------
 - split into separate files for SSDate and SSTime
-- remove calendar from SSTime?
 - add Moslem and Jewish calendars
 
 SSVector

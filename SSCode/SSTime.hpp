@@ -42,7 +42,7 @@ struct SSDate
     double sec;            // seconds of minute including fractional part; 0 to 59.999...
     
     SSDate ( SSCalendar calendar, double zone, int year, short month, double day, short hour, short min, double sec );
-    SSDate ( SSTime time );
+    SSDate ( SSTime time, SSCalendar calendar = kGregorian );
 
     static SSDate fromJulianDate ( SSTime time );
     SSTime toJulianDate ( void );
@@ -57,7 +57,6 @@ struct SSTime
 {
     double        jd;              // Julian date in civil time (NOT epehemeris time!)
     double        zone;            // Local time zone, hours east of Greenwich
-    SSCalendar    calendar;        // Calendar system to use for converting to calendar date/time
 
     static constexpr double kJ2000 = 2451545.0;      // JD of standard Julian epoch J2000
     static constexpr double kJ1970 = 2440587.5;      // JD of standard UNIX time base 1.0 January 1970 UTC
@@ -80,10 +79,10 @@ struct SSTime
     
     // These operators preserve the time zone whem adding a time interval in days to an SSTime.
     
-    SSTime operator + ( double k ) { return SSTime ( jd + k, zone, calendar ); }
-    SSTime operator - ( double k ) { return SSTime ( jd - k, zone, calendar ); }
-    SSTime operator * ( double k ) { return SSTime ( jd * k, zone, calendar ); }
-    SSTime operator / ( double k ) { return SSTime ( jd / k, zone, calendar ); }
+    SSTime operator + ( double k ) { return SSTime ( jd + k, zone ); }
+    SSTime operator - ( double k ) { return SSTime ( jd - k, zone ); }
+    SSTime operator * ( double k ) { return SSTime ( jd * k, zone ); }
+    SSTime operator / ( double k ) { return SSTime ( jd / k, zone ); }
 
     void operator += ( double k ) { jd += k; }
     void operator -= ( double k ) { jd -= k; }
@@ -93,7 +92,6 @@ struct SSTime
     SSTime ( void );
     SSTime ( double jd );
     SSTime ( double jd, double zone );
-    SSTime ( double jd, double zone, SSCalendar cal );
     SSTime ( SSDate date );
     
     static SSTime fromSystem ( void );

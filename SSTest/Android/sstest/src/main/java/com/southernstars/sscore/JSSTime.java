@@ -6,7 +6,6 @@ public class JSSTime
 {
     public double  jd;              // Julian date in civil time (NOT epehemeris time!)
     public double  zone;            // Local time zone to use for converting to local calendar date/time, hours east of Greenwich
-    public int     calendar;        // Calendar system to use for converting to calendar date/time
 
     public static double kJ2000 = 2451545.0;      // JD of standard Julian epoch J2000
     public static double kJ1970 = 2440587.5;      // JD of standard UNIX time base 1.0 January 1970 UTC
@@ -27,28 +26,18 @@ public class JSSTime
     {
         jd = 0.0;
         zone = 0.0;
-        calendar = JSSDate.kGregorian;
     }
 
     public JSSTime ( double j )
     {
         jd = jd;
         zone = 0.0;
-        calendar = JSSDate.kGregorian;
     }
 
     public JSSTime ( double j, double z )
     {
         jd = j;
         zone = z;
-        calendar = JSSDate.kGregorian;
-    }
-
-    public JSSTime ( double j, double z, int c )
-    {
-        jd = j;
-        zone = z;
-        calendar = c;
     }
 
     public native static JSSTime fromCalendarDate ( JSSDate date );

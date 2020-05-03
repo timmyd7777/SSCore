@@ -20,7 +20,7 @@
 
 CSSDate CSSTimeToCSSDate ( CSSTime ctime )
 {
-    SSDate date ( SSTime ( ctime.jd, ctime.zone, (SSCalendar) ctime.calendar ) );
+    SSDate date ( SSTime ( ctime.jd, ctime.zone ) );
     CSSDate cdate = { date.calendar, date.zone, date.year, date.month, date.day, date.hour, date.min, date.sec };
     return cdate;
 }
@@ -28,42 +28,42 @@ CSSDate CSSTimeToCSSDate ( CSSTime ctime )
 CSSTime CSSDateToCSSTime ( CSSDate cdate )
 {
     SSTime time ( SSDate ( (SSCalendar) cdate.calendar, cdate.zone, cdate.year, cdate.month, cdate.day, cdate.hour, cdate.min, cdate.sec ) );
-    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    CSSTime ctime = { time.jd, time.zone };
     return ctime;
 }
 
 CSSTime CSSTimeFromSystem ( void )
 {
     SSTime now = SSTime::fromSystem();
-    CSSTime cnow = { now.jd, now.zone, now.calendar };
+    CSSTime cnow = { now.jd, now.zone };
     return cnow;
 }
 
 CSSTime CSSTimeFromCalendarDate ( CSSDate cdate )
 {
     SSTime time ( SSDate ( (SSCalendar) cdate.calendar, cdate.zone, cdate.year, cdate.month, cdate.day, cdate.hour, cdate.min, cdate.sec ) );
-    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    CSSTime ctime = { time.jd, time.zone };
     return ctime;
 }
 
 CSSTime CSSTimeFromUnixTime ( time_t utime )
 {
     SSTime time = SSTime::fromUnixTime ( utime );
-    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    CSSTime ctime = { time.jd, time.zone };
     return ctime;
 }
 
 CSSTime CSSTimeFromJulianYear ( double year )
 {
     SSTime time = SSTime::fromJulianYear ( year );
-    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    CSSTime ctime = { time.jd, time.zone };
     return ctime;
 }
 
 CSSTime CSSTimeFromBesselianYear ( double year )
 {
     SSTime time = SSTime::fromBesselianYear ( year );
-    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    CSSTime ctime = { time.jd, time.zone };
     return ctime;
 }
 
@@ -399,7 +399,7 @@ CSSMatrix CSSMatrixRotate ( CSSMatrix cmat, int axis, double angle )
 
 CSSCoordinates *CSSCoordinatesCreate ( CSSTime ctime, CSSSpherical loc )
 {
-    SSTime time ( ctime.jd, ctime.zone, (SSCalendar) ctime.calendar );
+    SSTime time ( ctime.jd, ctime.zone );
     SSCoordinates *pCoords = new SSCoordinates ( time, CSSSphericalToSSSpherical ( loc ) );
     return (CSSCoordinates *) pCoords;
 }
@@ -412,7 +412,7 @@ void CSSCoordinatesDestroy ( CSSCoordinates *pCCoords )
 
 void CSSCoordinatesSetTime ( CSSCoordinates *pCCoords, CSSTime ctime )
 {
-    SSTime time ( ctime.jd, ctime.zone, (SSCalendar) ctime.calendar );
+    SSTime time ( ctime.jd, ctime.zone );
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     if ( pCoords )
         pCoords->setTime ( time );
@@ -432,7 +432,7 @@ CSSTime CSSCoordinatesGetTime ( CSSCoordinates *pCCoords )
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     if ( pCoords )
         time = pCoords->getTime();
-    CSSTime ctime = { time.jd, time.zone, time.calendar };
+    CSSTime ctime = { time.jd, time.zone };
     return ctime;
 }
 
