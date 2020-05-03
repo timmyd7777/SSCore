@@ -25,6 +25,13 @@ CSSDate CSSTimeToCSSDate ( CSSTime ctime )
     return cdate;
 }
 
+CSSDate CSSTimeToCSSDate ( CSSTime ctime, int calendar )
+{
+    SSDate date ( SSTime ( ctime.jd, ctime.zone ), (SSCalendar) calendar );
+    CSSDate cdate = { date.calendar, date.zone, date.year, date.month, date.day, date.hour, date.min, date.sec };
+    return cdate;
+}
+
 CSSTime CSSDateToCSSTime ( CSSDate cdate )
 {
     SSTime time ( SSDate ( (SSCalendar) cdate.calendar, cdate.zone, cdate.year, cdate.month, cdate.day, cdate.hour, cdate.min, cdate.sec ) );

@@ -44,7 +44,6 @@ typedef struct CSSTime
 {
     double jd;          // Julian date in civil time (NOT epehemeris time!)
     double zone;        // Local time zone to use for converting to local calendar date/time, hours east of Greenwich
-    int    calendar;    // Calendar system to use for converting to calendar date/time
 }
 CSSTime;
 
@@ -61,7 +60,7 @@ typedef struct CSSDate
 }
 CSSDate;
 
-CSSDate CSSTimeToCSSDate ( CSSTime time );
+CSSDate CSSTimeToCSSDate ( CSSTime time, int calendar );
 CSSTime CSSDateToCSSTime ( CSSDate date );
 
 CSSTime CSSTimeFromSystem ( void );

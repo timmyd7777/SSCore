@@ -28,13 +28,13 @@ func test ( ) -> String
 {
     var str = "Hello, SSCore!\n"
 
-    // Get current time from system as Julian date, and convert fo calendar date
+    // Get current time from system as Julian date, and convert fo Gregorian calendar date
     // Get JED and Greenwich Sidereal Time
     
     let ctime = CSSTimeFromSystem()
-    let cdate = CSSTimeToCSSDate ( ctime )
-    let jed = CSSTimeGetJulianEphemerisDate ( ctime );
-    let gst = CSSTimeGetSiderealTime ( ctime, 0.0 );
+    let cdate = CSSTimeToCSSDate ( ctime, kSSGregorian )
+    let jed = CSSTimeGetJulianEphemerisDate ( ctime )
+    let gst = CSSTimeGetSiderealTime ( ctime, 0.0 )
     var hms = CSSHourMinSecFromRadians ( gst )
     
     // Print local date, time, time zone, JD, JED, GST
