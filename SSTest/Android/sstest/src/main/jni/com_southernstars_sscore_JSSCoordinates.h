@@ -65,6 +65,86 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setLocation
 
 /*
  * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getObserverPosition
+ * Signature: ()Lcom/southernstars/sscore/JSSVector;
+ */
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSCoordinates_getObserverPosition
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getObserverVelocity
+ * Signature: ()Lcom/southernstars/sscore/JSSVector;
+ */
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSCoordinates_getObserverVelocity
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getStarParallax
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getStarParallax
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getStarMotion
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getStarMotion
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getAberration
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getAberration
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getLightTime
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getLightTime
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setStarParallax
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setStarParallax
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setStarMotion
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setStarMotion
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setAberration
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setAberration
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setLightTime
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setLightTime
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
  * Method:    getTime
  * Signature: ()Lcom/southernstars/sscore/JSSTime;
  */

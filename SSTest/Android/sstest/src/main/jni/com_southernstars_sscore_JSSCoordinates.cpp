@@ -81,6 +81,130 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSCoordinates_getLocati
 
 /*
  * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getObserverPosition
+ * Signature: ()Lcom/southernstars/sscore/JSSVector;
+ */
+
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSCoordinates_getObserverPosition ( JNIEnv *pEnv, jobject pJCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    return pCoords ? SSVectorToJSSVector ( pEnv, pCoords->getObserverPosition() ) : nullptr;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getObserverVelocity
+ * Signature: ()Lcom/southernstars/sscore/JSSVector;
+ */
+
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSCoordinates_getObserverVelocity ( JNIEnv *pEnv, jobject pJCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    return pCoords ? SSVectorToJSSVector ( pEnv, pCoords->getObserverVelocity() ) : nullptr;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getStarParallax
+ * Signature: ()Z
+ */
+
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getStarParallax ( JNIEnv *pEnv, jobject pJCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    return pCoords ? pCoords->getStarParallax() : false;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getStarMotion
+ * Signature: ()Z
+ */
+
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getStarMotion ( JNIEnv *pEnv, jobject pJCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    return pCoords ? pCoords->getStarMotion() : false;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getAberration
+ * Signature: ()Z
+ */
+
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getAberration ( JNIEnv *pEnv, jobject pJCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    return pCoords ? pCoords->getAberration() : false;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    getLightTime
+ * Signature: ()Z
+ */
+
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSCoordinates_getLightTime ( JNIEnv *pEnv, jobject pJCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    return pCoords ? pCoords->getLightTime() : false;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setStarParallax
+ * Signature: (Z)V
+ */
+
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setStarParallax ( JNIEnv *pEnv, jobject pJCoords, jboolean parallax )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    if ( pCoords )
+        pCoords->setStarParallax ( parallax );
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setStarMotion
+ * Signature: (Z)V
+ */
+
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setStarMotion ( JNIEnv *pEnv, jobject pJCoords, jboolean motion )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    if ( pCoords )
+        pCoords->setStarMotion ( motion );
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setAberration
+ * Signature: (Z)V
+ */
+
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setAberration ( JNIEnv *pEnv, jobject pJCoords, jboolean aberration )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    if ( pCoords )
+        pCoords->setAberration ( aberration );
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
+ * Method:    setLightTime
+ * Signature: (Z)V
+ */
+
+JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_setLightTime ( JNIEnv *pEnv, jobject pJCoords, jboolean lighttime )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
+    if ( pCoords )
+        pCoords->setLightTime ( lighttime );
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSCoordinates
  * Method:    getJED
  * Signature: ()D
  */

@@ -445,6 +445,76 @@ CSSSpherical CSSCoordinatesGetLocation ( CSSCoordinates *pCCoords )
     return CSSSphericalFromSSSpherical ( loc );
 }
 
+CSSVector CSSCoordinatesGetObserverPosition ( CSSCoordinates *pCCoords )
+{
+    SSVector pos;
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        pos = pCoords->getObserverPosition();
+    return CSSVectorFromSSVector ( pos );
+}
+
+CSSVector CSSCoordinatesGetObserverVelocity ( CSSCoordinates *pCCoords )
+{
+    SSVector vel;
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        vel = pCoords->getObserverVelocity();
+    return CSSVectorFromSSVector ( vel );
+}
+
+bool CSSCoordinatesGetStarParallax ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->getStarParallax() : false;
+}
+
+bool CSSCoordinatesGetStarMotion ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->getStarMotion() : false;
+}
+
+bool CSSCoordinatesGetAberration ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->getAberration() : false;
+}
+
+bool CSSCoordinatesGetLightTime ( CSSCoordinates *pCCoords )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    return pCoords ? pCoords->getLightTime() : false;
+}
+
+void CSSCoordinatesSetStarParallax ( CSSCoordinates *pCCoords, bool parallax )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        pCoords->setStarParallax ( parallax );
+}
+
+void CSSCoordinatesSetStarMotion ( CSSCoordinates *pCCoords, bool motion )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        pCoords->setStarMotion ( motion );
+}
+
+void CSSCoordinatesSetAberration ( CSSCoordinates *pCCoords, bool aberration )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        pCoords->setAberration ( aberration );
+}
+
+void CSSCoordinatesSetLightTime ( CSSCoordinates *pCCoords, bool lighttime )
+{
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    if ( pCoords )
+        pCoords->setLightTime ( lighttime );
+}
+
 double CSSCoordinatesGetJED ( CSSCoordinates *pCCoords )
 {
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;

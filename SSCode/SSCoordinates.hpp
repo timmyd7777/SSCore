@@ -54,16 +54,16 @@ protected:
     SSMatrix    _horMat;         // transforms from fundamental to current local horizon frame.
     SSMatrix    _galMat;         // transforms from fundamental to galactic frame
 
+    SSVector    _obsPos;         // observer's heliocentric position in fundamental J2000 equatorial frame (ICRS) [AU]
+    SSVector    _obsVel;         // observer's heliocentric velocity in fundamental J2000 equatorial frame (ICRS) [AU/day]
+
+    bool        _starParallax;   // flag to apply helioecntric parallax when computing star apparent directions; default true.
+    bool        _starMotion;     // flag to apply stellar space motion when computing star apparent directions; default true.
+    bool        _aberration;     // flag to apply aberration of light when computing all object's apparent directions; default true.
+    bool        _lighttime;      // flag to apply light time correction when computing solar system object's apparent directions; default true.
+
 public:
     
-    SSVector    obsPos;         // observer's heliocentric position in fundamental J2000 equatorial frame (ICRS) [AU]
-    SSVector    obsVel;         // observer's heliocentric velocity in fundamental J2000 equatorial frame (ICRS) [AU/day]
-
-    bool        starParallax;   // flag to apply helioecntric parallax when computing star apparent directions; default true.
-    bool        starMotion;     // flag to apply stellar space motion when computing star apparent directions; default true.
-    bool        aberration;     // flag to apply aberration of light when computing all object's apparent directions; default true.
-    bool        lighttime;      // flag to apply light time correction when computing solar system object's apparent directions; default true.
-
     static constexpr double kKmPerAU = 149597870.700;                               // kilometers per Astronomical Unit (IAU 2012)
     static constexpr double kKmPerEarthRadii = 6378.137;                            // kilometers per equatorial Earth radius (WGS84)
     static constexpr double kEarthFlattening = 1 / 298.257;                         // Earth ellipsoid flattening factor (WGS84)
@@ -85,6 +85,19 @@ public:
     SSSpherical getLocation ( void ) { return SSSpherical ( _lon, _lat, _alt ); }
     double getJED ( void ) { return _jed; }
     double getLST ( void ) { return _lst; }
+    
+    SSVector getObserverPosition ( void ) { return _obsPos; }
+    SSVector getObserverVelocity ( void ) { return _obsVel; }
+    
+    bool getStarParallax ( void ) { return _starParallax; }
+    bool getStarMotion ( void ) { return _starMotion; }
+    bool getAberration ( void ) { return _aberration; }
+    bool getLightTime ( void ) { return _lighttime; }
+    
+    void setStarParallax ( bool parallax ) { _starParallax = parallax; }
+    void setStarMotion ( bool motion ) { _starMotion = motion; }
+    void setAberration ( bool aberration ) { _aberration = aberration; }
+    void setLightTime ( bool lighttime ) { _lighttime = lighttime; }
     
     static double getObliquity ( double jd );
     static void   getNutationConstants ( double jd, double &de, double &dl );

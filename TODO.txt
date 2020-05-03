@@ -5,7 +5,7 @@ SSAngle
 --------
 - split into separate files for SSDegMinSec, SSHourMinSec, SSAngle
 
-SSCoords
+SSCoordinates
 --------
 - hide all public member variables and make accessors.
 
@@ -34,6 +34,10 @@ SSJPLDEphemeris
 SSMatrix
 --------
 - use enumerated type as axis parameter to rotate() method.
+
+SSMoonEphemeris
+---------------
+- update Saturn moon formulae which do not agree with Meeus.
 
 SSObject
 --------
@@ -67,6 +71,11 @@ SSTime
 SSVector
 --------
 - split into separate files for SSSpherical and SSVector
+
+VSOP2013 & ELPMPP02
+-------------------
+- correctly compute Moon's velocity
+- do more validation testing for times very far from present.
 
 Other
 -----

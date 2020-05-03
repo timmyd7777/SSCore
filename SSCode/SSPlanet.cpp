@@ -382,17 +382,17 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     // If desired, recompute planet's position and velocity antedated for light time.
     // In theory we should iterate but in practice this gets us sub-arcsecond precision!
     
-    if ( coords.lighttime )
+    if ( coords.getLightTime() )
     {
-        double lt = ( _position - coords.obsPos ).magnitude() / coords.kLightAUPerDay;
+        double lt = ( _position - coords.getObserverPosition() ).magnitude() / coords.kLightAUPerDay;
         computePositionVelocity ( coords.getJED(), lt, _position, _velocity );
     }
 
     // Compute apparent direction vector and distance to planet from observer's position.
     // If desired, apply aberration of light.
     
-    _direction = ( _position - coords.obsPos ).normalize ( _distance );
-    if ( coords.aberration )
+    _direction = ( _position - coords.getObserverPosition() ).normalize ( _distance );
+    if ( coords.getAberration() )
         _direction = coords.applyAberration ( _direction );
     
     // Compute planet's phase angle and visual magnitude.

@@ -112,14 +112,14 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
     // If applying stellar space motion, and the star's space motion is known, add its space velocity
     // (times years since J2000) to its J2000 position.
 
-    if ( coords.starMotion && ! isinf ( _velocity.x ) )
+    if ( coords.getStarMotion() && ! isinf ( _velocity.x ) )
         _direction += _velocity * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
     
     // If applying heliocentric parallax, and the star's parallax is known, subtract the observer's
     // position divided by the star's J2000 distance.
     
-    if ( coords.starParallax && _parallax > 0.0 )
-        _direction -= coords.obsPos * ( _parallax / coords.kAUPerParsec );
+    if ( coords.getStarParallax() && _parallax > 0.0 )
+        _direction -= coords.getObserverPosition() * ( _parallax / coords.kAUPerParsec );
 
     // If star's apparent direction is the same as in J2000, we ignored both its space motion and parallax.
     // If star's parallax is known, convert to distance in AU; otherwise set distance to infinity.
@@ -144,7 +144,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
 
     // Finally apply aberration of light, if desired.
     
-    if ( coords.aberration )
+    if ( coords.getAberration() )
         _direction = coords.applyAberration ( _direction );
 }
 

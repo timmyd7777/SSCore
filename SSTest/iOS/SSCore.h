@@ -223,6 +223,19 @@ void CSSCoordinatesSetLocation ( CSSCoordinates *pCoords, CSSSpherical loc );
 CSSTime CSSCoordinatesGetTime ( CSSCoordinates *pCoords );
 CSSSpherical CSSCoordinatesGetLocation ( CSSCoordinates *pCoords );
 
+CSSVector CSSCoordinatesGetObserverPosition ( CSSCoordinates *pCoords );
+CSSVector CSSCoordinatesGetObserverVelocity ( CSSCoordinates *pCoords );
+
+bool CSSCoordinatesGetStarParallax ( CSSCoordinates *pCoords );
+bool CSSCoordinatesGetStarMotion ( CSSCoordinates *pCoords );
+bool CSSCoordinatesGetAberration ( CSSCoordinates *pCoords );
+bool CSSCoordinatesGetLightTime ( CSSCoordinates *pCoords );
+
+void CSSCoordinatesSetStarParallax ( CSSCoordinates *pCoords, bool parallax );
+void CSSCoordinatesSetStarMotion ( CSSCoordinates *pCoords, bool motion );
+void CSSCoordinatesSetAberration ( CSSCoordinates *pCoords, bool aberration );
+void CSSCoordinatesSetLightTime ( CSSCoordinates *pCoords, bool lighttime );
+
 double CSSCoordinatesGetJED ( CSSCoordinates *pCoords );
 double CSSCoordinatesGetLST ( CSSCoordinates *pCoords );
 

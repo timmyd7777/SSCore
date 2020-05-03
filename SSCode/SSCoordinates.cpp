@@ -22,10 +22,10 @@ SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
     
     setTime ( time );
     
-    starParallax = true;
-    starMotion = true;
-    aberration = true;
-    lighttime = true;
+    _starParallax = true;
+    _starMotion = true;
+    _aberration = true;
+    _lighttime = true;
 }
 
 // Changes this coordinate transformation object's Julian Date (time) and recomputes
@@ -63,13 +63,13 @@ void SSCoordinates::setLocation ( SSSpherical loc )
     
     _horMat = getHorizonMatrix ( _lst, _lat ).multiply ( _equMat );
 
-    SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, _jed, 0.0, obsPos, obsVel );
+    SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, _jed, 0.0, _obsPos, _obsVel );
     
     SSSpherical geodetic ( _lst, _lat, _alt );
     SSVector geocentric = toGeocentric ( geodetic, kKmPerEarthRadii, kEarthFlattening );
     
     geocentric = transform ( kEquatorial, kFundamental, geocentric );
-    obsPos = obsPos.add ( geocentric / kKmPerAU );
+    _obsPos = _obsPos.add ( geocentric / kKmPerAU );
 }
 
 // Computes constants needed to compute precession from J2000 to a specific Julian Date (jd).
@@ -460,7 +460,7 @@ SSSpherical SSCoordinates::toGeodetic ( SSVector geocentric, double a, double f 
 
 SSVector SSCoordinates::applyAberration ( SSVector p )
 {
-    SSVector v = obsVel / kLightAUPerDay;
+    SSVector v = _obsVel / kLightAUPerDay;
     
     double beta = sqrt ( 1.0 - v * v );
     double dot = v * p;
@@ -479,7 +479,7 @@ SSVector SSCoordinates::applyAberration ( SSVector p )
 
 SSVector SSCoordinates::removeAberration ( SSVector p )
 {
-    return ( p - obsVel / kLightAUPerDay ).normalize();
+    return ( p - _obsVel / kLightAUPerDay ).normalize();
 }
 
 // Given a positive or negative red shift (z), returns the equivalent radial velocity

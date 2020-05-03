@@ -52,6 +52,19 @@ public class JSSCoordinates
     public native void setTime ( JSSTime time );
     public native void setLocation ( JSSSpherical location );
 
+    public native JSSVector getObserverPosition();
+    public native JSSVector getObserverVelocity();
+
+    public native boolean getStarParallax();
+    public native boolean getStarMotion();
+    public native boolean getAberration();
+    public native boolean getLightTime();
+
+    public native void setStarParallax ( boolean parallax );
+    public native void setStarMotion ( boolean motion );
+    public native void setAberration ( boolean aberration );
+    public native void setLightTime ( boolean lighttime );
+
     public native JSSTime getTime();
     public native JSSSpherical getLocation();
     public native double getJED();
