@@ -38,13 +38,13 @@ SSDate JSSDateToSSDate ( JNIEnv *pEnv, jobject pJSSDate )
 /*
  * Class:     com_southernstars_sscore_JSSDate
  * Method:    fromJulianDate
- * Signature: (Lcom/southernstars/sscore/JSSTime;)Lcom/southernstars/sscore/JSSDate;
+ * Signature: (Lcom/southernstars/sscore/JSSTime;I)Lcom/southernstars/sscore/JSSDate;
  */
 
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSDate_fromJulianDate ( JNIEnv *pEnv, jclass pClass, jobject pJSSTime )
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSDate_fromJulianDate ( JNIEnv *pEnv, jclass pClass, jobject pJSSTime, jint calendar )
 {
     SSTime time = JSSTimeToSSTime ( pEnv, pJSSTime );
-    SSDate date = SSDate::fromJulianDate ( time );
+    SSDate date = SSDate::fromJulianDate ( time, (SSCalendar) calendar );
     return SSDateToJSSDate ( pEnv, date );
 }
 

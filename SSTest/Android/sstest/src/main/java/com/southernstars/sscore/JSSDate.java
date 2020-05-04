@@ -38,6 +38,6 @@ public class JSSDate
         sec = s;
     }
 
-    public static native JSSDate fromJulianDate ( JSSTime time );
+    public static native JSSDate fromJulianDate ( JSSTime time, int calendar );
     public native JSSTime toJulianDate();
 }

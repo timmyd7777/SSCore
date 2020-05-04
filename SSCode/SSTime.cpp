@@ -75,18 +75,18 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
 
 // Returns an SSDate object representing the calendar date that corresponds
 // to the Julian date in the provided SSTime object, using the time zone
-// stored in the SSTime object.
+// stored in the SSTime object, and the specified calendar system (calendar).
 
-SSDate SSDate::fromJulianDate ( SSTime time )
+SSDate SSDate::fromJulianDate ( SSTime time, SSCalendar cal )
 {
-    return SSDate ( time );
+    return SSDate ( time, cal );
 }
 
 // Returns an SSTime object representing the Julian Date that corresponds to this calendar date.
 
 SSTime SSDate::toJulianDate ( void )
 {
-    return SSDate ( *this );
+    return SSTime ( *this );
 }
 
 // Converts date to a string using the same format argument(s) as strftime().
@@ -184,7 +184,7 @@ SSTime SSTime::fromSystem ( void )
 }
 
 // Constructs a time from an arbitrary unix time (i.e. seconds since 1.0 Jan 1970 UTC).
-// The time zone is UTC and the calendar is Gregorian.
+// The time zone is UTC.
 
 SSTime SSTime::fromUnixTime ( time_t time )
 {
@@ -192,7 +192,7 @@ SSTime SSTime::fromUnixTime ( time_t time )
 }
 
 // Constructs a time from a Julian year number (i.e. Julian years since 1.5 Jan 2000 UTC).
-// The time zone is UTC and the calendar is Gregorian.
+// The time zone is UTC.
 
 SSTime SSTime::fromJulianYear ( double year )
 {
@@ -200,7 +200,7 @@ SSTime SSTime::fromJulianYear ( double year )
 }
 
 // Constructs a time from a Besselian year number (i.e. Besselian years since 1.0 Jan 1900).
-// The time zone is UTC and the calendar is Gregorian.
+// The time zone is UTC.
 
 SSTime SSTime::fromBesselianYear ( double year )
 {

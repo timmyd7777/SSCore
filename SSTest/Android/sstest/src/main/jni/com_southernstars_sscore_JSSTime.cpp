@@ -50,14 +50,14 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSTime_fromSystem ( JNI
 /*
  * Class:     com_southernstars_sscore_JSSTime
  * Method:    toCalendarDate
- * Signature: ()Lcom/southernstars/sscore/JSSDate;
+ * Signature: (I)Lcom/southernstars/sscore/JSSDate;
  */
 
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSTime_toCalendarDate ( JNIEnv *pEnv, jobject pJSSTime )
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSTime_toCalendarDate ( JNIEnv *pEnv, jobject pJSSTime, jint calendar )
 {
     SSTime time = JSSTimeToSSTime ( pEnv, pJSSTime );
-    SSDate date ( time );
-    return SSDateToJSSDate( pEnv, date );
+    SSDate date ( time, (SSCalendar) calendar );
+    return SSDateToJSSDate ( pEnv, date );
 }
 
 /*

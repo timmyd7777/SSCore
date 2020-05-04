@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_southernstars_sscore_JSSDate
  * Method:    fromJulianDate
- * Signature: (Lcom/southernstars/sscore/JSSTime;)Lcom/southernstars/sscore/JSSDate;
+ * Signature: (Lcom/southernstars/sscore/JSSTime;I)Lcom/southernstars/sscore/JSSDate;
  */
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSDate_fromJulianDate
-  (JNIEnv *, jclass, jobject);
+  (JNIEnv *, jclass, jobject, jint);
 
 /*
  * Class:     com_southernstars_sscore_JSSDate

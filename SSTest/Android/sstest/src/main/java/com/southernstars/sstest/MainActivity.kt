@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         // Get JED and Greenwich Sidereal Time
 
         val time = JSSTime.fromSystem()
-        val date = JSSDate.fromJulianDate ( time )
+        val date = JSSDate.fromJulianDate ( time, JSSDate.kGregorian )
         val jed = time.getJulianEphemerisDate()
         val gst = time.getSiderealTime ( 0.0 )
         var hms = JSSHourMinSec.fromRadians ( gst )

@@ -44,7 +44,7 @@ struct SSDate
     SSDate ( SSCalendar calendar, double zone, int year, short month, double day, short hour, short min, double sec );
     SSDate ( SSTime time, SSCalendar calendar = kGregorian );
 
-    static SSDate fromJulianDate ( SSTime time );
+    static SSDate fromJulianDate ( SSTime time, SSCalendar cal );
     SSTime toJulianDate ( void );
     
     string format ( const string &fmt );
@@ -100,7 +100,7 @@ struct SSTime
     static SSTime fromJulianYear ( double year );
     static SSTime fromBesselianYear ( double year );
     
-    SSDate  toCalendarDate ( void );
+    SSDate  toCalendarDate ( SSCalendar cal ) { return SSDate ( *this, cal ); }
     time_t  toUnixTime ( void );
     double  toJulianYear ( void );
     double  toBesselianYear ( void );

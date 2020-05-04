@@ -58,7 +58,7 @@ public class JSSTime
         return new JSSTime ( kB1900 + kDaysPerBesselianYear * ( year - 1900.0 ) );
     }
 
-    public native JSSDate toCalendarDate();
+    public native JSSDate toCalendarDate ( int calendar );
 
     public long toUnixTime()
     {

@@ -26,10 +26,10 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSTime_fromSystem
 /*
  * Class:     com_southernstars_sscore_JSSTime
  * Method:    toCalendarDate
- * Signature: ()Lcom/southernstars/sscore/JSSDate;
+ * Signature: (I)Lcom/southernstars/sscore/JSSDate;
  */
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSTime_toCalendarDate
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_southernstars_sscore_JSSTime
