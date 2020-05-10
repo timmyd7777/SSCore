@@ -3951,424 +3951,367 @@ static const vector<ELPPertSeries> _dist_pert = {
 //  See example.cpp for an example of using this code.
 //----------------------------------------------------------------
 
-#define PI 3.14159265358979323846
+#define cpi 3.141592653589793
+#define a405 384747.9613701725
+#define aelp 384747.980674318
+#define sc 36525
+#define max1 2645
+#define max2 33256
+#define dj2000 2451545.0
 
-// Arguments for ELP/MPP02 series
-struct Elp_args {
-  double W1, D, F, L, Lp, zeta, Me, Ve, EM, Ma, Ju, Sa, Ur, Ne;
-};
+double rad = 648000.0 / cpi;
 
-// Factors multiplied by B1-B5 for longitude and latitude
-struct Elp_facs {
-  double fA, fB1, fB2, fB3, fB4, fB5;
-};
-
-// parameters for adjusting the lunar and planetary arguments
-struct Elp_paras {
-  // parameters adjusted to fit data
-  double Dw1_0, Dw2_0, Dw3_0, Deart_0, Dperi, Dw1_1, Dgam, De, Deart_1, Dep,
-         Dw2_1, Dw3_1, Dw1_2, Dw1_3, Dw1_4, Dw2_2, Dw2_3, Dw3_2, Dw3_3;
-  // parameters derived from the previous parameters
-  double Cw2_1, Cw3_1;
-};
-
-// Coefficients for the ELP/MPP02 series
-struct Elp_coefs {
-  // Main problem
-  int n_main_long, n_main_lat, n_main_dist;
-  int **i_main_long, **i_main_lat, **i_main_dist;
-  double *A_main_long, *A_main_lat, *A_main_dist;
-
-  // Perturbation, longitude
-  int n_pert_longT0, n_pert_longT1, n_pert_longT2, n_pert_longT3;
-  int **i_pert_longT0, **i_pert_longT1, **i_pert_longT2, **i_pert_longT3;
-  double *A_pert_longT0, *A_pert_longT1, *A_pert_longT2, *A_pert_longT3;
-  double *ph_pert_longT0, *ph_pert_longT1, *ph_pert_longT2, *ph_pert_longT3;
-
-  // Perturbation, latitude
-  int n_pert_latT0, n_pert_latT1, n_pert_latT2;
-  int **i_pert_latT0, **i_pert_latT1, **i_pert_latT2;
-  double *A_pert_latT0, *A_pert_latT1, *A_pert_latT2;
-  double *ph_pert_latT0, *ph_pert_latT1, *ph_pert_latT2;
-
-  // Perturbation, distance
-  int n_pert_distT0, n_pert_distT1, n_pert_distT2, n_pert_distT3;
-  int **i_pert_distT0, **i_pert_distT1, **i_pert_distT2, **i_pert_distT3;
-  double *A_pert_distT0, *A_pert_distT1, *A_pert_distT2, *A_pert_distT3;
-  double *ph_pert_distT0, *ph_pert_distT1, *ph_pert_distT2, *ph_pert_distT3;
-};
-
-// restrict x to [-pi, pi)
-#ifdef SSUtilities_hpp
-#define mod2pi(x) modpi(x)
-#else
-double mod2pi(double x) {
-  const double tpi = 2.0*PI;
-  return x - tpi*floor((x + PI)/tpi);
-}
-#endif
-
-// Set up adjustable parameters
-// corr=0: fit to LLR data, corr=1: fit to DE405
-void setup_parameters(int corr, Elp_paras &paras, Elp_facs &facs) {
-   // PARAMETERS adjusted to fit data
-   switch (corr) {
-       case 0:
-         paras.Dw1_0   = -0.10525;
-         paras.Dw2_0   =  0.16826;
-         paras.Dw3_0   = -0.10760;
-         paras.Deart_0 = -0.04012;
-         paras.Dperi   = -0.04854;
-         paras.Dw1_1   = -0.32311;
-         paras.Dgam    =  0.00069;
-         paras.De      =  0.00005;
-         paras.Deart_1 =  0.01442;
-         paras.Dep     =  0.00226;
-         paras.Dw2_1   =  0.08017;
-         paras.Dw3_1   = -0.04317;
-         paras.Dw1_2   = -0.03794;
-         paras.Dw1_3   =  0.0;
-         paras.Dw1_4   =  0.0;
-         paras.Dw2_2   =  0.0;
-         paras.Dw2_3   =  0.0;
-         paras.Dw3_2   =  0.0;
-         paras.Dw3_3   =  0.0;
-         break;
-      case 1:
-         paras.Dw1_0   = -0.07008;
-         paras.Dw2_0   =  0.20794;
-         paras.Dw3_0   = -0.07215;
-         paras.Deart_0 = -0.00033;
-         paras.Dperi   = -0.00749;
-         paras.Dw1_1   = -0.35106;
-         paras.Dgam    =  0.00085;
-         paras.De      = -0.00006;
-         paras.Deart_1 =  0.00732;
-         paras.Dep     =  0.00224;
-         paras.Dw2_1   =  0.08017;
-         paras.Dw3_1   = -0.04317;
-         paras.Dw1_2   = -0.03743;
-         paras.Dw1_3   = -0.00018865;
-         paras.Dw1_4   = -0.00001024;
-         paras.Dw2_2   =  0.00470602;
-         paras.Dw2_3   = -0.00025213;
-         paras.Dw3_2   = -0.00261070;
-         paras.Dw3_3   = -0.00010712;
-         break;
-   }
-   // derived parameters
-   const double am = 0.074801329;
-   const double alpha = 0.002571881;
-   const double dtsm = 2.0*alpha/(3.0*am);
-   const double xa = 2.0*alpha/3.0;
-   const double sec = PI/648000.0; // arcsecs -> radians
-   double bp[5][2] = {{0.311079095, -0.103837907},
-                      {-0.004482398, 0.000668287},
-                      {-0.001102485, -0.001298072},
-                      {0.001056062, -0.000178028},
-                      {0.000050928, -0.000037342}};
-   double w11 = (1732559343.73604 + paras.Dw1_1)*sec;
-   double w21 = (14643420.3171 + paras.Dw2_1)*sec;
-   double w31 = (-6967919.5383 + paras.Dw3_1)*sec;
-   double x2 = w21/w11;
-   double x3 = w31/w11;
-   double y2 = am*bp[0][0] + xa*bp[4][0];
-   double y3 = am*bp[0][1] + xa*bp[4][1];
-   double d21 = x2-y2;
-   double d22 = w11*bp[1][0];
-   double d23 = w11*bp[2][0];
-   double d24 = w11*bp[3][0];
-   double d25 = y2/am;
-   double d31 = x3-y3;
-   double d32 = w11*bp[1][1];
-   double d33 = w11*bp[2][1];
-   double d34 = w11*bp[3][1];
-   double d35 = y3/am;
-   paras.Cw2_1 = d21*paras.Dw1_1 + d25*paras.Deart_1 + d22*paras.Dgam +
-                  d23*paras.De + d24*paras.Dep;
-   paras.Cw3_1 = d31*paras.Dw1_1 + d35*paras.Deart_1 + d32*paras.Dgam +
-                  d33*paras.De + d34*paras.Dep;
-
-   // factors multipled by B1-B5 for longitude and latitude
-   double delnu_nu = (0.55604 + paras.Dw1_1)*sec/w11;
-   double dele = (0.01789 + paras.De)*sec;
-   double delg = (-0.08066 + paras.Dgam)*sec;
-   double delnp_nu = (-0.06424 + paras.Deart_1)*sec/w11;
-   double delep = (-0.12879 + paras.Dep)*sec;
-   // factors multipled by B1-B5 for longitude and latitude
-   facs.fB1 = -am*delnu_nu + delnp_nu;
-   facs.fB2 = delg;
-   facs.fB3 = dele;
-   facs.fB4 = delep;
-   facs.fB5 = -xa*delnu_nu + dtsm*delnp_nu;
-   // factor multiplie A_i for distance
-   facs.fA = 1.0 - 2.0/3.0*delnu_nu;
+double DMS(int ideg, int imin, double sec) {
+    double deg = cpi / 180.0;
+    return (ideg + imin / 60.0 + sec / 3600.0) * deg;
 }
 
-// Compute the lunar and planetary arguments used in the ELP/MPP02 series
-void compute_Elp_arguments(double T, Elp_paras paras, Elp_args &args) {
-     const double deg = PI/180.0; // degrees -> radians
-     const double sec = PI/648000.0; // arcsecs -> radians
-     double T2 = T*T;
-     double T3 = T*T2;
-     double T4 = T2*T2;
-     double w10 = (-142.0 + 18.0/60.0 +(59.95571 + paras.Dw1_0)/3600.0)*deg;
-     double w11 = mod2pi((1732559343.73604 + paras.Dw1_1)*T*sec);
-     double w12 = mod2pi((-6.8084 + paras.Dw1_2)*T2*sec);
-     double w13 = mod2pi((0.006604 + paras.Dw1_3)*T3*sec);
-     double w14 = mod2pi((-3.169e-5 + paras.Dw1_4)*T4*sec);
-     double w20 = (83.0 + 21.0/60.0 + (11.67475 + paras.Dw2_0)/3600.0)*deg;
-     double w21 = mod2pi((14643420.3171 + paras.Dw2_1 + paras.Cw2_1)*T*sec);
-     double w22 = mod2pi((-38.2631 + paras.Dw2_2)*T2*sec);
-     double w23 = mod2pi((-0.045047+ paras.Dw2_3)*T3*sec);
-     double w24 = mod2pi(0.00021301*T4*sec);
-     double w30 = (125.0 + 2.0/60.0 + (40.39816 + paras.Dw3_0)/3600.0)*deg;
-     double w31 = mod2pi((-6967919.5383 + paras.Dw3_1 + paras.Cw3_1)*T*sec);
-     double w32 = mod2pi((6.359 + paras.Dw3_2)*T2*sec);
-     double w33 = mod2pi((0.007625 + paras.Dw3_3)*T3*sec);
-     double w34 = mod2pi(-3.586e-5*T4*sec);
-     double Ea0 = (100.0 + 27.0/60.0 + (59.13885 + paras.Deart_0)/3600.0)*deg;
-     double Ea1 = mod2pi((129597742.293 + paras.Deart_1)*T*sec);
-     double Ea2 = mod2pi(-0.0202*T2*sec);
-     double Ea3 = mod2pi(9e-6*T3*sec);
-     double Ea4 = mod2pi(1.5e-7*T4*sec);
-     double p0 = (102.0 + 56.0/60.0 + (14.45766 + paras.Dperi)/3600.0)*deg;
-     double p1 = mod2pi(1161.24342*T*sec);
-     double p2 = mod2pi(0.529265*T2*sec);
-     double p3 = mod2pi(-1.1814e-4*T3*sec);
-     double p4 = mod2pi(1.1379e-5*T4*sec);
-     
-     double Me = (-108.0 + 15.0/60.0 + 3.216919/3600.0)*deg;
-     Me += mod2pi(538101628.66888*T*sec);
-     double Ve = (-179.0 + 58.0/60.0 + 44.758419/3600.0)*deg;
-     Ve += mod2pi(210664136.45777*T*sec);
-     double EM = (100.0 + 27.0/60.0 + 59.13885/3600.0)*deg;
-     EM += mod2pi(129597742.293*T*sec);
-     double Ma = (-5.0 + 26.0/60.0 + 3.642778/3600.0)*deg;
-     Ma += mod2pi(68905077.65936*T*sec);
-     double Ju = (34.0 + 21.0/60.0 + 5.379392/3600.0)*deg;
-     Ju += mod2pi(10925660.57335*T*sec);
-     double Sa = (50.0 + 4.0/60.0 + 38.902495/3600.0)*deg;
-     Sa += mod2pi(4399609.33632*T*sec);
-     double Ur = (-46.0 + 3.0/60.0 + 4.354234/3600.0)*deg;
-     Ur += mod2pi(1542482.57845*T*sec);
-     double Ne = (-56.0 + 20.0/60.0 + 56.808371/3600.0)*deg;
-     Ne += mod2pi(786547.897*T*sec);
-     
-     double W1 = w10+w11+w12+w13+w14;
-     double W2 = w20+w21+w22+w23+w24;
-     double W3 = w30+w31+w32+w33+w34;
-     double Ea = Ea0+Ea1+Ea2+Ea3+Ea4;
-     double pomp = p0+p1+p2+p3+p4;
-     
-     // Mean longitude of the Moon
-     args.W1 = mod2pi(W1);
-     // Arguments of Delaunay
-     args.D = mod2pi(W1-Ea + PI);
-     args.F = mod2pi(W1-W3);
-     args.L = mod2pi(W1-W2);
-     args.Lp = mod2pi(Ea-pomp);
-     
-     // zeta
-     args.zeta = mod2pi(W1 + 0.02438029560881907*T);
-     
-     // Planetary arguments (mean longitudes and mean motions)
-     args.Me = mod2pi(Me);
-     args.Ve = mod2pi(Ve);
-     args.EM = mod2pi(EM);
-     args.Ma = mod2pi(Ma);
-     args.Ju = mod2pi(Ju);
-     args.Sa = mod2pi(Sa);
-     args.Ur = mod2pi(Ur);
-     args.Ne = mod2pi(Ne);
-}
+// Some variable declarations are pulled outside the INITIAL function for scope purposes
+// these variables are populated by READFILE
+double cmpb[max1] = {0};
+double fmpb[5][max1] = {{0},{0}};
+double nmpb[3][3] = {{0},{0}};
+double cper[max2] = {0};
+double fper[5][max2] = {{0},{0}};
+double nper[3][4][3] = {{0},{0},{0}};
 
-// Sum the ELP/MPP02 series for the main problem
-// dist = 0: sine series; dist != 0: cosine series
-double Elp_main_sum(int n, int ** &i_main, double * &A_main, Elp_args &args, int dist) {
-    int i;
-    double sum = 0.0;
-    double phase;
-    if (dist==0) {
-       // sine series
-       for (i=0; i<n; i++) {
-          phase = i_main[i][0]*args.D + i_main[i][1]*args.F + i_main[i][2]*args.L +
-                  i_main[i][3]*args.Lp;
-          sum += A_main[i]*sin(phase);
-       }
+double w[3][5] = {{0},{0}};
+double eart[5] = {0};
+double peri[5] = {0};
+double zeta[5] = {0};
+double del[4][5] = {{0},{0}};
+double p[8][5] = {{0},{0}};
+
+double bp[5][2] = {
+    +0.311079095, -0.103837907,
+    -0.4482398e-2, +0.6682870e-3,
+    -0.110248500e-2, -0.129807200e-2,
+    +0.1056062e-2, -0.1780280e-3,
+    +0.50928e-4, -0.37342e-4
+};
+
+double Dprec = -0.29965;
+double am = 0.074801329;
+double alpha = 0.002571881;
+double dtasm = (2.0 * alpha) / (3.0 * am);
+double xa = (2.0 * alpha) / 3.0;
+
+double delnu,dele,delg,delnp,delep,p1,p2,p3,p4,p5,q1,q2,q3,q4,q5;
+double Dw1_0, Dw2_0, Dw3_0, Deart_0, Dperi, Dw1_1, Dgam, De, Deart_1, Dep, Dw2_1, Dw3_1, Dw1_2;
+int icor;
+
+void setup_parameters ()
+{
+    double k = icor;
+    if (k != 1) k=0;
+
+    if (k == 0) {
+        Dw1_0   = -0.10525;
+        Dw2_0   =  0.16826;
+        Dw3_0   = -0.10760;
+        Deart_0 = -0.04012;
+        Dperi   = -0.04854;
+        Dw1_1   = -0.32311;
+        Dgam    =  0.00069;
+        De      = +0.00005;
+        Deart_1 =  0.01442;
+        Dep     =  0.00226;
+        Dw2_1   =  0.08017;
+        Dw3_1   = -0.04317;
+        Dw1_2   = -0.03794;
     } else {
-       // cosine series
-       for (i=0; i<n; i++) {
-          phase = i_main[i][0]*args.D + i_main[i][1]*args.F + i_main[i][2]*args.L +
-                  i_main[i][3]*args.Lp;
-          sum += A_main[i]*cos(phase);
-       }
+        Dw1_0   = -0.07008;
+        Dw2_0   =  0.20794;
+        Dw3_0   = -0.07215;
+        Deart_0 = -0.00033;
+        Dperi   = -0.00749;
+        Dw1_1   = -0.35106;
+        Dgam    =  0.00085;
+        De      = -0.00006;
+        Deart_1 =  0.00732;
+        Dep     =  0.00224;
+        Dw2_1   =  0.08017;
+        Dw3_1   = -0.04317;
+        Dw1_2   = -0.03743;
     }
-    return sum;
-}
 
-// Sum the ELP/MPP02 series for perturbations
-double Elp_perturbation_sum(int n, int ** &i_pert, double * &A_pert, double * &ph_pert,
-                            Elp_args &args) {
-    int i;
-    double sum = 0.0;
-    double phase;
-    for (i=0; i<n; i++) {
-       phase = ph_pert[i] + i_pert[i][0]*args.D + i_pert[i][1]*args.F +
-               i_pert[i][2]*args.L + i_pert[i][3]*args.Lp + i_pert[i][4]*args.Me +
-               i_pert[i][5]*args.Ve + i_pert[i][6]*args.EM + i_pert[i][7]*args.Ma +
-               i_pert[i][8]*args.Ju + i_pert[i][9]*args.Sa + i_pert[i][10]*args.Ur +
-               i_pert[i][11]*args.Ne + i_pert[i][12]*args.zeta;
-       sum += A_pert[i]*sin(phase);
+    w[0][0] = DMS(218,18,59.95571+Dw1_0);
+    w[0][1] = (1732559343.73604+Dw1_1)/rad;
+    w[0][2] = (        -6.8084 +Dw1_2)/rad;
+    w[0][3] =          0.66040e-2/rad;
+    w[0][4] =         -0.31690e-4/rad;
+
+    w[1][0] = DMS( 83,21,11.67475+Dw2_0);
+    w[1][1] = (  14643420.3171 +Dw2_1)/rad;
+    w[1][2] = (       -38.2631)/rad;
+    w[1][3] =         -0.45047e-1/rad;
+    w[1][4] =          0.21301e-3/rad;
+
+    w[2][0] = DMS(125, 2,40.39816+Dw3_0);
+    w[2][1] = (  -6967919.5383 +Dw3_1)/rad;
+    w[2][2] = (         6.3590)/rad;
+    w[2][3] =          0.76250e-2/rad;
+    w[2][4] =         -0.35860e-4/rad;
+
+    eart[0]= DMS(100,27,59.13885+Deart_0);
+    eart[1]= (129597742.29300 +Deart_1)/rad;
+    eart[2]=         -0.020200/rad;
+    eart[3]=          0.90000e-5/rad;
+    eart[4]=          0.15000e-6/rad;
+
+    peri[0]= DMS(102,56,14.45766+Dperi);
+    peri[1]=       1161.24342/rad;
+    peri[2]=          0.529265/rad;
+    peri[3]=         -0.11814e-3/rad;
+    peri[4]=          0.11379e-4/rad;
+
+    if (icor == 1) {
+        w[0][3] = w[0][3] - 0.00018865 / rad;
+        w[0][4] = w[0][4] - 0.00001024 / rad;
+        w[1][2] = w[1][2] + 0.00470602 / rad;
+        w[1][3] = w[1][3] - 0.00025213 / rad;
+        w[2][2] = w[2][2] - 0.00261070 / rad;
+        w[2][3] = w[2][3] - 0.00010712 / rad;
     }
-    return sum;
+
+    double x2     =   w[1][1]/w[0][1];
+    double x3     =   w[2][1]/w[0][1];
+    double y2     =   am*bp[0][0]+xa*bp[4][0];
+    double y3     =   am*bp[0][1]+xa*bp[4][1];
+
+    double d21    =   x2-y2;
+    double d22    =   w[0][1]*bp[1][0];
+    double d23    =   w[0][1]*bp[2][0];
+    double d24    =   w[0][1]*bp[3][0];
+    double d25    =   y2/am;
+
+    double d31    =   x3-y3;
+    double d32    =   w[0][1]*bp[1][1];
+    double d33    =   w[0][1]*bp[2][1];
+    double d34    =   w[0][1]*bp[3][1];
+    double d35    =   y3/am;
+
+    double Cw2_1  =  d21*Dw1_1+d25*Deart_1+d22*Dgam+d23*De+d24*Dep;
+    double Cw3_1  =  d31*Dw1_1+d35*Deart_1+d32*Dgam+d33*De+d34*Dep;
+
+    w[1][1] = w[1][1]+Cw2_1/rad;
+    w[2][1] = w[2][1]+Cw3_1/rad;
+
+    for (int i=0; i<=4; i++) {
+        del[0][i] = w[0][i]-eart[i];
+        del[1][i] = w[0][i]-w[2][i];
+        del[2][i] = w[0][i]-w[1][i];
+        del[3][i] = eart[i]-peri[i];
+    }
+    del[0][0] = del[0][0] + cpi;
+
+    p[0][0] = DMS(252,15, 3.216919);
+    p[1][0] = DMS(181,58,44.758419);
+    p[2][0] = DMS(100,27,59.138850);
+    p[3][0] = DMS(355,26, 3.642778);
+    p[4][0] = DMS( 34,21, 5.379392);
+    p[5][0] = DMS( 50, 4,38.902495);
+    p[6][0] = DMS(314, 3, 4.354234);
+    p[7][0] = DMS(304,20,56.808371);
+
+    p[0][1] = 538101628.66888 / rad;
+    p[1][1] = 210664136.45777 / rad;
+    p[2][1] = 129597742.29300 / rad;
+    p[3][1] =  68905077.65936 / rad;
+    p[4][1] =  10925660.57335 / rad;
+    p[5][1] =   4399609.33632 / rad;
+    p[6][1] =   1542482.57845 / rad;
+    p[7][1] =    786547.89700 / rad;
+
+    zeta[0]= w[0][0];
+    zeta[1]= w[0][1] + (5029.0966 + Dprec) / rad;
+    zeta[2]= w[0][2];
+    zeta[3]= w[0][3];
+    zeta[4]= w[0][4];
+
+    delnu  = (+0.55604 + Dw1_1) / rad / w[0][1];
+    dele   = (+0.01789 + De) / rad;
+    delg   = (-0.08066 + Dgam) / rad;
+    delnp  = (-0.06424 + Deart_1) / rad / w[0][1];
+    delep  = (-0.12879 + Dep) / rad;
+
+    p1 =  0.10180391e-04;
+    p2 =  0.47020439e-06;
+    p3 = -0.5417367e-09;
+    p4 = -0.2507948e-11;
+
+    q1 = -0.113469002e-03;
+    q2 =  0.12372674e-06;
+    q3 =  0.1265417e-08;
+    q4 = -0.1371808e-11;
+    q5 = -0.320334e-14;
 }
 
-// Calculate the Moon's geocentric X,Y,Z coordinates with respect to
-// J2000.0 mean ecliptic and equinox.
-// T is the TDB Julian century from J2000.0 = (TBD JD - 2451545)/36525
-void getX2000(double T,  Elp_paras &paras, Elp_coefs &coefs,
-              double &X, double &Y, double &Z) {
-  double T2 = T*T;
-  double T3 = T*T2;
-  double T4 = T2*T2;
-  double T5 = T2*T3;
-  Elp_args args;
-  compute_Elp_arguments(T, paras, args);
+void get_position_velocity ( double tj, double *xyz )
+{
+    double t[5] = {0};
+    double v[6] = {0};
+    double x, y, xp, yp;
 
-  // Sum the ELP/MPP02 series
-  // main problem series
-  double main_long = Elp_main_sum(coefs.n_main_long, coefs.i_main_long,
-                                  coefs.A_main_long, args, 0);
-  double main_lat = Elp_main_sum(coefs.n_main_lat, coefs.i_main_lat,
-                                  coefs.A_main_lat, args, 0);
-  double main_dist = Elp_main_sum(coefs.n_main_dist, coefs.i_main_dist,
-                                  coefs.A_main_dist, args, 1);
-  // perturbation, longitude
-  double pert_longT0 = Elp_perturbation_sum(coefs.n_pert_longT0, coefs.i_pert_longT0,
-                                            coefs.A_pert_longT0, coefs.ph_pert_longT0, args);
-  double pert_longT1 = Elp_perturbation_sum(coefs.n_pert_longT1, coefs.i_pert_longT1,
-                                            coefs.A_pert_longT1, coefs.ph_pert_longT1, args);
-  double pert_longT2 = Elp_perturbation_sum(coefs.n_pert_longT2, coefs.i_pert_longT2,
-                                            coefs.A_pert_longT2, coefs.ph_pert_longT2, args);
-  double pert_longT3 = Elp_perturbation_sum(coefs.n_pert_longT3, coefs.i_pert_longT3,
-                                            coefs.A_pert_longT3, coefs.ph_pert_longT3, args);
-  // perturbation, latitude
-  double pert_latT0 = Elp_perturbation_sum(coefs.n_pert_latT0, coefs.i_pert_latT0,
-                                            coefs.A_pert_latT0, coefs.ph_pert_latT0, args);
-  double pert_latT1 = Elp_perturbation_sum(coefs.n_pert_latT1, coefs.i_pert_latT1,
-                                            coefs.A_pert_latT1, coefs.ph_pert_latT1, args);
-  double pert_latT2 = Elp_perturbation_sum(coefs.n_pert_latT2, coefs.i_pert_latT2,
-                                            coefs.A_pert_latT2, coefs.ph_pert_latT2, args);
-  // perturbation, distance
-  double pert_distT0 = Elp_perturbation_sum(coefs.n_pert_distT0, coefs.i_pert_distT0,
-                                            coefs.A_pert_distT0, coefs.ph_pert_distT0, args);
-  double pert_distT1 = Elp_perturbation_sum(coefs.n_pert_distT1, coefs.i_pert_distT1,
-                                            coefs.A_pert_distT1, coefs.ph_pert_distT1, args);
-  double pert_distT2 = Elp_perturbation_sum(coefs.n_pert_distT2, coefs.i_pert_distT2,
-                                            coefs.A_pert_distT2, coefs.ph_pert_distT2, args);
-  double pert_distT3 = Elp_perturbation_sum(coefs.n_pert_distT3, coefs.i_pert_distT3,
-                                            coefs.A_pert_distT3, coefs.ph_pert_distT3, args);
+    t[0] = 1.0;
+    t[1] = tj / sc;
+    t[2] = t[1] * t[1];
+    t[3] = t[2] * t[1];
+    t[4] = t[3] * t[1];
 
-  // Moon's longitude, latitude and distance
-  double longM = args.W1 + main_long + pert_longT0 + mod2pi(pert_longT1*T) +
-                 mod2pi(pert_longT2*T2) + mod2pi(pert_longT3*T3);
-  double latM  = main_lat + pert_latT0 + mod2pi(pert_latT1*T) + mod2pi(pert_latT2*T2);
-  const double ra0 = 384747.961370173/384747.980674318;
-  double r = ra0*(main_dist +  pert_distT0 + pert_distT1*T + pert_distT2*T2 + pert_distT3*T3);
-  double x0 = r*cos(longM)*cos(latM);
-  double y0 = r*sin(longM)*cos(latM);
-  double z0 = r*sin(latM);
+    for ( int iv = 0; iv <= 2; iv++ )
+    {
+        v[iv] = 0.0;
+        v[iv + 3] = 0.0;
 
-  // Precession matrix
-  double P = 0.10180391e-4*T + 0.47020439e-6*T2 - 0.5417367e-9*T3
-             - 0.2507948e-11*T4 + 0.463486e-14*T5;
-  double Q = -0.113469002e-3*T + 0.12372674e-6*T2 + 0.12654170e-8*T3
-             - 0.1371808e-11*T4 - 0.320334e-14*T5;
-  double sq = sqrt(1 - P*P - Q*Q);
-  double p11 = 1 - 2*P*P;
-  double p12 = 2*P*Q;
-  double p13 = 2*P*sq;
-  double p21 = 2*P*Q;
-  double p22 = 1-2*Q*Q;
-  double p23 = -2*Q*sq;
-  double p31 = -2*P*sq;
-  double p32 = 2*Q*sq;
-  double p33 = 1 - 2*P*P - 2*Q*Q;
+        for ( int n = nmpb[iv][1]; n <= nmpb[iv][2]; n++ )
+        {
+            x = cmpb[n];
+            y = fmpb[0][n];
+            yp = 0.0;
+            for ( int k = 1; k <= 4; k++ )
+            {
+                y = y + fmpb[k][n] * t[k];
+                yp = yp + k * fmpb[k][n] * t[k - 1];
+            }
+            v[iv] = v[iv] + x * sin(y);
+            v[iv + 3] = v[iv + 3] + x * yp * cos(y);
+        }
 
-  // Finally, components of position vector wrt J2000.0 mean ecliptic and equinox
-  X = p11*x0 + p12*y0 + p13*z0;
-  Y = p21*x0 + p22*y0 + p23*z0;
-  Z = p31*x0 + p32*y0 + p33*z0;
+        for ( int it = 0; it <= 3; it++ )
+        {
+            for (int n = nper[iv][it][1]; n <= nper[iv][it][2]; n++ )
+            {
+                x = cper[n];
+                y = fper[0][n];
+                xp = 0.0;
+                yp = 0.0;
+                if ( it != 0 ) xp = it * x * t[it - 1];
+                for ( int k = 1; k <= 4; k++ )
+                {
+                  y = y + fper[k][n] * t[k];
+                  yp = yp + k * fper[k][n] * t[k - 1];
+                }
+                v[iv] = v[iv] + x * t[it] * sin(y);
+                v[iv + 3] = v[iv + 3] + xp * sin(y) + x * t[it] * yp * cos(y);
+            }
+        }
+    }
+
+    v[0] = v[0] / rad + w[0][0] + w[0][1] * t[1] + w[0][2] * t[2] + w[0][3] * t[3] + w[0][4] * t[4];
+    v[1] = v[1] / rad;
+    v[2] = v[2] * a405 / aelp;
+    v[3] = v[3] / rad + w[0][1] + 2.0 * w[0][2] * t[1] + 3.0 * w[0][3] * t[2] + 4.0 * w[0][4] * t[3];
+    v[4] = v[4] / rad;
+
+    double clamb = cos( v[0] );
+    double slamb = sin( v[0] );
+    double cbeta = cos( v[1] );
+    double sbeta = sin( v[1] );
+    double cw = v[2] * cbeta;
+    double sw = v[2] * sbeta;
+
+    double x1 = cw * clamb;
+    double x2 = cw * slamb;
+    double x3 = sw;
+    double xp1 = ( v[5] * cbeta - v[4] * sw ) * clamb - v[3] * x2;
+    double xp2 = ( v[5] * cbeta - v[4] * sw ) * slamb + v[3] * x1;
+    double xp3 = v[5] * sbeta + v[4] * cw;
+
+    double pw = ( p1 + p2 * t[1] + p3 * t[2] + p4 * t[3] + p5 * t[4] ) * t[1];
+    double qw = (q1 + q2 * t[1] + q3 * t[2] + q4 * t[3] + q5 * t[4] ) * t[1];
+    double ra = 2.0 * sqrt( 1 - pw * pw - qw * qw );
+    double pwqw = 2.0 * pw * qw;
+    double pw2 = 1.0 - 2.0 * pw * pw;
+    double qw2 = 1.0 - 2.0 * qw * qw;
+    double pwra = pw * ra;
+    double qwra = qw * ra;
+
+    xyz[1] = pw2 * x1 + pwqw * x2 + pwra * x3;
+    xyz[2] = pwqw * x1 + qw2 * x2 - qwra * x3;
+    xyz[3] = -pwra * x1 + qwra * x2 + ( pw2 + qw2 - 1 ) * x3;
+
+    double ppw = p1 + ( 2.0 * p2 + 3.0 * p3 * t[1] + 4.0 * p4 * t[2] + 5.0 * p5 * t[3] ) * t[1];
+    double qpw = q1 + ( 2.0 * q2 + 3.0 * q3 * t[1] + 4.0 * q4 * t[2] + 5.0 * q5 * t[3] ) * t[1];
+    double ppw2 = -4.0 * pw * ppw;
+    double qpw2 = -4.0 * qw * qpw;
+    double ppwqpw = 2.0 * ( ppw * qw + pw * qpw );
+    double rap = ( ppw2 + qpw2 ) / ra;
+    double ppwra = ppw * ra + pw * rap;
+    double qpwra = qpw * ra + qw * rap;
+
+    xyz[4] = ( pw2 * xp1 + pwqw * xp2 + pwra * xp3 + ppw2 * x1 + ppwqpw * x2 + ppwra * x3 ) / sc;
+    xyz[5] = ( pwqw * xp1 + qw2 * xp2 - qwra * xp3 + ppwqpw * x1 + qpw2 * x2 - qpwra * x3 ) / sc;
+    xyz[6] = ( -pwra * xp1 + qwra * xp2 + ( pw2 + qw2 - 1.0 ) * xp3 - ppwra * x1 + qpwra * x2 + ( ppw2 + qpw2 ) * x3 ) / sc;
 }
-
-static Elp_paras _paras;
-static Elp_coefs _coefs;
-static Elp_facs _facs;
 
 // Reads main problem series
+// We need to pass in starting_idx since the matrices store combined data from long/lat/dist
 
-void read_main_problem_series ( const ELPMainSeries &series, int &n, int ** &i_main, double * &A_main, double fA, Elp_facs facs)
+void read_main_problem_series ( const ELPMainSeries &series, int starting_idx )
 {
-    n = series.nt;
-    i_main = new int *[n];
-    A_main = new double[n];
+    double a;
+    double tgv;
+    double pis2 = cpi / 2.0;
 
-    for ( int i = 0; i < n; i++ )
-        i_main[i] = new int[4];
-    
-    for ( int i = 0; i < n; i++ )
+    int nt = series.nt;
+    int iv = series.iv - 1;
+    int ir = starting_idx;
+
+    nmpb[iv][0] = nt;
+    nmpb[iv][1] = ir;
+    nmpb[iv][2] = nmpb[iv][0] + nmpb[iv][1] - 1;
+
+    for ( int n = 0; n < nt; n++ )
     {
-        i_main[i][0] = series.terms[i].i[0];
-        i_main[i][1] = series.terms[i].i[1];
-        i_main[i][2] = series.terms[i].i[2];
-        i_main[i][3] = series.terms[i].i[3];
-        
-        double A  = series.terms[i].a;
-        double B1 = series.terms[i].b[0];
-        double B2 = series.terms[i].b[1];
-        double B3 = series.terms[i].b[2];
-        double B4 = series.terms[i].b[3];
-        double B5 = series.terms[i].b[4];
-        double B6 = series.terms[i].b[5];
-        
-        if ( series.iv < 3 )
+        tgv = series.terms[n].b[0] + dtasm * series.terms[n].b[4];
+        a = iv == 2 ? series.terms[n].a - 2.0 * series.terms[n].a * delnu / 3.0 : series.terms[n].a;
+        cmpb[ir] = a + tgv * (delnp - am * delnu) + series.terms[n].b[1] * delg + series.terms[n].b[2] * dele + series.terms[n].b[3] * delep;
+        for ( int k = 0; k <= 4; k++ )
         {
-            A  *= SSAngle::kRadPerArcsec;
-            B1 *= SSAngle::kRadPerArcsec;
-            B2 *= SSAngle::kRadPerArcsec;
-            B3 *= SSAngle::kRadPerArcsec;
-            B4 *= SSAngle::kRadPerArcsec;
-            B5 *= SSAngle::kRadPerArcsec;
-            B6 *= SSAngle::kRadPerArcsec;
+            fmpb[k][ir] = 0.0;
+            for ( int i = 0; i <= 3; i++ )
+                fmpb[k][ir] = fmpb[k][ir] + series.terms[n].i[i] * del[i][k];
         }
-        
-        A_main[i] = fA * A + facs.fB1 * B1 + facs.fB2 * B2 + facs.fB3 * B3 + facs.fB4 * B4 + facs.fB5 * B5;
+        if (iv == 2) fmpb[0][ir] = fmpb[0][ir] + pis2;
+        ir = ir + 1;
     }
 }
 
 // Read perturbation series
+// We need to pass in starting_idx since the matrices store combined data from long/lat/dist
 
-void read_perturbation_series ( const ELPPertSeries &series, int &n, int ** &i_pert, double * &A_pert, double * &phase)
+void read_perturbation_series ( const ELPPertSeries &series, int starting_idx )
 {
-    n = series.nt;
-    i_pert = new int *[n];
-    A_pert = new double[n];
-    phase = new double[n];
-    
-    for ( int i = 0; i < n; i++ )
-        i_pert[i] = new int[13];
-    
-    for ( int i = 0; i < n; i++ )
+    double pha;
+    double dpi = 2.0 * cpi;
+
+    int nt = series.nt;
+    int it = series.it;
+    int iv = series.iv - 1;
+    int ir = starting_idx;
+
+    nper[iv][it][0] = nt;
+    nper[iv][it][1] = ir;
+    nper[iv][it][2] = nper[iv][it][0] + nper[iv][it][1] - 1;
+
+    for ( int n = 0; n < nt; n++ )
     {
-        for ( int k = 0; k < 13; k++ )
-            i_pert[i][k] = series.terms[i].i[k];
-        
-        A_pert[i] = sqrt ( series.terms[i].s * series.terms[i].s + series.terms[i].c * series.terms[i].c );
-        phase[i] = atan2 ( series.terms[i].c, series.terms[i].s );
-        
-        if ( series.iv < 3 )
-            A_pert[i] *= SSAngle::kRadPerArcsec;
+        cper[ir] = sqrt( series.terms[n].c * series.terms[n].c + series.terms[n].s * series.terms[n].s );
+        pha = atan2( series.terms[n].c, series.terms[n].s );
+        if ( pha < 0.0 ) pha = pha + dpi;
+
+        for ( int k = 0; k <= 4; k++ )
+        {
+            fper[k][ir] = 0.0;
+            if ( k == 0 ) fper[k][ir] = pha;
+            for ( int i = 0; i <= 3; i++ )
+                fper[k][ir] = fper[k][ir] + series.terms[n].i[i] * del[i][k];
+            for ( int i = 4; i <= 11; i++ )
+                fper[k][ir] = fper[k][ir] + series.terms[n].i[i] * p[i - 4][k];
+            fper[k][ir] = fper[k][ir] + series.terms[n].i[12] * zeta[k];
+        }
+        ir = ir + 1;
     }
 }
 
@@ -4391,48 +4334,49 @@ static bool _init = false;  // initialization flag ensures series are only loade
 
 ELPMPP02::ELPMPP02 ( void )
 {
-    setup_parameters ( 0, _paras, _facs );
+    icor = 0;
+    setup_parameters ();
 }
 
 #if ELPMPP02_EMBED_SERIES
 
-void setup_Elp_series ( Elp_coefs &coefs, Elp_facs facs )
+void setup_Elp_series ()
 {
     // Main problem
 
-    read_main_problem_series ( _lon_main, coefs.n_main_long, coefs.i_main_long, coefs.A_main_long, 1.0, facs );
-    read_main_problem_series ( _lat_main, coefs.n_main_lat, coefs.i_main_lat, coefs.A_main_lat, 1.0, facs );
-    read_main_problem_series ( _dist_main, coefs.n_main_dist, coefs.i_main_dist, coefs.A_main_dist, facs.fA, facs );
+    read_main_problem_series ( _lon_main, 0 );
+    read_main_problem_series ( _lat_main, _lon_main.nt );
+    read_main_problem_series ( _dist_main, _lon_main.nt + _lat_main.nt );
 
     // perturbation, longitude
     
-    read_perturbation_series ( _lon_pert[0], coefs.n_pert_longT0, coefs.i_pert_longT0, coefs.A_pert_longT0, coefs.ph_pert_longT0 );
-    read_perturbation_series ( _lon_pert[1], coefs.n_pert_longT1, coefs.i_pert_longT1, coefs.A_pert_longT1, coefs.ph_pert_longT1 );
-    read_perturbation_series ( _lon_pert[2], coefs.n_pert_longT2, coefs.i_pert_longT2, coefs.A_pert_longT2, coefs.ph_pert_longT2 );
-    read_perturbation_series ( _lon_pert[3], coefs.n_pert_longT3, coefs.i_pert_longT3, coefs.A_pert_longT3, coefs.ph_pert_longT3);
+    read_perturbation_series ( _lon_pert[0], 0 );
+    read_perturbation_series ( _lon_pert[1], _lon_pert[0].nt );
+    read_perturbation_series ( _lon_pert[2], _lon_pert[0].nt + _lon_pert[1].nt );
+    read_perturbation_series ( _lon_pert[3], _lon_pert[0].nt + _lon_pert[1].nt + _lon_pert[2].nt );
 
     // perturbation, latitude
 
-    read_perturbation_series ( _lat_pert[0], coefs.n_pert_latT0, coefs.i_pert_latT0, coefs.A_pert_latT0, coefs.ph_pert_latT0 );
-    read_perturbation_series ( _lat_pert[1], coefs.n_pert_latT1, coefs.i_pert_latT1, coefs.A_pert_latT1, coefs.ph_pert_latT1 );
-    read_perturbation_series ( _lat_pert[2], coefs.n_pert_latT2, coefs.i_pert_latT2, coefs.A_pert_latT2, coefs.ph_pert_latT2 );
+    read_perturbation_series ( _lat_pert[0], 0 );
+    read_perturbation_series ( _lat_pert[1], _lat_pert[0].nt );
+    read_perturbation_series ( _lat_pert[2], _lat_pert[0].nt + _lat_pert[1].nt );
 
     // perturbation, distance
 
-    read_perturbation_series ( _dist_pert[0], coefs.n_pert_distT0, coefs.i_pert_distT0, coefs.A_pert_distT0, coefs.ph_pert_distT0 );
-    read_perturbation_series ( _dist_pert[1], coefs.n_pert_distT1, coefs.i_pert_distT1, coefs.A_pert_distT1, coefs.ph_pert_distT1 );
-    read_perturbation_series ( _dist_pert[2], coefs.n_pert_distT2, coefs.i_pert_distT2, coefs.A_pert_distT2, coefs.ph_pert_distT2 );
-    read_perturbation_series ( _dist_pert[3], coefs.n_pert_distT3, coefs.i_pert_distT3, coefs.A_pert_distT3, coefs.ph_pert_distT3 );
+    read_perturbation_series ( _dist_pert[0], 0 );
+    read_perturbation_series ( _dist_pert[1], _dist_pert[0].nt );
+    read_perturbation_series ( _dist_pert[2], _dist_pert[0].nt + _dist_pert[1].nt );
+    read_perturbation_series ( _dist_pert[3], _dist_pert[0].nt + _dist_pert[1].nt + _dist_pert[2].nt );
 }
 
 // Copies data from ELPMPP02 series embedded in this C++ source code
-// into Liu's main and perturbation series arrays. Only do this once!
+// into Kam's main and perturbation series arrays. Only do this once!
 
 void ELPMPP02::initSeries ( void )
 {
     if ( ! _init )
     {
-        setup_Elp_series ( _coefs, _facs );
+        setup_Elp_series ();
         _init = true;
     }
 }
@@ -4440,7 +4384,7 @@ void ELPMPP02::initSeries ( void )
 #else
 
 // Reads ELPMPP02 series files from a specific directory (datadir)
-// and initializes Liu ELPMPP02 solution code from them.
+// and initializes Kam's ELPMPP02 solution code from them.
 // Returns true if successful or false on failure.
 
 bool ELPMPP02::readSeries ( const string &datadir )
@@ -4478,31 +4422,31 @@ bool ELPMPP02::readSeries ( const string &datadir )
     if ( pertDist.size() < 4 )
         return false;
 
-    // Now set up Liu ELPMPP02 solution code - Main problem first.
+    // Now set up Kam's ELPMPP02 solution code - Main problem first.
 
-    read_main_problem_series ( mainLon, _coefs.n_main_long, _coefs.i_main_long, _coefs.A_main_long, 1.0, _facs );
-    read_main_problem_series ( mainLat, _coefs.n_main_lat, _coefs.i_main_lat, _coefs.A_main_lat, 1.0, _facs );
-    read_main_problem_series ( mainDist, _coefs.n_main_dist, _coefs.i_main_dist, _coefs.A_main_dist, _facs.fA, _facs );
+    read_main_problem_series ( mainLon, 0 );
+    read_main_problem_series ( mainLat, _lon_main.nt );
+    read_main_problem_series ( mainDist, _lon_main.nt + _lat_main.nt );
 
     // perturbation, longitude
     
-    read_perturbation_series ( pertLon[0], _coefs.n_pert_longT0, _coefs.i_pert_longT0, _coefs.A_pert_longT0, _coefs.ph_pert_longT0 );
-    read_perturbation_series ( pertLon[1], _coefs.n_pert_longT1, _coefs.i_pert_longT1, _coefs.A_pert_longT1, _coefs.ph_pert_longT1 );
-    read_perturbation_series ( pertLon[2], _coefs.n_pert_longT2, _coefs.i_pert_longT2, _coefs.A_pert_longT2, _coefs.ph_pert_longT2 );
-    read_perturbation_series ( pertLon[3], _coefs.n_pert_longT3, _coefs.i_pert_longT3, _coefs.A_pert_longT3, _coefs.ph_pert_longT3);
+    read_perturbation_series ( pertLon[0], 0 );
+    read_perturbation_series ( pertLon[1], pertLon[0].nt );
+    read_perturbation_series ( pertLon[2], pertLon[0].nt + pertLon[1].nt );
+    read_perturbation_series ( pertLon[3], pertLon[0].nt + pertLon[1].nt + pertLon[2].nt );
 
     // perturbation, latitude
 
-    read_perturbation_series ( pertLat[0], _coefs.n_pert_latT0, _coefs.i_pert_latT0, _coefs.A_pert_latT0, _coefs.ph_pert_latT0 );
-    read_perturbation_series ( pertLat[1], _coefs.n_pert_latT1, _coefs.i_pert_latT1, _coefs.A_pert_latT1, _coefs.ph_pert_latT1 );
-    read_perturbation_series ( pertLat[2], _coefs.n_pert_latT2, _coefs.i_pert_latT2, _coefs.A_pert_latT2, _coefs.ph_pert_latT2 );
+    read_perturbation_series ( pertLat[0], 0 );
+    read_perturbation_series ( pertLat[1], pertLat[0].nt );
+    read_perturbation_series ( pertLat[2], pertLat[0].nt + pertLat[1].nt );
 
     // perturbation, distance
 
-    read_perturbation_series ( pertDist[0], _coefs.n_pert_distT0, _coefs.i_pert_distT0, _coefs.A_pert_distT0, _coefs.ph_pert_distT0 );
-    read_perturbation_series ( pertDist[1], _coefs.n_pert_distT1, _coefs.i_pert_distT1, _coefs.A_pert_distT1, _coefs.ph_pert_distT1 );
-    read_perturbation_series ( pertDist[2], _coefs.n_pert_distT2, _coefs.i_pert_distT2, _coefs.A_pert_distT2, _coefs.ph_pert_distT2 );
-    read_perturbation_series ( pertDist[3], _coefs.n_pert_distT3, _coefs.i_pert_distT3, _coefs.A_pert_distT3, _coefs.ph_pert_distT3 );
+    read_perturbation_series ( pertDist[0], 0 );
+    read_perturbation_series ( pertDist[1], pertDist[0].nt );
+    read_perturbation_series ( pertDist[2], pertDist[0].nt + pertDist[1].nt );
+    read_perturbation_series ( pertDist[3], pertDist[0].nt + pertDist[1].nt + pertDist[2].nt );
 
     // We are successfully initialized!
 
@@ -4735,8 +4679,7 @@ void ELPMPP02::printPertSeries ( ostream &out, const vector<ELPPertSeries> &pert
 bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &vel )
 {
     static SSMatrix eclequ = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
-    double t = ( jed - 2451545.0 ) / 36525.0;
-    double dt = 0.0001 / 36525.0;
+    double tj = jed - 2451545.0;
 
     // Make sure we have loaded or initialized required series terms.
 
@@ -4751,9 +4694,9 @@ bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &ve
     // and differencing the results. While crude, this method gives results accurate
     // to 5 decimals, and is no more computationally intensive than the mathematically
     // correct computation. We'll live with this until I fix Liu's code (above).
-    
-    getX2000 ( t, _paras, _coefs, pos.x, pos.y, pos.z );
-    getX2000 ( t - dt, _paras, _coefs, vel.x, vel.y, vel.z );
+
+    double xyz[6] = {0};
+    get_position_velocity ( tj, xyz );
     
     // Transform results to equatorial frame and from km to AU.
     
