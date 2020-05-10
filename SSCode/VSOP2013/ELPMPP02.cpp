@@ -4147,104 +4147,6 @@ void setup_parameters ()
     q5 = -0.320334e-14;
 }
 
-void get_position_velocity ( double tj, double *xyz )
-{
-    double t[5] = {0};
-    double v[6] = {0};
-    double x, y, xp, yp;
-
-    t[0] = 1.0;
-    t[1] = tj / sc;
-    t[2] = t[1] * t[1];
-    t[3] = t[2] * t[1];
-    t[4] = t[3] * t[1];
-
-    for ( int iv = 0; iv <= 2; iv++ )
-    {
-        v[iv] = 0.0;
-        v[iv + 3] = 0.0;
-
-        for ( int n = nmpb[iv][1]; n <= nmpb[iv][2]; n++ )
-        {
-            x = cmpb[n];
-            y = fmpb[0][n];
-            yp = 0.0;
-            for ( int k = 1; k <= 4; k++ )
-            {
-                y = y + fmpb[k][n] * t[k];
-                yp = yp + k * fmpb[k][n] * t[k - 1];
-            }
-            v[iv] = v[iv] + x * sin(y);
-            v[iv + 3] = v[iv + 3] + x * yp * cos(y);
-        }
-
-        for ( int it = 0; it <= 3; it++ )
-        {
-            for (int n = nper[iv][it][1]; n <= nper[iv][it][2]; n++ )
-            {
-                x = cper[n];
-                y = fper[0][n];
-                xp = 0.0;
-                yp = 0.0;
-                if ( it != 0 ) xp = it * x * t[it - 1];
-                for ( int k = 1; k <= 4; k++ )
-                {
-                  y = y + fper[k][n] * t[k];
-                  yp = yp + k * fper[k][n] * t[k - 1];
-                }
-                v[iv] = v[iv] + x * t[it] * sin(y);
-                v[iv + 3] = v[iv + 3] + xp * sin(y) + x * t[it] * yp * cos(y);
-            }
-        }
-    }
-
-    v[0] = v[0] / rad + w[0][0] + w[0][1] * t[1] + w[0][2] * t[2] + w[0][3] * t[3] + w[0][4] * t[4];
-    v[1] = v[1] / rad;
-    v[2] = v[2] * a405 / aelp;
-    v[3] = v[3] / rad + w[0][1] + 2.0 * w[0][2] * t[1] + 3.0 * w[0][3] * t[2] + 4.0 * w[0][4] * t[3];
-    v[4] = v[4] / rad;
-
-    double clamb = cos( v[0] );
-    double slamb = sin( v[0] );
-    double cbeta = cos( v[1] );
-    double sbeta = sin( v[1] );
-    double cw = v[2] * cbeta;
-    double sw = v[2] * sbeta;
-
-    double x1 = cw * clamb;
-    double x2 = cw * slamb;
-    double x3 = sw;
-    double xp1 = ( v[5] * cbeta - v[4] * sw ) * clamb - v[3] * x2;
-    double xp2 = ( v[5] * cbeta - v[4] * sw ) * slamb + v[3] * x1;
-    double xp3 = v[5] * sbeta + v[4] * cw;
-
-    double pw = ( p1 + p2 * t[1] + p3 * t[2] + p4 * t[3] + p5 * t[4] ) * t[1];
-    double qw = (q1 + q2 * t[1] + q3 * t[2] + q4 * t[3] + q5 * t[4] ) * t[1];
-    double ra = 2.0 * sqrt( 1 - pw * pw - qw * qw );
-    double pwqw = 2.0 * pw * qw;
-    double pw2 = 1.0 - 2.0 * pw * pw;
-    double qw2 = 1.0 - 2.0 * qw * qw;
-    double pwra = pw * ra;
-    double qwra = qw * ra;
-
-    xyz[1] = pw2 * x1 + pwqw * x2 + pwra * x3;
-    xyz[2] = pwqw * x1 + qw2 * x2 - qwra * x3;
-    xyz[3] = -pwra * x1 + qwra * x2 + ( pw2 + qw2 - 1 ) * x3;
-
-    double ppw = p1 + ( 2.0 * p2 + 3.0 * p3 * t[1] + 4.0 * p4 * t[2] + 5.0 * p5 * t[3] ) * t[1];
-    double qpw = q1 + ( 2.0 * q2 + 3.0 * q3 * t[1] + 4.0 * q4 * t[2] + 5.0 * q5 * t[3] ) * t[1];
-    double ppw2 = -4.0 * pw * ppw;
-    double qpw2 = -4.0 * qw * qpw;
-    double ppwqpw = 2.0 * ( ppw * qw + pw * qpw );
-    double rap = ( ppw2 + qpw2 ) / ra;
-    double ppwra = ppw * ra + pw * rap;
-    double qpwra = qpw * ra + qw * rap;
-
-    xyz[4] = ( pw2 * xp1 + pwqw * xp2 + pwra * xp3 + ppw2 * x1 + ppwqpw * x2 + ppwra * x3 ) / sc;
-    xyz[5] = ( pwqw * xp1 + qw2 * xp2 - qwra * xp3 + ppwqpw * x1 + qpw2 * x2 - qpwra * x3 ) / sc;
-    xyz[6] = ( -pwra * xp1 + qwra * xp2 + ( pw2 + qw2 - 1.0 ) * xp3 - ppwra * x1 + qpwra * x2 + ( ppw2 + qpw2 ) * x3 ) / sc;
-}
-
 // Reads main problem series
 // We need to pass in starting_idx since the matrices store combined data from long/lat/dist
 
@@ -4267,6 +4169,7 @@ void read_main_problem_series ( const ELPMainSeries &series, int starting_idx )
         tgv = series.terms[n].b[0] + dtasm * series.terms[n].b[4];
         a = iv == 2 ? series.terms[n].a - 2.0 * series.terms[n].a * delnu / 3.0 : series.terms[n].a;
         cmpb[ir] = a + tgv * (delnp - am * delnu) + series.terms[n].b[1] * delg + series.terms[n].b[2] * dele + series.terms[n].b[3] * delep;
+
         for ( int k = 0; k <= 4; k++ )
         {
             fmpb[k][ir] = 0.0;
@@ -4330,6 +4233,105 @@ bool compareELPPertTerms ( const ELPPertTerm &term1, const ELPPertTerm &term2 )
     return a1 > a2;
 }
 
+void get_position_velocity ( double tj, double *xyz )
+{
+    double t[5] = {0};
+    double v[6] = {0};
+    double x, y, xp, yp;
+
+    t[0] = 1.0;
+    t[1] = tj / sc;
+    t[2] = t[1] * t[1];
+    t[3] = t[2] * t[1];
+    t[4] = t[3] * t[1];
+
+    for ( int iv = 0; iv <= 2; iv++ )
+    {
+        v[iv] = 0.0;
+        v[iv + 3] = 0.0;
+
+        for ( int n = nmpb[iv][1]; n <= nmpb[iv][2]; n++ )
+        {
+            x = cmpb[n];
+            y = fmpb[0][n];
+            yp = 0.0;
+            for ( int k = 1; k <= 4; k++ )
+            {
+                y = y + fmpb[k][n] * t[k];
+                yp = yp + k * fmpb[k][n] * t[k - 1];
+            }
+            v[iv] = v[iv] + x * sin(y);
+            v[iv + 3] = v[iv + 3] + x * yp * cos(y);
+        }
+
+        for ( int it = 0; it <= 3; it++ )
+        {
+            if ( nper[iv][it][1] == 0 && nper[iv][it][2] == 0 ) continue;
+            for (int n = nper[iv][it][1]; n <= nper[iv][it][2]; n++ )
+            {
+                x = cper[n];
+                y = fper[0][n];
+                xp = 0.0;
+                yp = 0.0;
+                if ( it != 0 ) xp = it * x * t[it - 1];
+                for ( int k = 1; k <= 4; k++ )
+                {
+                    y = y + fper[k][n] * t[k];
+                    yp = yp + k * fper[k][n] * t[k - 1];
+                }
+                v[iv] = v[iv] + x * t[it] * sin(y);
+                v[iv + 3] = v[iv + 3] + xp * sin(y) + x * t[it] * yp * cos(y);
+            }
+        }
+    }
+
+    v[0] = v[0] / rad + w[0][0] + w[0][1] * t[1] + w[0][2] * t[2] + w[0][3] * t[3] + w[0][4] * t[4];
+    v[1] = v[1] / rad;
+    v[2] = v[2] * a405 / aelp;
+    v[3] = v[3] / rad + w[0][1] + 2.0 * w[0][2] * t[1] + 3.0 * w[0][3] * t[2] + 4.0 * w[0][4] * t[3];
+    v[4] = v[4] / rad;
+
+    double clamb = cos( v[0] );
+    double slamb = sin( v[0] );
+    double cbeta = cos( v[1] );
+    double sbeta = sin( v[1] );
+    double cw = v[2] * cbeta;
+    double sw = v[2] * sbeta;
+
+    double x1 = cw * clamb;
+    double x2 = cw * slamb;
+    double x3 = sw;
+    double xp1 = ( v[5] * cbeta - v[4] * sw ) * clamb - v[3] * x2;
+    double xp2 = ( v[5] * cbeta - v[4] * sw ) * slamb + v[3] * x1;
+    double xp3 = v[5] * sbeta + v[4] * cw;
+
+    double pw = ( p1 + p2 * t[1] + p3 * t[2] + p4 * t[3] + p5 * t[4] ) * t[1];
+    double qw = (q1 + q2 * t[1] + q3 * t[2] + q4 * t[3] + q5 * t[4] ) * t[1];
+    double ra = 2.0 * sqrt( 1 - pw * pw - qw * qw );
+    double pwqw = 2.0 * pw * qw;
+    double pw2 = 1.0 - 2.0 * pw * pw;
+    double qw2 = 1.0 - 2.0 * qw * qw;
+    double pwra = pw * ra;
+    double qwra = qw * ra;
+
+    xyz[0] = pw2 * x1 + pwqw * x2 + pwra * x3;
+    xyz[1] = pwqw * x1 + qw2 * x2 - qwra * x3;
+    xyz[2] = -pwra * x1 + qwra * x2 + ( pw2 + qw2 - 1 ) * x3;
+
+    double ppw = p1 + ( 2.0 * p2 + 3.0 * p3 * t[1] + 4.0 * p4 * t[2] + 5.0 * p5 * t[3] ) * t[1];
+    double qpw = q1 + ( 2.0 * q2 + 3.0 * q3 * t[1] + 4.0 * q4 * t[2] + 5.0 * q5 * t[3] ) * t[1];
+    double ppw2 = -4.0 * pw * ppw;
+    double qpw2 = -4.0 * qw * qpw;
+    double ppwqpw = 2.0 * ( ppw * qw + pw * qpw );
+    double rap = ( ppw2 + qpw2 ) / ra;
+    double ppwra = ppw * ra + pw * rap;
+    double qpwra = qpw * ra + qw * rap;
+
+    xyz[3] = ( pw2 * xp1 + pwqw * xp2 + pwra * xp3 + ppw2 * x1 + ppwqpw * x2 + ppwra * x3 ) / sc;
+    xyz[4] = ( pwqw * xp1 + qw2 * xp2 - qwra * xp3 + ppwqpw * x1 + qpw2 * x2 - qpwra * x3 ) / sc;
+    xyz[5] = ( -pwra * xp1 + qwra * xp2 + ( pw2 + qw2 - 1.0 ) * xp3 - ppwra * x1 + qpwra * x2 + ( ppw2 + qpw2 ) * x3 ) / sc;
+}
+
 static bool _init = false;  // initialization flag ensures series are only loaded once.
 
 ELPMPP02::ELPMPP02 ( void )
@@ -4344,29 +4346,45 @@ void setup_Elp_series ()
 {
     // Main problem
 
-    read_main_problem_series ( _lon_main, 0 );
-    read_main_problem_series ( _lat_main, _lon_main.nt );
-    read_main_problem_series ( _dist_main, _lon_main.nt + _lat_main.nt );
+    int starting_idx = 0;
+    read_main_problem_series ( _lon_main, starting_idx );
+    starting_idx += _lon_main.nt;
+    read_main_problem_series ( _lat_main, starting_idx );
+    starting_idx += _lat_main.nt;
+    read_main_problem_series ( _dist_main, starting_idx );
+    starting_idx += _dist_main.nt;
 
     // perturbation, longitude
     
-    read_perturbation_series ( _lon_pert[0], 0 );
-    read_perturbation_series ( _lon_pert[1], _lon_pert[0].nt );
-    read_perturbation_series ( _lon_pert[2], _lon_pert[0].nt + _lon_pert[1].nt );
-    read_perturbation_series ( _lon_pert[3], _lon_pert[0].nt + _lon_pert[1].nt + _lon_pert[2].nt );
+    starting_idx = 0;
+    read_perturbation_series ( _lon_pert[0], starting_idx );
+    starting_idx += _lon_pert[0].nt;
+    read_perturbation_series ( _lon_pert[1], starting_idx );
+    starting_idx += _lon_pert[1].nt;
+    read_perturbation_series ( _lon_pert[2], starting_idx );
+    starting_idx += _lon_pert[2].nt;
+    read_perturbation_series ( _lon_pert[3], starting_idx );
+    starting_idx += _lon_pert[3].nt;
 
     // perturbation, latitude
 
-    read_perturbation_series ( _lat_pert[0], 0 );
-    read_perturbation_series ( _lat_pert[1], _lat_pert[0].nt );
-    read_perturbation_series ( _lat_pert[2], _lat_pert[0].nt + _lat_pert[1].nt );
+    read_perturbation_series ( _lat_pert[0], starting_idx );
+    starting_idx += _lat_pert[0].nt;
+    read_perturbation_series ( _lat_pert[1], starting_idx );
+    starting_idx += _lat_pert[1].nt;
+    read_perturbation_series ( _lat_pert[2], starting_idx );
+    starting_idx += _lat_pert[2].nt;
 
     // perturbation, distance
 
-    read_perturbation_series ( _dist_pert[0], 0 );
-    read_perturbation_series ( _dist_pert[1], _dist_pert[0].nt );
-    read_perturbation_series ( _dist_pert[2], _dist_pert[0].nt + _dist_pert[1].nt );
-    read_perturbation_series ( _dist_pert[3], _dist_pert[0].nt + _dist_pert[1].nt + _dist_pert[2].nt );
+    read_perturbation_series ( _dist_pert[0], starting_idx );
+    starting_idx += _dist_pert[0].nt;
+    read_perturbation_series ( _dist_pert[1], starting_idx );
+    starting_idx += _dist_pert[1].nt;
+    read_perturbation_series ( _dist_pert[2], starting_idx );
+    starting_idx += _dist_pert[2].nt;
+    read_perturbation_series ( _dist_pert[3], starting_idx );
+    starting_idx += _dist_pert[3].nt;
 }
 
 // Copies data from ELPMPP02 series embedded in this C++ source code
@@ -4424,29 +4442,45 @@ bool ELPMPP02::readSeries ( const string &datadir )
 
     // Now set up Kam's ELPMPP02 solution code - Main problem first.
 
-    read_main_problem_series ( mainLon, 0 );
-    read_main_problem_series ( mainLat, _lon_main.nt );
-    read_main_problem_series ( mainDist, _lon_main.nt + _lat_main.nt );
+    int starting_idx = 0;
+    read_main_problem_series ( mainLon, starting_idx );
+    starting_idx += mainLon.nt;
+    read_main_problem_series ( mainLat, starting_idx );
+    starting_idx += mainLat.nt;
+    read_main_problem_series ( mainDist, starting_idx );
+    starting_idx += mainDist.nt;
 
     // perturbation, longitude
-    
-    read_perturbation_series ( pertLon[0], 0 );
-    read_perturbation_series ( pertLon[1], pertLon[0].nt );
-    read_perturbation_series ( pertLon[2], pertLon[0].nt + pertLon[1].nt );
-    read_perturbation_series ( pertLon[3], pertLon[0].nt + pertLon[1].nt + pertLon[2].nt );
+
+    starting_idx = 0;
+    read_perturbation_series ( pertLon[0], starting_idx );
+    starting_idx += pertLon[0].nt;
+    read_perturbation_series ( pertLon[1], starting_idx );
+    starting_idx += pertLon[1].nt;
+    read_perturbation_series ( pertLon[2], starting_idx );
+    starting_idx += pertLon[2].nt;
+    read_perturbation_series ( pertLon[3], starting_idx );
+    starting_idx += pertLon[3].nt;
 
     // perturbation, latitude
 
-    read_perturbation_series ( pertLat[0], 0 );
-    read_perturbation_series ( pertLat[1], pertLat[0].nt );
-    read_perturbation_series ( pertLat[2], pertLat[0].nt + pertLat[1].nt );
+    read_perturbation_series ( pertLat[0], starting_idx );
+    starting_idx += pertLat[0].nt;
+    read_perturbation_series ( pertLat[1], starting_idx );
+    starting_idx += pertLat[1].nt;
+    read_perturbation_series ( pertLat[2], starting_idx );
+    starting_idx += pertLat[2].nt;
 
     // perturbation, distance
 
-    read_perturbation_series ( pertDist[0], 0 );
-    read_perturbation_series ( pertDist[1], pertDist[0].nt );
-    read_perturbation_series ( pertDist[2], pertDist[0].nt + pertDist[1].nt );
-    read_perturbation_series ( pertDist[3], pertDist[0].nt + pertDist[1].nt + pertDist[2].nt );
+    read_perturbation_series ( pertDist[0], starting_idx );
+    starting_idx += pertDist[0].nt;
+    read_perturbation_series ( pertDist[1], starting_idx );
+    starting_idx += pertDist[1].nt;
+    read_perturbation_series ( pertDist[2], starting_idx );
+    starting_idx += pertDist[2].nt;
+    read_perturbation_series ( pertDist[3], starting_idx );
+    starting_idx += pertDist[3].nt;
 
     // We are successfully initialized!
 
@@ -4503,12 +4537,12 @@ int ELPMPP02::readMainSeries ( const string &filename, ELPMainSeries &ser )
         term.i[3]  = strtoint ( line.substr ( 9, 3 ) );
         
         term.a =  strtofloat64 ( line.substr ( 14, 13 ) );
-        term.b[0] = strtofloat ( line.substr ( 27, 12 ) );
-        term.b[1] = strtofloat ( line.substr ( 39, 12 ) );
-        term.b[2] = strtofloat ( line.substr ( 51, 12 ) );
-        term.b[3] = strtofloat ( line.substr ( 63, 12 ) );
-        term.b[4] = strtofloat ( line.substr ( 75, 12 ) );
-        term.b[5] = strtofloat ( line.substr ( 87, 12 ) );
+        term.b[0] = strtofloat64 ( line.substr ( 27, 12 ) );
+        term.b[1] = strtofloat64 ( line.substr ( 39, 12 ) );
+        term.b[2] = strtofloat64 ( line.substr ( 51, 12 ) );
+        term.b[3] = strtofloat64 ( line.substr ( 63, 12 ) );
+        term.b[4] = strtofloat64 ( line.substr ( 75, 12 ) );
+        term.b[5] = strtofloat64 ( line.substr ( 87, 12 ) );
         
         ser.terms.push_back ( term );
     }
@@ -4697,10 +4731,16 @@ bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &ve
 
     double xyz[6] = {0};
     get_position_velocity ( tj, xyz );
+
+    pos.x = xyz[0];
+    pos.y = xyz[1];
+    pos.z = xyz[2];
+    vel.x = xyz[3];
+    vel.y = xyz[4];
+    vel.z = xyz[5];
     
     // Transform results to equatorial frame and from km to AU.
     
-    vel = ( pos - vel ) / 0.0001;
     pos = eclequ * pos / SSCoordinates::kKmPerAU;
     vel = eclequ * vel / SSCoordinates::kKmPerAU;
     
