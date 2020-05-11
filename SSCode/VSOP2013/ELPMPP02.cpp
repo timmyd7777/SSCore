@@ -3909,47 +3909,8 @@ static const vector<ELPPertSeries> _dist_pert = {
 
 #endif // ELPMPP02_EMBED_SERIES
 
-// ----------------------------------------------------------------
-//  This code calculates the ELP/MPP02 series.
-//
-//  ELP/MPP02 is a semi-analytic solution for the lunar motion developed by
-//  J. Chapront and G. Francou in 2002. It is an improvement of the ELP2000-82B
-//  lunar theory.
-//
-//  Source paper:
-//    The lunar theory ELP revisited. Introduction of new planetary perturbations
-//    by J. Chapront and G. Francou, Astronomy and Astrophysics, v.404, p.735-742 (2003)
-//    http://adsabs.harvard.edu/abs/2003A%26A...404..735C
-//
-//  This code and data files are based on the authors' FORTRAN code and data files on
-//  ftp://cyrano-se.obspm.fr/pub/2_lunar_solutions/2_elpmpp02/
-//
-//  The following 14 data files are required:
-//    elp_main.long, elp_main.lat, elp_main.dist,
-//    elp_pert.longT0, elp_pert.longT1, elp_pert.longT2, elp_pert.longT3,
-//    elp_pert.latT0, elp_pert.latT1, elp_pert.latT2,
-//    elp_pert.distT0, elp_pert.distT1, elp_pert.distT2, elp_pert.distT3
-//
-//  Usage:
-//    1. Set the parameter corr: corr=0 uses parameters fitted
-//       to the lunar laser ranging (LLR) observation data, corr=1 uses
-//       parameters fitted to JPL's DE405/DE406 ephemerides.
-//    2. Call the function setup_parameters() to set up parameters
-//       corresponding to the choice of corr. There are two sets of
-//       parameters: a) parameters for adjusting the lunar and
-//       planetary arguments, stored in the struct Elp_paras;
-//       b) parameters for adjusting the coefficeients in
-//       the Elp/MPP02 series for the main problem, stored in the struct
-//       Elp_facs.
-//    3. Call the function setup_Elp_coefs() to set up the coefficients
-//       for the ELP/MPP02 series. The coefficients are stored in the struct
-//       Elp_coefs.
-//    4. Call getX2000() to compute the rectangular geocentric coordinates
-//       of the Moon's position with respect to the mean ecliptic and
-//       equinox of J2000.0.
-//
-//  See example.cpp for an example of using this code.
-//----------------------------------------------------------------
+// This code is a C++ translation of the original Chapront FORTRAN code supplied with the
+// ELPMPP02 lunar orbit model, by Kam Seto.
 
 #define cpi 3.141592653589793
 #define a405 384747.9613701725
@@ -4306,7 +4267,7 @@ void get_position_velocity ( double tj, double *xyz )
     double xp3 = v[5] * sbeta + v[4] * cw;
 
     double pw = ( p1 + p2 * t[1] + p3 * t[2] + p4 * t[3] + p5 * t[4] ) * t[1];
-    double qw = (q1 + q2 * t[1] + q3 * t[2] + q4 * t[3] + q5 * t[4] ) * t[1];
+    double qw = ( q1 + q2 * t[1] + q3 * t[2] + q4 * t[3] + q5 * t[4] ) * t[1];
     double ra = 2.0 * sqrt( 1 - pw * pw - qw * qw );
     double pwqw = 2.0 * pw * qw;
     double pw2 = 1.0 - 2.0 * pw * pw;
@@ -4724,10 +4685,8 @@ bool ELPMPP02::computePositionVelocity ( double jed, SSVector &pos, SSVector &ve
     if ( ! _init )
         return false;
 
-    // We compute velocity by computing position twice (1/1000th of a day apart)
-    // and differencing the results. While crude, this method gives results accurate
-    // to 5 decimals, and is no more computationally intensive than the mathematically
-    // correct computation. We'll live with this until I fix Liu's code (above).
+    // Compute Moon's position and velocity in J2000 ecliptic frame
+    // in AU and AU per day using mathematically-correct formulae.
 
     double xyz[6] = {0};
     get_position_velocity ( tj, xyz );

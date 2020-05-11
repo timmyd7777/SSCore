@@ -3,16 +3,13 @@
 // Created by Tim DeBenedictis on 4/27/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
-// This is a C++ wrapper around a modified version of Yuk Tung Liu's
-// implementation of the ELP/MPP02 lunar ephemeris found here:
-// https://github.com/ytliu0/ElpMpp02
-// The original ELP/MPP02 lunar ephemeris is dessribed in
+// This is a C++ wrapper around a translation by Kam Seto from FORTRAN code
+// supplied with the original ELP/MPP02 lunar ephemeris, described here:
 // "The lunar theory ELP revisited. Introduction of new planetary perturbations",
-// J. Chapront & G. Francou, Astronomy & Astrophysics 404, 735-742 (2003) with macnine-
+// J. Chapront & G. Francou, Astronomy & Astrophysics 404, 735-742 (2003) with machine-
 // readable files here: ftp://cyrano-se.obspm.fr/pub/2_lunar_solutions/2_elpmpp02/
-// This version uses the original Chapront ELPMPP02 data files instead of Liu's modified files,
-// and optionally embeds the Chapront series data files embedded in source code to avoid reading
-// them from the filesystem. It also computes the Moon's velocity, unlike Liu's version.
+// This version optionally embeds the Chapront series data files embedded in source code
+// to avoid reading them from the filesystem. It also computes the Moon's velocity.
 // The ELPMPP02 series embedded in this C++ code contains 1/5th of the "main problem" terms
 // and 1/10th of the "perturbation" terms in the full series, resulting in a 5-10x performance
 // increase and code-size decrease from the full series, yet maintains sub-arcsecond accuracy.
