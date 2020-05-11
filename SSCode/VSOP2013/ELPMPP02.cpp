@@ -4127,6 +4127,16 @@ void read_main_problem_series ( const ELPMainSeries &series, int starting_idx )
 
     for ( int n = 0; n < nt; n++ )
     {
+#if 0
+        ELPMainTerm term = series.terms[n];     // this makes a copy of series.terms[0] called "term"
+        double a1 = term.a;                     // ... and you can use members of the copy just like you'd use members of the original series.terms[n]
+        
+        ELPMainTerm *pterm = &series.terms[n];  // this says "pterm is a pointer to an ELPMainTerm, and it points to the address of series.terms[n]"  This would be perfectly valid in C if series.terms was an array, but it fails in C++ because series.terms is a vector, not an array (vectors only exist in C++).
+        double a2 = pterm->a;                   // anyhow, in C, this is how you would get at the "a" member variable of the ELPMainTerm structure using a pointer to the structure (pterm)
+        
+        vector<ELPMainTerm>::const_iterator iterm = series.terms.begin();   // This is how you're supposed to do it in C++ with vectors.  An iterator is mostly like a pointer.  This says "iterm is an iterator to the beginning of the vector series.terms".  I hate this syntax and I try to avoid it as much as possible.
+        double a3 = iterm[n].a;                 // But anyhow, once you've got the iterator, you can use C-style array syntax [] to get to the n-th ELPMainTerm structure in the vector, and then to the .a member of that structure.  I feel like the designers of C++ made this deliberately confusing because it looks like C array referencing, but in fact it is totally different under the hood (operator overloading).  Thanks guys!  But anyhow now you know.
+#endif
         tgv = series.terms[n].b[0] + dtasm * series.terms[n].b[4];
         a = iv == 2 ? series.terms[n].a - 2.0 * series.terms[n].a * delnu / 3.0 : series.terms[n].a;
         cmpb[ir] = a + tgv * (delnp - am * delnu) + series.terms[n].b[1] * delg + series.terms[n].b[2] * dele + series.terms[n].b[3] * delep;
