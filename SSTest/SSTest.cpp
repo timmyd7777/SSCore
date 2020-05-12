@@ -350,7 +350,8 @@ void TestEphemeris ( string inputDir, string outputDir )
     int nnames = SSImportMcNames ( inputDir + "/SolarSystem/Satellites/mcnames.txt", solsys );
     cout << "Imported " << nnames << " McCants satellite names." << endl;
 
-    int nfreqs = SSImportSatelliteFrequencyData ( inputDir + "/SolarSystem/Satellites/je9pel.csv", solsys );
+    SatFreqMap satfreqs;
+    int nfreqs = SSImportSatelliteFrequencyData ( inputDir + "/SolarSystem/Satellites/je9pel.csv", satfreqs );
     cout << "Imported " << nfreqs << " JE9PEL satellite radio frequencies." << endl << endl;
 
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
