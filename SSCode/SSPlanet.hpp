@@ -164,4 +164,23 @@ int SSImportSatellitesFromTLE ( const string &path, SSObjectVec &satellites );
 int SSImportMcNames ( const string &path, McNameMap &mcnames );
 int SSImportMcNames ( const string &filename, SSObjectVec &objects );
 
+// Struct used to store CSV-parsed data from amateur satellite frequency table
+
+struct SatFreqData
+{
+    int    norad;             // NORAD tracking number
+    string name;              // satellite name
+    string uplink;            // uplink frequency(ies), MHz
+    string downlink;          // downlink frequency(ies), MHz
+    string beacon;            // beacon frequency, MHz
+    string mode;              // modulation scheme and rate, if known
+    string callsign;          // callsign
+    string status;            // current status
+};
+
+typedef map<int,vector<SatFreqData>> SatFreqMap;
+
+int SSImportSatelliteFrequencyData ( const string &path, SatFreqMap &satfreqs );
+int SSImportSatelliteFrequencyData ( const string &path, SSObjectVec &objects );
+
 #endif /* SSPlanet_hpp */

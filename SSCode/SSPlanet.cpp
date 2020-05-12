@@ -688,3 +688,104 @@ int SSImportMcNames ( const string &filename, SSObjectVec &objects )
     
     return n;
 }
+
+// Imports a Mineo Wakita amateur radio satellite frequency data file:
+// http://www.ne.jp/asahi/hamradio/je9pel/satslist.csv
+// into a map of vectors of SatFreqData structs indexed by NORAD number.
+// Returns number of SatFreqData records imported from file.
+
+int SSImportSatelliteFrequencyData ( const string &filename, SatFreqMap &freqmap )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int nFreqs = 0;
+    vector<SatFreqData> freqvec;
+
+    while ( getline ( file, line ) )
+    {
+        vector<string> fields = split ( line, ";" );
+        if ( fields.size() < 8 )
+            continue;
+        
+        SatFreqData freq = { 0, "", "", "", "", "", "", "" };
+        
+        freq.name = fields[0];
+        freq.norad = strtoint ( fields[1] );
+        freq.uplink = fields[2];
+        freq.downlink = fields[3];
+        freq.beacon = fields[4];
+        freq.mode = fields[5];
+        freq.callsign = fields[6];
+        freq.status = fields[7];
+        
+        if ( freq.norad < 1 )
+            continue;
+        
+        nFreqs++;
+
+        if ( freqvec.size() > 0 )
+        {
+            if ( freq.norad != freqvec[0].norad )
+            {
+                freqmap.insert ( { freqvec[0].norad, freqvec } );
+                freqvec.clear();
+            }
+        }
+
+        freqvec.push_back ( freq );
+    }
+    
+    // Return number of frequencies read from file.  File will close automatically.
+
+    return nFreqs;
+}
+
+// Imports satellite amateur radio frequency data into a vector of SSObjects (objects),
+// which may contain any solar system objects in addition to satellites.
+// Returns number of satellite radio frequencies successfully imported.
+
+int SSImportSatelliteFrequencyData ( const string &filename, SSObjectVec &objects )
+{
+    SatFreqMap freqmap;
+    
+    // First read the satellite amateur radio frequency file; return 0 if we fail.
+    
+    int n = SSImportSatelliteFrequencyData ( filename, freqmap );
+    if ( n == 0 || freqmap.size() == 0 )
+        return 0;
+    
+    // For each object in the solar system object vector...
+    
+    n = 0;
+    for ( SSObjectPtr pObj : objects )
+    {
+        // If the object is not a satellite, continue
+        
+        SSSatellite *pSat = SSGetSatellitePtr ( pObj );
+        if ( pSat == nullptr )
+            continue;
+        
+        // Get satellite's NORAD number. Look for satellite frequency vector with same number.
+        // If we find one, copy satellite frequency vector into satellite.
+        
+        int norad = pSat->getTLE().norad;
+        vector<SatFreqData> freqvec = freqmap[norad];
+        if ( freqvec.size() > 0 && freqvec[0].norad == norad )
+        {
+            // TODO: actually store the vector of SatFreqData into pSat!
+            
+            n += freqvec.size();
+        }
+    }
+    
+    // Return total number of satellites matched to amateur radio frequencies.
+    
+    return n;
+}
