@@ -79,4 +79,5 @@ This directory contains a test program (SSTest.cpp), which hopefully serves as a
 Version History
 ---------------
 
-Version 1.0, 12 Apr 2020: Initial public release.
+Version 1.0, 12 Apr 2020: Initial public release.  
+Version 1.1, 12 May 2020: Added VSOP2013, ELPMPP02, SSMoonEphemeris, many fixes.

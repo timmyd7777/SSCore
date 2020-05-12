@@ -103,7 +103,9 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 - **_visual.txt_** is the [Visual](http://www.celestrak.com/NORAD/elements/visual.txt) (brightest) satellite list from [CelesTrak](http://www.celestrak.com)
 - **_all.txt_** is the [complete](https://www.n2yo.com/tle2/3line.tle) satellite list from [N2YO](https://www.n2yo.com)
 - **_mcnames.txt_** is Mike McCants' satellite [names file](https://www.prismnet.com/~mmccants/tles/mcnames.zip), which contains satellite size and magnitude information.
+- **_je9pel.csv_** is Mineo Wakita's amateur radio satellite [frequency file](http://www.ne.jp/asahi/hamradio/je9pel/satslist.csv), in CSV format.
 
 **Revision History**
 
-Version 1.0 (4 Apr 2020): initial checkin.
+Version 1.0 (4 Apr 2020): initial checkin.  
+Version 1.1 (11 May 2020): added Mineo Wakita JE9PEL satellite radio frequency file.

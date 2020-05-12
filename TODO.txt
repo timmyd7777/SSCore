@@ -52,8 +52,7 @@ SSTLE
 -----
 - add TLE and revolution numbers to exported TLEs so they exactly match the imported versions.
 - add EFECtoECI() and ECItoECEF routines()
-- add import routines for JE9PEL amateur radio data
-- add iridium flare computation
+
 
 SSTime
 ------
@@ -66,7 +65,6 @@ SSVector
 
 VSOP2013 & ELPMPP02
 -------------------
-- correctly compute Moon's velocity
 - do more validation testing for times very far from present.
 
 Other
