@@ -476,7 +476,7 @@ SSObjectPtr SSStar::fromCSV ( string csv )
 
 SSStarPtr SSGetStarPtr ( SSObjectPtr ptr )
 {
-    return dynamic_cast<SSStarPtr> ( ptr.get() );
+    return dynamic_cast<SSStarPtr> ( ptr );
 }
 
 // Downcasts generic SSObject pointer to SSDoubleStar pointer.
@@ -485,7 +485,7 @@ SSStarPtr SSGetStarPtr ( SSObjectPtr ptr )
 
 SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr )
 {
-    return dynamic_cast<SSDoubleStarPtr> ( ptr.get() );
+    return dynamic_cast<SSDoubleStarPtr> ( ptr );
 }
 
 // Downcasts generic SSObject pointer to SSVariableStar pointer.
@@ -494,7 +494,7 @@ SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr )
 
 SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr )
 {
-    return dynamic_cast<SSVariableStarPtr> ( ptr.get() );
+    return dynamic_cast<SSVariableStarPtr> ( ptr );
 }
 
 // Downcasts generic SSObject pointer to SSDeepSkyStar pointer.
@@ -502,5 +502,5 @@ SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr )
 
 SSDeepSkyPtr SSGetDeepSkyPtr ( SSObjectPtr ptr )
 {
-    return dynamic_cast<SSDeepSkyPtr> ( ptr.get() );
+    return dynamic_cast<SSDeepSkyPtr> ( ptr );
 }

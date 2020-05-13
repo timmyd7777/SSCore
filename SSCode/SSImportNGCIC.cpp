@@ -491,7 +491,7 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
         pObject->setPositionAngle ( pa );
         
         // cout << pObject->toCSV() << endl;
-        objects.push_back ( shared_ptr<SSObject> ( pObject ) );
+        objects.push_back ( pObject );
         numObjects++;
     }
 
@@ -602,7 +602,7 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         pObject->setMajorAxis ( diam );
 
         // cout << pObject->toCSV() << endl;
-        clusters.push_back ( shared_ptr<SSObject> ( pObject ) );
+        clusters.push_back ( pObject );
         numClusters++;
     }
     
@@ -712,7 +712,7 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
         pObject->setSpectralType ( specStr );
         
         // cout << pObject->toCSV() << endl;
-        clusters.push_back ( shared_ptr<SSObject> ( pObject ) );
+        clusters.push_back ( pObject );
         numClusters++;
     }
 
@@ -940,7 +940,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
         pObject->setMajorAxis ( diam );
         
         // cout << pObject->toCSV() << endl;
-        nebulae.push_back ( shared_ptr<SSObject> ( pObject ) );
+        nebulae.push_back ( pObject );
         numNebulae++;
     }
     

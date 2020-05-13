@@ -68,7 +68,7 @@ int SSConstellation::abbreviationToIndex ( string abbrev )
 
 SSConstellationPtr SSGetConstellationPtr ( SSObjectPtr ptr )
 {
-    return dynamic_cast<SSConstellation *> ( ptr.get() );
+    return dynamic_cast<SSConstellation *> ( ptr );
 }
 
 // Allocates a new SSConstellation and initializes it from a CSV-formatted string.

@@ -44,7 +44,7 @@ protected:
 public:
     
     SSStar ( void );
-
+    
     void setIdentifiers ( vector<SSIdentifier> idents ) { _idents = idents; }
     void setFundamentalPosition ( SSVector pos ) { _position = pos; }
     void setFundamentalVelocity ( SSVector vel ) { _velocity = vel; }

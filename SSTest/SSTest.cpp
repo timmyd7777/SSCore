@@ -41,7 +41,7 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
         if ( i > 0 )
         {
             SSObjectPtr pObj = objects[ i - 1 ];
-            cout << pObj.get()->toCSV() << endl;
+            cout << pObj->toCSV() << endl;
         }
     }
 }
@@ -355,7 +355,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     cout << "Imported " << nfreqs << " JE9PEL satellite radio frequencies." << endl << endl;
 
     SSDate date ( kGregorian, 0.0, 2020, 4, 15.0, 0, 0, 0.0 );
-    SSTime now = SSTime ( date ); // SSTime::fromSystem(); // SSTime ( date );
+    SSTime now = SSTime::fromSystem(); // SSTime ( date );
     date = SSDate ( now );
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
     SSCoordinates coords ( now, here );

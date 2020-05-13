@@ -47,7 +47,7 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_size ( JNIEn
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSObjectArray_getObject ( JNIEnv *pEnv, jobject pJSSObjectArray, jint index )
 {
     SSObjectVec *pObjectVec = (SSObjectVec *) GetLongField ( pEnv, pJSSObjectArray, "pObjectVec" );
-    SSObject *pObject = pObjectVec && index >= 0 && index < pObjectVec->size() ? pObjectVec->at(index).get() : nullptr;
+    SSObject *pObject = pObjectVec ? pObjectVec->at ( index ) : nullptr;
     return SSObjectToJSSObject ( pEnv, pObject );
 }
 

@@ -44,7 +44,7 @@ void addGJStar ( SSStarPtr pStar, string strGJ, string strC, SSObjectVec &stars 
     pNewStar->addIdentifier ( identGJ );
     pNewStar->sortIdentifiers();
     
-    stars.push_back ( shared_ptr<SSObject> ( pNewStar ) );
+    stars.push_back ( pNewStar );
 }
 
 // Adds multiple components of a GJ star (pStar) to a vector of SSObjects (stars).

@@ -135,7 +135,7 @@ SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat )
     
     for ( int i = 0; i < objects.size(); i++ )
     {
-        SSObject *ptr = objects[i].get();
+        SSObject *ptr = objects[i];
         if ( ptr == nullptr )
             continue;
         
@@ -170,21 +170,36 @@ SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjec
 SSObjectPtr SSNewObject ( SSObjectType type )
 {
     if ( type >= kTypePlanet && type <= kTypeSpacecraft )
-        return shared_ptr<SSPlanet> ( new SSPlanet ( type ) );
+        return new SSPlanet ( type );
     else if ( type == kTypeStar )
-        return shared_ptr<SSStar> ( new SSStar );
+        return new SSStar;
     else if ( type == kTypeDoubleStar )
-        return shared_ptr<SSDoubleStar> ( new SSDoubleStar );
+        return new SSDoubleStar;
     else if ( type == kTypeVariableStar )
-        return shared_ptr<SSVariableStar> ( new SSVariableStar );
+        return new SSVariableStar;
     else if ( type == kTypeDoubleVariableStar )
-        return shared_ptr<SSDoubleVariableStar> ( new SSDoubleVariableStar );
+        return new SSDoubleVariableStar;
     else if ( type >= kTypeOpenCluster && type <= kTypeGalaxy )
-        return shared_ptr<SSDeepSky> ( new SSDeepSky ( type ) );
+        return new SSDeepSky ( type );
     else if ( type >= kTypeConstellation && type <= kTypeAsterism )
-        return shared_ptr<SSConstellation> ( new SSConstellation ( type ) );
+        return new SSConstellation ( type );
     else
-        return shared_ptr<class SSObject> ( nullptr );
+        return nullptr;
+}
+
+// Allocates a new object which is a complete deep copy of an existing object (pObj)
+// Returns pointer to null if pObj is null.
+
+SSObjectPtr SSCloneObject ( SSObject *pObj )
+{
+    if ( pObj )
+    {
+        SSObjectPtr pNewObj = SSNewObject ( pObj->getType() );
+        *pNewObj = *pObj;
+        return pNewObj;
+    }
+    
+    return nullptr;
 }
 
 // Exports a vector of objects to a CSV-formatted text file.
@@ -200,7 +215,7 @@ int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects )
     if ( filename.empty() )
     {
         for ( i = 0; i < objects.size(); i++ )
-            cout << objects[i].get()->toCSV() << endl;
+            cout << objects[i]->toCSV() << endl;
         
         return i;
     }
@@ -214,7 +229,7 @@ int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects )
     // Stream everything to file.
     
     for ( i = 0; i < objects.size(); i++ )
-        file << objects[i].get()->toCSV() << endl;
+        file << objects[i]->toCSV() << endl;
 
     // Return object count; file will close automatically.
     

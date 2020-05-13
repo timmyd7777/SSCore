@@ -34,7 +34,7 @@ SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
 
 void SSCoordinates::setTime ( SSTime time )
 {
-    _jd = time.jd;
+    _jd = time;
     _jed = time.getJulianEphemerisDate();
 
     getNutationConstants ( _jd, _de, _dl );
@@ -59,7 +59,7 @@ void SSCoordinates::setLocation ( SSSpherical loc )
     _lon = loc.lon;
     _lat = loc.lat;
     _alt = loc.rad;
-    _lst = SSTime ( _jd ).getSiderealTime ( SSAngle ( _lon + _dl * cos ( _obq + _de ) ) );
+    _lst = _jd.getSiderealTime ( SSAngle ( _lon + _dl * cos ( _obq + _de ) ) );
     
     _horMat = getHorizonMatrix ( _lst, _lat ).multiply ( _equMat );
 

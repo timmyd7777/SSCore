@@ -37,7 +37,7 @@ class SSCoordinates
 {
 protected:
     
-    double      _jd;             // Julian (Civil) Date, i.e. Julian Date in UTC
+    SSTime      _jd;             // Julian (Civil) Date, i.e. Julian Date in UTC, and local time zone in hours east of UTC
     double      _jed;            // Julian Ephemeris Date, i.e. Julian Date with Delta-T added (UTC to TDT)
     double      _lon;            // observer's longitude [radians, east positive]
     double      _lat;            // observer's latitude [radians, north positive]

@@ -218,6 +218,12 @@ func test ( ) -> String
         str.append ( i < n ? ", " : "\n" )
     }
     
+    // Now read moons into solar system object array
+    
+    path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/Moons.csv" )
+    n = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr );
+    str.append ( String ( format: "Imported %d moons.\n", n ) );
+
     // Test some CSSEvent functions
     
     let pSun = CSSObjectGetFromArray ( pObjArr, 0 )
@@ -233,7 +239,7 @@ func test ( ) -> String
     }
     else
     {
-        str.append ( String ( format: "Sunrise: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.rising.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Sunrise: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.rising.azm * kSSDegPerRad ) );
     }
     
     cdate = CSSTimeToCSSDate ( sunpass.setting.time, kSSGregorian );
@@ -243,7 +249,7 @@ func test ( ) -> String
     }
     else
     {
-        str.append ( String ( format: "Sunset: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.setting.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Sunset: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.setting.azm * kSSDegPerRad ) );
     }
 
     cdate = CSSTimeToCSSDate ( moonpass.rising.time, kSSGregorian );
@@ -253,7 +259,7 @@ func test ( ) -> String
     }
     else
     {
-        str.append ( String ( format: "Moonrise: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.rising.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Moonrise: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.rising.azm * kSSDegPerRad ) );
     }
 
     cdate = CSSTimeToCSSDate ( moonpass.setting.time, kSSGregorian );
@@ -263,13 +269,13 @@ func test ( ) -> String
     }
     else
     {
-        str.append ( String ( format: "Moonset: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.setting.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Moonset: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.setting.azm * kSSDegPerRad ) );
     }
 
     // Finally destroy coordinate transformations object and solar system object array
     
     CSSCoordinatesDestroy ( coords );
-//    CSSObjectArrayDestroy ( pObjArr );
+    CSSObjectArrayDestroy ( pObjArr );
     
     return str;
 }

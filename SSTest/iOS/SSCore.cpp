@@ -441,8 +441,7 @@ CSSTime CSSCoordinatesGetTime ( CSSCoordinates *pCCoords )
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     if ( pCoords )
         time = pCoords->getTime();
-    CSSTime ctime = { time.jd, time.zone };
-    return ctime;
+    return CSSTimeFromSSTime ( time );
 }
 
 CSSSpherical CSSCoordinatesGetLocation ( CSSCoordinates *pCCoords )
@@ -857,7 +856,7 @@ size_t CSSObjectArraySize ( CSSObjectArray *pObjArr )
 CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i )
 {
     SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
-    return (CSSObject *) ( pObjVec && i >= 0 && i < pObjVec->size() ? pObjVec->at(i).get() : nullptr );
+    return (CSSObject *) ( pObjVec ? pObjVec->at ( i ) : nullptr );
 }
 
 // C wrappers for C++ SSEvent definitions, classes and methods
@@ -880,7 +879,7 @@ CSSTime CSSEventRiseTransitSet2 ( CSSTime ctime, CSSCoordinates *pCCoords, CSSOb
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     SSObject *pObj = (SSObject *) pCObj;
     if ( pCoords && pObj )
-        time = SSEvent::riseTransitSet ( time, *pCoords, SSObjectPtr ( pObj ), sign, alt );
+        time = SSEvent::riseTransitSet ( time, *pCoords, pObj, sign, alt );
     else
         time.jd = INFINITY;
     return CSSTimeFromSSTime ( time );
@@ -892,7 +891,7 @@ CSSTime CSSEventRiseTransitSetSearch ( CSSTime ctime, CSSCoordinates *pCCoords, 
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     SSObject *pObj = (SSObject *) pCObj;
     if ( pCoords && pObj )
-        time = SSEvent::riseTransitSetSearch ( time, *pCoords, SSObjectPtr ( pObj ), sign, alt );
+        time = SSEvent::riseTransitSetSearch ( time, *pCoords, pObj, sign, alt );
     else
         time.jd = INFINITY;
     return CSSTimeFromSSTime ( time );
@@ -904,7 +903,7 @@ CSSTime CSSEventRiseTransitSetSearchDay ( CSSTime ctime, CSSCoordinates *pCCoord
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     SSObject *pObj = (SSObject *) pCObj;
     if ( pCoords && pObj )
-        time = SSEvent::riseTransitSetSearchDay ( time, *pCoords, SSObjectPtr ( pObj ), sign, alt );
+        time = SSEvent::riseTransitSetSearchDay ( time, *pCoords, pObj, sign, alt );
     else
         time.jd = INFINITY;
     return CSSTimeFromSSTime ( time );
@@ -929,7 +928,7 @@ CSSPass CSSEventRiseTransitSet3 ( CSSTime ctime, CSSCoordinates *pCCoords, CSSOb
     SSObject *pObj = (SSObject *) pCObj;
     SSPass pass = { { INFINITY, INFINITY, INFINITY }, { INFINITY, INFINITY, INFINITY }, { INFINITY, INFINITY, INFINITY } };
     if ( pCoords && pObj )
-        pass = SSEvent::riseTransitSet ( time, *pCoords, SSObjectPtr ( pObj ), alt );
+        pass = SSEvent::riseTransitSet ( time, *pCoords, pObj, alt );
     return CSSPassFromSSPass ( pass );
 }
 
@@ -940,7 +939,7 @@ int CSSEventFindSatellitePasses ( CSSCoordinates *pCCoords, CSSObjectPtr pCSat, 
     SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
     SSObject *pSat = (SSObject *) pCSat;
     vector<SSPass> passes;
-    int nPasses = SSEvent::findSatellitePasses ( *pCoords, SSObjectPtr ( pSat ), start, stop, minAlt, passes, maxPasses );
+    int nPasses = SSEvent::findSatellitePasses ( *pCoords, pSat, start, stop, minAlt, passes, maxPasses );
     for ( int i = 0; i < nPasses; i++ )
         cpasses[i] = CSSPassFromSSPass ( passes[i] );
     return nPasses;
@@ -952,7 +951,7 @@ CSSTime CSSEventNextMoonPhase ( CSSTime ctime, CSSObjectPtr pCSun, CSSObjectPtr 
     SSObject *pSun = (SSObject *) pCSun;
     SSObject *pMoon = (SSObject *) pCMoon;
     if ( pSun && pMoon )
-        time = SSEvent::nextMoonPhase ( time, SSObjectPtr ( pSun ), SSObjectPtr ( pMoon ), phase );
+        time = SSEvent::nextMoonPhase ( time, pSun, pMoon, phase );
     else
         time.jd = INFINITY;
     return CSSTimeFromSSTime ( time );

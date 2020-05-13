@@ -154,7 +154,7 @@ int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
         pComet->setGMagnitude ( gmag );
         
         // cout << pComet->toCSV() << endl;
-        comets.push_back ( shared_ptr<SSObject> ( pComet ) );
+        comets.push_back ( pComet );
         numComets++;
     }
     
@@ -285,7 +285,7 @@ int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
         pAsteroid->setGMagnitude ( gmag );
 
         // cout << pAsteroid->toCSV() << endl;
-        asteroids.push_back ( shared_ptr<SSObject> ( pAsteroid ) );
+        asteroids.push_back ( pAsteroid );
         numAsteroids++;
     }
 

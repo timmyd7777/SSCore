@@ -378,7 +378,7 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
 
 SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr )
 {
-    return dynamic_cast<SSPlanet *> ( ptr.get() );
+    return dynamic_cast<SSPlanet *> ( ptr );
 }
 
 // Downcasts generic SSObject pointer to SSSatellite pointer.
@@ -386,7 +386,7 @@ SSPlanetPtr SSGetPlanetPtr ( SSObjectPtr ptr )
 
 SSSatellitePtr SSGetSatellitePtr ( SSObjectPtr ptr )
 {
-    return dynamic_cast<SSSatellite *> ( ptr.get() );
+    return dynamic_cast<SSSatellite *> ( ptr );
 }
 
 // Returns CSV string from planet data, including identifier and names.
@@ -663,8 +663,10 @@ int SSImportMcNames ( const string &filename, SSObjectVec &objects )
     // For each object in the solar system object vector...
     
     n = 0;
-    for ( SSObjectPtr pObj : objects )
+    for ( int i = 0; i < objects.size(); i++ )
     {
+        SSObjectPtr pObj = objects[i];
+        
         // If the object is not a satellite, continue
         
         SSSatellite *pSat = SSGetSatellitePtr ( pObj );
@@ -764,8 +766,10 @@ int SSImportSatelliteFrequencyData ( const string &filename, SSObjectVec &object
     // For each object in the solar system object vector...
     
     n = 0;
-    for ( SSObjectPtr pObj : objects )
+    for ( int i = 0; i < objects.size(); i++ )
     {
+        SSObjectPtr pObj = objects[i];
+
         // If the object is not a satellite, continue
         
         SSSatellite *pSat = SSGetSatellitePtr ( pObj );

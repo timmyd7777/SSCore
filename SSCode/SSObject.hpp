@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -66,6 +67,7 @@ public:
     
     SSObject ( void );
     SSObject ( SSObjectType type );
+    virtual ~SSObject ( void ) {}   // test code: { cout << "~SSObject" << endl; }
 
     // accessors
     
@@ -95,11 +97,28 @@ public:
     virtual string toCSV ( void );
 };
 
-typedef shared_ptr<SSObject> SSObjectPtr;
-typedef vector<SSObjectPtr> SSObjectVec;
+typedef SSObject *SSObjectPtr;
+
+// This class stores a vector of pointers to SSObject, and deletes them when class is destroyed.
+
+class SSObjectArray
+{
+protected:
+    vector<SSObjectPtr> _objects;
+
+public:
+    ~SSObjectArray ( void ) { for ( SSObjectPtr pObj : _objects ) delete pObj; }
+    SSObjectPtr at ( size_t index ) { return index >= 0 && index < size() ? _objects.at ( index ) : nullptr; }
+    SSObjectPtr operator [] ( size_t index ) { return at ( index ); }
+    void push_back ( SSObjectPtr pObj ) { _objects.push_back ( pObj ); }
+    size_t size ( void ) { return _objects.size(); }
+};
+
+typedef SSObjectArray SSObjectVec;          // legacy declaration was typedef vector<SSObjectPtr> SSObjectVec; now we use SSObjectArray class
 typedef map<SSIdentifier,int> SSObjectMap;
 
 SSObjectPtr SSNewObject ( SSObjectType type );
+SSObjectPtr SSCloneObject ( SSObject *pObj );
 SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat );
 SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjectVec &objects );
 
