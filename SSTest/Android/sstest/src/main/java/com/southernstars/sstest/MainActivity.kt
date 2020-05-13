@@ -121,21 +121,21 @@ class MainActivity : AppCompatActivity() {
 
         // Now compute some coordinate-related values.
 
-        val dl:Double? = 0.0
-        val de:Double? = 0.0
+        val dl = JSSDouble ( 0.0 )
+        val de = JSSDouble ( 0.0 )
 
         val obq = JSSCoordinates.getObliquity ( time.jd )
         JSSCoordinates.getNutationConstants ( time.jd, de, dl )
 
         str += "Ecliptic obq: %.6f°\n".format ( obq * JSSAngle.kDegPerRad )
-        str += "Nutation lon: %+.1f\" obq: %+.1f\"\n". format ( ( dl ?: 0.0 ) * JSSAngle.kArcsecPerRad, ( de ?: 0.0 ) * JSSAngle.kArcsecPerRad )
+        str += "Nutation lon: %+.1f\" obq: %+.1f\"\n". format ( dl.value * JSSAngle.kArcsecPerRad, de.value * JSSAngle.kArcsecPerRad )
 
-        val zeta:Double? = 0.0
-        val z:Double? = 0.0
-        val theta:Double? = 0.0
+        val zeta = JSSDouble ( 0.0 )
+        val z = JSSDouble ( 0.0 )
+        val theta = JSSDouble ( 0.0 )
 
         JSSCoordinates.getPrecessionConstants ( time.jd, zeta, z, theta )
-        str += "Precession zeta:%+.1f\" z:%+.1f\" theta:%+.1f\"\n".format ( ( zeta ?: 0.0 ) * JSSAngle.kArcsecPerRad, ( z ?: 0.0 ) * JSSAngle.kArcsecPerRad, ( theta ?: 0.0 ) * JSSAngle.kArcsecPerRad )
+        str += "Precession zeta:%+.1f\" z:%+.1f\" theta:%+.1f\"\n".format ( zeta.value * JSSAngle.kArcsecPerRad, z.value * JSSAngle.kArcsecPerRad, theta.value * JSSAngle.kArcsecPerRad )
 
         val lst = coords.getLST()
         str += "Local Sidereal Time: %s\n".format ( JSSHourMinSec.fromRadians ( lst ).toString() )

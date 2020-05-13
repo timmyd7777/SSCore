@@ -241,30 +241,30 @@ JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSCoordinates_getObliqu
 /*
  * Class:     com_southernstars_sscore_JSSCoordinates
  * Method:    getNutationConstants
- * Signature: (DLjava/lang/Double;Ljava/lang/Double;)V
+ * Signature: (DLcom/southernstars/sscore/JSSDouble;Lcom/southernstars/sscore/JSSDouble;)V
  */
 
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_getNutationConstants ( JNIEnv *pEnv, jclass pJCoords, jdouble jd, jobject pJde, jobject pJdl )
 {
     double dl = 0.0, de = 0.0;
     SSCoordinates::getNutationConstants ( jd, de, dl );
-    SetDoubleValue ( pEnv, pJde, de );
-    SetDoubleValue ( pEnv, pJdl, dl );
+    SetDoubleField ( pEnv, pJde, "value", de );
+    SetDoubleField ( pEnv, pJdl, "value", dl );
 }
 
 /*
  * Class:     com_southernstars_sscore_JSSCoordinates
  * Method:    getPrecessionConstants
- * Signature: (DLjava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;)V
+ * Signature: (DLcom/southernstars/sscore/JSSDouble;Lcom/southernstars/sscore/JSSDouble;Lcom/southernstars/sscore/JSSDouble;)V
  */
 
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_getPrecessionConstants ( JNIEnv *pEnv, jclass pJCoords, jdouble jd, jobject pJzeta, jobject pJz, jobject pJtheta )
 {
     double zeta = 0.0, z = 0.0, theta = 0.0;
     SSCoordinates::getPrecessionConstants ( jd, zeta, z, theta );
-    SetDoubleValue ( pEnv, pJzeta, zeta );
-    SetDoubleValue ( pEnv, pJz, z );
-    SetDoubleValue ( pEnv, pJtheta, theta );
+    SetDoubleField ( pEnv, pJzeta, "value", zeta );
+    SetDoubleField ( pEnv, pJz, "value", z );
+    SetDoubleField ( pEnv, pJtheta, "value", theta );
 }
 
 /*

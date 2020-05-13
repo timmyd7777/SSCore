@@ -1,6 +1,7 @@
 package com.southernstars.sscore;
 
 import com.southernstars.sscore.JSSAngle;
+import com.southernstars.sscore.JSSDouble;
 import com.southernstars.sscore.JSSMatrix;
 import com.southernstars.sscore.JSSVector;
 import com.southernstars.sscore.JSSSpherical;
@@ -71,8 +72,8 @@ public class JSSCoordinates
     public native double getLST();
 
     public static native double getObliquity ( double epoch );
-    public static native void getNutationConstants ( double jd, Double de, Double dl );
-    public static native void getPrecessionConstants ( double jd, Double zeta, Double z, Double theta );
+    public static native void getNutationConstants ( double jd, JSSDouble de, JSSDouble dl );
+    public static native void getPrecessionConstants ( double jd, JSSDouble zeta, JSSDouble z, JSSDouble theta );
 
     public static native JSSMatrix getPrecessionMatrix ( double epoch );
     public static native JSSMatrix getNutationMatrix ( double onliquity, double nutLon, double nutObq );
