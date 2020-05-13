@@ -32,7 +32,7 @@ func test ( ) -> String
     // Get JED and Greenwich Sidereal Time
     
     let ctime = CSSTimeFromSystem()
-    let cdate = CSSTimeToCSSDate ( ctime, kSSGregorian )
+    var cdate = CSSTimeToCSSDate ( ctime, kSSGregorian )
     let jed = CSSTimeGetJulianEphemerisDate ( ctime )
     let gst = CSSTimeGetSiderealTime ( ctime, 0.0 )
     var hms = CSSHourMinSecFromRadians ( gst )
@@ -151,10 +151,6 @@ func test ( ) -> String
     str.append ( String ( format:"Ecliptic lon:%.3f° lat:%+.3f°\n", ecl.lon * kSSDegPerRad, ecl.lat * kSSDegPerRad ) )
     str.append ( String ( format:"Galactic lon:%.3f° lat:%+.3f°\n", gal.lon * kSSDegPerRad, gal.lat * kSSDegPerRad ) )
 
-    // Finally destroy coordinate transformations object
-    
-    CSSCoordinatesDestroy ( coords );
-    
     // get path to DE438 file within SSData folder within main bundle
     // open DE438.  If succesful, compute and display Earth's barycentric position & velocity
     
@@ -212,7 +208,7 @@ func test ( ) -> String
     n = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr );
     str.append ( String ( format: "Imported %d planets:\n", n ) );
 
-    // Print names of all objects in the array, then destroy.
+    // Print names of all objects in the array.
     // Deliberately overrun the array to test handling this error condition.
 
     for i in 0...n
@@ -222,7 +218,58 @@ func test ( ) -> String
         str.append ( i < n ? ", " : "\n" )
     }
     
-    CSSObjectArrayDestroy ( pObjArr );
+    // Test some CSSEvent functions
+    
+    let pSun = CSSObjectGetFromArray ( pObjArr, 0 )
+    let pMoon = CSSObjectGetFromArray ( pObjArr, 10 )
+
+    let sunpass = CSSEventRiseTransitSet3 ( ctime, coords, pSun, kCSSSunMoonRiseSetAlt );
+    let moonpass = CSSEventRiseTransitSet3 ( ctime, coords, pMoon, kCSSSunMoonRiseSetAlt );
+
+    cdate = CSSTimeToCSSDate ( sunpass.rising.time, kSSGregorian );
+    if sunpass.rising.time.jd.isInfinite
+    {
+        str.append ( "Sunrise: none\n" )
+    }
+    else
+    {
+        str.append ( String ( format: "Sunrise: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.rising.azm * kSSDegPerRad ) );
+    }
+    
+    cdate = CSSTimeToCSSDate ( sunpass.setting.time, kSSGregorian );
+    if sunpass.setting.time.jd.isInfinite
+    {
+        str.append ( "Sunset: none\n" )
+    }
+    else
+    {
+        str.append ( String ( format: "Sunset: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.setting.azm * kSSDegPerRad ) );
+    }
+
+    cdate = CSSTimeToCSSDate ( moonpass.rising.time, kSSGregorian );
+    if moonpass.rising.time.jd.isInfinite
+    {
+        str.append ( "Moonrise: none\n" )
+    }
+    else
+    {
+        str.append ( String ( format: "Moonrise: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.rising.azm * kSSDegPerRad ) );
+    }
+
+    cdate = CSSTimeToCSSDate ( moonpass.setting.time, kSSGregorian );
+    if moonpass.setting.time.jd.isInfinite
+    {
+        str.append ( "Moonset: none\n" )
+    }
+    else
+    {
+        str.append ( String ( format: "Moonset: %02hd:%0h2d:%04.1f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.setting.azm * kSSDegPerRad ) );
+    }
+
+    // Finally destroy coordinate transformations object and solar system object array
+    
+    CSSCoordinatesDestroy ( coords );
+//    CSSObjectArrayDestroy ( pObjArr );
     
     return str;
 }

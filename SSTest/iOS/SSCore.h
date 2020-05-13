@@ -372,6 +372,62 @@ int CSSImportObjectsFromCSV ( const char *filename, CSSObjectArray *pObjArr );
 size_t CSSObjectArraySize ( CSSObjectArray *pObjArr );
 CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i );
 
+// C wrappers for C++ SSEvent definitions, classes, and methods
+
+typedef struct CSSRTS   // Describes the circumstances of an object rise/transit/set event
+{
+    CSSTime  time;      // local time when the event takes place [Julian Date and time zone in hours]
+    CSSAngle azm;       // object's azimuth at the time of the event [radians]
+    CSSAngle alt;       // object's altitude at the time of the event [radians]
+}
+CSSRTS;
+
+typedef struct CSSPass   // Describes a complete overhead pass of an object across the sky; from rising, through transit, to setting.
+{
+    CSSRTS rising;       // circumstances of rising event
+    CSSRTS transit;      // circumstances of transit event
+    CSSRTS setting;      // circumstances of setting event
+}
+CSSPass;
+
+typedef struct CSSEventTime     // Describes circumstances of a generic event: conjunction, opposition, etc.
+{
+    CSSTime time;               // time of event
+    double value;               // value at time of event (angular distance in radiams, or physical distance in AU, etc.)
+}
+CSSEventTime;
+
+const int kCSSRise = -1;        // event sign for rising, to be used with riseTransSet, etc().
+const int kCSSTransit = 0;      // event sign for transit, to be used with riseTransSet, etc().
+const int kCSSSet = 1;          // event sign for setting, to be used with riseTransSet, etc().
+
+const double kCSSDefaultRiseSetAlt = -30.0 / kSSArcminPerRad;        // geometric altitude of point object when rising/setting [radians]
+const double kCSSSunMoonRiseSetAlt = -50.0 / kSSArcminPerRad;        // geometric altitude of Sun/Moon's apparent disk center when rising/setting [radians]
+const double kCSSSunCivilDawnDuskAlt = -6.0 / kSSDegPerRad;          // geometric altitude of Sun's apparent disk center at civil dawn/dusk [radians]
+const double kCSSSunNauticalDawnDuskAlt = -12.0 / kSSDegPerRad;      // geometric altitude of Sun's apparent disk center at nautical dawn/dusk [radians]
+const double kCSSSunAstronomicalDawnDuskAlt = -18.0 / kSSDegPerRad;  // geometric altitude of Sun's apparent disk center at astronomical dawn/dusk [radians]
+
+const double kCSSNewMoon = 0.0;                                      // Moon's ecliptic longitude offset from Sun when at new moon [radians]
+const double kCSSFirstQuarterMoon = kSSHalfPi;                       // Moon's ecliptic longitude offset from Sun when at first quarter [radians]
+const double kCSSFullMoon = kSSPi;                                   // Moon's ecliptic longitude offset from Sun when at full moon [radians]
+const double kCSSLastQuarterMoon = 3.0 * kSSHalfPi;                  // Moon's ecliptic longitude offset from Sun when at last quarter [radians]
+
+CSSAngle CSSEventSemiDiurnalArc ( CSSAngle lat, CSSAngle dec, CSSAngle alt );
+CSSTime CSSEventRiseTransitSet ( CSSTime jd, CSSAngle ra, CSSAngle dec, int sign, CSSAngle lon, CSSAngle lat, CSSAngle alt );
+CSSTime CSSEventRiseTransitSet2 ( CSSTime time, CSSCoordinates *pCCoords, CSSObjectPtr pObj, int sign, CSSAngle alt );
+CSSTime CSSEventRiseTransitSetSearch ( CSSTime time, CSSCoordinates *pCCoords, CSSObjectPtr pObj, int sign, CSSAngle alt );
+CSSTime CSSEventRiseTransitSetSearchDay ( CSSTime today, CSSCoordinates *pCCoords, CSSObjectPtr pObj, int sign, CSSAngle alt );
+
+CSSPass CSSEventRiseTransitSet3 ( CSSTime today, CSSCoordinates *pCCoords, CSSObjectPtr pObj, CSSAngle alt );
+int CSSEventFindSatellitePasses ( CSSCoordinates *pCCoords, CSSObjectPtr pSat, CSSTime start, CSSTime stop, CSSAngle minAlt, CSSPass passes[], int maxPasses );
+
+CSSTime CSSEventNextMoonPhase ( CSSTime time, CSSObjectPtr pSun, CSSObjectPtr pMoon, double phase );
+
+void CSSEventFindConjunctions ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+void CSSEventFindOppositions ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+void CSSEventFindNearestDistances ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+void CSSEventFindFarthestDistances ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+
 #ifdef __cplusplus
 }
 #endif

@@ -58,10 +58,10 @@ public:
     static constexpr double kSunNauticalDawnDuskAlt = -12.0 / SSAngle::kDegPerRad;      // geometric altitude of Sun's apparent disk center at nautical dawn/dusk [radians]
     static constexpr double kSunAstronomicalDawnDuskAlt = -18.0 / SSAngle::kDegPerRad;  // geometric altitude of Sun's apparent disk center at astronomical dawn/dusk [radians]
 
-    static constexpr double kNewMoon = 0.0;
-    static constexpr double kFirstQuarterMoon = SSAngle::kHalfPi;
-    static constexpr double kFullMoon = SSAngle::kPi;
-    static constexpr double kLastQuarterMoon = 3.0 * SSAngle::kHalfPi;
+    static constexpr double kNewMoon = 0.0;                                             // Moon's ecliptic longitude offset from Sun when at new moon [radians]
+    static constexpr double kFirstQuarterMoon = SSAngle::kHalfPi;                       // Moon's ecliptic longitude offset from Sun when at first quarter [radians]
+    static constexpr double kFullMoon = SSAngle::kPi;                                   // Moon's ecliptic longitude offset from Sun when at full moon [radians]
+    static constexpr double kLastQuarterMoon = 3.0 * SSAngle::kHalfPi;                  // Moon's ecliptic longitude offset from Sun when at last quarter [radians]
     
     static SSAngle semiDiurnalArc ( SSAngle lat, SSAngle dec, SSAngle alt );
     

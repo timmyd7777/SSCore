@@ -10,6 +10,7 @@
 #include "SSTime.hpp"
 #include "SSAngle.hpp"
 #include "SSCoordinates.hpp"
+#include "SSEvent.hpp"
 #include "SSIdentifier.hpp"
 #include "SSJPLDEphemeris.hpp"
 #include "SSVector.hpp"
@@ -39,39 +40,40 @@ CSSTime CSSDateToCSSTime ( CSSDate cdate )
     return ctime;
 }
 
+CSSTime CSSTimeFromSSTime ( const SSTime &time )
+{
+    CSSTime ctime = { time.jd, time.zone };
+    return ctime;
+}
+
 CSSTime CSSTimeFromSystem ( void )
 {
     SSTime now = SSTime::fromSystem();
-    CSSTime cnow = { now.jd, now.zone };
-    return cnow;
+    return CSSTimeFromSSTime ( now );
 }
 
 CSSTime CSSTimeFromCalendarDate ( CSSDate cdate )
 {
     SSTime time ( SSDate ( (SSCalendar) cdate.calendar, cdate.zone, cdate.year, cdate.month, cdate.day, cdate.hour, cdate.min, cdate.sec ) );
-    CSSTime ctime = { time.jd, time.zone };
-    return ctime;
+    return CSSTimeFromSSTime ( time );
 }
 
 CSSTime CSSTimeFromUnixTime ( time_t utime )
 {
     SSTime time = SSTime::fromUnixTime ( utime );
-    CSSTime ctime = { time.jd, time.zone };
-    return ctime;
+    return CSSTimeFromSSTime ( time );
 }
 
 CSSTime CSSTimeFromJulianYear ( double year )
 {
     SSTime time = SSTime::fromJulianYear ( year );
-    CSSTime ctime = { time.jd, time.zone };
-    return ctime;
+    return CSSTimeFromSSTime ( time );
 }
 
 CSSTime CSSTimeFromBesselianYear ( double year )
 {
     SSTime time = SSTime::fromBesselianYear ( year );
-    CSSTime ctime = { time.jd, time.zone };
-    return ctime;
+    return CSSTimeFromSSTime ( time );
 }
 
 time_t CSSTimeToUnixTime ( CSSTime ctime )
@@ -857,3 +859,108 @@ CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i )
     SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
     return (CSSObject *) ( pObjVec && i >= 0 && i < pObjVec->size() ? pObjVec->at(i).get() : nullptr );
 }
+
+// C wrappers for C++ SSEvent definitions, classes and methods
+
+CSSAngle CSSEventSemiDiurnalArc ( CSSAngle lat, CSSAngle dec, CSSAngle alt )
+{
+    return SSEvent::semiDiurnalArc ( lat, dec, alt );
+}
+
+CSSTime CSSEventRiseTransitSet ( CSSTime ctime, CSSAngle ra, CSSAngle dec, int sign, CSSAngle lon, CSSAngle lat, CSSAngle alt )
+{
+    SSTime time ( ctime.jd, ctime.zone );
+    time = SSEvent::riseTransitSet ( time, ra, dec, sign, lon, lat, alt );
+    return CSSTimeFromSSTime ( time );
+}
+
+CSSTime CSSEventRiseTransitSet2 ( CSSTime ctime, CSSCoordinates *pCCoords, CSSObjectPtr pCObj, int sign, CSSAngle alt )
+{
+    SSTime time ( ctime.jd, ctime.zone );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    SSObject *pObj = (SSObject *) pCObj;
+    if ( pCoords && pObj )
+        time = SSEvent::riseTransitSet ( time, *pCoords, SSObjectPtr ( pObj ), sign, alt );
+    else
+        time.jd = INFINITY;
+    return CSSTimeFromSSTime ( time );
+}
+
+CSSTime CSSEventRiseTransitSetSearch ( CSSTime ctime, CSSCoordinates *pCCoords, CSSObjectPtr pCObj, int sign, CSSAngle alt )
+{
+    SSTime time ( ctime.jd, ctime.zone );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    SSObject *pObj = (SSObject *) pCObj;
+    if ( pCoords && pObj )
+        time = SSEvent::riseTransitSetSearch ( time, *pCoords, SSObjectPtr ( pObj ), sign, alt );
+    else
+        time.jd = INFINITY;
+    return CSSTimeFromSSTime ( time );
+}
+
+CSSTime CSSEventRiseTransitSetSearchDay ( CSSTime ctime, CSSCoordinates *pCCoords, CSSObjectPtr pCObj, int sign, CSSAngle alt )
+{
+    SSTime time ( ctime.jd, ctime.zone );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    SSObject *pObj = (SSObject *) pCObj;
+    if ( pCoords && pObj )
+        time = SSEvent::riseTransitSetSearchDay ( time, *pCoords, SSObjectPtr ( pObj ), sign, alt );
+    else
+        time.jd = INFINITY;
+    return CSSTimeFromSSTime ( time );
+}
+
+CSSPass CSSPassFromSSPass ( SSPass pass )
+{
+    CSSPass cpass =
+    {
+        { pass.rising.time,  pass.rising.azm,  pass.rising.alt },
+        { pass.transit.time, pass.transit.azm, pass.transit.alt },
+        { pass.setting.time, pass.setting.azm, pass.setting.alt }
+    };
+    
+    return cpass;
+}
+
+CSSPass CSSEventRiseTransitSet3 ( CSSTime ctime, CSSCoordinates *pCCoords, CSSObjectPtr pCObj, CSSAngle alt )
+{
+    SSTime time ( ctime.jd, ctime.zone );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    SSObject *pObj = (SSObject *) pCObj;
+    SSPass pass = { { INFINITY, INFINITY, INFINITY }, { INFINITY, INFINITY, INFINITY }, { INFINITY, INFINITY, INFINITY } };
+    if ( pCoords && pObj )
+        pass = SSEvent::riseTransitSet ( time, *pCoords, SSObjectPtr ( pObj ), alt );
+    return CSSPassFromSSPass ( pass );
+}
+
+int CSSEventFindSatellitePasses ( CSSCoordinates *pCCoords, CSSObjectPtr pCSat, CSSTime cstart, CSSTime cstop, CSSAngle minAlt, CSSPass cpasses[], int maxPasses )
+{
+    SSTime start ( cstart.jd, cstart.zone );
+    SSTime stop ( cstop.jd, cstop.zone );
+    SSCoordinates *pCoords = (SSCoordinates *) pCCoords;
+    SSObject *pSat = (SSObject *) pCSat;
+    vector<SSPass> passes;
+    int nPasses = SSEvent::findSatellitePasses ( *pCoords, SSObjectPtr ( pSat ), start, stop, minAlt, passes, maxPasses );
+    for ( int i = 0; i < nPasses; i++ )
+        cpasses[i] = CSSPassFromSSPass ( passes[i] );
+    return nPasses;
+}
+
+CSSTime CSSEventNextMoonPhase ( CSSTime ctime, CSSObjectPtr pCSun, CSSObjectPtr pCMoon, double phase )
+{
+    SSTime time ( ctime.jd, ctime.zone );
+    SSObject *pSun = (SSObject *) pCSun;
+    SSObject *pMoon = (SSObject *) pCMoon;
+    if ( pSun && pMoon )
+        time = SSEvent::nextMoonPhase ( time, SSObjectPtr ( pSun ), SSObjectPtr ( pMoon ), phase );
+    else
+        time.jd = INFINITY;
+    return CSSTimeFromSSTime ( time );
+}
+
+/*
+void CSSEventFindConjunctions ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+void CSSEventFindOppositions ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+void CSSEventFindNearestDistances ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+void CSSEventFindFarthestDistances ( CSSCoordinates *pCCoords, CSSObjectPtr pObj1, CSSObjectPtr pObj2, CSSTime start, CSSTime stop, CSSEventTime events[], int maxEvents );
+*/
