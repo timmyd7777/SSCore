@@ -275,21 +275,20 @@ func test ( ) -> String
     // Now test moon phase event calculations
     
     var cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSNewMoon )
-    let cfmt = ( "%Y/%m/%d %H:%M:%S" as NSString ).utf8String
     cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
     str.append ( String ( format: "New Moon: %s\n", CSSDateFormat ( cdate, "%Y/%m/%d %H:%M:%S" ) ) )
     
     cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSFirstQuarterMoon )
     cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
-    str.append ( String ( format: "First Quarter: %s\n", CSSDateFormat ( cdate, cfmt ) ) )
+    str.append ( String ( format: "First Quarter: %s\n", CSSDateFormat ( cdate, "%Y/%m/%d %H:%M:%S" ) ) )
 
     cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSFullMoon )
     cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
-    str.append ( String ( format: "Full Moon: %s\n", CSSDateFormat ( cdate, cfmt ) ) )
+    str.append ( String ( format: "Full Moon: %s\n", CSSDateFormat ( cdate, "%Y/%m/%d %H:%M:%S" ) ) )
 
     cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSLastQuarterMoon )
     cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
-    str.append ( String ( format: "Last Quarter: %s\n", CSSDateFormat ( cdate, cfmt ) ) )
+    str.append ( String ( format: "Last Quarter: %s\n", CSSDateFormat ( cdate, "%Y/%m/%d %H:%M:%S" ) ) )
 
     // Finally destroy coordinate transformations object and solar system object array
     
