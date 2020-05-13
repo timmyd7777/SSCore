@@ -19,6 +19,12 @@
 
 // C wrappers for C++ SSTime classes and methods
 
+CSSTime CSSTimeFromSSTime ( const SSTime &time )
+{
+    CSSTime ctime = { time.jd, time.zone };
+    return ctime;
+}
+
 CSSDate CSSTimeToCSSDate ( CSSTime ctime )
 {
     SSDate date ( SSTime ( ctime.jd, ctime.zone ) );
@@ -36,14 +42,15 @@ CSSDate CSSTimeToCSSDate ( CSSTime ctime, int calendar )
 CSSTime CSSDateToCSSTime ( CSSDate cdate )
 {
     SSTime time ( SSDate ( (SSCalendar) cdate.calendar, cdate.zone, cdate.year, cdate.month, cdate.day, cdate.hour, cdate.min, cdate.sec ) );
-    CSSTime ctime = { time.jd, time.zone };
-    return ctime;
+    return CSSTimeFromSSTime ( time );
 }
 
-CSSTime CSSTimeFromSSTime ( const SSTime &time )
+const char *CSSDateFormat ( CSSDate cdate, const char *fmt )
 {
-    CSSTime ctime = { time.jd, time.zone };
-    return ctime;
+    static string str = "";
+    SSDate date ( (SSCalendar) cdate.calendar, cdate.zone, cdate.year, cdate.month, cdate.day, cdate.hour, cdate.min, cdate.sec );
+    str = date.format ( string ( fmt ) );
+    return str.c_str();
 }
 
 CSSTime CSSTimeFromSystem ( void )

@@ -62,6 +62,7 @@ CSSDate;
 
 CSSDate CSSTimeToCSSDate ( CSSTime time, int calendar );
 CSSTime CSSDateToCSSTime ( CSSDate date );
+const char *CSSDateFormat ( CSSDate date, const char *fmt );
 
 CSSTime CSSTimeFromSystem ( void );
 CSSTime CSSTimeFromUnixTime ( time_t utime );

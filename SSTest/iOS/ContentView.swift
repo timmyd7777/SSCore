@@ -224,7 +224,7 @@ func test ( ) -> String
     n = CSSImportObjectsFromCSV ( ( path as NSString ).utf8String, pObjArr );
     str.append ( String ( format: "Imported %d moons.\n", n ) );
 
-    // Test some CSSEvent functions
+    // Test some CSSEvent functions involving Sun and Moon...
     
     let pSun = CSSObjectGetFromArray ( pObjArr, 0 )
     let pMoon = CSSObjectGetFromArray ( pObjArr, 10 )
@@ -239,38 +239,57 @@ func test ( ) -> String
     }
     else
     {
-        str.append ( String ( format: "Sunrise: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.rising.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Sunrise: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.rising.azm * kSSDegPerRad ) )
     }
     
-    cdate = CSSTimeToCSSDate ( sunpass.setting.time, kSSGregorian );
+    cdate = CSSTimeToCSSDate ( sunpass.setting.time, kSSGregorian )
     if sunpass.setting.time.jd.isInfinite
     {
         str.append ( "Sunset: none\n" )
     }
     else
     {
-        str.append ( String ( format: "Sunset: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.setting.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Sunset: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, sunpass.setting.azm * kSSDegPerRad ) )
     }
 
-    cdate = CSSTimeToCSSDate ( moonpass.rising.time, kSSGregorian );
+    cdate = CSSTimeToCSSDate ( moonpass.rising.time, kSSGregorian )
     if moonpass.rising.time.jd.isInfinite
     {
         str.append ( "Moonrise: none\n" )
     }
     else
     {
-        str.append ( String ( format: "Moonrise: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.rising.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Moonrise: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.rising.azm * kSSDegPerRad ) )
     }
 
-    cdate = CSSTimeToCSSDate ( moonpass.setting.time, kSSGregorian );
+    cdate = CSSTimeToCSSDate ( moonpass.setting.time, kSSGregorian )
     if moonpass.setting.time.jd.isInfinite
     {
         str.append ( "Moonset: none\n" )
     }
     else
     {
-        str.append ( String ( format: "Moonset: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.setting.azm * kSSDegPerRad ) );
+        str.append ( String ( format: "Moonset: %02hd:%0h2d:%02.0f @ %.1f°\n", cdate.hour, cdate.min, cdate.sec, moonpass.setting.azm * kSSDegPerRad ) )
     }
+
+    // Now test moon phase event calculations
+    
+    var cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSNewMoon )
+    let cfmt = ( "%Y/%m/%d %H:%M:%S" as NSString ).utf8String
+    cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
+    str.append ( String ( format: "New Moon: %s\n", CSSDateFormat ( cdate, "%Y/%m/%d %H:%M:%S" ) ) )
+    
+    cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSFirstQuarterMoon )
+    cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
+    str.append ( String ( format: "First Quarter: %s\n", CSSDateFormat ( cdate, cfmt ) ) )
+
+    cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSFullMoon )
+    cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
+    str.append ( String ( format: "Full Moon: %s\n", CSSDateFormat ( cdate, cfmt ) ) )
+
+    cphase = CSSEventNextMoonPhase ( ctime, pSun, pMoon, kCSSLastQuarterMoon )
+    cdate = CSSTimeToCSSDate ( cphase, kSSGregorian )
+    str.append ( String ( format: "Last Quarter: %s\n", CSSDateFormat ( cdate, cfmt ) ) )
 
     // Finally destroy coordinate transformations object and solar system object array
     
