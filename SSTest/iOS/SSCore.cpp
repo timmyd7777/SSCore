@@ -914,9 +914,9 @@ CSSPass CSSPassFromSSPass ( SSPass pass )
 {
     CSSPass cpass =
     {
-        { pass.rising.time,  pass.rising.azm,  pass.rising.alt },
-        { pass.transit.time, pass.transit.azm, pass.transit.alt },
-        { pass.setting.time, pass.setting.azm, pass.setting.alt }
+        { { pass.rising.time.jd,  pass.rising.time.zone  }, pass.rising.azm,  pass.rising.alt },
+        { { pass.transit.time.jd, pass.transit.time.zone }, pass.transit.azm, pass.transit.alt },
+        { { pass.setting.time.jd, pass.setting.time.zone }, pass.setting.azm, pass.setting.alt }
     };
     
     return cpass;
