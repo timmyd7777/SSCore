@@ -94,7 +94,7 @@ public class JSSEvent
 
     // TIM: you can skip the first to methods below. These take a C function pointer, which cannot translate to Java.
     // TIM: but keep the last four methods, which don't take a function pointer.
-    
+
     public static native void findEvents ( JSSCoordinates coords, JSSObjectPtr pObj1, JSSObjectPtr pObj2, JSSTime start, JSSTime stop, double step, bool max, double limit, JSSEventFunc func, ArrayList<JSSEventTime> events, int maxEvents );
     public static native void findEqualityEvents ( JSSCoordinates coords, JSSObjectPtr pObj1, JSSObjectPtr pObj2, JSSTime start, JSSTime stop, double step, bool max, double value, JSSEventFunc func, ArrayList<JSSEventTime> events, int maxEvents );
     public static native void findConjunctions ( JSSCoordinates coords, JSSObjectPtr pObj1, JSSObjectPtr pObj2, JSSTime start, JSSTime stop, ArrayList<JSSEventTime> events, int maxEvents );
