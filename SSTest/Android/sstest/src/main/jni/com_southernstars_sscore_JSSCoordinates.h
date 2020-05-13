@@ -186,7 +186,7 @@ JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSCoordinates_getObliqu
 /*
  * Class:     com_southernstars_sscore_JSSCoordinates
  * Method:    getNutationConstants
- * Signature: (DLjava/lang/Double;Ljava/lang/Double;)V
+ * Signature: (DLcom/southernstars/sscore/JSSDouble;Lcom/southernstars/sscore/JSSDouble;)V
  */
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_getNutationConstants
   (JNIEnv *, jclass, jdouble, jobject, jobject);
@@ -194,7 +194,7 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_getNutationC
 /*
  * Class:     com_southernstars_sscore_JSSCoordinates
  * Method:    getPrecessionConstants
- * Signature: (DLjava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;)V
+ * Signature: (DLcom/southernstars/sscore/JSSDouble;Lcom/southernstars/sscore/JSSDouble;Lcom/southernstars/sscore/JSSDouble;)V
  */
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSCoordinates_getPrecessionConstants
   (JNIEnv *, jclass, jdouble, jobject, jobject, jobject);
