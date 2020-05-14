@@ -10,7 +10,7 @@
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_semiDiurnalArc (JNIEnv *pEnv, jclass pClass, jobject pJSSAngleLat, jobject pJSSAngleDec, jobject pJSSAngleAlt)
 {
     double lat_rad = GetDoubleField ( pEnv, pJSSAngleLat, "rad" );  // I guess rad is not protected in the jobject
-    double dec_rad = GetDoubleField ( pEnv, pJSSAngleDec, "rad" );
+    double dec_rad = GetDoubleField ( pEnv, pJSSAngleDec, "rad" );  // TIM: Correct, it's a public member of JSSAngle.
     double alt_rad = GetDoubleField ( pEnv, pJSSAngleAlt, "rad" );
 
     SSAngle lat = SSAngle( lat_rad );
@@ -22,8 +22,9 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_semiDiurnalArc 
     jobject pJSSAngle = CreateJObject ( pEnv, "com/southernstars/sscore/JSSAngle" );
 
     double rad = ha.toHours() / ha.kHourPerRad;     // ha._rad is protected... or can we actually access _rad from line 94 in SSAngle.hpp?
+                                                    // TIM: answer in email
 
-    if ( pJSSAngle != nullptr )     // why is this check necessary?
+    if ( pJSSAngle != nullptr )     // why is this check necessary? TIM: because CreateJObject() may fail to create the java object (the JVM might run out mem, or you might have passed the wrong string, etc.) If CreateJObject fails, it gives you a null pointer ... and if you attempt tp use that null pointer, you get a hard crash.
     {
         SetDoubleField ( pEnv, pJSSAngle, "rad", rad );
     }
@@ -38,6 +39,11 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_semiDiurnalArc 
  */
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet__Lcom_southernstars_sscore_JSSTime_2Lcom_southernstars_sscore_JSSAngle_2Lcom_southernstars_sscore_JSSAngle_2ILcom_southernstars_sscore_JSSAngle_2Lcom_southernstars_sscore_JSSAngle_2Lcom_southernstars_sscore_JSSAngle_2 (JNIEnv *pEnv, jclass pClass, jobject pJSSTimeJd, jobject pJSSAngleRa, jobject pJSSAngleDec, jint sign, jobject pJSSAngleLon, jobject pJSSAngleLat, jobject pJSSAngleAlt)
 {
+    // TIM: I made a function which does the next three lines in one line, JSSTimeToSSTime().  Sorry I did not mention that earlier.
+    // TIM: This is a repetitive task (converting a JSSTime to an SSTime and vice-versa, so I made a function for it.
+    // TIM: I also made a SSTimeToJSSTime() which does the opposite conversion.
+    // TIM: Anyhow, you got this exactly right, regardless
+
     double jd_jd = GetDoubleField ( pEnv, pJSSTimeJd, "jd" );
     double jd_zone = GetDoubleField ( pEnv, pJSSTimeJd, "zone" );
     SSTime jd = SSTime( jd_jd, jd_zone );
@@ -49,6 +55,9 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet_
     SSAngle alt = SSAngle( GetDoubleField ( pEnv, pJSSAngleAlt, "rad" ) );
 
     SSTime ha = SSEvent::riseTransitSet( jd, ra, dec, sign, lon, lat, alt );
+
+    // TIM: For the next few lines here you could also just call SSTimeToJSSTime(), as mentioned above,
+    // TIM: but you got it exactly right, regardless.
 
     jobject pJSSTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSTime" );
 
