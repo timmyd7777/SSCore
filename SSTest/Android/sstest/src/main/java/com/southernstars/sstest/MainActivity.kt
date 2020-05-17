@@ -228,7 +228,24 @@ class MainActivity : AppCompatActivity() {
 
         var risetime = JSSEvent.riseTransitSet ( time, sirius.lon, sirius.lat, JSSEvent.kRise, lon, lat, JSSEvent.kDefaultRiseSetAlt )
         var risedate = JSSDate.fromJulianDate ( risetime, JSSDate.kGregorian )
+
         str += "Sirius rises at %02d:%02d:%02.0f\n".format ( risedate.hour, risedate.min, risedate.sec )
+
+        val nearest = JSSObjectArray()
+        val numS = nearest.importFromCSV ( "SSData/Stars/Nearest.csv" )
+
+        val pSirius = nearest.getObject(6)
+
+        val sirius_coords = JSSCoordinates ( time, sirius )
+
+        var risetime2 = JSSEvent.riseTransitSet ( time, sirius_coords, pSirius, JSSEvent.kRise, JSSEvent.kDefaultRiseSetAlt )
+        str += "%f\n".format(sirius_coords.getJED())
+        var risedate2 = JSSDate.fromJulianDate ( risetime2, JSSDate.kGregorian )
+
+        // str += pSirius?.getName (0) + "\n"
+        // str += "Sirius also rises at %02d:%02d:%02.0f\n".format ( risedate2.hour, risedate2.min, risedate2.sec )
+
+        nearest.destroy()
 
         sample_text.text = str
     }
