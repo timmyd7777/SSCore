@@ -53,12 +53,15 @@ add_library( # Sets the name of the library.
              ../jni/com_southernstars_sscore_JSSDate.cpp
              ../jni/com_southernstars_sscore_JSSDegMinSec.cpp
              ../jni/com_southernstars_sscore_JSSEvent.cpp
+             ../jni/com_southernstars_sscore_JSSEventTime.cpp
              ../jni/com_southernstars_sscore_JSSHourMinSec.cpp
              ../jni/com_southernstars_sscore_JSSIdentifier.cpp
              ../jni/com_southernstars_sscore_JSSJPLDEphemeris.cpp
              ../jni/com_southernstars_sscore_JSSMatrix.cpp
              ../jni/com_southernstars_sscore_JSSObject.cpp
              ../jni/com_southernstars_sscore_JSSObjectArray.cpp
+             ../jni/com_southernstars_sscore_JSSPass.cpp
+             ../jni/com_southernstars_sscore_JSSRTS.cpp
              ../jni/com_southernstars_sscore_JSSSpherical.cpp
              ../jni/com_southernstars_sscore_JSSTime.cpp
              ../jni/com_southernstars_sscore_JSSVector.cpp

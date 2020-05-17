@@ -27,15 +27,15 @@ public class JSSEvent
     public static final double kFullMoon = JSSAngle.kPi;
     public static final double kLastQuarterMoon = 3.0 * JSSAngle.kHalfPi;
 
-    public static native JSSAngle semiDiurnalArc ( JSSAngle lat, JSSAngle dec, JSSAngle alt );
+    public static native double semiDiurnalArc ( double lat, double dec, double alt );
     
-    public static native JSSTime riseTransitSet ( JSSTime jd, JSSAngle ra, JSSAngle dec, int sign, JSSAngle lon, JSSAngle lat, JSSAngle alt );
-    public static native JSSTime riseTransitSet ( JSSTime time, JSSCoordinates coords, JSSObject pObj, int sign, JSSAngle alt );
-    public static native JSSTime riseTransitSetSearch ( JSSTime time, JSSCoordinates coords, JSSObject pObj, int sign, JSSAngle alt );
-    public static native JSSTime riseTransitSetSearchDay ( JSSTime today, JSSCoordinates coords, JSSObject pObj, int sign, JSSAngle alt );
+    public static native JSSTime riseTransitSet ( JSSTime jd, double ra, double dec, int sign, double lon, double lat, double alt );
+    public static native JSSTime riseTransitSet ( JSSTime time, JSSCoordinates coords, JSSObject pObj, int sign, double alt );
+    public static native JSSTime riseTransitSetSearch ( JSSTime time, JSSCoordinates coords, JSSObject pObj, int sign, double alt );
+    public static native JSSTime riseTransitSetSearchDay ( JSSTime today, JSSCoordinates coords, JSSObject pObj, int sign, double alt );
 
-    public static native JSSPass riseTransitSet ( JSSTime today, JSSCoordinates coords, JSSObject pObj, JSSAngle alt );
-    public static native int findSatellitePaJsses ( JSSCoordinates coords, JSSObject pSat, JSSTime start, JSSTime stop, double minAlt, ArrayList<JSSPass> passes, int maxPassses );
+    public static native JSSPass riseTransitSet ( JSSTime today, JSSCoordinates coords, JSSObject pObj, double alt );
+    public static native int findSatellitePasses ( JSSCoordinates coords, JSSObject pSat, JSSTime start, JSSTime stop, double minAlt, ArrayList<JSSPass> passes, int maxPassses );
 
     public static native JSSTime nextMoonPhase ( JSSTime time, JSSObject pSun, JSSObject pMoon, double phase );
     

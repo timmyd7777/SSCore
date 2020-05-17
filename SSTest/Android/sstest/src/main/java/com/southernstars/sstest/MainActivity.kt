@@ -221,12 +221,12 @@ class MainActivity : AppCompatActivity() {
 
         // Test some JSSEvent functions.
 
-        var sda = JSSEvent.semiDiurnalArc ( JSSAngle ( lat ), JSSAngle ( sirius.lat ), JSSAngle ( JSSEvent.kDefaultRiseSetAlt ) )
-        hms = JSSHourMinSec.fromRadians ( sda.rad )
+        var sda = JSSEvent.semiDiurnalArc ( lat, sirius.lat, JSSEvent.kDefaultRiseSetAlt )
+        hms = JSSHourMinSec.fromRadians ( sda )
 
         str += "SDA of Sirius: " + hms.toString() + "\n"
 
-        var risetime = JSSEvent.riseTransitSet ( time, JSSAngle ( sirius.lon ), JSSAngle ( sirius.lat ), JSSEvent.kRise, JSSAngle ( lon ), JSSAngle ( lat ), JSSAngle ( JSSEvent.kDefaultRiseSetAlt ) )
+        var risetime = JSSEvent.riseTransitSet ( time, sirius.lon, sirius.lat, JSSEvent.kRise, lon, lat, JSSEvent.kDefaultRiseSetAlt )
         var risedate = JSSDate.fromJulianDate ( risetime, JSSDate.kGregorian )
         str += "Sirius rises at %02d:%02d:%02.0f\n".format ( risedate.hour, risedate.min, risedate.sec )
 

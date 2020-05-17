@@ -4,7 +4,5 @@ import com.southernstars.sscore.JSSRTS;
 
 public class JSSPass
 {
-    public JSSRTS rising;
-    public JSSRTS transit;
-    public JSSRTS setting;
+    private long pPass;   // pointer to native C++ SSPass
 }

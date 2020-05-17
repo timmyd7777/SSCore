@@ -18,50 +18,50 @@ extern "C" {
 /*
  * Class:     com_southernstars_sscore_JSSEvent
  * Method:    semiDiurnalArc
- * Signature: (Lcom/southernstars/sscore/JSSAngle;Lcom/southernstars/sscore/JSSAngle;Lcom/southernstars/sscore/JSSAngle;)Lcom/southernstars/sscore/JSSAngle;
+ * Signature: (DDD)D
  */
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_semiDiurnalArc
-  (JNIEnv *, jclass, jobject, jobject, jobject);
+JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSEvent_semiDiurnalArc
+  (JNIEnv *, jclass, jdouble, jdouble, jdouble);
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent
  * Method:    riseTransitSet
- * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSAngle;Lcom/southernstars/sscore/JSSAngle;ILcom/southernstars/sscore/JSSAngle;Lcom/southernstars/sscore/JSSAngle;Lcom/southernstars/sscore/JSSAngle;)Lcom/southernstars/sscore/JSSTime;
+ * Signature: (Lcom/southernstars/sscore/JSSTime;DDIDDD)Lcom/southernstars/sscore/JSSTime;
  */
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet__Lcom_southernstars_sscore_JSSTime_2Lcom_southernstars_sscore_JSSAngle_2Lcom_southernstars_sscore_JSSAngle_2ILcom_southernstars_sscore_JSSAngle_2Lcom_southernstars_sscore_JSSAngle_2Lcom_southernstars_sscore_JSSAngle_2
-  (JNIEnv *, jclass, jobject, jobject, jobject, jint, jobject, jobject, jobject);
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet__Lcom_southernstars_sscore_JSSTime_2DDIDDD
+  (JNIEnv *, jclass, jobject, jdouble, jdouble, jint, jdouble, jdouble, jdouble);
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent
  * Method:    riseTransitSet
- * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;ILcom/southernstars/sscore/JSSAngle;)Lcom/southernstars/sscore/JSSTime;
+ * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;ID)Lcom/southernstars/sscore/JSSTime;
  */
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet__Lcom_southernstars_sscore_JSSTime_2Lcom_southernstars_sscore_JSSCoordinates_2Lcom_southernstars_sscore_JSSObject_2ILcom_southernstars_sscore_JSSAngle_2
-  (JNIEnv *, jclass, jobject, jobject, jobject, jint, jobject);
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet__Lcom_southernstars_sscore_JSSTime_2Lcom_southernstars_sscore_JSSCoordinates_2Lcom_southernstars_sscore_JSSObject_2ID
+  (JNIEnv *, jclass, jobject, jobject, jobject, jint, jdouble);
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent
  * Method:    riseTransitSetSearch
- * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;ILcom/southernstars/sscore/JSSAngle;)Lcom/southernstars/sscore/JSSTime;
+ * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;ID)Lcom/southernstars/sscore/JSSTime;
  */
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSetSearch
-  (JNIEnv *, jclass, jobject, jobject, jobject, jint, jobject);
+  (JNIEnv *, jclass, jobject, jobject, jobject, jint, jdouble);
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent
  * Method:    riseTransitSetSearchDay
- * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;ILcom/southernstars/sscore/JSSAngle;)Lcom/southernstars/sscore/JSSTime;
+ * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;ID)Lcom/southernstars/sscore/JSSTime;
  */
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSetSearchDay
-  (JNIEnv *, jclass, jobject, jobject, jobject, jint, jobject);
+  (JNIEnv *, jclass, jobject, jobject, jobject, jint, jdouble);
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent
  * Method:    riseTransitSet
- * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;Lcom/southernstars/sscore/JSSAngle;)Lcom/southernstars/sscore/JSSPass;
+ * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;D)Lcom/southernstars/sscore/JSSPass;
  */
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet__Lcom_southernstars_sscore_JSSTime_2Lcom_southernstars_sscore_JSSCoordinates_2Lcom_southernstars_sscore_JSSObject_2Lcom_southernstars_sscore_JSSAngle_2
-  (JNIEnv *, jclass, jobject, jobject, jobject, jobject);
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet__Lcom_southernstars_sscore_JSSTime_2Lcom_southernstars_sscore_JSSCoordinates_2Lcom_southernstars_sscore_JSSObject_2D
+  (JNIEnv *, jclass, jobject, jobject, jobject, jdouble);
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent

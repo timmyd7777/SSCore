@@ -5,7 +5,5 @@ import com.southernstars.sscore.JSSAngle;
 
 public class JSSRTS
 {
-    public JSSTime time;
-    public JSSAngle azm;
-    public JSSAngle alt;
+    private long pRTS;   // pointer to native C++ SSRTS
 }
