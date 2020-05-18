@@ -1,9 +1,14 @@
 package com.southernstars.sscore;
 
 import com.southernstars.sscore.JSSTime;
-import com.southernstars.sscore.JSSAngle;
 
 public class JSSRTS
 {
-    private long pRTS;   // pointer to native C++ SSRTS
+    // public JSSTime time;
+    // public JSSTime time = new JSSTime();
+    public double jd;
+    public double zone;
+
+    public double azm;
+    public double alt;
 }

@@ -138,6 +138,13 @@ void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdo
     pEnv->SetDoubleField ( pObject, fid, value );
 }
 
+void SetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jobject value )
+{
+    jclass pClass = pEnv->GetObjectClass ( pObject );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "Ljava/lang/Object;" );
+    pEnv->SetObjectField ( pObject, fid, value );
+}
+
 jchar GetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
@@ -178,4 +185,11 @@ jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "D" );
     return pEnv->GetDoubleField ( pObject, fid );
+}
+
+jobject GetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+{
+    jclass pClass = pEnv->GetObjectClass ( pObject );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "Ljava/lang/Object;" );
+    return pEnv->GetObjectField ( pObject, fid );
 }

@@ -233,17 +233,13 @@ class MainActivity : AppCompatActivity() {
 
         val nearest = JSSObjectArray()
         val numS = nearest.importFromCSV ( "SSData/Stars/Nearest.csv" )
+        val siriusA = nearest.getObject ( 6 )
 
-        val pSirius = nearest.getObject(6)
+        var pass = JSSEvent.riseTransitSet ( time, coords, siriusA, JSSEvent.kDefaultRiseSetAlt )
+        val rising_time = JSSTime ( pass.rising.jd, pass.rising.zone )
+        var risedate2 = JSSDate.fromJulianDate ( rising_time, JSSDate.kGregorian )
 
-        val sirius_coords = JSSCoordinates ( time, sirius )
-
-        var risetime2 = JSSEvent.riseTransitSet ( time, sirius_coords, pSirius, JSSEvent.kRise, JSSEvent.kDefaultRiseSetAlt )
-        str += "%f\n".format(sirius_coords.getJED())
-        var risedate2 = JSSDate.fromJulianDate ( risetime2, JSSDate.kGregorian )
-
-        // str += pSirius?.getName (0) + "\n"
-        // str += "Sirius also rises at %02d:%02d:%02.0f\n".format ( risedate2.hour, risedate2.min, risedate2.sec )
+        str += "Sirius also rises at %02d:%02d:%02.0f\n".format ( risedate2.hour, risedate2.min, risedate2.sec )
 
         nearest.destroy()
 

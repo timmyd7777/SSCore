@@ -15,6 +15,7 @@
 #include "SSMatrix.hpp"
 #include "SSIdentifier.hpp"
 #include "SSObject.hpp"
+#include "SSEvent.hpp"
 
 void android_fopen_set_asset_manager ( AAssetManager* manager );
 FILE *android_fopen ( const char* fname, const char* mode );
@@ -26,7 +27,7 @@ void SetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jint v
 void SetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jlong value );
 void SetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jfloat value );
 void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdouble value );
-void SetBooleanField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jboolean value );
+void SetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jobject value );
 
 jchar GetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jshort GetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
@@ -34,7 +35,7 @@ jint GetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jlong GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jfloat GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
-jboolean GetBooleanField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jobject GetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 
 jobject SSTimeToJSSTime ( JNIEnv *pEnv, const SSTime &time );
 SSTime JSSTimeToSSTime ( JNIEnv *pEnv, jobject pJSSTime );
@@ -60,6 +61,15 @@ SSVector JSSVectorToSSVector ( JNIEnv *pEnv, jobject pJSSVector );
 
 jobject SSIdentifierToJSSIdentifier ( JNIEnv *pEnv, const SSIdentifier &ident );
 SSIdentifier JSSIdentifierToIdentifier (JNIEnv *pEnv, jobject pJSSIdentifier );
+
+jobject SSEventTimeToJSSEventTime ( JNIEnv *pEnv, const SSEventTime &eventtime );
+SSEventTime JSSEventTimeToSSEventTime (JNIEnv *pEnv, jobject pJSSEventTime );
+
+jobject SSPassToJSSPass ( JNIEnv *pEnv, const SSPass &pass );
+SSPass JSSPassToSSPass (JNIEnv *pEnv, jobject pJSSPass );
+
+jobject SSRTSToJSSRTS ( JNIEnv *pEnv, const SSRTS &rts );
+SSRTS JSSRTSToSSRTS (JNIEnv *pEnv, jobject pJSSRTS );
 
 jobject SSObjectToJSSObject ( JNIEnv *pEnv, SSObject *pObject );
 SSObject *JSSObjectToSSObject (JNIEnv *pEnv, jobject pJSSObject );

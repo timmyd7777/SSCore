@@ -76,7 +76,8 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSetS
  * Method:    riseTransitSetSearchDay
  * Signature: (Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;ID)Lcom/southernstars/sscore/JSSTime;
  */
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSetSearchDay ( JNIEnv *pEnv, jclass pClass, jobject pJTime, jobject pJCoords, jobject pJObj, jint sign, jdouble alt )
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSetSearchDay
+    ( JNIEnv *pEnv, jclass pClass, jobject pJTime, jobject pJCoords, jobject pJObj, jint sign, jdouble alt )
 {
     SSTime today = JSSTimeToSSTime ( pEnv, pJTime );
     SSCoordinates *pCoords = (SSCoordinates *) GetLongField ( pEnv, pJCoords, "pCoords" );
@@ -104,10 +105,11 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet_
     if ( pCoords && pObj )
     {
         SSPass pass = SSEvent::riseTransitSet( today, *pCoords, pObj, alt );
-        jobject pJPass = CreateJObject ( pEnv, "com/southernstars/sscore/JSSPass" );
-        SetLongField ( pEnv, pJPass, "pPass", (long) &pass );
+        // jobject pJPass = CreateJObject ( pEnv, "com/southernstars/sscore/JSSPass" );
+        // SetLongField ( pEnv, pJPass, "pPass", (long) &pass );
 
-        return pJPass;
+        // return pJPass;
+        return SSPassToJSSPass( pEnv, pass );
     }
 }
 
@@ -129,10 +131,12 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSEvent_findSatellitePasse
     int size = SSEvent::findSatellitePasses ( *pCoords, pSat, start, stop, minAlt, passes, maxPasses );
 
     for (SSPass pass: passes) {
-        jobject pJPass = CreateJObject ( pEnv, "com/southernstars/sscore/JSSPass" );
-        SetLongField ( pEnv, pJPass, "pPass", (long) &pass );
-        pEnv->CallVoidMethod ( pJPasses, java_util_ArrayList_add( pEnv ), pJPass );
-        pEnv->DeleteLocalRef ( pJPass );
+        // jobject pJPass = CreateJObject ( pEnv, "com/southernstars/sscore/JSSPass" );
+        // SetLongField ( pEnv, pJPass, "pPass", (long) &pass );
+        // pEnv->CallVoidMethod ( pJPasses, java_util_ArrayList_add( pEnv ), pJPass );
+        // pEnv->DeleteLocalRef ( pJPass );
+        jobject jPass = SSPassToJSSPass ( pEnv, pass );
+        pEnv->CallVoidMethod ( pJPasses, java_util_ArrayList_add ( pEnv ), jPass );
     }
 
     return size;
@@ -173,10 +177,12 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findConjunctions
     SSEvent::findConjunctions( *pCoords, pObj1, pObj2, start, stop, eventtimes, maxEvents );
 
     for (SSEventTime eventtime: eventtimes) {
-        jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
-        SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
-        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
-        pEnv->DeleteLocalRef ( pJEventTime );
+        // jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
+        // SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
+        // pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
+        // pEnv->DeleteLocalRef ( pJEventTime );
+        jobject jEventTime = SSEventTimeToJSSEventTime ( pEnv, eventtime );
+        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add ( pEnv ), jEventTime );
     }
 }
 
@@ -199,10 +205,12 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findOppositions
     SSEvent::findOppositions( *pCoords, pObj1, pObj2, start, stop, eventtimes, maxEvents );
 
     for (SSEventTime eventtime: eventtimes) {
-        jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
-        SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
-        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
-        pEnv->DeleteLocalRef ( pJEventTime );
+        // jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
+        // SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
+        // pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
+        // pEnv->DeleteLocalRef ( pJEventTime );
+        jobject jEventTime = SSEventTimeToJSSEventTime ( pEnv, eventtime );
+        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add ( pEnv ), jEventTime );
     }
 }
 
@@ -225,10 +233,12 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findNearestDistanc
     SSEvent::findNearestDistances( *pCoords, pObj1, pObj2, start, stop, eventtimes, maxEvents );
 
     for (SSEventTime eventtime: eventtimes) {
-        jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
-        SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
-        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
-        pEnv->DeleteLocalRef ( pJEventTime );
+        // jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
+        // SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
+        // pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
+        // pEnv->DeleteLocalRef ( pJEventTime );
+        jobject jEventTime = SSEventTimeToJSSEventTime ( pEnv, eventtime );
+        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add ( pEnv ), jEventTime );
     }
 }
 
@@ -251,9 +261,11 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findFarthestDistan
     SSEvent::findFarthestDistances( *pCoords, pObj1, pObj2, start, stop, eventtimes, maxEvents );
 
     for (SSEventTime eventtime: eventtimes) {
-        jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
-        SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
-        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
-        pEnv->DeleteLocalRef ( pJEventTime );
+        // jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
+        // SetLongField ( pEnv, pJEventTime, "pEventTime", (long) &eventtime );
+        // pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add( pEnv ), pJEventTime );
+        // pEnv->DeleteLocalRef ( pJEventTime );
+        jobject jEventTime = SSEventTimeToJSSEventTime ( pEnv, eventtime );
+        pEnv->CallVoidMethod ( pJEventTimes, java_util_ArrayList_add ( pEnv ), jEventTime );
     }
 }

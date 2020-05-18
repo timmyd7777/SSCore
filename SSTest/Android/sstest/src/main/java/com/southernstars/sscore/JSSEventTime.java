@@ -4,5 +4,10 @@ import com.southernstars.sscore.JSSTime;
 
 public class JSSEventTime
 {
-    private long pEventTime;   // pointer to native C++ SSEventTime
+    // public JSSTime time;
+    // public JSSTime time = new JSSTime();
+    public double jd;
+    public double zone;
+
+    public double value;
 }
