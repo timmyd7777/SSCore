@@ -334,6 +334,7 @@ void TestEphemeris ( string inputDir, string outputDir )
 {
     SSObjectVec solsys;
     
+    SSPlanet::useVSOPELP ( false );
     string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
     if ( SSJPLDEphemeris::open ( ephemFile ) )
         cout << "Successfully opened JPL DE438 ephemeris file." << endl;
@@ -349,7 +350,7 @@ void TestEphemeris ( string inputDir, string outputDir )
 
     int nnames = SSImportMcNames ( inputDir + "/SolarSystem/Satellites/mcnames.txt", solsys );
     cout << "Imported " << nnames << " McCants satellite names." << endl;
-
+    
     SatFreqMap satfreqs;
     int nfreqs = SSImportSatelliteFrequencyData ( inputDir + "/SolarSystem/Satellites/je9pel.csv", satfreqs );
     cout << "Imported " << nfreqs << " JE9PEL satellite radio frequencies." << endl << endl;

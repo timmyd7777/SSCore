@@ -43,9 +43,9 @@ The **VSOP2013** folder contains C++ code for two classes which implement the [V
 
 By default, these classes are compiled to use the embedded series. You can strip out the embedded series by setting `#define VSOP2013_EMBED_SERIES 0` and `#define ELPMPP02_EMBED_SERIES 0` at the top of VSOP2013.hpp and ELPMPP02.hpp, then recompiling. This will make your compiled code several MB smaller. But then you will need to download the VSOP2013 and ELPMPP02 series files, and read them at runtime, to get valid computations.
 
-JPL's DE ephemeris files are much faster than VSOP/ELP, but also much bulkier. JPL DE431 requires a 2.3 GB file to cover the same 12,000-year timespan of VSOP2013. So, by default, SSCore uses DE438 for planetary computations from 1950 to 2050; and uses VSOP/ELP outside those years.
+JPL's DE ephemeris files are much faster than VSOP/ELP, but also much bulkier. JPL DE431 requires a 2.3 GB file to cover the same 12,000-year timespan of VSOP2013. So, by default, SSCore uses DE438 for planetary computations from 1950 to 2050; and uses VSOP/ELP outside those years.  
 
-You can build a version of SSCore without any dependency on VSOP2013 or ELPMPP02. Just remove those source files, then `#define USE_VSOP2013 0` at the top of SSPlanet.cpp. The resulting code will use JPL DE438 when available, and fall back to Paul Schlyter's (fast, but not terribly accurate) formulae when DE438 is not available.
+You can build a version of SSCore without any dependency on VSOP2013 or ELPMPP02. Just remove those source files, then `#define USE_VSOP_ELP 0` at the top of SSPlanet.cpp. The resulting code will use JPL DE438 when available, and fall back to Paul Schlyter's (fast, but not terribly accurate) formulae when DE438 is not available. You can also direct SSCore to use (or not to use) VSOP/ELP at runtime with SSPlanet::useVSOPELP().
 
 **Coding Style Standards**
 

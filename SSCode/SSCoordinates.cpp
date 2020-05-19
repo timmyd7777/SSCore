@@ -371,6 +371,8 @@ SSMatrix SSCoordinates::getGalacticMatrix ( void )
 
 // Transforms a rectangular coordinate vector from one reference frame to another.
 // Returns transformed vector; does not modify input vector.
+// Note that this also transforms spherical coordinates because we have constructors
+// which automatically convert SSVector <-> SSSpherical.  Thanks to J.B. Lekien for that tip!
 
 SSVector SSCoordinates::transform ( SSFrame from, SSFrame to, SSVector vec )
 {
@@ -396,16 +398,6 @@ SSVector SSCoordinates::transform ( SSFrame from, SSFrame to, SSVector vec )
     }
     
     return vec;
-}
-
-// Transforms spherical coordinates from one reference frame to another.
-// Returns transformed spherical coordinates; does not modify input coords.
-
-SSSpherical SSCoordinates::transform ( SSFrame from, SSFrame to, SSSpherical sph )
-{
-    SSVector vec ( sph );
-    vec = transform ( from, to, vec );
-    return SSSpherical ( vec );
 }
 
 // Converts geodetic longitude, latitude, altitude to geocentric X, Y, Z vector.
