@@ -6,12 +6,12 @@ jobject SSEventTimeToJSSEventTime ( JNIEnv *pEnv, const SSEventTime &eventtime )
 {
     jobject pJEventTime = CreateJObject ( pEnv, "com/southernstars/sscore/JSSEventTime" );
 
+    // Note the last semicolon in the string
+    char const *pSignature = "Lcom/southernstars/sscore/JSSTime;";
+
     if ( pJEventTime != nullptr )
     {
-        // SetObjectField ( pEnv, pJEventTime, "time", SSTimeToJSSTime( pEnv, eventtime.time ));
-        SetDoubleField ( pEnv, pJEventTime, "jd", eventtime.time.jd );
-        SetDoubleField ( pEnv, pJEventTime, "zone", eventtime.time.zone );
-
+        SetObjectField ( pEnv, pJEventTime, "time", pSignature, SSTimeToJSSTime( pEnv, eventtime.time ));
         SetDoubleField ( pEnv, pJEventTime, "value", eventtime.value );
     }
 
@@ -22,12 +22,10 @@ SSEventTime JSSEventTimeToSSEventTime ( JNIEnv *pEnv, jobject pJEventTime )
 {
     SSEventTime eventtime;
 
-    double jd = GetDoubleField ( pEnv, pJEventTime, "jd" );
-    double zone = GetDoubleField ( pEnv, pJEventTime, "zone" );
-    SSTime time = SSTime( jd, zone );
+    // Note the last semicolon in the string
+    char const *pSignature = "Lcom/southernstars/sscore/JSSTime;";
 
-    eventtime.time = time;
-    // eventtime.time = JSSTimeToSSTime( pEnv, GetObjectField ( pEnv, pJEventTime, "time" ));
+    eventtime.time = JSSTimeToSSTime( pEnv, GetObjectField ( pEnv, pJEventTime, pSignature, "time" ));
     eventtime.value = GetDoubleField ( pEnv, pJEventTime, "value" );
 
     return eventtime;

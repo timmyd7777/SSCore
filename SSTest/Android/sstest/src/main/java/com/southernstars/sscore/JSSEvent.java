@@ -5,6 +5,7 @@ import com.southernstars.sscore.JSSAngle;
 import com.southernstars.sscore.JSSEventTime;
 import com.southernstars.sscore.JSSPass;
 import com.southernstars.sscore.JSSRTS;
+import com.southernstars.sscore.JSSObject;
 
 // This class computes times and circumstances of astronomical events like
 // object rising/transit/setting, satellite passes, moon phases, conjuctions,
@@ -43,4 +44,6 @@ public class JSSEvent
     public static native void findOppositions ( JSSCoordinates coords, JSSObject pObj1, JSSObject pObj2, JSSTime start, JSSTime stop, ArrayList<JSSEventTime> events, int maxEvents );
     public static native void findNearestDistances ( JSSCoordinates coords, JSSObject pObj1, JSSObject pObj2, JSSTime start, JSSTime stop, ArrayList<JSSEventTime> events, int maxEvents );
     public static native void findFarthestDistances ( JSSCoordinates coords, JSSObject pObj1, JSSObject pObj2, JSSTime start, JSSTime stop, ArrayList<JSSEventTime> events, int maxEvents );
+
+    public static native JSSObject getISS();
 }

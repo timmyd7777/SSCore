@@ -138,10 +138,10 @@ void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdo
     pEnv->SetDoubleField ( pObject, fid, value );
 }
 
-void SetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jobject value )
+void SetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, const char *pSignature, jobject value )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
-    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "Ljava/lang/Object;" );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, pSignature );
     pEnv->SetObjectField ( pObject, fid, value );
 }
 
@@ -187,9 +187,9 @@ jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
     return pEnv->GetDoubleField ( pObject, fid );
 }
 
-jobject GetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
+jobject GetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, const char *pSignature )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
-    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "Ljava/lang/Object;" );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, pSignature );
     return pEnv->GetObjectField ( pObject, fid );
 }

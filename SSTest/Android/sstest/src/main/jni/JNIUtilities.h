@@ -27,7 +27,7 @@ void SetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jint v
 void SetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jlong value );
 void SetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jfloat value );
 void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdouble value );
-void SetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jobject value );
+void SetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, const char *pSignature, jobject value );
 
 jchar GetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jshort GetShortField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
@@ -35,7 +35,7 @@ jint GetIntField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jlong GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jfloat GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
 jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
-jobject GetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName );
+jobject GetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, const char *pSignature );
 
 jobject SSTimeToJSSTime ( JNIEnv *pEnv, const SSTime &time );
 SSTime JSSTimeToSSTime ( JNIEnv *pEnv, jobject pJSSTime );

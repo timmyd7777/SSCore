@@ -6,12 +6,12 @@ jobject SSRTSToJSSRTS ( JNIEnv *pEnv, const SSRTS &RTS )
 {
     jobject pJRTS = CreateJObject ( pEnv, "com/southernstars/sscore/JSSRTS" );
 
+    // Note the last semicolon in the string
+    char const *pSignature = "Lcom/southernstars/sscore/JSSTime;";
+
     if ( pJRTS != nullptr )
     {
-        // SetObjectField ( pEnv, pJRTS, "time", SSTimeToJSSTime( pEnv, RTS.time ));
-        SetDoubleField ( pEnv, pJRTS, "jd", RTS.time.jd );
-        SetDoubleField ( pEnv, pJRTS, "zone", RTS.time.zone );
-
+        SetObjectField ( pEnv, pJRTS, "time", pSignature, SSTimeToJSSTime( pEnv, RTS.time ));
         SetDoubleField ( pEnv, pJRTS, "azm", RTS.azm );
         SetDoubleField ( pEnv, pJRTS, "alt", RTS.alt );
     }
@@ -23,12 +23,10 @@ SSRTS JSSRTSToSSRTS ( JNIEnv *pEnv, jobject pJRTS )
 {
     SSRTS RTS;
 
-    double jd = GetDoubleField ( pEnv, pJRTS, "jd" );
-    double zone = GetDoubleField ( pEnv, pJRTS, "zone" );
-    SSTime time = SSTime ( jd, zone );
+    // Note the last semicolon in the string
+    char const *pSignature = "Lcom/southernstars/sscore/JSSTime;";
 
-    RTS.time = time;
-    // RTS.time = JSSTimeToSSTime( pEnv, GetObjectField ( pEnv, pJRTS, "time" ));
+    RTS.time = JSSTimeToSSTime( pEnv, GetObjectField ( pEnv, pJRTS, pSignature, "time" ));
     RTS.azm = GetDoubleField ( pEnv, pJRTS, "azm" );
     RTS.alt = GetDoubleField ( pEnv, pJRTS, "alt" );
 

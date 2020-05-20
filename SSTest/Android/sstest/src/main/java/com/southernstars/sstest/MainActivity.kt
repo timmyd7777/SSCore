@@ -236,12 +236,82 @@ class MainActivity : AppCompatActivity() {
         val siriusA = nearest.getObject ( 6 )
 
         var pass = JSSEvent.riseTransitSet ( time, coords, siriusA, JSSEvent.kDefaultRiseSetAlt )
-        val rising_time = JSSTime ( pass.rising.jd, pass.rising.zone )
-        var risedate2 = JSSDate.fromJulianDate ( rising_time, JSSDate.kGregorian )
+        var risedate2 = JSSDate.fromJulianDate ( pass.rising.time, JSSDate.kGregorian )
 
         str += "Sirius also rises at %02d:%02d:%02.0f\n".format ( risedate2.hour, risedate2.min, risedate2.sec )
-
         nearest.destroy()
+
+        // Solar system import code lifted & translated from TestEvents in SSTest.cpp
+
+        val solsys = JSSObjectArray();
+
+        val numPlanets = solsys.importFromCSV( "SSData/SolarSystem/Planets.csv" )
+        str += "Imported %02d planets.\n".format ( numPlanets )
+
+        val numMoons = solsys.importFromCSV( "SSData/SolarSystem/Moons.csv" )
+        str += "Imported %02d moons.\n".format ( numMoons )
+
+        str += "Total solar system objects imported:  %02d.\n".format ( solsys.size() )
+
+        // JSSEvent.nextMoonPhase
+
+        val now = JSSTime.fromSystem()
+        val date_now = JSSDate.fromJulianDate ( now, 0 ) // kGregorian = 0
+
+        val sun = solsys.getObject ( 0 )
+        val moon = solsys.getObject ( 10 )
+
+        val new_moon_time = JSSEvent.nextMoonPhase ( now, sun, moon, JSSEvent.kNewMoon )
+        val nmd = JSSDate.fromJulianDate( new_moon_time, 0 )
+
+        str += "New Moon:       %02d/%02d/%02.0f %02d:%02d:%02.0f\n".format ( nmd.year, nmd.month, nmd.day, nmd.hour, nmd.min, nmd.sec )
+
+        // Find Jupiter-Saturn conjunctions in the next year
+        
+        val jupiter = solsys.getObject ( 5 )
+        val saturn = solsys.getObject ( 6 )
+
+        val conjunctions: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findConjunctions ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), conjunctions, 10 )
+
+        val conj_size = conjunctions.size
+        str += "%02d Jupiter-Saturn Conjunctions in the next year:\n".format ( conj_size )
+
+        for ( i in 0 .. ( conj_size - 1) )
+        {
+            val conj_date = JSSDate.fromJulianDate ( conjunctions.get( i ).time, 0 )
+            val sep = JSSDegMinSec.fromRadians ( conjunctions.get( i ).value )
+            str += "%2d° %2d' %4.1f\"".format( sep.deg, sep.min, sep.sec ) + " on %02d/%02d/%02.0f %02d:%02d:%02.0f\n".format ( conj_date.year, conj_date.month, conj_date.day, conj_date.hour, conj_date.min, conj_date.sec )
+        }
+
+        // Manually importing the ISS since there's no java version of SSImportMcNames or SSImportSatellitesFromTLE
+        val iss = JSSEvent.getISS()
+
+        coords.setTime ( now );
+        val passes: ArrayList<JSSPass> = ArrayList();
+    
+        val numpasses = JSSEvent.findSatellitePasses ( coords, iss, now, JSSTime( now.jd + 1.0, now.zone ), 0.0, passes, 10 );
+        str += "%02d ISS passes in the next day:\n".format ( numpasses )
+        for ( i in 0 .. ( numpasses - 1) )
+        {
+            val pass = passes.get( i )
+            var date = JSSDate.fromJulianDate ( pass.rising.time, 0 )
+            val aaa1 = "%02d".format(date.hour)
+            val aaa2 = "%02d".format(date.min)
+            val aaa3 = "%02.0f".format(date.sec)
+            val aaa6 = "%.1f".format(pass.rising.azm * JSSAngle.kDegPerRad)
+            str += "Rise:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.rising.azm * JSSAngle.kDegPerRad )
+
+            date = JSSDate.fromJulianDate ( pass.transit.time, 0 )
+            str += "Peak:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.transit.alt * JSSAngle.kDegPerRad )
+
+            date = JSSDate.fromJulianDate ( pass.setting.time, 0 )
+            str += "Set:   %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.setting.azm * JSSAngle.kDegPerRad )
+        }
+
+        solsys.destroy()
+
+        //////////////////////////////////
 
         sample_text.text = str
     }

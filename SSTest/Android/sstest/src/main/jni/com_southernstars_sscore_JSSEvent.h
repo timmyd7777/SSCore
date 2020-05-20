@@ -65,10 +65,10 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet_
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent
- * Method:    findSatellitePaJsses
+ * Method:    findSatellitePasses
  * Signature: (Lcom/southernstars/sscore/JSSCoordinates;Lcom/southernstars/sscore/JSSObject;Lcom/southernstars/sscore/JSSTime;Lcom/southernstars/sscore/JSSTime;DLjava/util/ArrayList;I)I
  */
-JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSEvent_findSatellitePaJsses
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSEvent_findSatellitePasses
   (JNIEnv *, jclass, jobject, jobject, jobject, jobject, jdouble, jobject, jint);
 
 /*
@@ -110,6 +110,14 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findNearestDistanc
  */
 JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findFarthestDistances
   (JNIEnv *, jclass, jobject, jobject, jobject, jobject, jobject, jobject, jint);
+
+/*
+ * Class:     com_southernstars_sscore_JSSEvent
+ * Method:    getISS
+ * Signature: ()Lcom/southernstars/sscore/JSSObject;
+ */
+JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_getISS
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }

@@ -4,10 +4,6 @@ import com.southernstars.sscore.JSSTime;
 
 public class JSSEventTime
 {
-    // public JSSTime time;
-    // public JSSTime time = new JSSTime();
-    public double jd;
-    public double zone;
-
+    public JSSTime time;
     public double value;
 }

@@ -5,12 +5,15 @@
 jobject SSPassToJSSPass ( JNIEnv *pEnv, const SSPass &pass )
 {
     jobject pJPass = CreateJObject ( pEnv, "com/southernstars/sscore/JSSPass" );
+    
+    // Note the last semicolon in the string
+    char const *pSignature = "Lcom/southernstars/sscore/JSSRTS;";
 
     if ( pJPass != nullptr )
     {
-        SetObjectField ( pEnv, pJPass, "rising", SSRTSToJSSRTS( pEnv, pass.rising ));
-        SetObjectField ( pEnv, pJPass, "transit", SSRTSToJSSRTS( pEnv, pass.transit ));
-        SetObjectField ( pEnv, pJPass, "setting", SSRTSToJSSRTS( pEnv, pass.setting ));
+        SetObjectField ( pEnv, pJPass, "rising", pSignature, SSRTSToJSSRTS( pEnv, pass.rising ));
+        SetObjectField ( pEnv, pJPass, "transit", pSignature, SSRTSToJSSRTS( pEnv, pass.transit ));
+        SetObjectField ( pEnv, pJPass, "setting", pSignature, SSRTSToJSSRTS( pEnv, pass.setting ));
     }
 
     return pJPass;
@@ -18,9 +21,12 @@ jobject SSPassToJSSPass ( JNIEnv *pEnv, const SSPass &pass )
 
 SSPass JSSPassToSSPass ( JNIEnv *pEnv, jobject pJPass )
 {
-    SSRTS rising = JSSRTSToSSRTS( pEnv, GetObjectField ( pEnv, pJPass, "rising" ));
-    SSRTS transit = JSSRTSToSSRTS( pEnv, GetObjectField ( pEnv, pJPass, "transit" ));
-    SSRTS setting = JSSRTSToSSRTS( pEnv, GetObjectField ( pEnv, pJPass, "setting" ));
+    // Note the last semicolon in the string
+    char const *pSignature = "Lcom/southernstars/sscore/JSSRTS;";
+
+    SSRTS rising = JSSRTSToSSRTS( pEnv, GetObjectField ( pEnv, pJPass, "rising", pSignature ));
+    SSRTS transit = JSSRTSToSSRTS( pEnv, GetObjectField ( pEnv, pJPass, "transit", pSignature ));
+    SSRTS setting = JSSRTSToSSRTS( pEnv, GetObjectField ( pEnv, pJPass, "setting", pSignature ));
 
     SSPass pass;
 
