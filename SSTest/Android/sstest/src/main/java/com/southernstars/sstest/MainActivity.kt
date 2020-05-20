@@ -296,10 +296,6 @@ class MainActivity : AppCompatActivity() {
         {
             val pass = passes.get( i )
             var date = JSSDate.fromJulianDate ( pass.rising.time, 0 )
-            val aaa1 = "%02d".format(date.hour)
-            val aaa2 = "%02d".format(date.min)
-            val aaa3 = "%02.0f".format(date.sec)
-            val aaa6 = "%.1f".format(pass.rising.azm * JSSAngle.kDegPerRad)
             str += "Rise:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.rising.azm * JSSAngle.kDegPerRad )
 
             date = JSSDate.fromJulianDate ( pass.transit.time, 0 )
@@ -310,8 +306,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         solsys.destroy()
-
-        //////////////////////////////////
 
         sample_text.text = str
     }
