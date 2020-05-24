@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <errno.h>
+// #include <dirent.h>
+// #include <unistd.h>
 
 #include "JNIUtilities.h"
 
@@ -44,15 +46,16 @@ static int android_close ( void* cookie )
 
 FILE *android_fopen ( const char *name, const char *mode )
 {
-    // If opening file for writing, or if android asset manager is
-    // not initialized, just open the file the old fashioned way.
+    // If opening file for writing, android asset manager is
+    // not initialized, or path doesn't exist in android asset,
+    // just open the file the old fashioned way.
 
     if ( mode[0] == 'w' || android_asset_manager == NULL )
         return fopen ( name, mode );
-
+    
     AAsset *asset = AAssetManager_open ( android_asset_manager, name, 0 );
     if ( ! asset )
-        return NULL;
+        return fopen ( name, mode );
 
     return funopen ( asset, android_read, android_write, android_seek, android_close );
 }
@@ -170,7 +173,8 @@ jlong GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "J" );
-    return pEnv->GetLongField ( pObject, fid );
+    jlong zzz = pEnv->GetLongField ( pObject, fid );
+    return zzz;
 }
 
 jfloat GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )

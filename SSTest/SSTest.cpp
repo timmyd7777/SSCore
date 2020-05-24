@@ -62,7 +62,7 @@ void TestTime ( void )
 void TestSatellites ( string inputDir, string outputDir )
 {
     string filename = inputDir + "/SolarSystem/Satellites/visual.txt";
-    ifstream file ( filename );
+    FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
     {
         cout << "Failed to open " << filename << endl;

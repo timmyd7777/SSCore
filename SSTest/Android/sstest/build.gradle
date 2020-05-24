@@ -78,6 +78,7 @@ task copyAssets ( type: Copy ) {
         include 'SolarSystem/Asteroids.txt'
         include 'SolarSystem/Comets.txt'
         include 'SolarSystem/DE438/1950_2050.438'
+        include 'SolarSystem/Satellites/mcnames.txt'
         include 'SolarSystem/Satellites/visual.txt'
         include 'Stars/Brightest.csv'
         include 'Stars/Nearest.csv'

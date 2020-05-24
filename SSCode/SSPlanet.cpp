@@ -564,7 +564,7 @@ int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites 
 {
     // Open file; return on failure.
 
-    ifstream file ( filename );
+    FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
         return 0;
 
@@ -588,7 +588,7 @@ int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites 
     
     // Close file. Return number of objects added to object vector.
 
-//    fclose ( file );
+    fclose ( file );
     return numSats;
 }
 

@@ -52,7 +52,7 @@ struct SSTLE
     
     // Read from/write to input/output stream.
     
-    int read ( istream &file );
+    int read ( FILE *file );
     int write ( ostream &file );
     void delargs ( void );
     

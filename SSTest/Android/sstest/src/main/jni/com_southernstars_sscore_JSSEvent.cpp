@@ -251,6 +251,9 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findFarthestDistan
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_getISS
   (JNIEnv *pEnv, jclass pClass)
 {
+    //
+    // VERSION 1: RECONSTRUCT JUST THE ISS OBJECT
+    //
     // From visual.txt
     string visual_line_1 = "ISS (ZARYA)             ";
     string visual_line_2 = "1 25544U 98067A   20095.06923611  .00000951  00000-0  25699-4 0  9994";
@@ -326,33 +329,45 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_getISS
     pSat->setHMagnitude ( mcname.mag );
     pSat->setRadius ( mcname.len / 1000.0 );
 
-    return SSObjectToJSSObject ( pEnv, pSat );
+    // return SSObjectToJSSObject ( pEnv, pSat );
 
-    // I was going to use the commented code below but I could not get the ifstream in SSImportSatellitesFromTLE
-    // to return something non-NULL.
 
-    // SSObjectVec solsys;
+    //
+    // VERSION 2: USE SSImportSatellitesFromTLE & SSImportMcNames
+    //
+    SSObjectVec solsys;
+
+    int nsat = SSImportSatellitesFromTLE ( "SSData/SolarSystem/Satellites/visual.txt", solsys );
+    cout << "Imported " << nsat << " artificial satellites." << endl;
+
+    int nnames = SSImportMcNames ( "SSData/SolarSystem/Satellites/mcnames.txt", solsys );
+    cout << "Imported " << nnames << " McCants satellite names." << endl;
+
+    // Find the ISS
     
-    // int nsat = SSImportSatellitesFromTLE ( "SSData/SolarSystem/Satellites/visual.txt", solsys );
-    // cout << "Imported " << nsat << " artificial satellites." << endl;
-    // int nnames = SSImportMcNames ( "SSData/SolarSystem/Satellites/mcnames.txt", solsys );
-    // cout << "Imported " << nnames << " McCants satellite names." << endl;
-
-    // // Find the ISS
-    
-    // int i = 0;
-    // for ( i = 0; i < solsys.size(); i++ )
-    // {
-    //     SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
-    //     if ( p->getType() == kTypeSatellite )
-    //         if ( p->getIdentifier() == SSIdentifier ( kCatNORADSat, 25544 ) )
-    //             break;
-    // }
+    int i = 0;
+    for ( i = 0; i < solsys.size(); i++ )
+    {
+        SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
+        if ( p->getType() == kTypeSatellite )
+            if ( p->getIdentifier() == SSIdentifier ( kCatNORADSat, 25544 ) )
+                break;
+    }
     
     // // If we found it, return the ISS
     
     // if ( i < solsys.size() )
     // {
-    //     return SSObjectToJSSObject ( pEnv, solsys.at( i ) );
+    //     return SSObjectToJSSObject ( pEnv, solsys[i] );
     // }
+
+    SSObject *z = solsys[i];
+    jobject jgood = SSObjectToJSSObject ( pEnv, pSat );
+    jobject jbad = SSObjectToJSSObject ( pEnv, solsys[i] );
+    SSObject *ssgood = JSSObjectToSSObject ( pEnv, jgood );
+    SSObject *ssbad = JSSObjectToSSObject ( pEnv, jbad );
+    // SSSatellite *_bad = SSGetSatellitePtr ( solsys[i] );
+    // SSTLE _tle = _bad->getTLE();
+    // SSSatellite *__bad = new SSSatellite ( _tle  );
+    return jgood;
 }
