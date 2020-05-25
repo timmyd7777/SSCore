@@ -152,7 +152,7 @@ SSTime::SSTime ( double jd, double zone )
 
 SSTime::SSTime ( SSDate date )
 {
-    double day = date.day + date.hour / 24.0 + date.min / 144.0 + date.sec / 3600.0 - date.zone / 24.0;
+    double day = date.day + date.hour / 24.0 + date.min / 1440.0 + date.sec / 86400.0 - date.zone / 24.0;
     
     if ( date.month < 3 )
     {
