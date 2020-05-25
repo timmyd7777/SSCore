@@ -57,6 +57,27 @@ void TestTime ( void )
     cout << "Current Julian Date is " << format ( "%.6f", now.jd ) << endl;
 
     cout << "Current working directory is " << getcwd() << endl << endl;
+
+    cout << "Before is "
+         << format("%04hd-%02hd-%02.0f %02hd:%02hd:%04.1f",
+              date.year,
+              date.month,
+              floor(date.day),
+              date.hour,
+              date.min,
+              date.sec)
+         << endl;
+    SSTime time2 = date;
+    SSDate date2 = time2;
+    cout << "After is "
+         << format("%04hd-%02hd-%02.0f %02hd:%02hd:%04.1f",
+              date2.year,
+              date2.month,
+              floor(date2.day),
+              date2.hour,
+              date2.min,
+              date2.sec)
+         << endl;
 };
 
 void TestSatellites ( string inputDir, string outputDir )
@@ -361,7 +382,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
     SSCoordinates coords ( now, here );
     
-    cout << format ( "Test Date: %04d/%02hd/%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
+    cout << format ( "Test Date: %04d/%02hd/%02hd", date.year, date.month, date.day ) << endl;
     cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
     cout << format ( "Test Zone: %+.1f hours", date.zone ) << endl;
     cout << format ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;

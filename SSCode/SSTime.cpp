@@ -14,9 +14,24 @@
 #include "SSTime.hpp"
 
 // Constructs a calendar date/time from the specified calendar system, local time zone in hours east of UTC,
+// and year/month/day including fractional part of day.
+
+SSDate::SSDate ( SSCalendar calendar, double zone, int year, short month, double dayf )
+{
+    this->calendar = calendar;
+    this->zone = zone;
+    this->year = year;
+    this->month = month;
+    this->day = floor ( dayf );
+    this->hour = 24.0 * ( dayf - day );
+    this->min = 1440.0 * ( dayf - day - hour / 24.0 );
+    this->sec = 86400.0 * ( dayf - day - hour / 24.0 - min / 1440.0 );
+}
+
+// Constructs a calendar date/time from the specified calendar system, local time zone in hours east of UTC,
 // and year/month/day hour:min:sec.
 
-SSDate::SSDate ( SSCalendar calendar, double zone, int year, short month, double day, short hour, short min, double sec )
+SSDate::SSDate ( SSCalendar calendar, double zone, int year, short month, short day, short hour, short min, double sec )
 {
     this->calendar = calendar;
     this->zone = zone;
@@ -53,8 +68,8 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
     int d = floor ( 365.25 * c );
     int e = ( b - d ) / 30.6001;
 
-    day = b - d - floor ( 30.6001 * e ) + f;
-
+    day = b - d - floor ( 30.6001 * e );
+    
     if ( e < 14 )
         month = e - 1;
     else
@@ -137,7 +152,7 @@ SSTime::SSTime ( double jd, double zone )
 
 SSTime::SSTime ( SSDate date )
 {
-    date.day += date.hour / 24.0 + date.min / 1440.0 + date.sec / 86400.0 - date.zone / 24.0;
+    double day = date.day + date.hour / 24.0 + date.min / 144.0 + date.sec / 3600.0 - date.zone / 24.0;
     
     if ( date.month < 3 )
     {
@@ -152,7 +167,7 @@ SSTime::SSTime ( SSDate date )
         b = 2 - a + floor ( a / 4.0 );
     }
 
-    jd = floor ( 365.25 * ( date.year + 4716 ) ) + floor ( 30.6001 * ( date.month + 1 ) ) + date.day + b - 1524.5;
+    jd = floor ( 365.25 * ( date.year + 4716 ) ) + floor ( 30.6001 * ( date.month + 1 ) ) + day + b - 1524.5;
     zone = date.zone;
 }
 

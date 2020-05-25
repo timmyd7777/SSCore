@@ -6,7 +6,7 @@ public class JSSDate
     public double zone;           // local time zone offset from UTC in hours east of Greenwich; wwst is negative!
     public int year;              // calendar year; note 0 = 1 BC, -1 = 2 BC, etc.
     public short month;           // month; 1 = Jan, 2 = Feb, etc.
-    public double day;            // day including fractional part; 1.0 to 31.999...
+    public short day;             // day of month; 1 to 31
     public short hour;            // hour of day; 0 to 23
     public short min;             // minute of hour; 0 to 59
     public double sec;            // seconds of minute including fractional part; 0 to 59.999...
@@ -26,7 +26,19 @@ public class JSSDate
         sec = 0.0;
     }
 
-    public JSSDate ( int c, double z, int y, short m, double d, short h, short n, double s )
+    public JSSDate ( int c, double z, int y, short m, double d )
+    {
+        calendar = c;
+        zone = z;
+        year = y;
+        month = m;
+        day = (short) d;
+        hour = (short) ( 24.0 * ( d - day ) );
+        min = (short) ( 1440.0 * ( d - day - hour / 24.0 ) );
+        sec = 86400.0 * ( d - day - hour / 24.0 - min / 1440.0 );
+    }
+
+    public JSSDate ( int c, double z, int y, short m, short d, short h, short n, double s )
     {
         calendar = c;
         zone = z;

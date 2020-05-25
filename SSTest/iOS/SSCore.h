@@ -53,7 +53,7 @@ typedef struct CSSDate
     double zone;        // local time zone offset from UTC in hours east of Greenwich; wwst is negative!
     int    year;        // calendar year; note 0 = 1 BC, -1 = 2 BC, etc.
     short  month;       // month; 1 = Jan, 2 = Feb, etc.
-    double day;         // day including fractional part; 1.0 to 31.999...
+    short  day;         // day of month; 1 to 31
     short  hour;        // hour of day; 0 to 23
     short  min;         // minute of hour; 0 to 59
     double sec;         // seconds of minute including fractional part; 0 to 59.999...
