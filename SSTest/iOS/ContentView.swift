@@ -39,7 +39,7 @@ func test ( ) -> String
     
     // Print local date, time, time zone, JD, JED, GST
     
-    str.append ( String ( format: "Current local date is %04d/%02hd/%02.0f\n", cdate.year, cdate.month, floor ( cdate.day ) ) )
+    str.append ( String ( format: "Current local date is %04d/%02hd/%0hd\n", cdate.year, cdate.month, cdate.day ) )
     str.append ( String ( format: "Current local time is %02hd:%0h2d:%04.1f\n", cdate.hour, cdate.min, cdate.sec ) )
     str.append ( String ( format: "Local time zone is %+.2f hours east of UTC\n", cdate.zone ) )
     str.append ( String ( format: "Julian Date is %.12f\n", ctime.jd ) )

@@ -12,7 +12,7 @@ jobject SSDateToJSSDate ( JNIEnv *pEnv, const SSDate &date )
         SetDoubleField ( pEnv, pJSSDate, "zone", date.zone );
         SetIntField ( pEnv, pJSSDate, "year", date.year );
         SetShortField ( pEnv, pJSSDate, "month", date.month );
-        SetDoubleField ( pEnv, pJSSDate, "day", date.day );
+        SetShortField ( pEnv, pJSSDate, "day", date.day );
         SetShortField ( pEnv, pJSSDate, "hour", date.hour );
         SetShortField ( pEnv, pJSSDate, "min", date.min );
         SetDoubleField ( pEnv, pJSSDate, "sec", date.sec );
@@ -27,7 +27,7 @@ SSDate JSSDateToSSDate ( JNIEnv *pEnv, jobject pJSSDate )
     double zone = GetDoubleField ( pEnv, pJSSDate, "zone" );
     int year = GetIntField ( pEnv, pJSSDate, "year" );
     short month = GetShortField ( pEnv, pJSSDate, "month" );
-    double day = GetDoubleField ( pEnv, pJSSDate, "day" );
+    short day = GetShortField ( pEnv, pJSSDate, "day" );
     short hour = GetShortField ( pEnv, pJSSDate, "hour" );
     short min = GetShortField ( pEnv, pJSSDate, "min" );
     double sec = GetDoubleField ( pEnv, pJSSDate, "sec" );

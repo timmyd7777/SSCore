@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         // Print local date, time, time zone, JD, JED, GST
 
-        str += "Current local date is %02d/%02d/%02.0f\n".format ( date.year, date.month, floor ( date.day ) )
+        str += "Current local date is %02d/%02d/%02d\n".format ( date.year, date.month, date.day )
         str += "Current local time is %02d:%02d:%04.1f\n".format ( date.hour, date.min, date.sec )
         str += "Local time zone is %+.2f hours east of UTC\n".format ( date.zone )
         str += "Julian Date is %.6f\n".format ( time.jd )
