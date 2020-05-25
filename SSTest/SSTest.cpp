@@ -51,7 +51,7 @@ void TestTime ( void )
     SSTime now = SSTime::fromSystem();
     SSDate date = now;
 
-    cout << "Current local date is " << format ( "%04hd-%02hd-%02.0f", date.year, date.month, floor ( date.day ) ) << endl;
+    cout << "Current local date is " << format ( "%04hd-%02hd-%0hd", date.year, date.month, date.day ) << endl;
     cout << "Current local time is " << format ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
     cout << "Current local time is " << format ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
     cout << "Current Julian Date is " << format ( "%.6f", now.jd ) << endl;
