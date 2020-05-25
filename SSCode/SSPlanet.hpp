@@ -95,6 +95,7 @@ public:
     void setRadius ( float radius ) { _radius = radius; }
 
     SSIdentifier getIdentifier ( void ) { return _id; }
+    SSIdentifier getIdentifier ( SSCatalog cat );
     SSOrbit getOrbit ( void ) { return _orbit; }
     float getHMagnitude ( void ) { return _Hmag; }
     float getGMagnitude ( void ) { return _Gmag; }
