@@ -214,6 +214,9 @@ class MainActivity : AppCompatActivity() {
         {
             val planet = planets.getObject ( i )
             str += planet?.getName ( 0 ) ?: "null 11th successfully caught."
+            val ident = planet?.getIdentifier ( JSSIdentifier.kCatUnknown ) ?: JSSIdentifier ( JSSIdentifier.kCatUnknown, 0 )
+ //           if ( ident.equals ( JSSIdentifier ( JSSIdentifier.kCatJPLanet, 3 ) ) )
+ //               str += "I found the Earth!\n"
             str += if ( i < nP ) ", " else "\n"
         }
 

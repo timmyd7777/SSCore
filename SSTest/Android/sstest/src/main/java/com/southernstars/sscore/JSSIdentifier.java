@@ -74,6 +74,7 @@ public class JSSIdentifier
         return (int) ( id % 10000000000000000L );
     }
 
+    public boolean equals ( JSSIdentifier other ) { return id == other.id; }
     public static native JSSIdentifier fromString ( String s );
     public native String toString();
 }
