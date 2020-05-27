@@ -246,7 +246,7 @@ class MainActivity : AppCompatActivity() {
 
         // Solar system import code lifted & translated from TestEvents in SSTest.cpp
 
-        val solsys = JSSObjectArray();
+        val solsys = JSSObjectArray()
 
         val numPlanets = solsys.importFromCSV( "SSData/SolarSystem/Planets.csv" )
         str += "Imported %02d planets.\n".format ( numPlanets )
@@ -255,6 +255,12 @@ class MainActivity : AppCompatActivity() {
         str += "Imported %02d moons.\n".format ( numMoons )
 
         str += "Total solar system objects imported:  %02d.\n".format ( solsys.size() )
+
+        val numSats = solsys.importFromTLE( "SSData/SolarSystem/Satellites/visual.txt" )
+        str += "Imported %02d artificial satellites.\n".format ( numSats )
+
+        val numMcNames = solsys.importMcNames( "SSData/SolarSystem/Satellites/mcnames.txt" )
+        str += "Imported %02d McCants satellite names.\n".format ( numMcNames )
 
         // JSSEvent.nextMoonPhase
 
@@ -267,8 +273,8 @@ class MainActivity : AppCompatActivity() {
         val new_moon_time = JSSEvent.nextMoonPhase ( now, sun, moon, JSSEvent.kNewMoon )
         val nmd = JSSDate.fromJulianDate( new_moon_time, 0 )
 
-        str += "New Moon:       %02d/%02d/%02.0f %02d:%02d:%02.0f\n".format ( nmd.year, nmd.month, nmd.day, nmd.hour, nmd.min, nmd.sec )
-
+        str += "New Moon:       %02d/%02d/%02d %02d:%02d:%02.0f\n".format ( nmd.year, nmd.month, nmd.day, nmd.hour, nmd.min, nmd.sec )
+        
         // Find Jupiter-Saturn conjunctions in the next year
         
         val jupiter = solsys.getObject ( 5 )
@@ -284,31 +290,75 @@ class MainActivity : AppCompatActivity() {
         {
             val conj_date = JSSDate.fromJulianDate ( conjunctions.get( i ).time, 0 )
             val sep = JSSDegMinSec.fromRadians ( conjunctions.get( i ).value )
-            str += "%2d° %2d' %4.1f\"".format( sep.deg, sep.min, sep.sec ) + " on %02d/%02d/%02.0f %02d:%02d:%02.0f\n".format ( conj_date.year, conj_date.month, conj_date.day, conj_date.hour, conj_date.min, conj_date.sec )
+            str += "%2d° %2d' %4.1f\"".format( sep.deg, sep.min, sep.sec ) + " on %02d/%02d/%02d %02d:%02d:%02.0f\n".format ( conj_date.year, conj_date.month, conj_date.day, conj_date.hour, conj_date.min, conj_date.sec )
         }
 
-        // Manually importing the ISS since there's no java version of SSImportMcNames or SSImportSatellitesFromTLE
-        val iss = JSSEvent.getISS()
+        // findOppositions
 
-        coords.setTime ( now );
-        val passes: ArrayList<JSSPass> = ArrayList();
-    
-        val numpasses = JSSEvent.findSatellitePasses ( coords, iss, now, JSSTime( now.jd + 1.0, now.zone ), 0.0, passes, 10 );
-        str += "%02d ISS passes in the next day:\n".format ( numpasses )
-        for ( i in 0 .. ( numpasses - 1) )
+        val oppositions: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findOppositions ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), oppositions, 10 )
+
+        val opp_size = oppositions.size
+        str += "%02d Jupiter-Saturn Oppositions in the next year:\n".format ( opp_size )
+
+        // findNearestDistances
+
+        val nearestDistances: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findNearestDistances ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), nearestDistances, 10 )
+
+        val nd_size = nearestDistances.size
+        str += "%02d Jupiter-Saturn Nearest Distances in the next year:\n".format ( nd_size )
+
+        // findFarthestDistances
+
+        val farthesttDistances: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findFarthestDistances ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), farthesttDistances, 10 )
+
+        val fd_size = farthesttDistances.size
+        str += "%02d Jupiter-Saturn Farthest Distances in the next year:\n".format ( fd_size )
+
+        for ( i in 0 .. ( solsys.size() - 1) )
         {
-            val pass = passes.get( i )
-            var date = JSSDate.fromJulianDate ( pass.rising.time, 0 )
-            str += "Rise:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.rising.azm * JSSAngle.kDegPerRad )
+            val jobject = solsys.getObject ( i )
+            val ident = jobject?.getIdentifier ( JSSIdentifier.kCatNORADSat ) ?: JSSIdentifier ( JSSIdentifier.kCatUnknown, 0 )
 
-            date = JSSDate.fromJulianDate ( pass.transit.time, 0 )
-            str += "Peak:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.transit.alt * JSSAngle.kDegPerRad )
+            if ( ident.equals ( JSSIdentifier ( JSSIdentifier.kCatNORADSat, 25544 ) ) )
+            {
+                coords.setTime ( now );
+                val passes: ArrayList<JSSPass> = ArrayList();
+            
+                val numpasses = JSSEvent.findSatellitePasses ( coords, jobject, now, JSSTime( now.jd + 1.0, now.zone ), 0.0, passes, 10 );
+                str += "%02d ISS passes in the next day:\n".format ( numpasses )
+                for ( i in 0 .. ( numpasses - 1) )
+                {
+                    val pass = passes.get( i )
+                    var date = JSSDate.fromJulianDate ( pass.rising.time, 0 )
+                    str += "Rise:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.rising.azm * JSSAngle.kDegPerRad )
 
-            date = JSSDate.fromJulianDate ( pass.setting.time, 0 )
-            str += "Set:   %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.setting.azm * JSSAngle.kDegPerRad )
+                    date = JSSDate.fromJulianDate ( pass.transit.time, 0 )
+                    str += "Peak:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.transit.alt * JSSAngle.kDegPerRad )
+
+                    date = JSSDate.fromJulianDate ( pass.setting.time, 0 )
+                    str += "Set:   %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.setting.azm * JSSAngle.kDegPerRad )
+                }
+
+                break
+            }
         }
 
         solsys.destroy()
+
+        // Tests the changes to android_fopen
+        // If given a path inside android assets, use assets, otherwise use path outside assets
+
+        val asset_exist = JSSEvent.androidFOpenExists( "SSData/SolarSystem/Planets.csv" )
+        val nonasset_exist = JSSEvent.androidFOpenExists( "./build.gradle" )
+        val nonexistent = JSSEvent.androidFOpenExists( "./build.gradlee" )
+
+        str += "Testing android_fopen\n"
+        str += "Android asset path: " + (if ( asset_exist ) "pass" else "fail") + "\n"
+        str += "Non-Android asset path: " + (if ( nonasset_exist ) "pass" else "fail") + "\n"
+        str += "Non-existent path: " + (if ( nonexistent ) "pass" else "fail") + "\n"
 
         sample_text.text = str
     }

@@ -3,9 +3,8 @@
 //
 
 #include <stdio.h>
+#include <unistd.h>
 #include <errno.h>
-// #include <dirent.h>
-// #include <unistd.h>
 
 #include "JNIUtilities.h"
 
@@ -55,7 +54,9 @@ FILE *android_fopen ( const char *name, const char *mode )
     
     AAsset *asset = AAssetManager_open ( android_asset_manager, name, 0 );
     if ( ! asset )
-        return fopen ( name, mode );
+    {
+        return funopen ( nullptr, android_read, nullptr, nullptr, nullptr );
+    }
 
     return funopen ( asset, android_read, android_write, android_seek, android_close );
 }
@@ -173,8 +174,7 @@ jlong GetLongField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "J" );
-    jlong zzz = pEnv->GetLongField ( pObject, fid );
-    return zzz;
+    return pEnv->GetLongField ( pObject, fid );
 }
 
 jfloat GetFloatField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )

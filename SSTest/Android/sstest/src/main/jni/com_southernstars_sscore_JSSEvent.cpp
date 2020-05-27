@@ -248,126 +248,24 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findFarthestDistan
     }
 }
 
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_getISS
-  (JNIEnv *pEnv, jclass pClass)
+/*
+ * Class:     com_southernstars_sscore_JSSEvent
+ * Method:    androidFOpenExists
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSEvent_androidFOpenExists (JNIEnv *pEnv, jclass pClass, jstring pJFileName )
 {
-    //
-    // VERSION 1: RECONSTRUCT JUST THE ISS OBJECT
-    //
-    // From visual.txt
-    string visual_line_1 = "ISS (ZARYA)             ";
-    string visual_line_2 = "1 25544U 98067A   20095.06923611  .00000951  00000-0  25699-4 0  9994";
-    string visual_line_3 = "2 25544  51.6468 355.2267 0003903  85.7249 119.8680 15.48678336220527";
+    int x = 5;
+    const char *pFileName = pEnv->GetStringUTFChars ( pJFileName, nullptr );
 
-    // From SSPlanet::SSImportSatellitesFromTLE & SSTLE::read
-    // Code is slimmed down since we know the input
-    SSTLE tle;
+    FILE *file = android_fopen ( ( string ( pFileName ) ).c_str(), "rb" );
+    pEnv->ReleaseStringUTFChars ( pJFileName, pFileName );
 
-    double xmnpda = 1.44e3;
+    if ( file == NULL )
+        return false;
 
-    int    year = 0, number = 0, iexp = 0, ibexp = 0;
-    double xm0 = 0.0, xnode0 = 0.0, omega0 = 0.0;
-    double e0 = 0.0, xn0 = 1.0, xndt20 = 0.0, xndd60 = 0.0;
-    double day = 0.0, epoch = 0.0;
-    double temp = M_2PI / xmnpda / xmnpda;
+    fclose ( file );
+    return true;
 
-    tle.name = trim ( visual_line_1 );
-
-    number = strtoint ( visual_line_2.substr ( 2, 5 ) );
-    tle.desig = trim ( visual_line_2.substr ( 9, 6 ) );
-    epoch = strtofloat64 ( visual_line_2.substr ( 18, 14 ) );
-    xndt20 = strtofloat64 ( visual_line_2.substr ( 33, 10 ) );
-    xndd60 = strtofloat64 ( visual_line_2.substr ( 44, 6 ) );
-    iexp = strtoint ( visual_line_2.substr ( 50, 2 ) );
-    double bstar = strtofloat64 ( visual_line_2.substr ( 53, 6 ) );
-    ibexp = strtoint ( visual_line_2.substr ( 59, 2 ) );
-
-    year = epoch / 1000.0;
-    day = epoch - year * 1000.0;
-    if ( year > 56 )
-        year += 1900;
-    else
-        year += 2000;
-
-    tle.norad = number;
-    tle.jdepoch = SSTime ( SSDate ( kGregorian, 0.0, year, 1, day, 0, 0, 0.0 ) );
-    tle.xndt2o = xndt20 * temp;
-    tle.xndd6o = xndd60 * 1.0e-5 * pow ( 10.0, iexp );
-    tle.bstar = bstar * 1.0e-5 * pow ( 10.0, ibexp );
-
-    number = strtoint ( visual_line_3.substr ( 2, 5 ) );
-    double xincl = strtofloat64 ( visual_line_3.substr ( 8, 8 ) );
-    xnode0 = strtofloat64 ( visual_line_3.substr ( 17, 8 ) );
-    e0 = strtofloat64 ( visual_line_3.substr ( 26, 7 ) );
-    omega0 = strtofloat64 ( visual_line_3.substr ( 34, 8 ) );
-    xm0 = strtofloat64 ( visual_line_3.substr ( 43, 8 ) );
-    xn0 = strtofloat64 ( visual_line_3.substr ( 52, 11 ) );
-    
-    tle.xincl = degtorad ( xincl );
-    tle.xnodeo = degtorad ( xnode0 );
-    tle.eo = e0 * 1.0e-7;
-    tle.omegao = degtorad ( omega0 );
-    tle.xmo = degtorad ( xm0 );
-    tle.xno = xn0 * M_2PI / xmnpda;
-
-    tle.delargs();
-    tle.deep = tle.isdeep();
-
-    SSSatellite *pSat = new SSSatellite ( tle );
-
-    // From mcnames.txt
-    string line = "25544 ISS             30.0 20.0  0.0 -0.5 v  399";
-
-    McName mcname = { 0, "", 0.0, 0.0, 0.0, 0.0 };
-    mcname.norad = strtoint ( line.substr ( 0, 5 ) );
-    mcname.name = trim ( line.substr ( 6, 17 ) );
-    mcname.len = strtofloat ( line.substr ( 22, 4 ) );
-    mcname.wid = strtofloat ( line.substr ( 27, 4 ) );
-    mcname.dep = strtofloat ( line.substr ( 32, 4 ) );
-    mcname.mag = strtofloat ( line.substr ( 37, 4 ) );
-
-    pSat->setHMagnitude ( mcname.mag );
-    pSat->setRadius ( mcname.len / 1000.0 );
-
-    // return SSObjectToJSSObject ( pEnv, pSat );
-
-
-    //
-    // VERSION 2: USE SSImportSatellitesFromTLE & SSImportMcNames
-    //
-    SSObjectVec solsys;
-
-    int nsat = SSImportSatellitesFromTLE ( "SSData/SolarSystem/Satellites/visual.txt", solsys );
-    cout << "Imported " << nsat << " artificial satellites." << endl;
-
-    int nnames = SSImportMcNames ( "SSData/SolarSystem/Satellites/mcnames.txt", solsys );
-    cout << "Imported " << nnames << " McCants satellite names." << endl;
-
-    // Find the ISS
-    
-    int i = 0;
-    for ( i = 0; i < solsys.size(); i++ )
-    {
-        SSPlanet *p = SSGetPlanetPtr ( solsys[i] );
-        if ( p->getType() == kTypeSatellite )
-            if ( p->getIdentifier() == SSIdentifier ( kCatNORADSat, 25544 ) )
-                break;
-    }
-    
-    // // If we found it, return the ISS
-    
-    // if ( i < solsys.size() )
-    // {
-    //     return SSObjectToJSSObject ( pEnv, solsys[i] );
-    // }
-
-    SSObject *z = solsys[i];
-    jobject jgood = SSObjectToJSSObject ( pEnv, pSat );
-    jobject jbad = SSObjectToJSSObject ( pEnv, solsys[i] );
-    SSObject *ssgood = JSSObjectToSSObject ( pEnv, jgood );
-    SSObject *ssbad = JSSObjectToSSObject ( pEnv, jbad );
-    // SSSatellite *_bad = SSGetSatellitePtr ( solsys[i] );
-    // SSTLE _tle = _bad->getTLE();
-    // SSSatellite *__bad = new SSSatellite ( _tle  );
-    return jgood;
+    // FILE *file = fopen ( filename.c_str(), "rb" );
 }

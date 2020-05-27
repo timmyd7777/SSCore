@@ -22,4 +22,6 @@ public class JSSObjectArray
     public native JSSObject getObject ( int i );
     public native int importFromCSV ( String path );
     public native int exportToCSV ( String path );
+    public native int importFromTLE ( String path );
+    public native int importMcNames ( String path );
 }

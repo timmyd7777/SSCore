@@ -1,6 +1,7 @@
 #include "com_southernstars_sscore_JSSObjectArray.h"
 #include "JNIUtilities.h"
 #include "SSObject.hpp"
+#include "SSPlanet.hpp"
 
 /*
  * Class:     com_southernstars_sscore_JSSObjectArray
@@ -77,6 +78,36 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_exportToCSV 
     const char *pPath = pEnv->GetStringUTFChars ( pJPath, nullptr );
     SSObjectVec *pObjectVec = (SSObjectVec *) GetLongField ( pEnv, pJObjectArray, "pObjectVec" );
     int n = SSExportObjectsToCSV ( string ( pPath ), *pObjectVec );
+    pEnv->ReleaseStringUTFChars ( pJPath, pPath );
+    return n;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    importFromTLE
+ * Signature: (Ljava/lang/String;)I
+ */
+
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importFromTLE ( JNIEnv *pEnv, jobject pJObjectArray, jstring pJPath )
+{
+    const char *pPath = pEnv->GetStringUTFChars ( pJPath, nullptr );
+    SSObjectVec *pObjectVec = (SSObjectVec *) GetLongField ( pEnv, pJObjectArray, "pObjectVec" );
+    int n = SSImportSatellitesFromTLE ( string ( pPath ), *pObjectVec );
+    pEnv->ReleaseStringUTFChars ( pJPath, pPath );
+    return n;
+}
+
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    importMcNames
+ * Signature: (Ljava/lang/String;)I
+ */
+
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importMcNames ( JNIEnv *pEnv, jobject pJObjectArray, jstring pJPath )
+{
+    const char *pPath = pEnv->GetStringUTFChars ( pJPath, nullptr );
+    SSObjectVec *pObjectVec = (SSObjectVec *) GetLongField ( pEnv, pJObjectArray, "pObjectVec" );
+    int n = SSImportMcNames ( string ( pPath ), *pObjectVec );
     pEnv->ReleaseStringUTFChars ( pJPath, pPath );
     return n;
 }

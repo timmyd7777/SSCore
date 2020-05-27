@@ -113,11 +113,11 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findFarthestDistan
 
 /*
  * Class:     com_southernstars_sscore_JSSEvent
- * Method:    getISS
- * Signature: ()Lcom/southernstars/sscore/JSSObject;
+ * Method:    androidFOpenExists
+ * Signature: (Ljava/lang/String;)Z
  */
-JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_getISS
-  (JNIEnv *, jclass);
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSEvent_androidFOpenExists
+  (JNIEnv *, jclass, jstring);
 
 #ifdef __cplusplus
 }

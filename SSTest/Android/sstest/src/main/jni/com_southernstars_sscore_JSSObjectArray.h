@@ -55,6 +55,22 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importFromCS
 JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_exportToCSV
   (JNIEnv *, jobject, jstring);
 
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    importFromTLE
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importFromTLE
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    importMcNames
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importMcNames
+  (JNIEnv *, jobject, jstring);
+
 #ifdef __cplusplus
 }
 #endif
