@@ -44,6 +44,4 @@ public class JSSEvent
     public static native void findOppositions ( JSSCoordinates coords, JSSObject pObj1, JSSObject pObj2, JSSTime start, JSSTime stop, ArrayList<JSSEventTime> events, int maxEvents );
     public static native void findNearestDistances ( JSSCoordinates coords, JSSObject pObj1, JSSObject pObj2, JSSTime start, JSSTime stop, ArrayList<JSSEventTime> events, int maxEvents );
     public static native void findFarthestDistances ( JSSCoordinates coords, JSSObject pObj1, JSSObject pObj2, JSSTime start, JSSTime stop, ArrayList<JSSEventTime> events, int maxEvents );
-
-    public static native boolean androidFOpenExists ( String filename );
 }

@@ -346,21 +346,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        solsys.destroy()
-
-        // Tests the changes to android_fopen
-        // If given a path inside android assets, use assets, otherwise use path outside assets
-
-        val asset_exist = JSSEvent.androidFOpenExists( "SSData/SolarSystem/Planets.csv" )
-        val nonasset_exist = JSSEvent.androidFOpenExists( "./build.gradle" )
-        val nonexistent = JSSEvent.androidFOpenExists( "./build.gradlee" )
-
-        str += "Testing android_fopen\n"
-        str += "Android asset path: " + (if ( asset_exist ) "pass" else "fail") + "\n"
-        str += "Non-Android asset path: " + (if ( nonasset_exist ) "pass" else "fail") + "\n"
-        str += "Non-existent path: " + (if ( nonexistent ) "pass" else "fail") + "\n"
-
         sample_text.text = str
+
+        solsys.destroy()
     }
 
     external fun initAssetManager ( mgr:AssetManager ): Boolean

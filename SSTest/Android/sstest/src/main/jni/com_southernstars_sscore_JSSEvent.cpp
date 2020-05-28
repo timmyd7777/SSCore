@@ -52,6 +52,8 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet_
         SSTime ha = SSEvent::riseTransitSet( time, *pCoords, pObj, sign, alt );
         return SSTimeToJSSTime ( pEnv, ha );
     }
+
+    return SSTimeToJSSTime ( pEnv, SSTime ( INFINITY ) );
 }
 
 /*
@@ -71,6 +73,8 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSetS
         SSTime ha = SSEvent::riseTransitSetSearch( time, *pCoords, pObj, sign, alt );
         return SSTimeToJSSTime ( pEnv, ha );
     }
+
+    return SSTimeToJSSTime ( pEnv, SSTime ( INFINITY ) );
 }
 
 /*
@@ -90,6 +94,8 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSetS
         SSTime ha = SSEvent::riseTransitSetSearchDay( today, *pCoords, pObj, sign, alt );
         return SSTimeToJSSTime ( pEnv, ha );
     }
+
+    return SSTimeToJSSTime ( pEnv, SSTime ( INFINITY ) );
 }
 
 /*
@@ -109,6 +115,8 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet_
         SSPass pass = SSEvent::riseTransitSet( today, *pCoords, pObj, alt );
         return SSPassToJSSPass( pEnv, pass );
     }
+
+    return SSTimeToJSSTime ( pEnv, SSTime ( INFINITY ) );
 }
 
 /*
@@ -246,26 +254,4 @@ JNIEXPORT void JNICALL Java_com_southernstars_sscore_JSSEvent_findFarthestDistan
         jobject jEventTime = SSEventTimeToJSSEventTime ( pEnv, eventtime );
         pEnv->CallBooleanMethod ( pJEventTimes, java_util_ArrayList_add ( pEnv ), jEventTime );
     }
-}
-
-/*
- * Class:     com_southernstars_sscore_JSSEvent
- * Method:    androidFOpenExists
- * Signature: (Ljava/lang/String;)Z
- */
-JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSEvent_androidFOpenExists (JNIEnv *pEnv, jclass pClass, jstring pJFileName )
-{
-    int x = 5;
-    const char *pFileName = pEnv->GetStringUTFChars ( pJFileName, nullptr );
-
-    FILE *file = android_fopen ( ( string ( pFileName ) ).c_str(), "rb" );
-    pEnv->ReleaseStringUTFChars ( pJFileName, pFileName );
-
-    if ( file == NULL )
-        return false;
-
-    fclose ( file );
-    return true;
-
-    // FILE *file = fopen ( filename.c_str(), "rb" );
 }

@@ -3,7 +3,6 @@
 //
 
 #include <stdio.h>
-#include <unistd.h>
 #include <errno.h>
 
 #include "JNIUtilities.h"
@@ -43,6 +42,9 @@ static int android_close ( void* cookie )
 
 // Wrapper for fopen() that opens files in assets folder within APK.
 
+#ifdef fopen
+#undef fopen
+#endif
 FILE *android_fopen ( const char *name, const char *mode )
 {
     // If opening file for writing, android asset manager is
@@ -54,9 +56,7 @@ FILE *android_fopen ( const char *name, const char *mode )
     
     AAsset *asset = AAssetManager_open ( android_asset_manager, name, 0 );
     if ( ! asset )
-    {
-        return funopen ( nullptr, android_read, nullptr, nullptr, nullptr );
-    }
+        return fopen(name, mode);
 
     return funopen ( asset, android_read, android_write, android_seek, android_close );
 }
