@@ -214,9 +214,6 @@ class MainActivity : AppCompatActivity() {
         {
             val planet = planets.getObject ( i )
             str += planet?.getName ( 0 ) ?: "null 11th successfully caught."
-            val ident = planet?.getIdentifier ( JSSIdentifier.kCatUnknown ) ?: JSSIdentifier ( JSSIdentifier.kCatUnknown, 0 )
- //           if ( ident.equals ( JSSIdentifier ( JSSIdentifier.kCatJPLanet, 3 ) ) )
- //               str += "I found the Earth!\n"
             str += if ( i < nP ) ", " else "\n"
         }
 
@@ -265,7 +262,6 @@ class MainActivity : AppCompatActivity() {
         // JSSEvent.nextMoonPhase
 
         val now = JSSTime.fromSystem()
-        val date_now = JSSDate.fromJulianDate ( now, 0 ) // kGregorian = 0
 
         val sun = solsys.getObject ( 0 )
         val moon = solsys.getObject ( 10 )
@@ -284,38 +280,58 @@ class MainActivity : AppCompatActivity() {
         JSSEvent.findConjunctions ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), conjunctions, 10 )
 
         val conj_size = conjunctions.size
-        str += "%02d Jupiter-Saturn Conjunctions in the next year:\n".format ( conj_size )
+        str += "%d Jupiter-Saturn Conjunctions in the next year:\n".format ( conj_size )
 
         for ( i in 0 .. ( conj_size - 1) )
         {
-            val conj_date = JSSDate.fromJulianDate ( conjunctions.get( i ).time, 0 )
+            val date = JSSDate.fromJulianDate ( conjunctions.get( i ).time, 0 )
             val sep = JSSDegMinSec.fromRadians ( conjunctions.get( i ).value )
-            str += "%2d° %2d' %4.1f\"".format( sep.deg, sep.min, sep.sec ) + " on %02d/%02d/%02d %02d:%02d:%02.0f\n".format ( conj_date.year, conj_date.month, conj_date.day, conj_date.hour, conj_date.min, conj_date.sec )
+            str += "%2d° %2d' %4.1f\"".format( sep.deg, sep.min, sep.sec ) + date.format ( " on %Y/%m/%D %H:%M:%S\n" )
         }
 
         // findOppositions
 
         val oppositions: ArrayList<JSSEventTime> = ArrayList()
-        JSSEvent.findOppositions ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), oppositions, 10 )
+        JSSEvent.findOppositions ( coords, sun, jupiter, now, JSSTime( now.jd + 365.25, now.zone ), oppositions, 10 )
 
         val opp_size = oppositions.size
-        str += "%02d Jupiter-Saturn Oppositions in the next year:\n".format ( opp_size )
+        str += "%d Jupiter Oppositions in the next year:\n".format ( opp_size )
+        for ( i in 0 .. ( opp_size - 1) )
+        {
+            val date = JSSDate.fromJulianDate ( oppositions.get( i ).time, 0 )
+            val sep = JSSDegMinSec.fromRadians ( oppositions.get( i ).value )
+            str += "%2d° %2d' %4.1f\"".format( sep.deg, sep.min, sep.sec ) + date.format ( "on %Y/%m/%D %H:%M:%S\n" )
+        }
 
         // findNearestDistances
 
+        val mercury = solsys.getObject ( 1 )
+        val venus = solsys.getObject ( 2 )
         val nearestDistances: ArrayList<JSSEventTime> = ArrayList()
-        JSSEvent.findNearestDistances ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), nearestDistances, 10 )
+        JSSEvent.findNearestDistances ( coords, mercury, venus, now, JSSTime( now.jd + 365.25, now.zone ), nearestDistances, 10 )
 
         val nd_size = nearestDistances.size
-        str += "%02d Jupiter-Saturn Nearest Distances in the next year:\n".format ( nd_size )
+        str += "%d Mercury-Venus Nearest Distances in the next year:\n".format ( nd_size )
+        for ( i in 0 .. ( nd_size - 1) )
+        {
+            val date = JSSDate.fromJulianDate ( nearestDistances.get( i ).time, 0 )
+            val dist = nearestDistances.get( i ).value
+            str += "%.4f AU".format( dist ) + date.format ( " on %Y/%m/%D %H:%M:%S\n" )
+        }
 
         // findFarthestDistances
 
-        val farthesttDistances: ArrayList<JSSEventTime> = ArrayList()
-        JSSEvent.findFarthestDistances ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), farthesttDistances, 10 )
+        val farthestDistances: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findFarthestDistances ( coords, mercury, venus, now, JSSTime( now.jd + 365.25, now.zone ), farthestDistances, 10 )
 
-        val fd_size = farthesttDistances.size
-        str += "%02d Jupiter-Saturn Farthest Distances in the next year:\n".format ( fd_size )
+        val fd_size = farthestDistances.size
+        str += "%d Mercury-Venus Farthest Distances in the next year:\n".format ( fd_size )
+        for ( i in 0 .. ( fd_size - 1) )
+        {
+            val date = JSSDate.fromJulianDate ( farthestDistances.get( i ).time, 0 )
+            val dist = farthestDistances.get( i ).value
+            str += "%.4f AU".format( dist ) + date.format ( "on %Y/%m/%D %H:%M:%S\n" )
+        }
 
         for ( i in 0 .. ( solsys.size() - 1) )
         {
@@ -328,7 +344,7 @@ class MainActivity : AppCompatActivity() {
                 val passes: ArrayList<JSSPass> = ArrayList();
             
                 val numpasses = JSSEvent.findSatellitePasses ( coords, jobject, now, JSSTime( now.jd + 1.0, now.zone ), 0.0, passes, 10 );
-                str += "%02d ISS passes in the next day:\n".format ( numpasses )
+                str += "%d ISS passes in the next day:\n".format ( numpasses )
                 for ( i in 0 .. ( numpasses - 1) )
                 {
                     val pass = passes.get( i )

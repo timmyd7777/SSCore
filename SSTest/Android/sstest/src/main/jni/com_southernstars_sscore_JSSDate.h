@@ -23,6 +23,14 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSDate_fromJulianDate
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSDate_toJulianDate
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_southernstars_sscore_JSSDate
+ * Method:    format
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_southernstars_sscore_JSSDate_format
+  (JNIEnv *, jobject, jstring);
+
 #ifdef __cplusplus
 }
 #endif

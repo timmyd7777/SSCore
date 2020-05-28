@@ -116,7 +116,14 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSEvent_riseTransitSet_
         return SSPassToJSSPass( pEnv, pass );
     }
 
-    return SSTimeToJSSTime ( pEnv, SSTime ( INFINITY ) );
+    SSPass badpass =
+    {
+        { { INFINITY, INFINITY }, INFINITY, INFINITY },
+        { { INFINITY, INFINITY }, INFINITY, INFINITY },
+        { { INFINITY, INFINITY }, INFINITY, INFINITY }
+    };
+
+    return SSPassToJSSPass ( pEnv, badpass );
 }
 
 /*

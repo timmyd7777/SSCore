@@ -60,3 +60,17 @@ JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSDate_toJulianDate ( J
     SSTime time = date.toJulianDate();
     return SSTimeToJSSTime ( pEnv, time );
 }
+
+/*
+ * Class:     com_southernstars_sscore_JSSDate
+ * Method:    format
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+
+JNIEXPORT jstring JNICALL Java_com_southernstars_sscore_JSSDate_format ( JNIEnv *pEnv, jobject pJSSDate, jstring pJFmtStr )
+{
+    const char *pFmtStr = pEnv->GetStringUTFChars ( pJFmtStr, nullptr );
+    SSDate date = JSSDateToSSDate ( pEnv, pJSSDate );
+    return pEnv->NewStringUTF ( date.format ( string ( pFmtStr ) ).c_str() );
+}
+

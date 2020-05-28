@@ -52,4 +52,5 @@ public class JSSDate
 
     public static native JSSDate fromJulianDate ( JSSTime time, int calendar );
     public native JSSTime toJulianDate();
+    public native String format ( String fmt );
 }
