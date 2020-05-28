@@ -15,6 +15,7 @@
 #include "SSMatrix.hpp"
 #include "SSIdentifier.hpp"
 #include "SSObject.hpp"
+#include "SSEvent.hpp"
 
 void android_fopen_set_asset_manager ( AAssetManager* manager );
 FILE *android_fopen ( const char* fname, const char* mode );
