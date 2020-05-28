@@ -42,17 +42,21 @@ static int android_close ( void* cookie )
 
 // Wrapper for fopen() that opens files in assets folder within APK.
 
+#ifdef fopen
+#undef fopen
+#endif
 FILE *android_fopen ( const char *name, const char *mode )
 {
-    // If opening file for writing, or if android asset manager is
-    // not initialized, just open the file the old fashioned way.
+    // If opening file for writing, android asset manager is
+    // not initialized, or path doesn't exist in android asset,
+    // just open the file the old fashioned way.
 
     if ( mode[0] == 'w' || android_asset_manager == NULL )
         return fopen ( name, mode );
-
+    
     AAsset *asset = AAssetManager_open ( android_asset_manager, name, 0 );
     if ( ! asset )
-        return NULL;
+        return fopen(name, mode);
 
     return funopen ( asset, android_read, android_write, android_seek, android_close );
 }
@@ -138,6 +142,13 @@ void SetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jdo
     pEnv->SetDoubleField ( pObject, fid, value );
 }
 
+void SetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, const char *pSignature, jobject value )
+{
+    jclass pClass = pEnv->GetObjectClass ( pObject );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, pSignature );
+    pEnv->SetObjectField ( pObject, fid, value );
+}
+
 jchar GetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
 {
     jclass pClass = pEnv->GetObjectClass ( pObject );
@@ -178,4 +189,11 @@ jdouble GetDoubleField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName )
     jclass pClass = pEnv->GetObjectClass ( pObject );
     jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, "D" );
     return pEnv->GetDoubleField ( pObject, fid );
+}
+
+jobject GetObjectField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, const char *pSignature )
+{
+    jclass pClass = pEnv->GetObjectClass ( pObject );
+    jfieldID fid = pEnv->GetFieldID ( pClass, pFieldName, pSignature );
+    return pEnv->GetObjectField ( pObject, fid );
 }

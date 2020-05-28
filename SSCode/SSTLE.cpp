@@ -2082,9 +2082,9 @@ void SSTLE::fromPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
 // Reads a TLE record from three lines of an input stream (file).
 // Returns 0 if successful or a negative number of failure.
 
-int SSTLE::read ( istream &file )
+int SSTLE::read ( FILE *file )
 {
-    string buf;
+    string buf = "";
     int    year = 0, number = 0, iexp = 0, ibexp = 0;
     double xm0 = 0.0, xnode0 = 0.0, omega0 = 0.0;
     double e0 = 0.0, xn0 = 1.0, xndt20 = 0.0, xndd60 = 0.0;
@@ -2093,14 +2093,14 @@ int SSTLE::read ( istream &file )
 
     // Read first line; trim trailing whitespace; copy satellite name
     
-    if ( ! getline ( file, buf ) )
+    if ( ! fgetline ( file, buf ) )
         return ( -1 );
 
     name = trim ( buf );
 
     // Read second line; must start with a '1'
     
-    if ( ! getline ( file, buf ) )
+    if ( ! fgetline ( file, buf ) )
         return ( -2 );
     
     if ( buf[0] != '1' )
@@ -2134,7 +2134,7 @@ int SSTLE::read ( istream &file )
              
     // Third line must start with a '2'
     
-    if ( ! getline ( file, buf ) )
+    if ( ! fgetline ( file, buf ) )
         return ( -3 );
 
     if ( buf[0] != '2' )

@@ -46,6 +46,18 @@ SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSPlanet ( type )
     _id = SSIdentifier ( kCatJPLanet, id );
 }
 
+// Overrides SSObject::getIdentifier ( SSCatalog cat )
+
+SSIdentifier SSPlanet::getIdentifier ( SSCatalog cat )
+{
+    if ( cat == kCatUnknown )
+        return _id;
+    else if ( _id.catalog() == cat )
+        return _id;
+    else
+        return SSIdentifier ( kCatUnknown, 0 );
+}
+
 // Computes solar system object's heliocentric position and velocity vectors in AU and AU/day.
 // Current time (jed) is Julian Ephemeris Date in dynamic time (TDT), not civil time (UTC).
 // Light travel time to object (lt) is in days; may be zero for first approximation.
@@ -575,7 +587,7 @@ int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites 
 {
     // Open file; return on failure.
 
-    ifstream file ( filename );
+    FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
         return 0;
 
@@ -599,7 +611,7 @@ int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites 
     
     // Close file. Return number of objects added to object vector.
 
-//    fclose ( file );
+    fclose ( file );
     return numSats;
 }
 

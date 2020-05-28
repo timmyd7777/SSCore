@@ -39,7 +39,7 @@ public class JSSObject
 
     public native int getType();
     public native String getName ( int i );
-    public native JSSIdentifier getIdentifier ( int i );
+    public native JSSIdentifier getIdentifier ( int catalog );
 
     public native JSSVector getDirection();
     public native double getDistance();

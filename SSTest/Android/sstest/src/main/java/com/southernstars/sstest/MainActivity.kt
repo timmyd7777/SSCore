@@ -214,12 +214,141 @@ class MainActivity : AppCompatActivity() {
         {
             val planet = planets.getObject ( i )
             str += planet?.getName ( 0 ) ?: "null 11th successfully caught."
+            val ident = planet?.getIdentifier ( JSSIdentifier.kCatUnknown ) ?: JSSIdentifier ( JSSIdentifier.kCatUnknown, 0 )
+ //           if ( ident.equals ( JSSIdentifier ( JSSIdentifier.kCatJPLanet, 3 ) ) )
+ //               str += "I found the Earth!\n"
             str += if ( i < nP ) ", " else "\n"
         }
 
         planets.destroy()
 
+        // Test some JSSEvent functions.
+
+        var sda = JSSEvent.semiDiurnalArc ( lat, sirius.lat, JSSEvent.kDefaultRiseSetAlt )
+        hms = JSSHourMinSec.fromRadians ( sda )
+
+        str += "SDA of Sirius: " + hms.toString() + "\n"
+
+        var risetime = JSSEvent.riseTransitSet ( time, sirius.lon, sirius.lat, JSSEvent.kRise, lon, lat, JSSEvent.kDefaultRiseSetAlt )
+        var risedate = JSSDate.fromJulianDate ( risetime, JSSDate.kGregorian )
+
+        str += "Sirius rises at %02d:%02d:%02.0f\n".format ( risedate.hour, risedate.min, risedate.sec )
+
+        val nearest = JSSObjectArray()
+        val numS = nearest.importFromCSV ( "SSData/Stars/Nearest.csv" )
+        val siriusA = nearest.getObject ( 6 )
+
+        var pass = JSSEvent.riseTransitSet ( time, coords, siriusA, JSSEvent.kDefaultRiseSetAlt )
+        var risedate2 = JSSDate.fromJulianDate ( pass.rising.time, JSSDate.kGregorian )
+
+        str += "Sirius also rises at %02d:%02d:%02.0f\n".format ( risedate2.hour, risedate2.min, risedate2.sec )
+        nearest.destroy()
+
+        // Solar system import code lifted & translated from TestEvents in SSTest.cpp
+
+        val solsys = JSSObjectArray()
+
+        val numPlanets = solsys.importFromCSV( "SSData/SolarSystem/Planets.csv" )
+        str += "Imported %02d planets.\n".format ( numPlanets )
+
+        val numMoons = solsys.importFromCSV( "SSData/SolarSystem/Moons.csv" )
+        str += "Imported %02d moons.\n".format ( numMoons )
+
+        str += "Total solar system objects imported:  %02d.\n".format ( solsys.size() )
+
+        val numSats = solsys.importFromTLE( "SSData/SolarSystem/Satellites/visual.txt" )
+        str += "Imported %02d artificial satellites.\n".format ( numSats )
+
+        val numMcNames = solsys.importMcNames( "SSData/SolarSystem/Satellites/mcnames.txt" )
+        str += "Imported %02d McCants satellite names.\n".format ( numMcNames )
+
+        // JSSEvent.nextMoonPhase
+
+        val now = JSSTime.fromSystem()
+        val date_now = JSSDate.fromJulianDate ( now, 0 ) // kGregorian = 0
+
+        val sun = solsys.getObject ( 0 )
+        val moon = solsys.getObject ( 10 )
+
+        val new_moon_time = JSSEvent.nextMoonPhase ( now, sun, moon, JSSEvent.kNewMoon )
+        val nmd = JSSDate.fromJulianDate( new_moon_time, 0 )
+
+        str += "New Moon:       %02d/%02d/%02d %02d:%02d:%02.0f\n".format ( nmd.year, nmd.month, nmd.day, nmd.hour, nmd.min, nmd.sec )
+        
+        // Find Jupiter-Saturn conjunctions in the next year
+        
+        val jupiter = solsys.getObject ( 5 )
+        val saturn = solsys.getObject ( 6 )
+
+        val conjunctions: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findConjunctions ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), conjunctions, 10 )
+
+        val conj_size = conjunctions.size
+        str += "%02d Jupiter-Saturn Conjunctions in the next year:\n".format ( conj_size )
+
+        for ( i in 0 .. ( conj_size - 1) )
+        {
+            val conj_date = JSSDate.fromJulianDate ( conjunctions.get( i ).time, 0 )
+            val sep = JSSDegMinSec.fromRadians ( conjunctions.get( i ).value )
+            str += "%2d° %2d' %4.1f\"".format( sep.deg, sep.min, sep.sec ) + " on %02d/%02d/%02d %02d:%02d:%02.0f\n".format ( conj_date.year, conj_date.month, conj_date.day, conj_date.hour, conj_date.min, conj_date.sec )
+        }
+
+        // findOppositions
+
+        val oppositions: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findOppositions ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), oppositions, 10 )
+
+        val opp_size = oppositions.size
+        str += "%02d Jupiter-Saturn Oppositions in the next year:\n".format ( opp_size )
+
+        // findNearestDistances
+
+        val nearestDistances: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findNearestDistances ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), nearestDistances, 10 )
+
+        val nd_size = nearestDistances.size
+        str += "%02d Jupiter-Saturn Nearest Distances in the next year:\n".format ( nd_size )
+
+        // findFarthestDistances
+
+        val farthesttDistances: ArrayList<JSSEventTime> = ArrayList()
+        JSSEvent.findFarthestDistances ( coords, jupiter, saturn, now, JSSTime( now.jd + 365.25, now.zone ), farthesttDistances, 10 )
+
+        val fd_size = farthesttDistances.size
+        str += "%02d Jupiter-Saturn Farthest Distances in the next year:\n".format ( fd_size )
+
+        for ( i in 0 .. ( solsys.size() - 1) )
+        {
+            val jobject = solsys.getObject ( i )
+            val ident = jobject?.getIdentifier ( JSSIdentifier.kCatNORADSat ) ?: JSSIdentifier ( JSSIdentifier.kCatUnknown, 0 )
+
+            if ( ident.equals ( JSSIdentifier ( JSSIdentifier.kCatNORADSat, 25544 ) ) )
+            {
+                coords.setTime ( now );
+                val passes: ArrayList<JSSPass> = ArrayList();
+            
+                val numpasses = JSSEvent.findSatellitePasses ( coords, jobject, now, JSSTime( now.jd + 1.0, now.zone ), 0.0, passes, 10 );
+                str += "%02d ISS passes in the next day:\n".format ( numpasses )
+                for ( i in 0 .. ( numpasses - 1) )
+                {
+                    val pass = passes.get( i )
+                    var date = JSSDate.fromJulianDate ( pass.rising.time, 0 )
+                    str += "Rise:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.rising.azm * JSSAngle.kDegPerRad )
+
+                    date = JSSDate.fromJulianDate ( pass.transit.time, 0 )
+                    str += "Peak:  %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.transit.alt * JSSAngle.kDegPerRad )
+
+                    date = JSSDate.fromJulianDate ( pass.setting.time, 0 )
+                    str += "Set:   %02d:%02d:%02.0f @ %.1f°\n".format( date.hour, date.min, date.sec, pass.setting.azm * JSSAngle.kDegPerRad )
+                }
+
+                break
+            }
+        }
+
         sample_text.text = str
+
+        solsys.destroy()
     }
 
     external fun initAssetManager ( mgr:AssetManager ): Boolean

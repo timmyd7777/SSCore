@@ -30,12 +30,16 @@ android {
                     'com.southernstars.sscore.JSSCoordinates',
                     'com.southernstars.sscore.JSSDate',
                     'com.southernstars.sscore.JSSDegMinSec',
+                    'com.southernstars.sscore.JSSEvent',
+                    'com.southernstars.sscore.JSSEventTime',
                     'com.southernstars.sscore.JSSHourMinSec',
                     'com.southernstars.sscore.JSSIdentifier',
                     'com.southernstars.sscore.JSSJPLDEphemeris',
                     'com.southernstars.sscore.JSSMatrix',
                     'com.southernstars.sscore.JSSObject',
                     'com.southernstars.sscore.JSSObjectArray',
+                    'com.southernstars.sscore.JSSPass',
+                    'com.southernstars.sscore.JSSRTS',
                     'com.southernstars.sscore.JSSSpherical',
                     'com.southernstars.sscore.JSSTime',
                     'com.southernstars.sscore.JSSVector'
@@ -74,6 +78,7 @@ task copyAssets ( type: Copy ) {
         include 'SolarSystem/Asteroids.txt'
         include 'SolarSystem/Comets.txt'
         include 'SolarSystem/DE438/1950_2050.438'
+        include 'SolarSystem/Satellites/mcnames.txt'
         include 'SolarSystem/Satellites/visual.txt'
         include 'Stars/Brightest.csv'
         include 'Stars/Nearest.csv'
