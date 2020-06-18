@@ -100,6 +100,14 @@ public:
     
     SSVector project ( SSVector cvec );
     SSVector unproject ( SSVector vvec );
+    
+    // gets 2D bounding rectangle; tests whether point is within view's 2D bounding rectangle
+
+    float getLeft ( void ) { return _centerX - fabs ( _width ) / 2.0; }
+    float getTop ( void ) { return _centerY - fabs ( _height ) / 2.0; }
+    float getRight ( void ) { return _centerX + fabs ( _width ) / 2.0; }
+    float getBottom ( void ) { return _centerY + fabs ( _height ) / 2.0; }
+    bool inBoundRect ( float x, float y );
 };
 
 #endif /* SSView_hpp */

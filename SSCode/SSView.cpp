@@ -423,3 +423,13 @@ SSVector SSView::unproject ( SSVector vvec )
     
     return cvec;
 }
+
+// tests whether point (x,y) is within view's 2D bounding rectangle
+
+bool SSView::inBoundRect ( float x, float y )
+{
+    if ( x > getLeft() && x < getRight() && y > getTop() && y < getBottom() )
+        return true;
+    else
+        return false;
+}
