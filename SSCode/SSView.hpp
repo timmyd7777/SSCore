@@ -13,13 +13,13 @@
 
 enum SSProjection
 {
-    kGnomonic = 1,
-    kOrthographic = 2,
-    kStereographic = 3,
-    kEquidistant = 4,
-    kMercator = 5,
-    kElliptical = 6,
-    kSinusoidal = 7
+    kGnomonic = 1,          // https://en.wikipedia.org/wiki/Gnomonic_projection
+    kOrthographic = 2,      // https://en.wikipedia.org/wiki/Orthographic_projection
+    kStereographic = 3,     // https://en.wikipedia.org/wiki/Stereographic_projection
+    kEquirectangular = 4,   // https://en.wikipedia.org/wiki/Equirectangular_projection
+    kMercator = 5,          // https://en.wikipedia.org/wiki/Mercator_projection
+    kMollweide = 6,         // https://en.wikipedia.org/wiki/Mollweide_projection
+    kSinusoidal = 7         // https://en.wikipedia.org/wiki/Sinusoidal_projection
 };
 
 // Represents a rectangular field of view of a part of the celestial sphere, and converts
@@ -34,51 +34,69 @@ protected:
     SSMatrix        _matrix;                  // rotation matrix for transforming from celestial reference frame to view reference frame
     SSAngle         _centerLon, _centerLat;   // longitude, latitude, of field of view center in 3D celestial sphere reference frame
     SSAngle         _centerRot;               // rotation angle at field of view center in celestial sphere 3D reference frame
-    SSAngle         _widthAngle;              // angular width of field of view [radians]
-    SSAngle         _heightAngle;             // angular height of field of view [radians]
     float           _centerX, _centerY;       // coordinates on 2D field of view which correspond to field of view center
-    float           _left, _top;              // origin of 2D bounding rectangle of field of view
-    float           _width, _height;          // dimensions of 2D bounding rectangle of field of view
     float           _scaleX, _scaleY;         // radians per pixel at field of view center in horizontal and vertical direction.
-    
+    float           _width, _height;          // dimensions of bounding rectangle of 2D field of view
+
 public:
     
-    SSView ( SSProjection projection, float left, float top, float width, float height, SSAngle angle );
+    // constructors
     
-    SSProjection getProjection ( void ) { return _projection; }
+    SSView ( void );
+    SSView ( SSProjection projection, SSAngle widthAngle, float width, float height, float centerX, float centerY );
+    
+    // changes projection; attempts to preserve angular field of view width
+    
     void setProjection ( SSProjection proj );
+    SSProjection getProjection ( void ) { return _projection; }
     
-    void setBounds ( float left, float top, float width, float height );
-    float getLeft ( void ) { return _left; }
-    float getTop ( void ) { return _top; }
+    // changes dimensions; attempts to preserve angular field of view width
+
+    void setDimensions ( float width, float height );
     float getWidth ( void ) { return _width; }
     float getHeight ( void ) { return _height; }
 
+    // changes center of rectangular field of view without changing dimensions, scale, etc.
+
+    void setCenter ( float centerX, float centerY ) { _centerX = centerX; _centerY = centerY; }
+    float getCenterX ( void ) { return _centerX; }
+    float getCenterY ( void ) { return _centerY; }
+
+    // changing scale will also change angular field of view width x height
+    
     void setScale ( float scaleX, float scaleY ) { _scaleX = scaleX; _scaleY = scaleY; }
     float getScaleX ( void ) { return _scaleX; }
     float getScaleY ( void ) { return _scaleY; }
-    
-    void setAngle ( SSAngle angle );
-    void setWidthAngle ( SSAngle angle );
-    void setHeightAngle ( SSAngle angle );
-    
-    SSAngle maxWidthAngle ( void );
-    SSAngle maxHeightAngle ( void );
 
-    SSAngle getWidthAngle ( void );
-    SSAngle getHeightAngle ( void );
-    SSAngle getDiagonalAngle ( void );
-    
-    void setCenterMatrix ( SSMatrix matrix );
-    SSMatrix getCenterMatrix ( void ) { return _matrix; }
+    // maximum angular field of view width x height allowed in current projection
 
+    SSAngle maxAngularWidth ( void );
+    SSAngle maxAngularHeight ( void );
+
+    // sets angular field of view width x height; will also change scale
+    
+    void setAngularWidth ( SSAngle angle );
+    void setAngularHeight ( SSAngle angle );
+
+    // returns current angular width, height, diagonal field of view
+    
+    SSAngle getAngularWidth ( void );
+    SSAngle getAngularHeight ( void );
+    SSAngle getAngularDiagonal ( void );
+    
+    // sets celestial spherical coordinates of field of view center
+    
     void setCenter ( SSAngle lon, SSAngle lat, SSAngle rot );
     SSAngle getCenterLongitude ( void ) { return _centerLon; }
     SSAngle getCenterLatitude ( void ) { return _centerLat; }
     SSAngle getCenterRotation ( void ) { return _centerRot; }
 
-    void setCenter ( float x, float y );
-    void getCenter ( float &x, float &y ) { x = _centerX; y = _centerY; }
+    // sets rotation matrix corresponding to field of view center
+    
+    void setCenterMatrix ( SSMatrix matrix );
+    SSMatrix getCenterMatrix ( void ) { return _matrix; }
+
+    // projects point from celestial sphere onto rectangular field of view, and vice-versa
     
     SSVector project ( SSVector cvec );
     SSVector unproject ( SSVector vvec );
