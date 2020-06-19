@@ -185,7 +185,11 @@ void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
     coords.rad = 1.0;
     
     _position = coords.toVectorPosition();
-    _velocity = coords.toVectorVelocity ( motion );
+    
+    if ( isinf ( motion.lon ) || isinf ( motion.lat ) )
+        _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
+    else
+        _velocity = coords.toVectorVelocity ( motion );
 }
 
 // Returns this star's heliocentric spherical coordinates in the fundamental
