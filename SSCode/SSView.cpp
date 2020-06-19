@@ -95,6 +95,14 @@ void SSView::setCenterMatrix ( SSMatrix matrix )
     _centerRot = v0.positionAngle ( v2 );
 }
 
+// Returns celestial coordinates of point at center of field of view
+// as a unit (x,y,z) vector to that point on the celestial sphere.
+
+SSVector SSView::getCenterVector ( void )
+{
+    return SSVector ( _matrix.m00, _matrix.m01, _matrix.m02 );
+}
+
 // Returns maximum allowable field-of-view width angle in radians
 // for the current view projection.
 
@@ -160,7 +168,7 @@ void SSView::setAngularHeight ( SSAngle angle )
     else if ( _projection == kMercator )
         _scaleX = _scaleY = tan ( angle / 2.0 ) / ( _height / 2.0 );
     else if ( _projection == kMollweide )
-        _scaleX = _scaleY = M_PI_2 * (double) angle / _height;
+        _scaleX = _scaleY = SSAngle::kHalfPi * (double) angle / _height;
     else  // ( _projection == kEquirectangular || _projection == kSinusoidal )
         _scaleX = _scaleY = (double) angle / _height;
 }
@@ -211,7 +219,7 @@ SSAngle SSView::getAngularHeight ( void )
     }
     else if ( _projection == kMollweide )
     {
-        return SSAngle ( minimum ( fabs ( _scaleY ) * _height / M_PI_2, SSAngle::kPi ) );
+        return SSAngle ( minimum ( fabs ( _scaleY ) * _height / SSAngle::kHalfPi, SSAngle::kPi ) );
     }
     else // ( _projection == kEquirectangular || _projection == kSinusoidal )
     {
@@ -302,25 +310,25 @@ SSVector SSView::project ( SSVector cvec )
     }
     else if ( _projection == kEquirectangular )
     {
-        vvec.x = _centerX - ( x ? atan2 ( y, x ) : y > 0 ? M_PI_2 : -M_PI_2 ) / _scaleX;
+        vvec.x = _centerX - ( x ? atan2 ( y, x ) : y > 0 ? SSAngle::kHalfPi : -SSAngle::kHalfPi ) / _scaleX;
         vvec.y = _centerY - asin ( z ) / _scaleY;
     }
     else if ( _projection == kMercator )
     {
         double r = sqrt ( ( 1.0 - z ) * ( 1.0 + z ) );
-        vvec.x = _centerX - ( x ? atan2 ( y, x ) : y > 0 ? M_PI_2 : -M_PI_2 ) / _scaleX;
+        vvec.x = _centerX - ( x ? atan2 ( y, x ) : y > 0 ? SSAngle::kHalfPi : -SSAngle::kHalfPi ) / _scaleX;
         vvec.y = r ? _centerY - ( z / r ) / _scaleY : z > 0 ? - INFINITY : INFINITY;
     }
     else if ( _projection == kMollweide )
     {
-        double a = x ? atan2 ( y, x ) : y > 0 ? M_PI_2 : -M_PI_2;
+        double a = x ? atan2 ( y, x ) : y > 0 ? SSAngle::kHalfPi : -SSAngle::kHalfPi;
         double r = sqrt ( ( 1.0 - z ) * ( 1.0 + z ) );
         vvec.x = _centerX - a * ( r / _scaleX );
-        vvec.y = _centerY - M_PI_2 * ( z / _scaleY );
+        vvec.y = _centerY - SSAngle::kHalfPi * ( z / _scaleY );
     }
     else if ( _projection == kSinusoidal )
     {
-        double a = x ? atan2 ( y, x ) : y > 0 ? M_PI_2 : -M_PI_2;
+        double a = x ? atan2 ( y, x ) : y > 0 ? SSAngle::kHalfPi : -SSAngle::kHalfPi;
         double r = sqrt ( ( 1.0 - z ) * ( 1.0 + z ) );
         vvec.x = _centerX - ( a * r ) / _scaleX;
         vvec.y = _centerY - asin ( z ) / _scaleY;
@@ -373,7 +381,7 @@ SSVector SSView::unproject ( SSVector vvec )
     {
         a = ( _centerX - vvec.x ) * _scaleX;
         b = ( _centerY - vvec.y ) * _scaleY;
-        if ( b > M_PI_2 || b < -M_PI_2 )
+        if ( b > SSAngle::kHalfPi || b < -SSAngle::kHalfPi )
             return ( cvec );
         
         x = cos ( a ) * cos ( b );
@@ -390,13 +398,13 @@ SSVector SSView::unproject ( SSVector vvec )
     }
     else if ( _projection == kMollweide )
     {
-        b = ( _centerY - vvec.y ) * _scaleY / M_PI_2;
+        b = ( _centerY - vvec.y ) * _scaleY / SSAngle::kHalfPi;
         if ( b > 1.0 || b < -1.0 )
             return ( cvec );
         
         b = asin ( b );
         a = ( _centerX - vvec.x ) * _scaleX / cos ( b );
-        if ( a > M_PI || a < -M_PI )
+        if ( a > SSAngle::kPi || a < -SSAngle::kPi )
             return ( cvec );
         
         x = cos ( a ) * cos ( b );
@@ -406,11 +414,11 @@ SSVector SSView::unproject ( SSVector vvec )
     else if ( _projection == kSinusoidal )
     {
         b = ( _centerY - vvec.y ) * _scaleY;
-        if ( b > M_PI_2 || b < -M_PI_2 )
+        if ( b > SSAngle::kHalfPi || b < -SSAngle::kHalfPi )
             return ( cvec );
         
         a = ( _centerX - vvec.x ) * _scaleX / cos ( b );
-        if ( a > M_PI || a < -M_PI )
+        if ( a > SSAngle::kPi || a < -SSAngle::kPi )
             return ( cvec );
         
         x = cos ( a ) * cos ( b );
@@ -432,4 +440,64 @@ bool SSView::inBoundRect ( float x, float y )
         return true;
     else
         return false;
+}
+
+float SSView::radiansToPixelsX ( SSAngle radians )
+{
+    float scale = fabs ( _scaleX );
+
+    if ( _projection == kGnomonic )
+        return ( radians < SSAngle::kHalfPi ? tan ( radians ) / scale : INFINITY );
+    else if ( _projection == kOrthographic )
+        return ( ( radians < SSAngle::kHalfPi ? sin ( radians ) : 1.0 ) / scale );
+    else if ( _projection == kStereographic )
+        return ( radians < SSAngle::kPi ? tan ( radians / 2.0 ) / scale : INFINITY );
+    else // kMercator, kElliptical, kEquirectangular, kSinusoidal:
+        return ( radians < SSAngle::kPi ? (double) radians / scale : SSAngle::kPi / scale );
+}
+
+float SSView::radiansToPixelsY ( SSAngle radians )
+{
+    float scale = fabs ( _scaleY );
+
+    if ( _projection == kGnomonic || _projection == kMercator )
+        return ( radians < SSAngle::kHalfPi ? tan ( radians ) / scale : INFINITY );
+    else if ( _projection == kOrthographic )
+        return ( ( radians < SSAngle::kHalfPi ? sin ( radians ) : 1.0 ) / scale );
+    else if ( _projection == kStereographic )
+        return ( radians < SSAngle::kPi ? tan ( radians / 2.0 ) / scale : INFINITY );
+    else if ( _projection == kMollweide )
+        return ( radians < SSAngle::kPi ? SSAngle::kHalfPi * sin ( radians ) / scale : INFINITY );
+    else // kEquirectangular, kSinusoidal:
+        return ( radians < SSAngle::kPi ? (double) radians / scale : SSAngle::kPi / scale );
+}
+
+SSAngle SSView::pixelsToRadiansX ( float pixels )
+{
+    float scale = fabs ( _scaleX );    // horizontal scale is negative if chart is flipped
+    
+    if ( _projection == kGnomonic )
+        return SSAngle ( atan ( fabs ( pixels * scale ) ) );
+    else if ( _projection == kOrthographic )
+        return SSAngle ( asin ( minimum ( fabs ( pixels * scale ), 1.0 ) ) );
+    else if ( _projection == kStereographic )
+        return SSAngle ( atan ( fabs ( pixels * scale ) ) * 2.0 );
+    else // kMercator, kElliptical, kEquidistant, kSinusoidal:
+        return SSAngle ( minimum ( pixels * scale, SSAngle::kPi ) );
+}
+
+SSAngle SSView::pixelsToRadiansY ( float pixels )
+{
+    float scale = fabs ( _scaleY );    // horizontal scale is negative if chart is flipped
+    
+    if ( _projection == kGnomonic || _projection == kMercator )
+        return SSAngle ( atan ( fabs ( pixels * scale ) ) );
+    else if ( _projection == kOrthographic )
+        return SSAngle ( asin ( minimum ( fabs ( pixels * scale ), 1.0 ) ) );
+    else if ( _projection == kStereographic )
+        return SSAngle ( atan ( fabs ( pixels * scale ) ) * 2.0 );
+    else if ( _projection == kMollweide )
+        return SSAngle ( asin ( minimum ( fabs ( pixels * scale / SSAngle::kHalfPi ), 1.0 ) ) );
+    else // kEquidistant, kSinusoidal:
+        return SSAngle ( minimum ( pixels * scale, SSAngle::kPi ) );
 }

@@ -90,7 +90,8 @@ public:
     SSAngle getCenterLongitude ( void ) { return _centerLon; }
     SSAngle getCenterLatitude ( void ) { return _centerLat; }
     SSAngle getCenterRotation ( void ) { return _centerRot; }
-
+    SSVector getCenterVector ( void );
+    
     // sets rotation matrix corresponding to field of view center
     
     void setCenterMatrix ( SSMatrix matrix );
@@ -108,6 +109,12 @@ public:
     float getRight ( void ) { return _centerX + fabs ( _width ) / 2.0; }
     float getBottom ( void ) { return _centerY + fabs ( _height ) / 2.0; }
     bool inBoundRect ( float x, float y );
+
+    float radiansToPixelsX ( SSAngle radians );
+    float radiansToPixelsY ( SSAngle radians );
+    
+    SSAngle pixelsToRadiansX ( float pixels );
+    SSAngle pixelsToRadiansY ( float pixels );
 };
 
 #endif /* SSView_hpp */
