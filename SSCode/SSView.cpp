@@ -22,6 +22,7 @@ SSView::SSView ( void )
 }
 
 // Constructor with projection, field-of-view width angle, bounding rectangle dimensions and center.
+// If width is negative, view is inverted horizontally; if height is negative, view is inverted vertically.
 // Celestial coordinates of field-of-view center will be looking toward (0,0).
 
 SSView::SSView ( SSProjection projection, SSAngle angle, float width, float height, float centerX, float centerY )
@@ -50,6 +51,8 @@ void SSView::setProjection ( SSProjection projection )
 }
 
 // Changes dimensions of bounding rectangle of 2D field of view.
+// If width is negative, view is inverted horizontally;
+// if height is negative, view is inverted vertically.
 // Attempts to preserve field-of-view width angle,
 // which will change scale (but nothing else).
 
@@ -133,102 +136,94 @@ SSAngle SSView::maxAngularHeight ( void )
         return SSAngle::fromDegrees ( 180.0 );
 }
 
-// Sets angular width of field of view (in radians),
+// Sets angular width of field of view (in radians, always positive),
 // and reculates the horizontal and vertical scale.
 
 void SSView::setAngularWidth ( SSAngle angle )
 {
+    float width = fabs ( _width );
+ 
+    angle = fabs ( angle );
     if ( angle > maxAngularWidth() )
         angle = maxAngularWidth();
     
     if ( _projection == kGnomonic )
-        _scaleX = _scaleY = tan ( angle / 2.0 ) / ( _width / 2.0 );
+        _scaleX = tan ( angle / 2.0 ) / ( width / 2.0 );
     else if ( _projection == kOrthographic )
-        _scaleX = _scaleY = sin ( angle / 2.0 ) / ( _width / 2.0 );
+        _scaleX = sin ( angle / 2.0 ) / ( width / 2.0 );
     else if ( _projection == kStereographic )
-        _scaleX = _scaleY = tan ( angle / 4.0 ) / ( _width / 2.0 );
-    else // ( _projection == kMercator || _projection == kEquirectangular || _projection == kMollweide || _projection == kSinusoidal )
-        _scaleX = _scaleY = (double) angle / _width;
+        _scaleX = tan ( angle / 4.0 ) / ( width / 2.0 );
+    else // kMercator, kEquirectangular, kMollweide, kSinusoidal
+        _scaleX = (double) angle / width;
+    
+    _scaleY = _height > 0 ? _scaleX : -_scaleX;
+    _scaleX = _width > 0 ? _scaleX : -_scaleX;
 }
 
-// Sets angular height of field of view (in radians),
+// Sets angular height of field of view (in radians, always positive),
 // and reculates the horizontal and vertical scale.
 
 void SSView::setAngularHeight ( SSAngle angle )
 {
+    float height = fabs ( _height );
+
+    angle = fabs ( angle );
     if ( angle > maxAngularHeight() )
         angle = maxAngularHeight();
 
     if ( _projection == kGnomonic )
-        _scaleX = _scaleY = tan ( angle / 2.0 ) / ( _height / 2.0 );
+        _scaleY = tan ( angle / 2.0 ) / ( height / 2.0 );
     else if ( _projection == kOrthographic )
-        _scaleX = _scaleY = sin ( angle / 2.0 ) / ( _height / 2.0 );
+        _scaleY = sin ( angle / 2.0 ) / ( height / 2.0 );
     else if ( _projection == kStereographic )
-        _scaleX = _scaleY = tan ( angle / 4.0 ) / ( _height / 2.0 );
+        _scaleY = tan ( angle / 4.0 ) / ( height / 2.0 );
     else if ( _projection == kMercator )
-        _scaleX = _scaleY = tan ( angle / 2.0 ) / ( _height / 2.0 );
+        _scaleY = tan ( angle / 2.0 ) / ( height / 2.0 );
     else if ( _projection == kMollweide )
-        _scaleX = _scaleY = SSAngle::kHalfPi * (double) angle / _height;
+        _scaleY = SSAngle::kHalfPi * (double) angle / height;
     else  // ( _projection == kEquirectangular || _projection == kSinusoidal )
-        _scaleX = _scaleY = (double) angle / _height;
+        _scaleY = (double) angle / height;
+    
+    _scaleX = _width > 0 ? _scaleY : -_scaleY;
+    _scaleY = _height > 0 ? _scaleY : -_scaleY;
 }
 
-// Returns angular width of fields of view (in radians)
+// Returns angular width of fields of view (in radians, always positive)
 // from the view's horizontal image scale and width.
 
 SSAngle SSView::getAngularWidth ( void )
 {
     if ( _projection == kGnomonic )
-    {
-        return SSAngle ( 2.0 * atan ( fabs ( _scaleX ) * _width / 2.0 ) );
-    }
+        return SSAngle ( 2.0 * atan ( _scaleX * _width / 2.0 ) );
     else if ( _projection == kOrthographic )
-    {
-        return SSAngle ( 2.0 * asin ( minimum ( fabs ( _scaleX ) * _width / 2.0, 1.0 ) ) );
-    }
+        return SSAngle ( 2.0 * asin ( minimum ( _scaleX * _width / 2.0, 1.0 ) ) );
     else if ( _projection == kStereographic )
-    {
-        return SSAngle ( 4.0 * atan ( fabs ( _scaleX ) * _width / 2.0 ) );
-    }
+        return SSAngle ( 4.0 * atan ( _scaleX * _width / 2.0 ) );
     else // ( _projection == kEquirectangular || _projection == kMercator || _projection == kMollweide || _projection == kSinusoidal )
-    {
-        return SSAngle ( minimum ( fabs ( _scaleX ) * _width, SSAngle::kTwoPi ) );
-    }
+        return SSAngle ( minimum ( _scaleX * _width, SSAngle::kTwoPi ) );
 }
 
-// Returns angular width of fields of view (in radians)
+// Returns angular width of fields of view (in radians, always positive)
 // from the view's horizontal image scale and width.
 
 SSAngle SSView::getAngularHeight ( void )
 {
     if ( _projection == kGnomonic )
-    {
-        return SSAngle ( 2.0 * atan ( fabs ( _scaleY ) * _height / 2.0 ) );
-    }
+        return SSAngle ( 2.0 * atan ( _scaleY * _height / 2.0 ) );
     else if ( _projection == kOrthographic )
-    {
-        return SSAngle ( 2.0 * asin ( minimum ( fabs ( _scaleY ) * _height / 2.0, 1.0 ) ) );
-    }
+        return SSAngle ( 2.0 * asin ( minimum ( _scaleY * _height / 2.0, 1.0 ) ) );
     else if ( _projection == kStereographic )
-    {
-        return SSAngle ( 4.0 * atan ( fabs ( _scaleY ) * _height / 2.0 ) );
-    }
+        return SSAngle ( 4.0 * atan ( _scaleY * _height / 2.0 ) );
     else if ( _projection == kMercator )
-    {
-        return SSAngle ( 2.0 * atan ( fabs ( _scaleY ) * _height ) );
-    }
+        return SSAngle ( 2.0 * atan ( _scaleY * _height ) );
     else if ( _projection == kMollweide )
-    {
-        return SSAngle ( minimum ( fabs ( _scaleY ) * _height / SSAngle::kHalfPi, SSAngle::kPi ) );
-    }
+        return SSAngle ( minimum ( _scaleY * _height / SSAngle::kHalfPi, SSAngle::kPi ) );
     else // ( _projection == kEquirectangular || _projection == kSinusoidal )
-    {
-        return SSAngle ( minimum ( fabs ( _scaleY ) * _height, SSAngle::kPi ) );
-    }
+        return SSAngle ( minimum ( _scaleY * _height, SSAngle::kPi ) );
 }
 
-// Returns angular value in radians corresponding to diagonal across retangular
-// field of view from (top,left) to (bottom,right).
+// Returns angular value in radians (always positive) corresponding to diagonal
+// across retangular field of view from (top,left) to (bottom,right).
 
 SSAngle SSView::getAngularDiagonal ( void )
 {
@@ -442,6 +437,10 @@ bool SSView::inBoundRect ( float x, float y )
         return false;
 }
 
+// Given a horizontal angular distance in radians from the view center,
+// returns the corresponding horiztonal distance in pixels. If radians
+// are negative, the returned value in pixels will also be hegative.
+
 float SSView::radiansToPixelsX ( SSAngle radians )
 {
     float scale = fabs ( _scaleX );
@@ -455,6 +454,10 @@ float SSView::radiansToPixelsX ( SSAngle radians )
     else // kMercator, kElliptical, kEquirectangular, kSinusoidal:
         return ( radians < SSAngle::kPi ? (double) radians / scale : SSAngle::kPi / scale );
 }
+
+// Given a vertical angular distance in radians from the view center,
+// returns the corresponding vertical distance in pixels. If radians
+// are negative, the returned value in pixels will also be hegative.
 
 float SSView::radiansToPixelsY ( SSAngle radians )
 {
@@ -472,32 +475,40 @@ float SSView::radiansToPixelsY ( SSAngle radians )
         return ( radians < SSAngle::kPi ? (double) radians / scale : SSAngle::kPi / scale );
 }
 
+// Given a horizontal distance in pixels from the view center,
+// returns the corresponding horizontal angular value in radians.
+// If pixels are negative, the returned radians are also hegative.
+
 SSAngle SSView::pixelsToRadiansX ( float pixels )
 {
     float scale = fabs ( _scaleX );    // horizontal scale is negative if chart is flipped
     
     if ( _projection == kGnomonic )
-        return SSAngle ( atan ( fabs ( pixels * scale ) ) );
+        return SSAngle ( atan ( pixels * scale ) );
     else if ( _projection == kOrthographic )
-        return SSAngle ( asin ( minimum ( fabs ( pixels * scale ), 1.0 ) ) );
+        return SSAngle ( asin ( clamp ( pixels * scale, -1.0, 1.0 ) ) );
     else if ( _projection == kStereographic )
-        return SSAngle ( atan ( fabs ( pixels * scale ) ) * 2.0 );
+        return SSAngle ( atan ( pixels * scale ) * 2.0 );
     else // kMercator, kElliptical, kEquidistant, kSinusoidal:
         return SSAngle ( minimum ( pixels * scale, SSAngle::kPi ) );
 }
+
+// Given a vertical distance in pixels from the view center,
+// returns the corresponding vertical angular value in radians.
+// If pixels are negative, the returned radians are also hegative.
 
 SSAngle SSView::pixelsToRadiansY ( float pixels )
 {
     float scale = fabs ( _scaleY );    // horizontal scale is negative if chart is flipped
     
     if ( _projection == kGnomonic || _projection == kMercator )
-        return SSAngle ( atan ( fabs ( pixels * scale ) ) );
+        return SSAngle ( atan ( pixels * scale ) );
     else if ( _projection == kOrthographic )
-        return SSAngle ( asin ( minimum ( fabs ( pixels * scale ), 1.0 ) ) );
+        return SSAngle ( asin ( clamp ( pixels * scale, -1.0, 1.0 ) ) );
     else if ( _projection == kStereographic )
-        return SSAngle ( atan ( fabs ( pixels * scale ) ) * 2.0 );
+        return SSAngle ( atan ( pixels * scale ) * 2.0 );
     else if ( _projection == kMollweide )
-        return SSAngle ( asin ( minimum ( fabs ( pixels * scale / SSAngle::kHalfPi ), 1.0 ) ) );
+        return SSAngle ( asin ( minimum ( pixels * scale / SSAngle::kHalfPi, 1.0 ) ) );
     else // kEquidistant, kSinusoidal:
         return SSAngle ( minimum ( pixels * scale, SSAngle::kPi ) );
 }

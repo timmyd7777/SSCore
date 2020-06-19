@@ -35,8 +35,8 @@ protected:
     SSAngle         _centerLon, _centerLat;   // longitude, latitude, of field of view center in 3D celestial sphere reference frame
     SSAngle         _centerRot;               // rotation angle at field of view center in celestial sphere 3D reference frame
     float           _centerX, _centerY;       // coordinates on 2D field of view which correspond to field of view center
-    float           _scaleX, _scaleY;         // radians per pixel at field of view center in horizontal and vertical direction.
-    float           _width, _height;          // dimensions of bounding rectangle of 2D field of view
+    float           _scaleX, _scaleY;         // radians per pixel at field of view center in horizontal and vertical direction; if ngative, view is inverted horizontally/vertically
+    float           _width, _height;          // dimensions of bounding rectangle of 2D field of view; if negative, inverts view horizontally/vertically
 
 public:
     

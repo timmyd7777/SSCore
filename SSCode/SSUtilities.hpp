@@ -24,6 +24,10 @@ using namespace std;
 #define minimum(x,y) (x<y?x:y)
 #endif
 
+#ifndef clamp
+#define clamp(x,min,max) (x<min?min:x>max?max:x)
+#endif
+
 // on Android, hijack fopen and route it through the android asset system
 // so that we can pull things out of our package's APK. From:
 // http://www.50ply.com/blog/2013/01/19/loading-compressed-android-assets-with-file-pointer/
