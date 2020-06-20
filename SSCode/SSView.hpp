@@ -121,6 +121,8 @@ public:
     // clips line defined by two endpoints to view's 2D bounding rectangle
     
     bool clipLine ( SSVector &v0, SSVector &v1 );
+    bool lineWrap ( SSVector &v0, SSVector &v1 );
+    float wrapX ( float x );
 };
 
 #endif /* SSView_hpp */

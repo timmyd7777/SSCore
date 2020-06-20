@@ -329,6 +329,7 @@ SSVector SSView::project ( SSVector cvec )
         vvec.y = _centerY - asin ( z ) / _scaleY;
     }
     
+    vvec.z = x;
     return vvec;
 }
 
@@ -591,4 +592,27 @@ bool SSView::clipLine ( SSVector &v0, SSVector &v1 )
     v1.y = y1clip;
     
     return true;        // should draw (clipped) line
+}
+
+bool SSView::lineWrap ( SSVector &v0, SSVector &v1 )
+{
+    if ( _projection >= kEquirectangular && ( v0.z < 0.0 || v1.z < 0.0 ) )
+    {
+        if ( v0.x > _centerX && v1.x < _centerX )
+            return true;
+        else if ( v0.x < _centerX && v1.x > _centerX )
+            return true;
+    }
+
+    return false;
+}
+
+float SSView::wrapX ( float x )
+{
+    if ( x > _centerX )
+        x -= SSAngle::kTwoPi / fabs ( _scaleX );
+    else if ( x < _centerX  )
+        x += SSAngle::kTwoPi / fabs ( _scaleX );
+    
+    return ( x );
 }
