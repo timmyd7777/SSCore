@@ -512,3 +512,83 @@ SSAngle SSView::pixelsToRadiansY ( float pixels )
     else // kEquidistant, kSinusoidal:
         return SSAngle ( minimum ( pixels * scale, SSAngle::kPi ) );
 }
+
+// This adaptation of the Liang-Barsky line-clipping algorithm is derived from
+// https://stackoverflow.com/questions/11194876/clip-line-to-screen-coordinates
+// Vectors v0 and v1 define the start and end points of the line; their z coordinates are ignored.
+// On return, these vectors are modified to receive clipped endpoint coordinate values.
+// Returns a boolean which indicates whether any part of the clipped line is inside
+// the view's 2D bounding rectangle, i.e. whether it should be drawn at all!
+
+bool SSView::clipLine ( SSVector &v0, SSVector &v1 )
+{
+    double edgeLeft = getLeft();
+    double edgeTop = getTop();
+    double edgeRight = getRight();
+    double edgeBottom = getBottom();
+    double t0 = 0.0, t1 = 1.0;
+    double xdelta = v1.x - v0.x;
+    double ydelta = v1.y - v0.y;
+    double p = 0.0, q = 0.0, r = 0.0;
+
+    // Traverse through left, right, bottom, top edges.
+    
+    for ( int edge = 0; edge < 4; edge++ )
+    {
+        if ( edge == 0 )
+        {
+            p = -xdelta;
+            q = v0.x - edgeLeft;
+        }
+        
+        if ( edge == 1 )
+        {
+            p = xdelta;
+            q = edgeRight - v0.x;
+        }
+        
+        if ( edge == 2 )
+        {
+            p = -ydelta;
+            q = v0.y - edgeTop;
+        }
+        
+        if ( edge == 3 )
+        {
+            p = ydelta;
+            q = edgeBottom - v0.y;
+        }
+        
+        r = q / p;
+        
+        if ( p == 0 && q < 0 )
+            return false;          // Don't draw line at all. (parallel line outside bound rect)
+
+        if ( p < 0 )
+        {
+            if ( r > t1 )
+                return false;      // Don't draw line at all.
+            else if ( r > t0 )
+                t0 = r;            // Line is clipped!
+        }
+        else if ( p > 0 )
+        {
+            if ( r < t0 )
+                return false;      // Don't draw line at all.
+            else if ( r < t1 )
+                t1 = r;            // Line is clipped!
+        }
+    }
+
+    double x0clip = v0.x + t0 * xdelta;
+    double y0clip = v0.y + t0 * ydelta;
+    double x1clip = v0.x + t1 * xdelta;
+    double y1clip = v0.y + t1 * ydelta;
+
+    v0.x = x0clip;
+    v0.y = y0clip;
+    v1.x = x1clip;
+    v1.y = y1clip;
+    
+    return true;        // should draw (clipped) line
+}

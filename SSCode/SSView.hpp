@@ -110,11 +110,17 @@ public:
     float getBottom ( void ) { return _centerY + fabs ( _height ) / 2.0; }
     bool inBoundRect ( float x, float y );
 
+    // converts horizontal/vertical distance from chart center in radians to pixels, and vice-versa
+    
     float radiansToPixelsX ( SSAngle radians );
     float radiansToPixelsY ( SSAngle radians );
     
     SSAngle pixelsToRadiansX ( float pixels );
     SSAngle pixelsToRadiansY ( float pixels );
+
+    // clips line defined by two endpoints to view's 2D bounding rectangle
+    
+    bool clipLine ( SSVector &v0, SSVector &v1 );
 };
 
 #endif /* SSView_hpp */
