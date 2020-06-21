@@ -155,6 +155,41 @@ int SSImportConstellations ( const string &filename, SSObjectVec &constellations
     return numCons;
 }
 
+// Interpolates constellation boundary from point (ra0,dec0) to (ra1,dec1) in radians
+// with a maximum step size (res) in dedgrees.
+// If (close) is true, interpolation will include last point (ra1,dec); if false,
+// boundary will be inerpolated up to but not including (ra1,dec1)
+
+void interpolateBoundary ( double ra0, double dec0, double ra1, double dec1, bool close, double res, vector<SSVector> &bound )
+{
+    double dra = modpi ( ra1 - ra0 );
+    double ddec = dec1 - dec0;
+    
+    int nsteps = 1;
+    if ( res != 0.0 )
+        nsteps = ceil ( ( fabs ( dra ) + fabs ( ddec ) ) / degtorad ( res ) );
+    
+    dra /= nsteps;
+    ddec /= nsteps;
+    
+    double ra = ra0;
+    double dec = dec0;
+    
+    if ( close )
+        nsteps++;
+    
+    for ( int i = 0; i < nsteps; i++ )
+    {
+        SSVector vertex ( SSSpherical ( ra, dec, 1.0 ) );
+        static SSMatrix precess = SSCoordinates::getPrecessionMatrix ( SSTime::fromBesselianYear ( 1875.0 ) ).transpose();
+        vertex = precess * vertex;
+        bound.push_back ( vertex );
+
+        ra += dra;
+        dec += ddec;
+    }
+}
+
 // Reads constellation boundary data from CSV-formatted text file.
 // Imported data is stored in each constellation in input vector of SSObjects (constellations).
 // Assumes constellations in input vector are sorted by constellation name alphabetically,
@@ -173,6 +208,9 @@ int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &const
 
     string line = "", abbr = "", lastAbbr = "And";
     int numVerts = 0;
+    
+    double ra0 = 0.0, dec0 = 0.0, ra1 = 0.0, dec1 = 0.0;
+    double ra00 = 0.0, dec00 = 0.0;
     
     vector<SSVector> boundary ( 0 );
     SSConstellationPtr pCon = SSGetConstellationPtr ( constellations[0] );
@@ -197,12 +235,15 @@ int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &const
         
         if ( abbr.compare ( lastAbbr ) != 0 )
         {
-            // Store current boundary in current constellation
+            // Close boundary by interpolating to first vertex,
+            // then store boundary in current constellation.
             
             if ( pCon != nullptr && boundary.size() > 0 )
             {
+                interpolateBoundary ( ra0, dec0, ra00, dec00, true, 5.0, boundary );
                 pCon->setBoundary ( boundary );
                 // cout << "Imported " << boundary.size() << " vertices for " << lastAbbr << endl;
+                ra0 = dec0 = 0.0;
             }
 
             // Get pointer to new constellation, and start new boundary vertex.
@@ -215,17 +256,30 @@ int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &const
         
         // Extract vertex B1875 RA and Dec; skip if both are zero (no vertex at these coords).
         
-        double ra = degtorad ( strtofloat64 ( fields[0] ) / 15.0 );
-        double dec = degtorad ( strtofloat64 ( fields[1] ) );
-        if ( ra == 0.0 && dec == 0.0 )
+        ra1 = degtorad ( strtofloat64 ( fields[0] ) * 15.0 );
+        dec1 = degtorad ( strtofloat64 ( fields[1] ) );
+        if ( ra1 == 0.0 && dec1 == 0.0 )
             continue;
-        
-        // Convert spherical coordinates to rectangular unit vector.
-        // Append vertex to current boundary, increment vertex counter.
-        
-        SSVector vertex ( SSSpherical ( ra, dec, 1.0 ) );
-        boundary.push_back ( vertex );
 
+        // Save first vertex in boundary; interpolate to subsequent vertices.
+
+        if ( ra0 == 0.0 && dec0 == 0.0 )
+        {
+            ra00 = ra1;
+            dec00 = dec1;
+        }
+        else
+        {
+            interpolateBoundary ( ra0, dec0, ra1, dec1, false, 5.0, boundary );
+        }
+        
+        // save current vertex for interpolation to next vertex
+        
+        ra0 = ra1;
+        dec0 = dec1;
+
+        // increment vertex counter.
+        
         lastAbbr = abbr;
         numVerts++;
     }
