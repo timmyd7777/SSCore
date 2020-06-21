@@ -607,12 +607,40 @@ bool SSView::lineWrap ( SSVector &v0, SSVector &v1 )
     return false;
 }
 
-float SSView::wrapX ( float x )
+void SSView::edgeWrap ( SSVector &v0, SSVector &v1 )
 {
-    if ( x > _centerX )
-        x -= SSAngle::kTwoPi / fabs ( _scaleX );
-    else if ( x < _centerX  )
-        x += SSAngle::kTwoPi / fabs ( _scaleX );
-    
-    return ( x );
+    if ( _projection == kMercator || _projection == kEquirectangular )
+    {
+        v0.y = v1.y = ( v0.y + v1.y ) / 2;
+
+        if ( v0.x > _centerX )
+            v0.x = _centerX + SSAngle::kPi / _scaleX;
+
+        if ( v0.x < _centerX )
+            v0.x = _centerX - SSAngle::kPi / _scaleX;
+
+        if ( v1.x > _centerX )
+            v1.x = _centerX + SSAngle::kPi / _scaleX;
+
+        if ( v1.x < _centerX )
+            v1.x = _centerX - SSAngle::kPi / _scaleX;
+    }
+    else if ( _projection == kMollweide || _projection == kSinusoidal )
+    {
+        v0.y = v1.y = ( v0.y + v1.y ) / 2;
+        double coslat = cos ( pixelsToRadiansY ( v0.y - _centerY ) );
+        
+        if ( v0.x > _centerX )
+            v0.x = _centerX + coslat * SSAngle::kPi / _scaleX;
+
+        if ( v0.x < _centerX )
+            v0.x = _centerX - coslat * SSAngle::kPi / _scaleX;
+
+        if ( v1.x > _centerX )
+            v1.x = _centerX + coslat * SSAngle::kPi / _scaleX;
+
+        if ( v1.x < _centerX )
+            v1.x = _centerX - coslat * SSAngle::kPi / _scaleX;
+    }
 }
+

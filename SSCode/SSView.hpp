@@ -122,7 +122,7 @@ public:
     
     bool clipLine ( SSVector &v0, SSVector &v1 );
     bool lineWrap ( SSVector &v0, SSVector &v1 );
-    float wrapX ( float x );
+    void edgeWrap ( SSVector &v0, SSVector &v1 );
 };
 
 #endif /* SSView_hpp */
