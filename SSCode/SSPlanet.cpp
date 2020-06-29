@@ -251,6 +251,23 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     vel += primaryVel[p];
 }
 
+// Returns solar system object's angular radius in radians.
+// Object's physical radius (radius) and distance to object center (distance)
+// must be in the same units - km, AU, etc.
+
+double SSPlanet::angularRadius ( double radius, double distance )
+{
+    return distance >= radius ? asin ( radius / distance ) : SSAngle::kPi;
+}
+
+// Returns this solar system object's angular radius in radians.
+// Object's distance must already be calculated!
+
+double SSPlanet::angularRadius ( void )
+{
+    return angularRadius ( _radius, _distance * SSCoordinates::kKmPerAU );
+}
+
 // Returns solar system object's phase angle in radians.
 // Object's heliocentric position vector (position) is in AU, but units don't matter.
 // Object's apparent direction seen from observer (direction) must be a unit vector.
