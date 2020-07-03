@@ -216,6 +216,150 @@ SSSpherical SSStar::getFundamentalMotion ( void )
     return motion;
 }
 
+// Converts B-V color index (bv) to RGB color.
+// B-V will be clamped to range -0.4 to +2.0.
+// RGB values will be returned in the range 0.0 to 1.0.
+// from https://stackoverflow.com/questions/21977786/star-b-v-color-index-to-apparent-rgb-color
+
+void SSStar::bmv2rgb ( float bv, float &r, float &g, float &b )
+{
+    double t = r = g = b = 0.0;
+
+    if ( bv < -0.4 )
+        bv = -0.4;
+    
+    if ( bv > 2.0 )
+        bv = 2.0;
+
+    // red
+    
+    if ( bv >= -0.40 && bv < 0.00 )
+    {
+        t = ( bv + 0.40 ) / ( 0.00 + 0.40 );
+        r = 0.61 + ( 0.11 * t ) + ( 0.1 * t * t );
+    }
+    else if ( bv >= 0.00 && bv < 0.40 )
+    {
+        t = ( bv - 0.00 ) / ( 0.40 - 0.00 );
+        r = 0.83 + ( 0.17 * t );
+    }
+    else if ( bv >= 0.40 && bv < 2.10 )
+    {
+        t = ( bv - 0.40 ) / ( 2.10 - 0.40 );
+        r = 1.00;
+    }
+    
+    // green
+    
+    if ( bv >= -0.40 && bv < 0.00 )
+    {
+        t = ( bv + 0.40 ) / ( 0.00 + 0.40 );
+        g = 0.70 + ( 0.07 * t ) + ( 0.1 * t * t );
+    }
+    else if ( bv >= 0.00 && bv < 0.40 )
+    {
+        t = ( bv - 0.00 ) / ( 0.40 - 0.00 );
+        g = 0.87 + ( 0.11 * t );
+    }
+    else if ( bv >= 0.40 && bv < 1.60 )
+    {
+        t = ( bv - 0.40 ) / ( 1.60 - 0.40 );
+        g = 0.98 - ( 0.16 * t );
+    }
+    else if ( bv >= 1.60 && bv < 2.00 )
+    {
+        t = ( bv - 1.60 ) / ( 2.00 - 1.60 );
+        g = 0.82 - ( 0.5 * t * t );
+    }
+    
+    // blue
+    
+    if ( bv >= -0.40 && bv < 0.40 )
+    {
+        t = ( bv + 0.40 ) / ( 0.40 + 0.40 );
+        b = 1.00;
+    }
+    else if ( bv >= 0.40 && bv < 1.50 )
+    {
+        t = ( bv - 0.40 ) / ( 1.50 - 0.40 );
+        b = 1.00 - ( 0.47 * t ) + ( 0.1 * t * t );
+    }
+    else if ( bv >= 1.50 && bv < 1.94 )
+    {
+        t = ( bv - 1.50 ) / ( 1.94 - 1.50 );
+        b = 0.63 - ( 0.6 * t * t );
+    }
+}
+
+// Returns a star's absolute magnitude, given its apparent magnitude (appMag)
+// and distance in parsecs (dist). If the distance is zero or infinite, returns infinity.
+
+double SSStar::absoluteMagnitude ( double appMag, double dist )
+{
+    if ( dist > 0.0 && dist < INFINITY )
+        return appMag - 5.0 * ( log10 ( dist ) - 1.0 );
+    else
+        return -INFINITY;
+}
+
+// Returns a star's apparent magnitude, given its absolute magnitude (absMag)
+// and distance in parsecs (dist). If the distance is zero or infinite, returns infinity.
+
+double SSStar::apparentMagnitude ( double absMag, double dist )
+{
+    if ( dist > 0.0 && dist < INFINITY )
+        return absMag + 5.0 * ( log10 ( dist ) - 1.0 );
+    else
+        return dist <= 0.0 ? -INFINITY : INFINITY;
+}
+
+// Returns a star's distance in parsecs from the difference between
+// its apparent and absolute magnitudes.
+
+double SSStar::distanceFromMagnitude ( double appMag, double absMag )
+{
+    return pow ( 10.0, ( appMag - absMag ) / 5.0 ) + 1.0;
+}
+
+// Returns the brightness ratio that corresponds to the difference between
+// two different magnitudes. If mag2 > mag1, the ratio is > 1;
+// if mag2 < mag1, the ratio is < 1.  If mag1 is infinite, the
+// ratio iszero; if mag2 is infinite, the ratio is infinite.
+
+double SSStar::brightnessRatio ( double mag1, double mag2 )
+{
+    if ( isinf ( mag2 ) )
+        return INFINITY;
+    else if ( isinf ( mag1 ) )
+        return 0.0;
+    else
+        return pow ( 10.0, ( mag2 - mag1 ) / 2.5 );
+}
+
+// Given the brightness ratio between two objects, returns their difference in magnitudes.
+// If the ratio is < 1, the magnitude difference is postive; if > 1, it is negative.
+
+double SSStar::magnitudeDifference ( double ratio )
+{
+    return -2.5 * log10 ( ratio + 1.0 );
+}
+
+// Returns the combined magnitude of two stars with individual magnitudes
+// mag1 and mag2. If either magnitude is infinite, the function returns the
+// other magnitude.
+
+double SSStar::magnitudeSum ( double mag1, double mag2 )
+{
+    double r = brightnessRatio ( mag1, mag2 );
+    
+    if ( isinf ( mag2 ) )
+        return mag1;
+    else if ( isinf ( mag1 ) )
+        return mag2;
+    else
+        return mag1 - 2.5 * log10 ( r + 1.0 );
+}
+
 // Returns CSV string from base data (excluding names and identifiers).
 
 string SSStar::toCSV1 ( void )

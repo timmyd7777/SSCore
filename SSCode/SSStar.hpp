@@ -75,6 +75,16 @@ public:
     
     static SSObjectPtr fromCSV ( string csv );
     virtual string toCSV ( void );
+    
+    // magnitude and color conversion utilities
+    
+    static void bmv2rgb ( float bmv, float &r, float &g, float &b );
+    static double absoluteMagnitude ( double appMag, double distPC );
+    static double apparentMagnitude ( double absMag, double distPC );
+    static double distanceFromMagnitude ( double appMag, double absMag );
+    static double brightnessRatio ( double mag1, double mag2 );
+    static double magnitudeDifference ( double ratio );
+    static double magnitudeSum ( double mag1, double mag2 );
 };
 
 // This subclass of SSStar stores data for double stars
