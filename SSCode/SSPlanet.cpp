@@ -858,3 +858,159 @@ bool SSPlanet::useVSOPELP ( void )
 }
 
 #endif
+
+// Calculates planet's rotational elements at the specified Julian Ephemeris Date (jed).
+// Returns J2000 right ascension (a0) and declination (d0) of planet's north pole in radians;
+// argument of planet's prime meridian (w) and rotation rate (wd) in radians and rad/day.
+// Formulae from Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements:
+// 2015 https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint
+// 2009 https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2009reprint (for Earth and Moon)
+// Small periodic terms with amplitudes less than 0.001 degree omitted for Mercury, Mars, Jupiter.
+// Rotation rates are System III for Jupiter and Saturn.
+
+void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w, double &wd )
+{
+    int id = (int) _id.identifier();
+    double d = jed - 2451545.0;
+    double T = d / 36525.0;
+    
+    if ( _type == kTypePlanet )
+    {
+        if ( id == kSun )
+        {
+            a0 = 286.13;
+            d0 = 63.87;
+            wd = 14.1844000;
+            w  = 84.176 + wd * d;
+        }
+        else if ( id == kMercury )
+        {
+            double M1 = degtorad ( 174.791086 + 4.092335 * d );
+            double M2 = degtorad ( 349.582171 + 8.184670 * d );
+            a0 = 281.0097 - 0.0328 * T;
+            d0 = 61.4143 - 0.0049 * T;
+            wd = 6.1385025;
+            w  = 329.5469 + wd * d
+                          + 0.00993822 * sin ( M1 )
+                          - 0.00104581 * sin ( M2 );
+        }
+        else if ( id == kVenus )
+        {
+            a0 = 272.76;
+            d0 = 67.16;
+            wd = -1.4813688;
+            w  = 160.20 + wd * d;
+        }
+        else if ( id == kEarth )
+        {
+            a0 = 0.00 - 0.641 * T;
+            d0 = 90.00 - 0.557 * T;
+            wd = 360.9856235;
+            w  = 190.147 + wd * d;
+        }
+        else if ( id == kMars )
+        {
+            a0 = 317.269202 - 0.10927547 * T + 0.419057 * sindeg ( 79.398797 + 0.5042615 * T );
+            d0 =  54.432516 - 0.05827105 * T + 1.591274 * cosdeg ( 166.325722 + 0.5042615 * T );
+            wd = 350.891982443297;
+            w  = 176.049863 + wd * d + 0.584542 * sindeg ( 95.391654 + 0.5042615 * T );
+        }
+        else if ( id == kJupiter )
+        {
+            a0 = 268.056595 - 0.006499 * T;
+            d0 = 64.495303 + 0.002413 * T;
+            wd = 870.5360000;
+            w  = 284.95 + wd * d;
+            // System I  w = 67.1 + 877.900 * d;
+            // System II w = 43.3 + 870.270 * d;
+        }
+        else if ( id == kSaturn )
+        {
+            a0 = 40.589 - 0.036 * T;
+            d0 = 83.537 - 0.004 * T;
+            wd = 810.7939024;
+            w  = 38.90 + wd * d;
+        }
+        else if ( id == kUranus )
+        {
+            a0 = 257.311;
+            d0 = -15.175;
+            wd = -501.1600928;
+            w  = 203.81 + wd * d;
+        }
+        else if ( id == kNeptune )
+        {
+            double N = degtorad ( 357.85 + 52.316 * T );
+            a0 = 299.36 + 0.70 * sin ( N );
+            d0 = 43.46 - 0.51 * cos ( N );
+            wd = 541.1397757;
+            w  = 249.978 + wd * d - 0.48 * sin ( N );
+        }
+        else if ( id == kPluto )
+        {
+            a0 = 132.993;
+            d0 = -6.163;
+            wd = 56.3625225;
+            w  = 302.695 + wd * d;
+        }
+    }
+    else if ( _type == kTypeMoon )
+    {
+        if ( _id == kLuna )
+        {
+            double E1 = degtorad ( 125.045 - 0.0529921 * d );
+            double E2 = degtorad ( 250.089 - 0.1059842 * d );
+            double E3 = degtorad ( 260.008 + 13.0120009 * d );
+            double E4 = degtorad ( 176.625 + 13.3407154 * d );
+            double E5 = degtorad ( 357.529 +  0.9856003 * d );
+            double E6 = degtorad ( 311.589 + 26.4057084 * d );
+            double E7 = degtorad ( 134.963 + 13.0649930 * d );
+            double E8 = degtorad ( 276.617 +  0.3287146 * d );
+            double E9 = degtorad (  34.226 +  1.7484877 * d );
+            double E10 = degtorad ( 15.134 -  0.1589763 * d );
+            double E11 = degtorad ( 119.743 + 0.0036096 * d );
+            double E12 = degtorad ( 239.961 + 0.1643573 * d );
+            double E13 = degtorad (  25.053 + 12.9590088 * d );
+            
+            a0 = 269.9949 + 0.0031 * T
+                          - 3.8787 * sin ( E1 )
+                          - 0.1204 * sin ( E2 )
+                          + 0.0700 * sin ( E3 )
+                          - 0.0172 * sin ( E4 )
+                          + 0.0072 * sin ( E6 )
+                          - 0.0052 * sin ( E10 )
+                          + 0.0043 * sin ( E13 );
+            
+            d0 = 66.5392 + 0.0130 * T
+                         + 1.5419 * cos ( E1 )
+                         + 0.0239 * cos ( E2 )
+                         - 0.0278 * cos ( E3 )
+                         + 0.0068 * cos ( E4 )
+                         - 0.0029 * cos ( E6 )
+                         + 0.0009 * cos ( E7 )
+                         + 0.0008 * cos ( E10 )
+                         - 0.0009 * cos ( E13 );
+
+            wd = 13.17635815;
+            
+            w = 38.3213 + wd * d - 1.4e-12 * d * d
+                        + 3.5610 * sin ( E1 )
+                        + 0.1208 * sin ( E2 )
+                        - 0.0642 * sin ( E3 )
+                        + 0.0158 * sin ( E4 )
+                        + 0.0252 * sin ( E5 )
+                        - 0.0066 * sin ( E6 )
+                        - 0.0047 * sin ( E7 )
+                        - 0.0046 * sin ( E8 )
+                        + 0.0028 * sin ( E9 )
+                        + 0.0052 * sin ( E10 )
+                        + 0.0040 * sin ( E11 )
+                        + 0.0019 * sin ( E12 )
+                        - 0.0044 * sin ( E13 );
+        }
+    }
+    
+    a0 = degtorad ( a0 );
+    d0 = degtorad ( d0 );
+    w = mod2pi ( degtorad ( w ) );
+}

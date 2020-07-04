@@ -110,6 +110,8 @@ public:
     static double illumination ( double phase );
     double illumination ( void );
     
+    void rotationElements ( double jed, double &a0, double &d0, double &w0, double &wdot );
+    
     // Sets whether to use (accurate, but slow) VSOP/ELP planetary & lunar ephemeris when JPL DE438 is not available.
     // Also USE_VSOP_ELP must be #defined as 1 at the top of SSPlanet.cpp!
     

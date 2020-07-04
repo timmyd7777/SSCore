@@ -321,19 +321,16 @@ double SSStar::distanceFromMagnitude ( double appMag, double absMag )
     return pow ( 10.0, ( appMag - absMag ) / 5.0 ) + 1.0;
 }
 
-// Returns the brightness ratio that corresponds to the difference between
-// two different magnitudes. If mag2 > mag1, the ratio is > 1;
-// if mag2 < mag1, the ratio is < 1.  If mag1 is infinite, the
-// ratio iszero; if mag2 is infinite, the ratio is infinite.
+// Returns the brightness ratio that corresponds to the magnitude difference (magDiff)
+// between two stars. If magDiff < 0, the ratio is > 1; if magDiff > 0, the ratio is < 1.
+// If magDiff positive infinite, the ratio is inifite; if mgative infinite, the ratio is zero.
 
-double SSStar::brightnessRatio ( double mag1, double mag2 )
+double SSStar::brightnessRatio ( double magDiff )
 {
-    if ( isinf ( mag2 ) )
-        return INFINITY;
-    else if ( isinf ( mag1 ) )
-        return 0.0;
+    if ( isinf ( magDiff ) )
+        return magDiff > 0.0 ? INFINITY : 0.0;
     else
-        return pow ( 10.0, ( mag2 - mag1 ) / 2.5 );
+        return pow ( 10.0, magDiff / 2.5 );
 }
 
 // Given the brightness ratio between two objects, returns their difference in magnitudes.
@@ -341,7 +338,7 @@ double SSStar::brightnessRatio ( double mag1, double mag2 )
 
 double SSStar::magnitudeDifference ( double ratio )
 {
-    return -2.5 * log10 ( ratio + 1.0 );
+    return -2.5 * log10 ( ratio );
 }
 
 // Returns the combined magnitude of two stars with individual magnitudes
@@ -350,14 +347,12 @@ double SSStar::magnitudeDifference ( double ratio )
 
 double SSStar::magnitudeSum ( double mag1, double mag2 )
 {
-    double r = brightnessRatio ( mag1, mag2 );
-    
     if ( isinf ( mag2 ) )
         return mag1;
     else if ( isinf ( mag1 ) )
         return mag2;
     else
-        return mag1 - 2.5 * log10 ( r + 1.0 );
+        return mag2 + magnitudeDifference ( 1.0 + brightnessRatio ( mag1 - mag2 ) );
 }
 
 // Returns CSV string from base data (excluding names and identifiers).

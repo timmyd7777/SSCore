@@ -82,7 +82,7 @@ public:
     static double absoluteMagnitude ( double appMag, double distPC );
     static double apparentMagnitude ( double absMag, double distPC );
     static double distanceFromMagnitude ( double appMag, double absMag );
-    static double brightnessRatio ( double mag1, double mag2 );
+    static double brightnessRatio ( double magDiff );
     static double magnitudeDifference ( double ratio );
     static double magnitudeSum ( double mag1, double mag2 );
 };
