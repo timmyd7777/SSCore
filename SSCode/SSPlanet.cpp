@@ -956,7 +956,7 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
     }
     else if ( _type == kTypeMoon )
     {
-        if ( _id == kLuna )
+        if ( id == kLuna )
         {
             double E1 = degtorad ( 125.045 - 0.0529921 * d );
             double E2 = degtorad ( 250.089 - 0.1059842 * d );
@@ -1012,5 +1012,21 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
     
     a0 = degtorad ( a0 );
     d0 = degtorad ( d0 );
+    wd = degtorad ( wd );
     w = mod2pi ( degtorad ( w ) );
+}
+
+// Compute matrix which transforms coordinates from planetographic
+// frame to J2000 equatorial frame.
+
+SSMatrix SSPlanet::planetographicMatrix ( double jed )
+{
+    double a0, d0, w, dw;
+    rotationElements ( jed, a0, d0, w, dw );
+
+    double j = SSAngle::kHalfPi - d0;
+    double n = a0 + SSAngle::kHalfPi;
+    
+    w = -w;
+    return SSMatrix::rotation ( 3, 2, w, 0, j, 2, n );
 }
