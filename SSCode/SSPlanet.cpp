@@ -1023,10 +1023,5 @@ SSMatrix SSPlanet::planetographicMatrix ( double jed )
 {
     double a0, d0, w, dw;
     rotationElements ( jed, a0, d0, w, dw );
-
-    double j = SSAngle::kHalfPi - d0;
-    double n = a0 + SSAngle::kHalfPi;
-    
-    w = -w;
-    return SSMatrix::rotation ( 3, 2, w, 0, j, 2, n );
+    return SSMatrix::rotation ( 3, 2, w, 0, SSAngle::kHalfPi - d0, 2, a0 + SSAngle::kHalfPi );
 }

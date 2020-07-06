@@ -101,6 +101,9 @@ public:
     float getGMagnitude ( void ) { return _Gmag; }
     float getRadius ( void ) { return _radius; }
     
+    SSVector getPosition ( void ) { return _position; }
+    SSVector getVelocity ( void ) { return _velocity; }
+
     static double angularRadius ( double radius, double distance );
     double angularRadius ( void );
 
