@@ -115,13 +115,15 @@ public:
     
     void rotationElements ( double jed, double &a0, double &d0, double &w0, double &wdot );
     SSMatrix planetographicMatrix ( double jed );
+
     
     // Sets whether to use (accurate, but slow) VSOP/ELP planetary & lunar ephemeris when JPL DE438 is not available.
     // Also USE_VSOP_ELP must be #defined as 1 at the top of SSPlanet.cpp!
     
     static void useVSOPELP ( bool use );
     static bool useVSOPELP ( void );
-    
+    double flattening ( void );
+
     static void computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
     virtual void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     virtual float computeMagnitude ( double rad, double dist, double phase );

@@ -1025,3 +1025,33 @@ SSMatrix SSPlanet::planetographicMatrix ( double jed )
     rotationElements ( jed, a0, d0, w, dw );
     return SSMatrix::rotation ( 3, 2, w, 0, SSAngle::kHalfPi - d0, 2, a0 + SSAngle::kHalfPi );
 }
+
+// Returns flattening factor (i.e. difference between polar and equatorial radii divided by equatorial radius)
+// Data from "Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015", page 28:
+// https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint
+
+double SSPlanet::flattening ( void )
+{
+    double f = 0.0;
+    int id = (int) _id.identifier();
+
+    if ( _type == kTypePlanet )
+    {
+        if ( id == kMercury )
+            f = ( 2440.53 - 2438.26 ) / 2440.53;
+        else if ( id == kEarth )
+            f = ( 6378.1366 - 6356.7519 ) / 6378.1366;
+        else if ( id == kMars )
+            f = ( 3396.19 - 3376.20 ) / 3396.19;
+        else if ( id == kJupiter )
+            f = ( 71492.0 - 66854.0 ) / 71492.0;
+        else if ( id == kSaturn )
+            f = ( 60268.0 - 54634.0 ) / 60268.0;
+        else if ( id == kUranus )
+            f = ( 25559.0 - 24973.0 ) / 25559.0;
+        else if ( id == kNeptune )
+            f = ( 24764.0 - 24341.0 ) / 24764.0;
+    }
+    
+    return f;
+}
