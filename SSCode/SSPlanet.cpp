@@ -1008,6 +1008,71 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
                         + 0.0019 * sin ( E12 )
                         - 0.0044 * sin ( E13 );
         }
+        else if ( id == kIo )
+        {
+            double J3 = degtorad ( 283.90 + 4850.7 * T );
+            double J4 = degtorad ( 355.80 + 1191.3 * T );
+            
+            a0 = 268.05 - 0.009 * T + 0.094 * sin ( J3 ) + 0.024 * sin ( J4 );
+            d0 =  64.50 + 0.003 * T + 0.040 * cos ( J3 ) + 0.011 * cos ( J4 );
+            wd = 203.4889538;
+            w  = 200.39 + wd * d - 0.085 * sin ( J3 ) - 0.022 * sin ( J4 );
+        }
+        else if ( id == kEuropa )
+        {
+            double J4 = degtorad ( 355.80 + 1191.3 * T );
+            double J5 = degtorad ( 119.90 + 262.1 * T );
+            double J6 = degtorad ( 229.80 + 64.3 * T );
+            double J7 = degtorad ( 352.25 + 2382.6 * T );
+            
+            a0 = 268.08 - 0.009 * T + 1.086 * sin ( J4 ) + 0.060 * sin ( J5 ) + 0.015 * sin ( J6 ) + 0.009 * sin ( J7 );
+            d0 =  64.51 + 0.003 * T + 0.468 * cos ( J4 ) + 0.026 * cos ( J5 ) + 0.007 * cos ( J6 ) + 0.002 * cos ( J7 );
+            wd = 101.3747235;
+            w  =  36.022 + wd * d - 0.980 * sin ( J4 ) - 0.054 * sin ( J5 ) - 0.014 * sin ( J6 ) - 0.008 * sin ( J7 );
+        }
+        else if ( id == kGanymede )
+        {
+            double J4 = degtorad ( 355.80 + 1191.3 * T );
+            double J5 = degtorad ( 119.90 + 262.1 * T );
+            double J6 = degtorad ( 229.80 + 64.3 * T );
+
+            a0 = 268.20 - 0.009 * T - 0.037 * sin ( J4 ) + 0.431 * sin ( J5 ) + 0.091 * sin ( J6 );
+            d0 =  64.57 + 0.003 * T - 0.016 * cos ( J4 )  +0.186 * cos ( J5 ) + 0.039 * cos ( J6 );
+            wd =  50.3176081;
+            w  =  44.064 + wd * d + 0.033 * sin ( J4 ) - 0.389 * sin ( J5 ) - 0.082 * sin ( J6 );
+        }
+        else if ( id == kCallisto )
+        {
+            double J5 = degtorad ( 119.90 + 262.1 * T );
+            double J6 = degtorad ( 229.80 + 64.3 * T );
+            double J8 = degtorad ( 113.35 + 6070.0 * T );
+
+            a0 = 268.72 - 0.009 * T - 0.068 * sin ( J5 ) + 0.590 * sin ( J6 ) + 0.010 * sin ( J8 );
+            d0 =  64.83 + 0.003 * T - 0.029 * cos ( J5 ) + 0.254 * cos ( J6 ) - 0.004 * cos ( J8 );
+            wd =  21.5710715;
+            w  = 259.51 + wd * d + 0.061 * sin ( J5 ) - 0.533 * sin ( J6 ) - 0.009 * sin ( J8 );
+        }
+        else if ( id == kTriton )
+        {
+            double N7 = degtorad ( 177.85 + 52.316 * T );
+            a0 = 299.36 - 32.35 * sin ( N7 ) - 6.28 * sin ( 2 * N7 ) -2.08 * sin ( 3 * N7 )
+                        -  0.74 * sin ( 4 * N7 ) - 0.28 * sin ( 5 * N7 ) - 0.11 * sin ( 6 * N7 )
+                        -  0.07 * sin ( 7 * N7 ) - 0.02 * sin ( 8 * N7 ) - 0.01 * sin ( 9 * N7 );
+            d0 = 41.17 + 22.55 * cos ( N7 ) + 2.10 * cos ( 2 * N7 ) + 0.55 * cos ( 3 * N7 )
+                       +  0.16 * cos ( 4 * N7 ) + 0.05 * cos ( 5 * N7 ) + 0.02 * cos ( 6 * N7 )
+                       + 0.01 * cos ( 7 * N7 );
+            wd = -61.2572637;
+            w  = 296.53 + wd * d + 22.25 * sin ( N7 ) + 6.73 * sin ( 2 * N7 ) + 2.05 * sin ( 3 * N7 )
+                        + 0.74 * sin ( 4 * N7 ) + 0.28 * sin ( 5 * N7 ) + 0.11 * sin ( 6 * N7 )
+                        + 0.05 * sin ( 7 * N7 ) + 0.02 * sin ( 8 * N7 ) + 0.01 * sin ( 9 * N7 );
+        }
+        else if ( id == kCharon )
+        {
+            a0 = 132.993;
+            d0 =  -6.163;
+            wd =  56.3625225;
+            w  = 122.695 + d;
+        }
     }
     
     a0 = degtorad ( a0 );
