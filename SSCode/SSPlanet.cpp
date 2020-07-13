@@ -1066,6 +1066,67 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
                         + 0.74 * sin ( 4 * N7 ) + 0.28 * sin ( 5 * N7 ) + 0.11 * sin ( 6 * N7 )
                         + 0.05 * sin ( 7 * N7 ) + 0.02 * sin ( 8 * N7 ) + 0.01 * sin ( 9 * N7 );
         }
+        else if ( id == kMimas )
+        {
+            double S3 = degtorad ( 177.40 - 36505.5 * T );
+            double S5 = degtorad ( 316.45 + 506.2 * T );
+            a0 = 40.66 - 0.036 * T + 13.56 * sin ( S3 );
+            d0 = 83.52 - 0.004 * T - 1.53 * cos ( S3 );
+            wd = 381.9945550;
+            w  = 333.46 + wd * d - 13.48 * sin ( S3 ) - 44.85 * sin ( S5 );
+        }
+        else if ( id == kEnceladus )
+        {
+            a0 =  40.66 - 0.036 * T;
+            d0 =  83.52 - 0.004 * T;
+            wd = 262.7318996;
+            w  =   6.32 + wd * d;
+        }
+        else if ( id == kTethys )
+        {
+            double S4 = degtorad ( 300.00 - 7225.9 * T );
+            double S5 = degtorad ( 316.45 + 506.2 * T );
+            a0 = 40.66 - 0.036 * T + 9.66 * sin ( S4 );
+            d0 = 83.52 - 0.004 * T - 1.09 * cos ( S4 );
+            wd = 190.6979085;
+            w  =   8.95 + wd * d - 9.60 * sin ( S4 ) + 2.23 * sin ( S5 );
+        }
+        else if ( id == kDione )
+        {
+            a0 = 40.66 - 0.036 * T;
+            d0 = 83.52 - 0.004 * T;
+            wd = 131.5349316;
+            w  = 357.6 + wd * d;
+        }
+        else if ( id == kRhea )
+        {
+            double S6 = degtorad ( 345.20 - 1016.3 * T );
+            a0 =  40.38 - 0.036 * T + 3.10 * sin ( S6 );
+            d0 =  83.55 - 0.004 * T - 0.35 * cos ( S6 );
+            wd =  79.6900478;
+            w  = 235.16 + wd * d - 3.08 * sin ( S6 );
+        }
+        else if ( id == kTitan )
+        {
+            a0 = 39.4827;
+            d0 = 83.4279;
+            wd = 22.5769768;
+            w  = 186.5855 + wd * d;
+        }
+        else if ( id == kIapetus )
+        {
+            a0 = 318.16 - 3.949 * T;
+            d0 =  75.03 - 1.143 * T;
+            wd =   4.5379572;
+            w  = 355.2 + wd * d;
+        }
+        else if ( id == kPhoebe )
+        {
+            a0 = 356.90;
+            d0 =  77.80;
+            wd = 931.639;
+            w  = 178.58 + wd * d;
+        }
         else if ( id == kCharon )
         {
             a0 = 132.993;
