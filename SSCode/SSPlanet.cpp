@@ -1052,20 +1052,6 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
             wd =  21.5710715;
             w  = 259.51 + wd * d + 0.061 * sin ( J5 ) - 0.533 * sin ( J6 ) - 0.009 * sin ( J8 );
         }
-        else if ( id == kTriton )
-        {
-            double N7 = degtorad ( 177.85 + 52.316 * T );
-            a0 = 299.36 - 32.35 * sin ( N7 ) - 6.28 * sin ( 2 * N7 ) -2.08 * sin ( 3 * N7 )
-                        -  0.74 * sin ( 4 * N7 ) - 0.28 * sin ( 5 * N7 ) - 0.11 * sin ( 6 * N7 )
-                        -  0.07 * sin ( 7 * N7 ) - 0.02 * sin ( 8 * N7 ) - 0.01 * sin ( 9 * N7 );
-            d0 = 41.17 + 22.55 * cos ( N7 ) + 2.10 * cos ( 2 * N7 ) + 0.55 * cos ( 3 * N7 )
-                       +  0.16 * cos ( 4 * N7 ) + 0.05 * cos ( 5 * N7 ) + 0.02 * cos ( 6 * N7 )
-                       + 0.01 * cos ( 7 * N7 );
-            wd = -61.2572637;
-            w  = 296.53 + wd * d + 22.25 * sin ( N7 ) + 6.73 * sin ( 2 * N7 ) + 2.05 * sin ( 3 * N7 )
-                        + 0.74 * sin ( 4 * N7 ) + 0.28 * sin ( 5 * N7 ) + 0.11 * sin ( 6 * N7 )
-                        + 0.05 * sin ( 7 * N7 ) + 0.02 * sin ( 8 * N7 ) + 0.01 * sin ( 9 * N7 );
-        }
         else if ( id == kMimas )
         {
             double S3 = degtorad ( 177.40 - 36505.5 * T );
@@ -1126,6 +1112,64 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
             d0 =  77.80;
             wd = 931.639;
             w  = 178.58 + wd * d;
+        }
+        else if ( id == kMiranda )
+        {
+            double U11 = degtorad ( 102.23 - 2024.22 * T );
+            double U12 = degtorad ( 316.41 + 2863.96 * T );
+            a0 = 257.43 + 4.41 * sin ( U11 ) - 0.04 * sin ( 2 * U11 );
+            d0 = -15.08 + 4.25 * cos ( U11 ) - 0.02 * cos ( 2 * U11 );
+            wd = -254.6906892;
+            w  = 30.70 + wd * d - 1.27 * sin ( U12 ) + 0.15 * sin ( 2 * U12 )
+                                + 1.15 * sin ( U11 ) - 0.09 * sin ( 2 * U11 );
+        }
+        else if ( id == kAriel )
+        {
+            double U12 = degtorad ( 316.41 + 2863.96 * T );
+            double U13 = degtorad ( 304.01 - 51.94 * T );
+            a0 = 257.43 + 0.29 * sin ( U13 );
+            d0 = -15.10 + 0.28 * cos ( U13 );
+            wd = -142.8356681;
+            w  = 156.22 + wd * d + 0.05 * sin ( U12 ) + 0.08 * sin ( U13 );
+        }
+        else if ( id == kUmbriel )
+        {
+            double U12 = degtorad ( 316.41 + 2863.96 * T );
+            double U14 = degtorad ( 308.71 - 93.17 * T );
+            a0 = 257.43 + 0.21 * sin ( U14 );
+            d0 = -15.10 + 0.2  * cos ( U14 );
+            wd = -86.8688923;
+            w  = 108.05 + wd * d - 0.09 * sin ( U12 ) + 0.06 * sin ( U14 );
+        }
+        else if ( id == kTitania )
+        {
+            double U15 = degtorad ( 340.82 - 75.32 * T );
+            a0 = 257.43 + 0.29 * sin ( U15 );
+            d0 = -15.10 + 0.28 * cos ( U15 );
+            wd = -41.3514316;
+            w  =  77.74 + wd * d + 0.08 * sin ( U15 );
+        }
+        else if ( id == kOberon )
+        {
+            double U16 = degtorad ( 259.14 - 504.81 * T );
+            a0 = 257.43 + 0.16 * sin ( U16 );
+            d0 = -15.10 + 0.16 * cos ( U16 );
+            wd = -26.7394932;
+            w  =   6.77 + wd * d + 0.04 * sin ( U16 );
+        }
+        else if ( id == kTriton )
+        {
+            double N7 = degtorad ( 177.85 + 52.316 * T );
+            a0 = 299.36 - 32.35 * sin ( N7 ) - 6.28 * sin ( 2 * N7 ) -2.08 * sin ( 3 * N7 )
+                        -  0.74 * sin ( 4 * N7 ) - 0.28 * sin ( 5 * N7 ) - 0.11 * sin ( 6 * N7 )
+                        -  0.07 * sin ( 7 * N7 ) - 0.02 * sin ( 8 * N7 ) - 0.01 * sin ( 9 * N7 );
+            d0 = 41.17 + 22.55 * cos ( N7 ) + 2.10 * cos ( 2 * N7 ) + 0.55 * cos ( 3 * N7 )
+                       +  0.16 * cos ( 4 * N7 ) + 0.05 * cos ( 5 * N7 ) + 0.02 * cos ( 6 * N7 )
+                       + 0.01 * cos ( 7 * N7 );
+            wd = -61.2572637;
+            w  = 296.53 + wd * d + 22.25 * sin ( N7 ) + 6.73 * sin ( 2 * N7 ) + 2.05 * sin ( 3 * N7 )
+                        + 0.74 * sin ( 4 * N7 ) + 0.28 * sin ( 5 * N7 ) + 0.11 * sin ( 6 * N7 )
+                        + 0.05 * sin ( 7 * N7 ) + 0.02 * sin ( 8 * N7 ) + 0.01 * sin ( 9 * N7 );
         }
         else if ( id == kCharon )
         {
