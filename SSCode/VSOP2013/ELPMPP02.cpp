@@ -17,6 +17,7 @@
 #define PRINT_SERIES 0  // 1 to convert input ELPMPP02 series data files to output .cpp source code
 #define TRUNC_FACTOR 5  // exported seriees truncation factor: 1 exports everything, 10 exports only first tenth; 100 exports only first hundredth, etc,
 
+
 #if ELPMPP02_EMBED_SERIES
 
 static const ELPMainSeries _lon_main = { 1, 204, {
@@ -4308,13 +4309,21 @@ static bool _init = false;  // initialization flag ensures series are only loade
 ELPMPP02::ELPMPP02 ( void )
 {
     icor = 0;
-    setup_parameters ();
+    setup_parameters();
 }
 
 #if ELPMPP02_EMBED_SERIES
 
-void setup_Elp_series ()
+bool setup_Elp_series ()
 {
+    // Verify that series vectors exist
+
+    if ( _lon_main.terms.size() == 0 || _lat_main.terms.size() == 0 || _dist_main.terms.size() == 0 )
+        return false;
+
+    if ( _lon_pert.size() == 0 || _lat_pert.size() == 0 || _dist_pert.size() == 0 )
+        return false;
+
     // Main problem
 
     int starting_idx = 0;
@@ -4356,18 +4365,20 @@ void setup_Elp_series ()
     starting_idx += _dist_pert[2].nt;
     read_perturbation_series ( _dist_pert[3], starting_idx );
     starting_idx += _dist_pert[3].nt;
+
+    return true;
 }
 
 // Copies data from ELPMPP02 series embedded in this C++ source code
 // into Kam's main and perturbation series arrays. Only do this once!
 
-void ELPMPP02::initSeries ( void )
+bool ELPMPP02::initSeries ( void )
 {
     if ( ! _init )
-    {
-        setup_Elp_series ();
-        _init = true;
-    }
+        if ( setup_Elp_series() )
+            _init = true;
+
+    return _init;
 }
 
 #else

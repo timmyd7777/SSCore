@@ -1,5 +1,6 @@
 package com.southernstars.sscore;
 
+import android.content.res.AssetManager;
 import com.southernstars.sscore.JSSObject;
 
 public class JSSObjectArray
@@ -24,4 +25,6 @@ public class JSSObjectArray
     public native int exportToCSV ( String path );
     public native int importFromTLE ( String path );
     public native int importMcNames ( String path );
+
+    public static native boolean initAssetManager ( AssetManager mgr );
 }

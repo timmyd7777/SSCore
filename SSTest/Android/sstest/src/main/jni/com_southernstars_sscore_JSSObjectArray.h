@@ -71,6 +71,14 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importFromTL
 JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importMcNames
   (JNIEnv *, jobject, jstring);
 
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    initAssetManager
+ * Signature: (Landroid/content/res/AssetManager;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSObjectArray_initAssetManager
+  (JNIEnv *, jclass, jobject);
+
 #ifdef __cplusplus
 }
 #endif

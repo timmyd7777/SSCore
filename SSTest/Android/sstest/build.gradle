@@ -16,7 +16,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11"
+                cppFlags "-std=c++11 -Wno-missing-braces"
             }
         }
         task buildJniHeaders(type: Exec, description: 'Build JNI Headers') {

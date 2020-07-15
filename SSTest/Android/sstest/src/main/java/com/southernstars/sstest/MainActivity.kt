@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         // needed to read files from assets from native code
 
         val assetMgr = getResources().assets
-        if ( initAssetManager ( assetMgr ) )
+        if ( JSSObjectArray.initAssetManager ( assetMgr ) )
             str += "Successfully initialized asset manager.\n"
         else
             str += "Failed to initialize asset manager!\n"
@@ -366,8 +366,6 @@ class MainActivity : AppCompatActivity() {
 
         solsys.destroy()
     }
-
-    external fun initAssetManager ( mgr:AssetManager ): Boolean
 
     /**
      * A native method that is implemented by the 'sscore-lib' native library,
