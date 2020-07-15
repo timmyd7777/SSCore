@@ -19,6 +19,7 @@
 
 void android_fopen_set_asset_manager ( AAssetManager* manager );
 FILE *android_fopen ( const char* fname, const char* mode );
+bool initAssetManager ( JNIEnv *env, jclass objArrCls, jobject assetManager );
 
 jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName );
 void SetCharField ( JNIEnv *pEnv, jobject pObject, const char *pFieldName, jchar value );

@@ -111,3 +111,14 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObjectArray_importMcName
     pEnv->ReleaseStringUTFChars ( pJPath, pPath );
     return n;
 }
+
+/*
+ * Class:     com_southernstars_sscore_JSSObjectArray
+ * Method:    initAssetManager
+ * Signature: (Landroid/content/res/AssetManager;)Z
+ */
+
+JNIEXPORT jboolean JNICALL Java_com_southernstars_sscore_JSSObjectArray_initAssetManager ( JNIEnv *pEnv, jclass pJObjectArray, jobject pAssetMgr )
+{
+    return initAssetManager ( pEnv, pJObjectArray, pAssetMgr );
+}

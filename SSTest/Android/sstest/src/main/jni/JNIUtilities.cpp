@@ -61,12 +61,11 @@ FILE *android_fopen ( const char *name, const char *mode )
     return funopen ( asset, android_read, android_write, android_seek, android_close );
 }
 
-// This JNI function corresponds to the initAssetManager() method present in JSSObjectArray.
+// This function implements to the initAssetManager() native method in JSSObjectArray.
 // For an example, see comments in this blog post:
 // http://www.50ply.com/blog/2013/01/19/loading-compressed-android-assets-with-file-pointer/
 
-extern "C" JNIEXPORT jboolean JNICALL
-Java_com_southernstars_sscore_JSSObjectArray_initAssetManager ( JNIEnv *env, jclass obj, jobject assetManager )
+bool initAssetManager ( JNIEnv *env, jclass objArrCls, jobject assetManager )
 {
     AAssetManager *mgr = AAssetManager_fromJava ( env, assetManager );
     if ( mgr == NULL )
