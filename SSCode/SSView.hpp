@@ -109,7 +109,8 @@ public:
     float getRight ( void ) { return _centerX + fabs ( _width ) / 2.0; }
     float getBottom ( void ) { return _centerY + fabs ( _height ) / 2.0; }
     bool inBoundRect ( float x, float y );
-
+    bool inBoundRect ( float x, float y, float r );
+    
     // converts horizontal/vertical distance from chart center in radians to pixels, and vice-versa
     
     float radiansToPixelsX ( SSAngle radians );

@@ -438,6 +438,20 @@ bool SSView::inBoundRect ( float x, float y )
         return false;
 }
 
+// tests whether circle centered at (x,y) with radius (r) intersects
+// view's 2D bounding rectangle
+
+bool SSView::inBoundRect ( float x, float y, float r )
+{
+    // TODO: this is not quite right - need to handle corners correctly.
+    
+    if ( x > getLeft() - r && x < getRight() + r && y > getTop() - r && y < getBottom() + r )
+        return true;
+    else
+        return false;
+}
+
+
 // Given a horizontal angular distance in radians from the view center,
 // returns the corresponding horiztonal distance in pixels. If radians
 // are negative, the returned value in pixels will also be hegative.
