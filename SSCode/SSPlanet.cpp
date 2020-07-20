@@ -389,15 +389,17 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     // Compute planet's heliocentric position and velocity at current JED.
     // Compute distance and light time to planet.
     
-    computePositionVelocity ( coords.getJED(), 0.0, _position, _velocity );
+    double lt = 0.0;
+    double jed = coords.getJED();
+    computePositionVelocity ( jed, lt, _position, _velocity );
 
     // If desired, recompute planet's position and velocity antedated for light time.
     // In theory we should iterate but in practice this gets us sub-arcsecond precision!
     
     if ( coords.getLightTime() )
     {
-        double lt = ( _position - coords.getObserverPosition() ).magnitude() / coords.kLightAUPerDay;
-        computePositionVelocity ( coords.getJED(), lt, _position, _velocity );
+        lt = ( _position - coords.getObserverPosition() ).magnitude() / coords.kLightAUPerDay;
+        computePositionVelocity ( jed, lt, _position, _velocity );
     }
 
     // Compute apparent direction vector and distance to planet from observer's position.
@@ -411,6 +413,10 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     
     double beta = phaseAngle();
     _magnitude = computeMagnitude ( _position.magnitude(), _distance, beta );
+    
+    // Compute planetographic-to-fundamental transformation matrix
+    
+    _pmatrix = setPlanetographicMatrix ( jed - lt );
 }
 
 // Downcasts generic SSObject pointer to SSPlanet pointer.
@@ -1186,14 +1192,16 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
     w = mod2pi ( degtorad ( w ) );
 }
 
-// Compute matrix which transforms coordinates from planetographic
+// Computes matrix which transforms coordinates from planetographic
 // frame to J2000 equatorial frame.
 
-SSMatrix SSPlanet::planetographicMatrix ( double jed )
+SSMatrix SSPlanet::setPlanetographicMatrix ( double jed )
 {
     double a0, d0, w, dw;
     rotationElements ( jed, a0, d0, w, dw );
-    return SSMatrix::rotation ( 3, 2, w, 0, SSAngle::kHalfPi - d0, 2, a0 + SSAngle::kHalfPi );
+    
+    _pmatrix = SSMatrix::rotation ( 3, 2, w, 0, SSAngle::kHalfPi - d0, 2, a0 + SSAngle::kHalfPi );
+    return _pmatrix;
 }
 
 // Returns flattening factor (i.e. difference between polar and equatorial radii divided by equatorial radius)
@@ -1224,4 +1232,24 @@ double SSPlanet::flattening ( void )
     }
     
     return f;
+}
+
+// Returns planetographic longitude and latitude of central point on solar system object's apparent disk.
+// Assumes object's ephemeris (apparent direction and planetographic matrix) has already been calculated.
+
+SSSpherical SSPlanet::centralCoordinates ( void )
+{
+    SSVector direction = getDirection() * -1.0;
+    SSSpherical coords = _pmatrix.transpose() * direction;
+    return coords;
+}
+
+// Returns planetographic longitude and latitude of sub-solar point on solar system object.
+// Assumes object's ephemeris (heliocentric position and planetographic matrix) has already been calculated.
+
+SSSpherical SSPlanet::subsolarCoordinates ( void )
+{
+    SSVector position = getPosition().normalize() * -1.0;
+    SSSpherical coords = _pmatrix.transpose() * position;
+    return coords;
 }

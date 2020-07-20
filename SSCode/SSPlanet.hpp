@@ -75,7 +75,8 @@ protected:
     float       _radius;        // equatorial radius in kilometers; 0 or infinite if unknown
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
-
+    SSMatrix    _pmatrix;       // transforms from planetographic to J2000 equatorial frame.
+    
     void computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     static void computePSPlanetMoonPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
@@ -114,8 +115,10 @@ public:
     double illumination ( void );
     
     void rotationElements ( double jed, double &a0, double &d0, double &w0, double &wdot );
-    SSMatrix planetographicMatrix ( double jed );
-
+    SSMatrix getPlanetographicMatrix ( void ) { return _pmatrix; }
+    SSMatrix setPlanetographicMatrix ( double jed );
+    SSSpherical centralCoordinates ( void );
+    SSSpherical subsolarCoordinates ( void );
     
     // Sets whether to use (accurate, but slow) VSOP/ELP planetary & lunar ephemeris when JPL DE438 is not available.
     // Also USE_VSOP_ELP must be #defined as 1 at the top of SSPlanet.cpp!
