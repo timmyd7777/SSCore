@@ -542,3 +542,15 @@ SSAngle SSCoordinates::removeRefraction ( SSAngle alt )
 {
     return alt - SSCoordinates::refractionAngle ( alt, false );
 }
+
+// Given a heliocentric position vector in the fundamental referene frame in units of AU,
+// returns apparent direction unit vector and distance from observer's position in AU.
+// If desired, apply aberration of light.
+
+SSVector SSCoordinates::apparentDirection ( SSVector position, double &distance )
+{
+    SSVector direction = ( position - getObserverPosition() ).normalize ( distance );
+    if ( getAberration() )
+        direction = applyAberration ( direction );
+    return direction;
+}

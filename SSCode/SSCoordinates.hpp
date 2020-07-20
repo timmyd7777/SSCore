@@ -123,6 +123,8 @@ public:
     static SSAngle refractionAngle ( SSAngle alt, bool a );
     static SSAngle applyRefraction ( SSAngle alt );
     static SSAngle removeRefraction ( SSAngle alt );
+    
+    SSVector apparentDirection ( SSVector position, double &distance );
 };
 
 #endif /* SSCoordinates_hpp */

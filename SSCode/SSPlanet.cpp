@@ -405,9 +405,7 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     // Compute apparent direction vector and distance to planet from observer's position.
     // If desired, apply aberration of light.
     
-    _direction = ( _position - coords.getObserverPosition() ).normalize ( _distance );
-    if ( coords.getAberration() )
-        _direction = coords.applyAberration ( _direction );
+    _direction = coords.apparentDirection ( _position, _distance );
     
     // Compute planet's phase angle and visual magnitude.
     
@@ -1252,4 +1250,61 @@ SSSpherical SSPlanet::subsolarCoordinates ( void )
     SSVector position = getPosition().normalize() * -1.0;
     SSSpherical coords = _pmatrix.transpose() * position;
     return coords;
+}
+
+// Determines if a ray from an external point (p) extending in direction of the unit vector (r) intersects
+// this planet's oblate ellipsoid surface.  If so, finds distance (d) from (p) to intersection point (q).
+// Adapted from https://gis.stackexchange.com/questions/20780/point-of-intersection-for-a-ray-and-earths-surface
+
+bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q )
+{
+    SSVector c = getPosition();
+    double re = getRadius() / SSCoordinates::kKmPerAU;
+    double f = 0.0; // flattening();
+    double x = p.x - c.x;
+    double y = p.y - c.y;
+    double z = p.z - c.z;
+    double x2 = x * x, y2 = y * y, z2 = z * z;
+    double u = r.x, v = r.y, w = r.z;
+    double u2 = u * u, v2 = v * v, w2 = w * w;
+    double a = re, a2 = a * a;
+    double b = re * ( 1.0 - f ), b2 = b * b;
+    double t = b2 * ( u * x + v * y ) + a2 * w * z;
+    
+    // Compute vector from exterior point to center of ellipsoid.
+    // If unit vector points away from center of ellipsoid, line doesn't intersect.
+    
+    q = c - p;
+    d = q * r;
+    if ( d < 0.0 )
+        return false;
+
+    // Any point (x,y,z) along a line from the external point (x0,y0,z0)
+    // satisfies the equation (x,y,z) = (x0,y0,z0) + t * (u,v,w).
+    // The ellipsoid's equatorial and polar radii are a and b, and the ellipsoid
+    // is described by the equation (x^2/a^2) + (y^2/a^2) + (z^2/b^2) = 1.
+    // Plug the first equation into the second, and we get a quadratic equation,
+    // which we solve for t. There is no solution if the line does not intersect
+    // the ellipsoid at all, one solution if the line is exactly tangent to the
+    // ellipsoid, and two solutions for most intersection cases (where the line
+    // enters the ellipsoid on one side, and exits out the opposite side).
+    
+    t = t * t - ( b2 * ( u2 + v2 ) + a2 * w2 ) * ( b2 * ( -a2 + x2 + y2 ) + a2 * z2 );
+    if ( t < 0 )
+        return false;
+    
+    // We choose the solution which is closest to the external point (x0,y0,z0).
+    
+    t = ( -1.0 / ( b2 * ( u2 + v2 ) + a2 * w2 ) )
+      * ( b2 * ( u * x + v * y ) + a2 * w * z + sqrt ( t ) );
+    
+    d = t;
+    
+    // Plug this value into the first equation to obtain the intersection point.
+    
+    q.x = p.x + t * u;
+    q.y = p.y + t * v;
+    q.z = p.z + t * w;
+    
+    return true;
 }
