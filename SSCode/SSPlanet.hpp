@@ -75,7 +75,7 @@ protected:
     float       _radius;        // equatorial radius in kilometers; 0 or infinite if unknown
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
-    SSMatrix    _pmatrix;       // transforms from planetographic to J2000 equatorial frame.
+    SSMatrix    _pmatrix;       // transforms from planetographic to fundamental J2000 mean equatorial frame.
     
     void computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
@@ -133,7 +133,11 @@ public:
     virtual void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     virtual float computeMagnitude ( double rad, double dist, double phase );
     virtual void computeEphemeris ( SSCoordinates &coords );
-    
+
+    double umbraLength ( void );
+    double umbraRadius ( double d );
+    double penumbraRadius ( double d );
+
     // imports/exports from/to CSV-format text string
     
     static SSObjectPtr fromCSV ( string csv );

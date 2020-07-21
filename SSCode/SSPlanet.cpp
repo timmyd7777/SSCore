@@ -1254,13 +1254,24 @@ SSSpherical SSPlanet::subsolarCoordinates ( void )
 
 // Determines if a ray from an external point (p) extending in direction of the unit vector (r) intersects
 // this planet's oblate ellipsoid surface.  If so, finds distance (d) from (p) to intersection point (q).
+// Assumes vectors p, q, r are all in fundamental J2000 mean equatorial reference frame.
 // Adapted from https://gis.stackexchange.com/questions/20780/point-of-intersection-for-a-ray-and-earths-surface
 
 bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q )
 {
-    SSVector c = getPosition();
+    // First transform vectors from fundamental to planetograhic frame
+    // and get heliocentric position vector planet's center in planetographic frame.
+    // Get planet radius and flattening factor.
+    
+    SSMatrix tmatrix = _pmatrix.transpose();
+    p = tmatrix * p;
+    r = tmatrix * r;
+    SSVector c = tmatrix * _position;
     double re = getRadius() / SSCoordinates::kKmPerAU;
-    double f = 0.0; // flattening();
+    double f = flattening();
+    
+    // Define some variables
+    
     double x = p.x - c.x;
     double y = p.y - c.y;
     double z = p.z - c.z;
@@ -1306,5 +1317,36 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q )
     q.y = p.y + t * v;
     q.z = p.z + t * w;
     
+    // Transform intersection point from planetographic to fundamental frame.
+    
+    q = _pmatrix * q;
     return true;
+}
+
+// Returns length of this solar system object's umbral shadow cone, in AU.
+// Uses hard-coded Sun radius of 695500 km.
+
+double SSPlanet::umbraLength ( void )
+{
+    return _position.magnitude() * _radius / ( 695500.0 - _radius );
+}
+
+// Returns radius of this solar system object's umbral shadow cone, in AU,
+// at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
+
+double SSPlanet::umbraRadius ( double d )
+{
+    double u = umbraLength();
+    double r = _radius * ( u - d ) / u;
+    return r / SSCoordinates::kKmPerAU;
+}
+
+// Returns radius of this solar system object's penumbral shadow cone, in AU,
+// at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
+
+double SSPlanet::penumbraRadius ( double d )
+{
+    double u = umbraLength();
+    double r = _radius * ( u + d ) / u;
+    return r / SSCoordinates::kKmPerAU;
 }

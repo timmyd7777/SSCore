@@ -438,19 +438,44 @@ bool SSView::inBoundRect ( float x, float y )
         return false;
 }
 
-// tests whether circle centered at (x,y) with radius (r) intersects
-// view's 2D bounding rectangle
+// tests whether rectangle bounded by (xmin,ymin), (xmax,yma)
+// intersects view's 2D bouning rectangle.
+
+bool SSView::inBoundRect ( float xmin, float ymin, float xmax, float ymax )
+{
+    return ( xmax > getLeft() && xmin < getRight() && ymax > getTop() && ymin < getBottom() );
+}
+
+// tests whether circle centered at (x,y) with radius (r)
+// intersects view's 2D bounding rectangle
 
 bool SSView::inBoundRect ( float x, float y, float r )
 {
     // TODO: this is not quite right - need to handle corners correctly.
     
-    if ( x > getLeft() - r && x < getRight() + r && y > getTop() - r && y < getBottom() + r )
-        return true;
-    else
-        return false;
+    return inBoundRect ( x - r, y - r, x + r, y + r );
 }
 
+// tests whether triangle with vertices (x1,y1), (x2,y2), (x3,y3)
+// intersects view's 2D bounding rectangle.
+
+bool SSView::inBoundRect ( float x1, float y1, float x2, float y2, float x3, float y3 )
+{
+    // Really we are testing whether the triangle's bounding box intersects the view's
+    // bounding box.  This is close but will get some false positives. TODO: fix.
+    
+    float xmin = minimum ( x1, x2 );
+    float xmax = maximum ( x1, x2 );
+    float ymin = minimum ( y1, y2 );
+    float ymax = maximum ( y1, y2 );
+    
+    xmin = minimum ( xmin, x3 );
+    xmax = maximum ( xmax, x3 );
+    ymin = minimum ( ymin, y3 );
+    ymax = maximum ( ymax, y3 );
+
+    return inBoundRect ( xmin, ymin, xmax, ymax );
+}
 
 // Given a horizontal angular distance in radians from the view center,
 // returns the corresponding horiztonal distance in pixels. If radians
