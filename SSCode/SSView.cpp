@@ -438,7 +438,111 @@ bool SSView::inBoundRect ( float x, float y )
         return false;
 }
 
-// tests whether rectangle bounded by (xmin,ymin), (xmax,yma)
+// tests whether point (x,y) is within a circle centered at (xc,yc) with radius (r).
+
+bool point_in_circle ( float x, float y, float xc, float yc, float r )
+{
+    float dx = x - xc;
+    float dy = y - yc;
+    
+    return ( dx * dx + dy * dy < r * r );
+}
+
+// tests whether point (x,y) is within a rectangle bounded by (left,top) and (right,bottom).
+
+bool point_in_rectangle ( float x, float y, float left, float top, float right, float bottom )
+{
+    return ( x > left && x < right && y > top && y < bottom );
+}
+
+// This "perpendicular dot product" method for determining whether a point (x,y) is
+// inside a triangle with vertices (x1,y1), (x2,y2), (x3,y3) comes from:
+// https://www.gamedev.net/forums/topic.asp?topic_id=295943
+
+float perp_dot ( float x1, float y1, float x2, float y2, float x3, float y3 )
+{
+    return ( x1 - x3 ) * ( y2 - y3 ) - ( x2 - x3 ) * ( y1 - y3 );
+}
+
+bool point_in_triangle ( float x, float y, float x1, float y1, float x2, float y2, float x3, float y3 )
+{
+    bool b1 = perp_dot ( x, y, x1, y1, x2, y2 ) < 0.0;
+    bool b2 = perp_dot ( x, y, x2, y2, x3, y3 ) < 0.0;
+    bool b3 = perp_dot ( x, y, x3, y3, x1, y1 ) < 0.0;
+    
+    return ( b1 == b2 ) && ( b2 == b3 );
+}
+
+// This simplification of the Liang-Barsky line-clipping algorithm is adapted from
+// https://stackoverflow.com/questions/11194876/clip-line-to-screen-coordinates
+// Returns a boolean which indicates whether a line from (x0,y0) to (x1,y1)
+// is inside or intersects the bounding rectangle defined by (left,top,right,bottom).
+
+bool line_in_rectangle ( float x0, float y0, float x1, float y1, float left, float top, float right, float bottom )
+{
+    double t0 = 0.0, t1 = 1.0;
+    double xdelta = x1 - x0;
+    double ydelta = y1 - y0;
+    double p = 0.0, q = 0.0, r = 0.0;
+
+    // Traverse through left, right, bottom, top edges.
+    
+    for ( int edge = 0; edge < 4; edge++ )
+    {
+        if ( edge == 0 )
+        {
+            p = -xdelta;
+            q = x0 - left;
+        }
+        
+        if ( edge == 1 )
+        {
+            p = xdelta;
+            q = right - x0;
+        }
+        
+        if ( edge == 2 )
+        {
+            p = -ydelta;
+            q = y0 - top;
+        }
+        
+        if ( edge == 3 )
+        {
+            p = ydelta;
+            q = bottom - y0;
+        }
+        
+        r = q / p;
+        
+        if ( p == 0 && q < 0 )
+            return false;
+
+        if ( p < 0 )
+        {
+            if ( r > t1 )
+                return false;
+            else if ( r > t0 )
+                t0 = r;
+        }
+        else if ( p > 0 )
+        {
+            if ( r < t0 )
+                return false;
+            else if ( r < t1 )
+                t1 = r;
+        }
+    }
+
+    return true;
+}
+
+bool rectangle_in_rectangle ( float xmin, float ymin, float xmax, float ymax, float left, float top, float right, float bottom )
+{
+    return ( xmax > left && xmin < right && ymax > top && ymin < bottom );
+}
+
+// tests whether rectangle bounded by (xmin,ymin), (xmax,ymax)
 // intersects view's 2D bouning rectangle.
 
 bool SSView::inBoundRect ( float xmin, float ymin, float xmax, float ymax )
@@ -451,18 +555,54 @@ bool SSView::inBoundRect ( float xmin, float ymin, float xmax, float ymax )
 
 bool SSView::inBoundRect ( float x, float y, float r )
 {
-    // TODO: this is not quite right - need to handle corners correctly.
+    float xmin = getLeft();
+    float ymin = getTop();
+    float xmax = getRight();
+    float ymax = getBottom();
     
-    return inBoundRect ( x - r, y - r, x + r, y + r );
+    // no intersection if circle's bounding box outside view bounding rectangle
+    
+    if ( ! point_in_rectangle ( x, y, xmin - r, ymin - r, xmax + r, ymax + r ) )
+        return false;
+    
+    // intersection if circle center inside bounding rectangle, +/- radius vertically or horizontally
+    
+    if ( point_in_rectangle ( x, y, xmin, ymin - r, xmax, ymax + r ) )
+        return true;
+    
+    if ( point_in_rectangle ( x, y, xmin - r, ymin, xmax + r, ymax ) )
+        return true;
+    
+    // intersection if any bounding rectangle corner inside circle
+
+    if ( point_in_circle ( x, y, xmin, ymin, r ) )
+        return true;
+    
+    if ( point_in_circle ( x, y, xmax, ymin, r ) )
+        return true;
+
+    if ( point_in_circle ( x, y, xmax, ymax, r ) )
+        return true;
+
+    if ( point_in_circle ( x, y, xmin, ymax, r ) )
+        return true;
+    
+    return false;
 }
 
 // tests whether triangle with vertices (x1,y1), (x2,y2), (x3,y3)
-// intersects view's 2D bounding rectangle.
+// intersects view's 2D bounding rectangle.  For discussion, see:
+// https://stackoverflow.com/questions/13790208/triangle-square-intersection-test-in-2d
+// https://seblee.me/2009/05/super-fast-trianglerectangle-intersection-test/
 
 bool SSView::inBoundRect ( float x1, float y1, float x2, float y2, float x3, float y3 )
 {
-    // Really we are testing whether the triangle's bounding box intersects the view's
-    // bounding box.  This is close but will get some false positives. TODO: fix.
+    float l = getLeft();
+    float t = getTop();
+    float r = getRight();
+    float b = getBottom();
+
+    // No intersection if triangle's bounding box outside bounding rectangle.
     
     float xmin = minimum ( x1, x2 );
     float xmax = maximum ( x1, x2 );
@@ -474,7 +614,46 @@ bool SSView::inBoundRect ( float x1, float y1, float x2, float y2, float x3, flo
     ymin = minimum ( ymin, y3 );
     ymax = maximum ( ymax, y3 );
 
-    return inBoundRect ( xmin, ymin, xmax, ymax );
+    if ( ! rectangle_in_rectangle ( xmin, ymin, xmax, ymax, l, t, r, b ) )
+        return false;
+
+    // intersection if any triangle vertex inside bounding rectangle
+    
+    if ( point_in_rectangle ( x1, y1, l, t, r, b ) )
+        return true;
+    
+    if ( point_in_rectangle ( x2, y2, l, t, r, b ) )
+        return true;
+
+    if ( point_in_rectangle ( x3, y3, l, t, r, b ) )
+        return true;
+
+    // intersection if any bounding rectangle corner inside triangle
+    
+    if ( point_in_triangle ( l, t, x1, y1, x2, y2, x3, y3 ) )
+        return true;
+    
+    if ( point_in_triangle ( r, t, x1, y1, x2, y2, x3, y3 ) )
+        return true;
+
+    if ( point_in_triangle ( r, b, x1, y1, x2, y2, x3, y3 ) )
+        return true;
+
+    if ( point_in_triangle ( l, b, x1, y1, x2, y2, x3, y3 ) )
+        return true;
+
+    // intersection if any triangle edge intersects any bounding rectangle edge.
+
+    if ( line_in_rectangle ( x1, y1, x2, y2, l, t, r, b ) )
+        return true;
+    
+    if ( line_in_rectangle ( x2, y2, x3, y3, l, t, r, b ) )
+        return true;
+
+    if ( line_in_rectangle ( x1, y1, x3, y3, l, t, r, b ) )
+        return true;
+
+    return false;
 }
 
 // Given a horizontal angular distance in radians from the view center,
