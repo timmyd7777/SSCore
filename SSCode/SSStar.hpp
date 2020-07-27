@@ -8,6 +8,8 @@
 // This subclass of SSObject represents all objects outside the solar system,
 // including stars, star clusters, nebulae, and galaxies. SSStar has special
 // subclasses for double and variable stars, and for deep sky objects.
+// Includes utility methods for stellar magnitude computations
+// (absolute <-> apparent magnitude, etc.)
 
 #ifndef SSStar_hpp
 #define SSStar_hpp

@@ -5,7 +5,8 @@
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
 // This subclass of SSObject represents all solar system objects (not just planets,
-// but also moons, asteroids, comets, satellites, etc.)
+// but also moons, asteroids, comets, satellites, etc.) Includes methods for computing
+// solar system object positions, velocities, magnitudes, sizes, and rotational parameters.
 
 #ifndef SSPlanet_hpp
 #define SSPlanet_hpp

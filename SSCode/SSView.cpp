@@ -200,7 +200,7 @@ SSAngle SSView::getAngularWidth ( void )
     else if ( _projection == kStereographic )
         return SSAngle ( 4.0 * atan ( _scaleX * _width / 2.0 ) );
     else // ( _projection == kEquirectangular || _projection == kMercator || _projection == kMollweide || _projection == kSinusoidal )
-        return SSAngle ( min ( _scaleX * _width, SSAngle::kTwoPi ) );
+        return SSAngle ( min ( _scaleX * _width, (double) SSAngle::kTwoPi ) );
 }
 
 // Returns angular width of fields of view (in radians, always positive)
@@ -217,9 +217,9 @@ SSAngle SSView::getAngularHeight ( void )
     else if ( _projection == kMercator )
         return SSAngle ( 2.0 * atan ( _scaleY * _height ) );
     else if ( _projection == kMollweide )
-        return SSAngle ( min ( _scaleY * _height / SSAngle::kHalfPi, SSAngle::kPi ) );
+        return SSAngle ( min ( _scaleY * _height / SSAngle::kHalfPi, (double) SSAngle::kPi ) );
     else // ( _projection == kEquirectangular || _projection == kSinusoidal )
-        return SSAngle ( min ( _scaleY * _height, SSAngle::kPi ) );
+        return SSAngle ( min ( _scaleY * _height, (double) SSAngle::kPi ) );
 }
 
 // Returns angular value in radians (always positive) corresponding to diagonal
@@ -709,7 +709,7 @@ SSAngle SSView::pixelsToRadiansX ( double pixels )
     else if ( _projection == kStereographic )
         return SSAngle ( atan ( pixels * scale ) * 2.0 );
     else // kMercator, kElliptical, kEquidistant, kSinusoidal:
-        return SSAngle ( min ( pixels * scale, SSAngle::kPi ) );
+        return SSAngle ( min ( pixels * scale, (double) SSAngle::kPi ) );
 }
 
 // Given a vertical distance in pixels from the view center,
@@ -729,7 +729,7 @@ SSAngle SSView::pixelsToRadiansY ( double pixels )
     else if ( _projection == kMollweide )
         return SSAngle ( asin ( min ( pixels * scale / SSAngle::kHalfPi, 1.0 ) ) );
     else // kEquidistant, kSinusoidal:
-        return SSAngle ( min ( pixels * scale, SSAngle::kPi ) );
+        return SSAngle ( min ( pixels * scale, (double) SSAngle::kPi ) );
 }
 
 // This adaptation of the Liang-Barsky line-clipping algorithm is derived from

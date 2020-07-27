@@ -30,12 +30,13 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSMoonEphemeris:_** Computes positions for the major moons of Mars, Jupiter, Saturn, Uranus, Neptune, and Pluto. For Earth's Moon, use SSJPLDEphemeris or SSPSEphemeris.
 - **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations, etc.)
 - **_SSOrbit:_** This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.
-- **_SSPlanet:_** This subclass of SSObject represents all solar system objects (not just planets, but also moons, asteroids, comets, satellites, etc.)
-- **_SSStar:_** This subclass of SSObject represents all objects outside the solar system, including stars, star clusters, nebulae, and galaxies. SSStar has special subclasses for double and variable stars, and for deep sky objects.
+- **_SSPlanet:_** This subclass of SSObject represents all solar system objects (not just planets, but also moons, asteroids, comets, satellites, etc.)  Includes methods for computing solar system object positions, velocities, magnitudes, sizes, and rotational parameters.
+- **_SSStar:_** This subclass of SSObject represents all objects outside the solar system, including stars, star clusters, nebulae, and galaxies. SSStar has special subclasses for double and variable stars, and for deep sky objects.  Includes utility methods for stellar magnitude computations (absolute <-> apparent magnitude, etc.)
 - **_SSTime:_** Classes for converting between Julian Dates and calendar dates/times; and between civil (UTC) and dynamic time (TDT).
 - **_SSTLE:_** Routines for reading satellite orbital elements from TLE (Two/Three-Line Element) files, and computing satellite position/velocity from them using the SGP, SGP4, and SDP4 orbit models; and vice-versa.
 - **_SSUtilities:_** A few useful string manipulation, angle conversion, and other utility functions that are not present in standard C++11.
 - **_SSVector:_** Classes for converting points between spherical and rectangular coordinates, and for performing vector arithmetic operations.
+- **_SSView:_** Represents a rectangular field of view of a part of the celestial sphere. Converts converts 3D positions on the celestrial sphere to 2D coordinates in the field of view (and vice versa) using a variety of map projections. Useful for astrometry, or rendering the sky onto a flat image or computer screen.
 
 **VSOP2013 and ELPMPP02**
 
@@ -81,3 +82,4 @@ Version History
 
 Version 1.0, 12 Apr 2020: Initial public release.  
 Version 1.1, 12 May 2020: Added VSOP2013, ELPMPP02, SSMoonEphemeris, many fixes.
+Version 1.2 (in progress), 1 Aug 2020: Added SSView. Added rotational elements and planetographic coordinates to SSPlanet.  Added magnitude utilities to SSStar.
