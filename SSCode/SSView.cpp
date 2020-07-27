@@ -604,15 +604,10 @@ bool SSView::inBoundRect ( double x1, double y1, double x2, double y2, double x3
 
     // No intersection if triangle's bounding box outside bounding rectangle.
     
-    double xmin = min ( x1, x2 );
-    double xmax = max ( x1, x2 );
-    double ymin = min ( y1, y2 );
-    double ymax = max ( y1, y2 );
-    
-    xmin = min ( xmin, x3 );
-    xmax = max ( xmax, x3 );
-    ymin = min ( ymin, y3 );
-    ymax = max ( ymax, y3 );
+    double xmin = min ( min ( x1, x2 ), x3 );
+    double xmax = max ( max ( x1, x2 ), x3 );
+    double ymin = min ( min ( y1, y2 ), y3 );
+    double ymax = max ( max ( y1, y2 ), y3 );
 
     if ( ! rectangle_in_rectangle ( xmin, ymin, xmax, ymax, l, t, r, b ) )
         return false;
