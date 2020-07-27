@@ -517,12 +517,12 @@ SSAngle SSCoordinates::refractionAngle ( SSAngle alt, bool a )
     
     if ( a == true )
     {
-        h = maximum ( alt.toDegrees(), -1.9 );
+        h = max ( alt.toDegrees(), -1.9 );
         r = 1.02 / tan ( SSAngle::fromDegrees ( h + ( 10.3 / ( h + 5.11 ) ) ) );
     }
     else
     {
-        h = maximum ( alt.toDegrees(), -1.7 );
+        h = max ( alt.toDegrees(), -1.7 );
         r = 1.0 / tan ( SSAngle::fromDegrees ( h + ( 7.31 / ( h + 4.4 ) ) ) );
     }
     

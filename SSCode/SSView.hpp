@@ -34,16 +34,16 @@ protected:
     SSMatrix        _matrix;                  // rotation matrix for transforming from celestial reference frame to view reference frame
     SSAngle         _centerLon, _centerLat;   // longitude, latitude, of field of view center in 3D celestial sphere reference frame
     SSAngle         _centerRot;               // rotation angle at field of view center in celestial sphere 3D reference frame
-    float           _centerX, _centerY;       // coordinates on 2D field of view which correspond to field of view center
-    float           _scaleX, _scaleY;         // radians per pixel at field of view center in horizontal and vertical direction; if ngative, view is inverted horizontally/vertically
-    float           _width, _height;          // dimensions of bounding rectangle of 2D field of view; if negative, inverts view horizontally/vertically
+    double          _centerX, _centerY;       // coordinates on 2D field of view which correspond to field of view center
+    double          _scaleX, _scaleY;         // radians per pixel at field of view center in horizontal and vertical direction; if ngative, view is inverted horizontally/vertically
+    double          _width, _height;          // dimensions of bounding rectangle of 2D field of view; if negative, inverts view horizontally/vertically
 
 public:
     
     // constructors
     
     SSView ( void );
-    SSView ( SSProjection projection, SSAngle widthAngle, float width, float height, float centerX, float centerY );
+    SSView ( SSProjection projection, SSAngle widthAngle, double width, double height, double centerX, double centerY );
     
     // changes projection; attempts to preserve angular field of view width
     
@@ -52,21 +52,21 @@ public:
     
     // changes dimensions; attempts to preserve angular field of view width
 
-    void setDimensions ( float width, float height );
-    float getWidth ( void ) { return _width; }
-    float getHeight ( void ) { return _height; }
+    void setDimensions ( double width, double height );
+    double getWidth ( void ) { return _width; }
+    double getHeight ( void ) { return _height; }
 
     // changes center of rectangular field of view without changing dimensions, scale, etc.
 
-    void setCenter ( float centerX, float centerY ) { _centerX = centerX; _centerY = centerY; }
-    float getCenterX ( void ) { return _centerX; }
-    float getCenterY ( void ) { return _centerY; }
+    void setCenter ( double centerX, double centerY ) { _centerX = centerX; _centerY = centerY; }
+    double getCenterX ( void ) { return _centerX; }
+    double getCenterY ( void ) { return _centerY; }
 
     // changing scale will also change angular field of view width x height
     
-    void setScale ( float scaleX, float scaleY ) { _scaleX = scaleX; _scaleY = scaleY; }
-    float getScaleX ( void ) { return _scaleX; }
-    float getScaleY ( void ) { return _scaleY; }
+    void setScale ( double scaleX, double scaleY ) { _scaleX = scaleX; _scaleY = scaleY; }
+    double getScaleX ( void ) { return _scaleX; }
+    double getScaleY ( void ) { return _scaleY; }
 
     // maximum angular field of view width x height allowed in current projection
 
@@ -104,22 +104,22 @@ public:
     
     // gets 2D bounding rectangle; tests whether point is within view's 2D bounding rectangle
 
-    float getLeft ( void ) { return _centerX - fabs ( _width ) / 2.0; }
-    float getTop ( void ) { return _centerY - fabs ( _height ) / 2.0; }
-    float getRight ( void ) { return _centerX + fabs ( _width ) / 2.0; }
-    float getBottom ( void ) { return _centerY + fabs ( _height ) / 2.0; }
-    bool inBoundRect ( float x, float y );
-    bool inBoundRect ( float x, float y, float r );
-    bool inBoundRect ( float x1, float y1, float x2, float y2, float x3, float y3 );
-    bool inBoundRect ( float xmin, float ymin, float xmax, float ymax );
+    double getLeft ( void ) { return _centerX - fabs ( _width ) / 2.0; }
+    double getTop ( void ) { return _centerY - fabs ( _height ) / 2.0; }
+    double getRight ( void ) { return _centerX + fabs ( _width ) / 2.0; }
+    double getBottom ( void ) { return _centerY + fabs ( _height ) / 2.0; }
+    bool inBoundRect ( double x, double y );
+    bool inBoundRect ( double x, double y, double r );
+    bool inBoundRect ( double x1, double y1, double x2, double y2, double x3, double y3 );
+    bool inBoundRect ( double xmin, double ymin, double xmax, double ymax );
 
     // converts horizontal/vertical distance from chart center in radians to pixels, and vice-versa
     
-    float radiansToPixelsX ( SSAngle radians );
-    float radiansToPixelsY ( SSAngle radians );
+    double radiansToPixelsX ( SSAngle radians );
+    double radiansToPixelsY ( SSAngle radians );
     
-    SSAngle pixelsToRadiansX ( float pixels );
-    SSAngle pixelsToRadiansY ( float pixels );
+    SSAngle pixelsToRadiansX ( double pixels );
+    SSAngle pixelsToRadiansY ( double pixels );
 
     // clips line defined by two endpoints to view's 2D bounding rectangle
     

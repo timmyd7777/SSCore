@@ -16,6 +16,7 @@
 
 using namespace std;
 
+/*
 #ifndef maximum
 #define maximum(x,y) (x>y?x:y)
 #endif
@@ -23,6 +24,7 @@ using namespace std;
 #ifndef minimum
 #define minimum(x,y) (x<y?x:y)
 #endif
+*/
 
 #ifndef clamp
 #define clamp(x,min,max) (x<min?min:x>max?max:x)

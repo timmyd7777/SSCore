@@ -25,7 +25,7 @@ SSView::SSView ( void )
 // If width is negative, view is inverted horizontally; if height is negative, view is inverted vertically.
 // Celestial coordinates of field-of-view center will be looking toward (0,0).
 
-SSView::SSView ( SSProjection projection, SSAngle angle, float width, float height, float centerX, float centerY )
+SSView::SSView ( SSProjection projection, SSAngle angle, double width, double height, double centerX, double centerY )
 {
     _projection = projection;
     _centerX = centerX;
@@ -56,7 +56,7 @@ void SSView::setProjection ( SSProjection projection )
 // Attempts to preserve field-of-view width angle,
 // which will change scale (but nothing else).
 
-void SSView::setDimensions ( float width, float height )
+void SSView::setDimensions ( double width, double height )
 {
     if ( width != _width || height != _height )
     {
@@ -196,11 +196,11 @@ SSAngle SSView::getAngularWidth ( void )
     if ( _projection == kGnomonic )
         return SSAngle ( 2.0 * atan ( _scaleX * _width / 2.0 ) );
     else if ( _projection == kOrthographic )
-        return SSAngle ( 2.0 * asin ( minimum ( _scaleX * _width / 2.0, 1.0 ) ) );
+        return SSAngle ( 2.0 * asin ( min ( _scaleX * _width / 2.0, 1.0 ) ) );
     else if ( _projection == kStereographic )
         return SSAngle ( 4.0 * atan ( _scaleX * _width / 2.0 ) );
     else // ( _projection == kEquirectangular || _projection == kMercator || _projection == kMollweide || _projection == kSinusoidal )
-        return SSAngle ( minimum ( _scaleX * _width, SSAngle::kTwoPi ) );
+        return SSAngle ( min ( _scaleX * _width, SSAngle::kTwoPi ) );
 }
 
 // Returns angular width of fields of view (in radians, always positive)
@@ -211,15 +211,15 @@ SSAngle SSView::getAngularHeight ( void )
     if ( _projection == kGnomonic )
         return SSAngle ( 2.0 * atan ( _scaleY * _height / 2.0 ) );
     else if ( _projection == kOrthographic )
-        return SSAngle ( 2.0 * asin ( minimum ( _scaleY * _height / 2.0, 1.0 ) ) );
+        return SSAngle ( 2.0 * asin ( min ( _scaleY * _height / 2.0, 1.0 ) ) );
     else if ( _projection == kStereographic )
         return SSAngle ( 4.0 * atan ( _scaleY * _height / 2.0 ) );
     else if ( _projection == kMercator )
         return SSAngle ( 2.0 * atan ( _scaleY * _height ) );
     else if ( _projection == kMollweide )
-        return SSAngle ( minimum ( _scaleY * _height / SSAngle::kHalfPi, SSAngle::kPi ) );
+        return SSAngle ( min ( _scaleY * _height / SSAngle::kHalfPi, SSAngle::kPi ) );
     else // ( _projection == kEquirectangular || _projection == kSinusoidal )
-        return SSAngle ( minimum ( _scaleY * _height, SSAngle::kPi ) );
+        return SSAngle ( min ( _scaleY * _height, SSAngle::kPi ) );
 }
 
 // Returns angular value in radians (always positive) corresponding to diagonal
@@ -430,7 +430,7 @@ SSVector SSView::unproject ( SSVector vvec )
 
 // tests whether point (x,y) is within view's 2D bounding rectangle
 
-bool SSView::inBoundRect ( float x, float y )
+bool SSView::inBoundRect ( double x, double y )
 {
     if ( x > getLeft() && x < getRight() && y > getTop() && y < getBottom() )
         return true;
@@ -545,7 +545,7 @@ bool rectangle_in_rectangle ( float xmin, float ymin, float xmax, float ymax, fl
 // tests whether rectangle bounded by (xmin,ymin), (xmax,ymax)
 // intersects view's 2D bouning rectangle.
 
-bool SSView::inBoundRect ( float xmin, float ymin, float xmax, float ymax )
+bool SSView::inBoundRect ( double xmin, double ymin, double xmax, double ymax )
 {
     return ( xmax > getLeft() && xmin < getRight() && ymax > getTop() && ymin < getBottom() );
 }
@@ -553,7 +553,7 @@ bool SSView::inBoundRect ( float xmin, float ymin, float xmax, float ymax )
 // tests whether circle centered at (x,y) with radius (r)
 // intersects view's 2D bounding rectangle
 
-bool SSView::inBoundRect ( float x, float y, float r )
+bool SSView::inBoundRect ( double x, double y, double r )
 {
     float xmin = getLeft();
     float ymin = getTop();
@@ -595,24 +595,24 @@ bool SSView::inBoundRect ( float x, float y, float r )
 // https://stackoverflow.com/questions/13790208/triangle-square-intersection-test-in-2d
 // https://seblee.me/2009/05/super-fast-trianglerectangle-intersection-test/
 
-bool SSView::inBoundRect ( float x1, float y1, float x2, float y2, float x3, float y3 )
+bool SSView::inBoundRect ( double x1, double y1, double x2, double y2, double x3, double y3 )
 {
-    float l = getLeft();
-    float t = getTop();
-    float r = getRight();
-    float b = getBottom();
+    double l = getLeft();
+    double t = getTop();
+    double r = getRight();
+    double b = getBottom();
 
     // No intersection if triangle's bounding box outside bounding rectangle.
     
-    float xmin = minimum ( x1, x2 );
-    float xmax = maximum ( x1, x2 );
-    float ymin = minimum ( y1, y2 );
-    float ymax = maximum ( y1, y2 );
+    double xmin = min ( x1, x2 );
+    double xmax = max ( x1, x2 );
+    double ymin = min ( y1, y2 );
+    double ymax = max ( y1, y2 );
     
-    xmin = minimum ( xmin, x3 );
-    xmax = maximum ( xmax, x3 );
-    ymin = minimum ( ymin, y3 );
-    ymax = maximum ( ymax, y3 );
+    xmin = min ( xmin, x3 );
+    xmax = max ( xmax, x3 );
+    ymin = min ( ymin, y3 );
+    ymax = max ( ymax, y3 );
 
     if ( ! rectangle_in_rectangle ( xmin, ymin, xmax, ymax, l, t, r, b ) )
         return false;
@@ -660,7 +660,7 @@ bool SSView::inBoundRect ( float x1, float y1, float x2, float y2, float x3, flo
 // returns the corresponding horiztonal distance in pixels. If radians
 // are negative, the returned value in pixels will also be hegative.
 
-float SSView::radiansToPixelsX ( SSAngle radians )
+double SSView::radiansToPixelsX ( SSAngle radians )
 {
     float scale = fabs ( _scaleX );
 
@@ -678,7 +678,7 @@ float SSView::radiansToPixelsX ( SSAngle radians )
 // returns the corresponding vertical distance in pixels. If radians
 // are negative, the returned value in pixels will also be hegative.
 
-float SSView::radiansToPixelsY ( SSAngle radians )
+double SSView::radiansToPixelsY ( SSAngle radians )
 {
     float scale = fabs ( _scaleY );
 
@@ -698,7 +698,7 @@ float SSView::radiansToPixelsY ( SSAngle radians )
 // returns the corresponding horizontal angular value in radians.
 // If pixels are negative, the returned radians are also hegative.
 
-SSAngle SSView::pixelsToRadiansX ( float pixels )
+SSAngle SSView::pixelsToRadiansX ( double pixels )
 {
     float scale = fabs ( _scaleX );    // horizontal scale is negative if chart is flipped
     
@@ -709,14 +709,14 @@ SSAngle SSView::pixelsToRadiansX ( float pixels )
     else if ( _projection == kStereographic )
         return SSAngle ( atan ( pixels * scale ) * 2.0 );
     else // kMercator, kElliptical, kEquidistant, kSinusoidal:
-        return SSAngle ( minimum ( pixels * scale, SSAngle::kPi ) );
+        return SSAngle ( min ( pixels * scale, SSAngle::kPi ) );
 }
 
 // Given a vertical distance in pixels from the view center,
 // returns the corresponding vertical angular value in radians.
 // If pixels are negative, the returned radians are also hegative.
 
-SSAngle SSView::pixelsToRadiansY ( float pixels )
+SSAngle SSView::pixelsToRadiansY ( double pixels )
 {
     float scale = fabs ( _scaleY );    // horizontal scale is negative if chart is flipped
     
@@ -727,9 +727,9 @@ SSAngle SSView::pixelsToRadiansY ( float pixels )
     else if ( _projection == kStereographic )
         return SSAngle ( atan ( pixels * scale ) * 2.0 );
     else if ( _projection == kMollweide )
-        return SSAngle ( asin ( minimum ( pixels * scale / SSAngle::kHalfPi, 1.0 ) ) );
+        return SSAngle ( asin ( min ( pixels * scale / SSAngle::kHalfPi, 1.0 ) ) );
     else // kEquidistant, kSinusoidal:
-        return SSAngle ( minimum ( pixels * scale, SSAngle::kPi ) );
+        return SSAngle ( min ( pixels * scale, SSAngle::kPi ) );
 }
 
 // This adaptation of the Liang-Barsky line-clipping algorithm is derived from
