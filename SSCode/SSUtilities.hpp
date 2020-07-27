@@ -16,18 +16,11 @@
 
 using namespace std;
 
-/*
-#ifndef maximum
-#define maximum(x,y) (x>y?x:y)
-#endif
+// clamp(value,low,high) returns value clamped to limits (low, high).
+// This is a C++11 replacement for std::clamp() declared in <algorithm> in C++17.
 
-#ifndef minimum
-#define minimum(x,y) (x<y?x:y)
-#endif
-*/
-
-#ifndef clamp
-#define clamp(x,min,max) (x<min?min:x>max?max:x)
+#if __cplusplus < 201703L
+template <typename T>  const T &clamp ( const T &value, const T &low, const T &high ) { return value < low ? low : value > high ? high : value; }
 #endif
 
 // on Android, hijack fopen and route it through the android asset system
