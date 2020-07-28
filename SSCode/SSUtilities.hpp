@@ -10,6 +10,7 @@
 #ifndef SSUtilities_hpp
 #define SSUtilities_hpp
 
+#include <algorithm>
 #include <cmath>
 #include <string>
 #include <vector>
