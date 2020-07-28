@@ -127,7 +127,7 @@ int SSImportConstellations ( const string &filename, SSObjectVec &constellations
 {
     // Open file; return on failure.
 
-    ifstream file ( filename );
+    FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
         return ( 0 );
 
@@ -136,7 +136,7 @@ int SSImportConstellations ( const string &filename, SSObjectVec &constellations
     string line = "";
     int numCons = 0;
 
-    while ( getline ( file, line ) )
+    while ( fgetline ( file, line ) )
     {
         // Attempt to create constellation from CSV file line; continue on failure.
         
@@ -152,6 +152,7 @@ int SSImportConstellations ( const string &filename, SSObjectVec &constellations
         numCons++;
     }
     
+    fclose ( file );
     return numCons;
 }
 
@@ -200,7 +201,7 @@ int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &const
 {
     // Open file; return on failure.
 
-    ifstream file ( filename );
+    FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
         return ( 0 );
 
@@ -215,7 +216,7 @@ int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &const
     vector<SSVector> boundary ( 0 );
     SSConstellationPtr pCon = SSGetConstellationPtr ( constellations[0] );
 
-    while ( getline ( file, line ) )
+    while ( fgetline ( file, line ) )
     {
         // Require 3 fields per line; skip if we don't have em.
         
@@ -292,6 +293,7 @@ int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &const
         // cout << "Imported " << boundary.size() << " vertices for " << lastAbbr << endl;
     }
 
+    fclose ( file );
     return numVerts;
 }
 
@@ -305,7 +307,7 @@ int SSImportConstellationShapes ( const string &filename, SSObjectVec &constella
 {
     // Open file; return on failure.
 
-    ifstream file ( filename );
+    FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
         return ( 0 );
 
@@ -316,7 +318,7 @@ int SSImportConstellationShapes ( const string &filename, SSObjectVec &constella
     vector<int> shape ( 0 );
     SSConstellationPtr pCon = SSGetConstellationPtr ( constellations[0] );
 
-    while ( getline ( file, line ) )
+    while ( fgetline ( file, line ) )
     {
         // Require 3 fields per line; skip if we don't have enough.
         
@@ -375,6 +377,7 @@ int SSImportConstellationShapes ( const string &filename, SSObjectVec &constella
         // cout << "Imported " << shape.size() / 2 << " shape lines for " << lastAbbr << endl;
     }
 
+    fclose ( file );
     return numLines;
 }
 
