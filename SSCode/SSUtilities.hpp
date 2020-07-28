@@ -28,7 +28,7 @@ template <typename T>  const T &clamp ( const T &value, const T &low, const T &h
 // http://www.50ply.com/blog/2013/01/19/loading-compressed-android-assets-with-file-pointer/
 
 #ifdef ANDROID
-FILE *android_fopen ( const char *fname, const char *mode );
+extern "C" FILE *android_fopen ( const char *fname, const char *mode );
 #define fopen(name,mode) android_fopen(name,mode)
 #endif
 

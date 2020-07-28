@@ -45,7 +45,8 @@ static int android_close ( void* cookie )
 #ifdef fopen
 #undef fopen
 #endif
-FILE *android_fopen ( const char *name, const char *mode )
+
+extern "C" FILE *android_fopen ( const char *name, const char *mode )
 {
     // If opening file for writing, android asset manager is
     // not initialized, or path doesn't exist in android asset,
