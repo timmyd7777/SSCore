@@ -105,11 +105,11 @@ in standard Linux 32-bit environment */
 FILE *F1=NULL;
 int KM=0,BARY=1;
 
-double PVSUN[6]={0};
-char nams[NMAX][6]={0};
-double ss[3]={0};
-double vals[NMAX]={0};
-int nvs=0;
+static double PVSUN[6]={0};
+static char nams[NMAX][6]={0};
+static double ss[3]={0};
+static double vals[NMAX]={0};
+static int nvs=0;
 
 void constan(char nam[][6], double val[], double sss[], int *n);
 void state(double et2[],int list[],double pv[][6],double nut[]);
