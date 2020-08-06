@@ -44,7 +44,8 @@ public:
     
     SSView ( void );
     SSView ( SSProjection projection, SSAngle widthAngle, double width, double height, double centerX, double centerY );
-    
+    SSView ( SSProjection projection, SSAngle widthAngle, SSAngle heightAngle, SSAngle scale );
+
     // changes projection; attempts to preserve angular field of view width
     
     void setProjection ( SSProjection proj );
@@ -102,6 +103,9 @@ public:
     SSVector project ( SSVector cvec );
     SSVector unproject ( SSVector vvec );
     
+    SSVector transform ( SSVector cvec ) { return _matrix * cvec; }
+    SSVector untransform ( SSVector vvec ) { return _matrix.transpose() * vvec; }
+
     // gets 2D bounding rectangle; tests whether point is within view's 2D bounding rectangle
 
     double getLeft ( void ) { return _centerX - fabs ( _width ) / 2.0; }

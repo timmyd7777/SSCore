@@ -37,6 +37,22 @@ SSView::SSView ( SSProjection projection, SSAngle angle, double width, double he
     setCenter ( 0.0, 0.0, 0.0 );
 }
 
+// Constructor with projection, field-of-view width and height angles, and pixel scale in radians per pixel.
+// If width is negative, view is inverted horizontally; if height is negative, view is inverted vertically.
+// Celestial coordinates of field-of-view center will be looking toward (0,0).
+
+SSView::SSView ( SSProjection projection, SSAngle width, SSAngle height, SSAngle scale )
+{
+    _projection = projection;
+    _width = width / scale;
+    _height = height / scale;
+    _centerX = _width / 2;
+    _centerY = _height / 2;
+    
+    setAngularWidth ( width );
+    setCenter ( 0.0, 0.0, 0.0 );
+}
+
 // Changes projection. Attempts to preserve field-of-view width angle,
 // which will change scale (but nothing else).
 
@@ -257,7 +273,7 @@ SSAngle SSView::getAngularDiagonal ( void )
 
 SSVector SSView::project ( SSVector cvec )
 {
-    cvec = _matrix * cvec;
+    cvec = transform ( cvec );
 
     double x = cvec.x;
     double y = cvec.y;
@@ -423,7 +439,7 @@ SSVector SSView::unproject ( SSVector vvec )
     }
     
     vvec = SSVector ( x, y, z );
-    cvec = _matrix.transpose() * vvec;
+    cvec = untransform ( vvec );
     
     return cvec;
 }
