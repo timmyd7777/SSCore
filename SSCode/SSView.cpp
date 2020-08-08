@@ -768,6 +768,24 @@ SSAngle SSView::pixelsToRadiansY ( double pixels )
         return SSAngle ( min ( pixels * scale, (double) SSAngle::kPi ) );
 }
 
+// Returns angle in radians corresponding to north on celestial sphere at 2D view coordinates (x,y).
+// Toward +X axis ("right" in view) is zero radians (0 degrees);
+// Toward +Y axis ("down" in view) is i / 2 radians (90 degrees);
+// Toward -X axis ("left" in view) is pi radians (180 degrees)
+// Toward -Y axis ("up" in view) is 3 * pi / 2 radians (270 degrees)
+
+SSAngle SSView::north ( double x, double y )
+{
+    SSSpherical coords = unproject ( SSVector ( x, y, 0.0 ) );
+
+    coords.lat += SSAngle::fromDegrees ( 1.0 );
+    if ( coords.lat > SSAngle::kHalfPi )
+        coords.lat = SSAngle::kHalfPi;
+    
+    SSVector n = project ( coords );
+    return SSAngle::atan2Pi ( n.y - y, n.x - x );
+}
+
 // This adaptation of the Liang-Barsky line-clipping algorithm is derived from
 // https://stackoverflow.com/questions/11194876/clip-line-to-screen-coordinates
 // Vectors v0 and v1 define the start and end points of the line; their z coordinates are ignored.

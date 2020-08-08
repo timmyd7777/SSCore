@@ -126,6 +126,10 @@ public:
     SSAngle pixelsToRadiansX ( double pixels );
     SSAngle pixelsToRadiansY ( double pixels );
 
+    // Returns angle in radians corresponding to north on celestial sphere at 2D view point (x,y)
+
+    SSAngle north ( double x, double y );
+
     // clips line defined by two endpoints to view's 2D bounding rectangle
     
     bool clipLine ( SSVector &v0, SSVector &v1 );
