@@ -116,6 +116,7 @@ public:
     bool inBoundRect ( double x, double y, double r );
     bool inBoundRect ( double x1, double y1, double x2, double y2, double x3, double y3 );
     bool inBoundRect ( double xmin, double ymin, double xmax, double ymax );
+    bool inCircle ( double xc, double yc, double r );
 
     // converts horizontal/vertical distance from chart center in radians to pixels, and vice-versa
     

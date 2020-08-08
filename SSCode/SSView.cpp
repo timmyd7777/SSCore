@@ -667,6 +667,31 @@ bool SSView::inBoundRect ( double x1, double y1, double x2, double y2, double x3
     return false;
 }
 
+// tests whether the view's bounding rectangle is entirely inside a circle
+// centered at (xc, yc) with radius r.
+
+bool SSView::inCircle ( double xc, double yc, double r )
+{
+    double left = getLeft();
+    double top = getTop();
+    double right = getRight();
+    double bottom = getBottom();
+    
+    if ( ! point_in_circle ( left, top, xc, yc, r ) )
+        return false;
+    
+    if ( ! point_in_circle ( right, top, xc, yc, r ) )
+        return false;
+
+    if ( ! point_in_circle ( right, bottom, xc, yc, r ) )
+        return false;
+
+    if ( ! point_in_circle ( left, bottom, xc, yc, r ) )
+        return false;
+
+    return true;
+}
+
 // Given a horizontal angular distance in radians from the view center,
 // returns the corresponding horiztonal distance in pixels. If radians
 // are negative, the returned value in pixels will also be hegative.
