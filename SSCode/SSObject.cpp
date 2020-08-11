@@ -220,9 +220,9 @@ int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects )
         return i;
     }
 
-    // Otherwise open file; return on failure.
+    // Otherwise open file, overwriting existing content; return on failure.
 
-    ofstream file ( filename );
+    ofstream file ( filename, ios::trunc );
     if ( ! file )
         return 0;
     

@@ -99,7 +99,7 @@ public:
 
 typedef SSObject *SSObjectPtr;
 
-// This class stores a vector of pointers to SSObject, and deletes them when class is destroyed.
+// This class stores a vector of pointers to SSObject, and deletes them when class instance is destroyed.
 
 class SSObjectArray
 {
@@ -112,6 +112,7 @@ public:
     SSObjectPtr operator [] ( size_t index ) { return at ( index ); }
     void push_back ( SSObjectPtr pObj ) { _objects.push_back ( pObj ); }
     size_t size ( void ) { return _objects.size(); }
+    void clear ( void ) { _objects.clear(); }
 };
 
 typedef SSObjectArray SSObjectVec;          // legacy declaration was typedef vector<SSObjectPtr> SSObjectVec; now we use SSObjectArray class

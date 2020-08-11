@@ -631,6 +631,8 @@ int SSTestMain ( const char *inputpath, const char *outputpath )
 
 #endif
 
+void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects );
+
 int main ( int argc, const char *argv[] )
 {
 // This bit of magic makes UTF-8 output with degree characters appear correctly on the Windows console;
@@ -701,7 +703,7 @@ int main ( int argc, const char *argv[] )
 
     exportCatalog ( objects, kCatMessier, 1, 110 );
     exportCatalog ( objects, kCatCaldwell, 1, 110 );
-
+*/
     SSIdentifierMap hipHRMap;
     int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
     cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
@@ -735,7 +737,7 @@ int main ( int argc, const char *argv[] )
     cout << "Imported " << n << " IAU star names." << endl;
 
     SSIdentifierNameMap starNames;
-    n = SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/Stars/Names.csv", starNames );
+    n = SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/Stars/Names.csv", starNames );
     cout << "Imported " << n << " star names." << endl;
 
     SSObjectVec gjACStars;
@@ -751,8 +753,10 @@ int main ( int argc, const char *argv[] )
     SSObjectVec skyStars;
     n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, hipStars, gjStars, skyStars );
     cout << "Imported " << n << " SKY2000 stars." << endl;
-    exportCatalog ( skyStars, kCatHR, 1, 9110 );
-*/
+    // exportCatalog ( skyStars, kCatHR, 1, 9110 );
+    // SSExportObjectsToCSV ( "/Users/timmyd/Desktop/SKY2000.csv", skyStars );
+    ExportObjectsToHTM ( "/Users/timmyd/Desktop/SKY2000/", skyStars );
+
 
 #ifdef _WIN32
     SetConsoleOutputCP ( oldcp );
@@ -761,3 +765,25 @@ int main ( int argc, const char *argv[] )
     return 0;
 }
 
+#include "SSHTM.hpp"
+
+void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects )
+{
+    vector<float> maglevels = { 6.0, 7.2, 8.4, INFINITY };
+    SSHTM htm ( maglevels, htmdir );
+    
+    cout << "Stored " << htm.store ( objects ) << " stars." << endl;
+    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " stars." << endl;
+    int n = htm.saveRegions();
+    cout << "Exported " << n << " objects." << endl;
+    
+    // Finally empty the original object vector
+    
+    objects.clear();
+
+    // Now try dumping and reloading regions
+    
+    htm.dumpRegions();
+    n = htm.loadRegions();
+    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " stars." << endl;
+}
