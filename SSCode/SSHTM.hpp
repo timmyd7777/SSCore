@@ -43,7 +43,7 @@ public:
     int saveRegions ( void );
     int saveRegion ( uint64_t id );
     int loadRegions ( uint64_t htmID = 0 );
-    int loadRegion ( uint64_t htmID );
+    SSObjectVec *loadRegion ( uint64_t htmID );
     void dumpRegions ( void );
     void dumpRegion ( uint64_t htmID );
     
@@ -51,6 +51,7 @@ public:
     SSObjectVec *getObjects ( uint64_t id );
     
     vector<uint64_t> subRegionIDs ( uint64_t id );
+    bool magLimits ( uint64_t id, float &min, float &max );
     
     static uint64_t vector2ID ( const SSVector &vector, int depth );
     static uint64_t name2ID ( const string &name );

@@ -13,6 +13,14 @@ int cc_ID2name ( char *name, uint64_t id );
 uint64_t cc_name2ID ( const char *name );
 int cc_name2Triangle ( const char *name, double *v0, double *v1, double *v2 );
 
+// Default constructor: empty array of magnitude limits, root path string,
+// empty map of HTM region IDs to object arrays.
+
+SSHTM::SSHTM ( void )
+{
+
+}
+
 // Constructor specifies array of magnitude limits for each HTM level,
 // and root path to directory containing region data files in CSV format.
 
@@ -64,6 +72,23 @@ vector<uint64_t> SSHTM::subRegionIDs ( uint64_t htmID )
     
     uint64_t subID = htmID * 4;
     return  vector<uint64_t> ( { subID, subID + 1, subID + 2, subID + 3 } );
+}
+
+// Gets magnitude of the brightest (min) and faintest (max) stars in a particular HTM region.
+// Returns true if successful, or false if specified region ID is invalid.
+
+bool SSHTM::magLimits ( uint64_t htmID, float &min, float &max )
+{
+    int level = 0;
+    if ( htmID > 0 )
+        level = IDlevel ( htmID ) + 1;
+
+    if ( level >= _magLevels.size() )
+        return false;
+    
+    min = level == 0 ? -INFINITY : _magLevels[ level - 1];
+    max = _magLevels[ level ];
+    return true;
 }
 
 // Stores a pointer to a star or deep sky object in this HTM, creating an HTM region to store it in, if needed.
@@ -171,14 +196,16 @@ int SSHTM::loadRegions ( uint64_t htmID )
 }
 
 // Loads star data for a single region in this HTM from a CSV-formatted file in the HTM root directory.
-// Returns the number of stars loaded. If region is already loaded, returns number of stars already in region.
+// Returns pointer to object vector if sucessful, or nullptr on failure.
 
-int SSHTM::loadRegion ( uint64_t htmID )
+SSObjectVec *SSHTM::loadRegion ( uint64_t htmID )
 {
     int n = 0;
     
+    // If region is already loaded, returns pointer to that region's objects.
+
     if ( regionLoaded ( htmID ) )
-        return countStars ( htmID );
+        return getObjects ( htmID );
     
     string name = ID2name ( htmID );
     if ( ! name.empty() )
@@ -189,7 +216,7 @@ int SSHTM::loadRegion ( uint64_t htmID )
             _regions[htmID] = objects;
     }
     
-    return n;
+    return _regions[htmID];
 }
 
 // Tests whether star data for a specific region in this HTM has been
@@ -197,7 +224,7 @@ int SSHTM::loadRegion ( uint64_t htmID )
 
 bool SSHTM::regionLoaded ( uint64_t htmID )
 {
-    return _regions.count ( htmID );
+    return _regions[htmID] != nullptr;
 }
 
 // Returns pointer to array of objects stored in the region
@@ -294,7 +321,7 @@ string SSHTM::ID2name ( uint64_t id )
 
 bool SSHTM::name2Triangle ( const string &name, SSVector &v0, SSVector &v1, SSVector &v2 )
 {
-    return cc_name2Triangle ( name.c_str(), &v0.x, &v1.x, &v2.x );
+    return cc_name2Triangle ( name.c_str(), &v0.x, &v1.x, &v2.x ) == 0;
 }
 
 // Given a unit vector to a point on the celestial sphere (p), determines if p is inside
