@@ -112,7 +112,7 @@ public:
     SSObjectPtr operator [] ( size_t index ) { return at ( index ); }
     void push_back ( SSObjectPtr pObj ) { _objects.push_back ( pObj ); }
     size_t size ( void ) { return _objects.size(); }
-    void clear ( void ) { _objects.clear(); }
+    void clear ( void ) { _objects.clear(); }   // empties object vector but DOES NOT delete individual objects!!!
 };
 
 typedef SSObjectArray SSObjectVec;          // legacy declaration was typedef vector<SSObjectPtr> SSObjectVec; now we use SSObjectArray class
