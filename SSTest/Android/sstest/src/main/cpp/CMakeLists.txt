@@ -22,8 +22,12 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSConstellation.cpp
              ../../../../../../SSCode/SSCoordinates.cpp
              ../../../../../../SSCode/SSEvent.cpp
+             ../../../../../../SSCode/SSHTM.cpp
              ../../../../../../SSCode/SSIdentifier.cpp
+             ../../../../../../SSCode/SSImportHIP.cpp
+             ../../../../../../SSCode/SSImportGJ.cpp
              ../../../../../../SSCode/SSImportMPC.cpp
+             ../../../../../../SSCode/SSImportSKY2000.cpp
              ../../../../../../SSCode/SSJPLDEphemeris.cpp
              ../../../../../../SSCode/SSMatrix.cpp
              ../../../../../../SSCode/SSMoonEphemeris.cpp
