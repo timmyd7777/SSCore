@@ -7,6 +7,8 @@
 #ifndef SSHTM_HPP
 #define SSHTM_HPP
 
+#include <thread>
+
 #include "SSObject.hpp"
 #include "SSStar.hpp"
 #include "SSVector.hpp"
@@ -25,6 +27,9 @@ class SSHTM
     map<uint64_t,SSObjectVec *> _regions;
     vector<float> _magLevels;
     string _rootpath;
+    
+    map<uint64_t,thread *> _loadThreads;
+    void _loadRegion ( uint64_t htmID );
     
 public:
     

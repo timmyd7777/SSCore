@@ -207,16 +207,39 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID )
     if ( regionLoaded ( htmID ) )
         return getObjects ( htmID );
     
+    // Always load origin region synchronously
+    
+    if ( htmID == 0 )
+    {
+        _loadRegion ( htmID );
+        return _regions[htmID];
+    }
+    
+    // For other regions, load in a background thread
+    
+    if ( _loadThreads[htmID] == nullptr )
+    {
+        thread *pThread = new thread ( &SSHTM::_loadRegion, this, htmID );
+        _loadThreads[htmID] = pThread;
+    }
+    
+    return nullptr;
+}
+
+// Private method to load region in a background thread.
+
+void SSHTM::_loadRegion ( uint64_t htmID )
+{
     string name = ID2name ( htmID );
     if ( ! name.empty() )
     {
         SSObjectVec *objects = new SSObjectVec();
-        n = SSImportObjectsFromCSV ( _rootpath + name + ".csv", *objects );
+        int n = SSImportObjectsFromCSV ( _rootpath + name + ".csv", *objects );
         if ( n > 0 )
             _regions[htmID] = objects;
     }
     
-    return _regions[htmID];
+    _loadThreads[htmID] = nullptr;
 }
 
 // Tests whether star data for a specific region in this HTM has been
