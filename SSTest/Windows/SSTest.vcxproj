@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\SSCode\SSConstellation.cpp" />
     <ClCompile Include="..\..\SSCode\SSCoordinates.cpp" />
     <ClCompile Include="..\..\SSCode\SSEvent.cpp" />
+    <ClCompile Include="..\..\SSCode\SSHTM.cpp" />
     <ClCompile Include="..\..\SSCode\SSIdentifier.cpp" />
     <ClCompile Include="..\..\SSCode\SSImportGJ.cpp" />
     <ClCompile Include="..\..\SSCode\SSImportHIP.cpp" />
@@ -41,6 +42,7 @@
     <ClCompile Include="..\..\SSCode\SSTLE.cpp" />
     <ClCompile Include="..\..\SSCode\SSUtilities.cpp" />
     <ClCompile Include="..\..\SSCode\SSVector.cpp" />
+    <ClCompile Include="..\..\SSCode\SSView.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\ELPMPP02.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p1.cpp" />
@@ -59,6 +61,7 @@
     <ClInclude Include="..\..\SSCode\SSConstellation.hpp" />
     <ClInclude Include="..\..\SSCode\SSCoordinates.hpp" />
     <ClInclude Include="..\..\SSCode\SSEvent.hpp" />
+    <ClInclude Include="..\..\SSCode\SSHTM.hpp" />
     <ClInclude Include="..\..\SSCode\SSIdentifier.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportGJ.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportHIP.hpp" />
@@ -77,6 +80,7 @@
     <ClInclude Include="..\..\SSCode\SSTLE.hpp" />
     <ClInclude Include="..\..\SSCode\SSUtilities.hpp" />
     <ClInclude Include="..\..\SSCode\SSVector.hpp" />
+    <ClInclude Include="..\..\SSCode\SSView.hpp" />
     <ClInclude Include="..\..\SSCode\VSOP2013\ELPMPP02.hpp" />
     <ClInclude Include="..\..\SSCode\VSOP2013\VSOP2013.hpp" />
   </ItemGroup>
