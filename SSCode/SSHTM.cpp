@@ -51,17 +51,6 @@ SSHTM::SSHTM ( const vector<float> &magLevels, const string &rootpath )
 
 SSHTM::~SSHTM ( void )
 {
-    // Let all load threads run to completion, and delete them before destroying regions!
-    
-    for ( auto it = _loadThreads.begin(); it != _loadThreads.end(); it++ )
-    {
-        if ( it->second != nullptr )
-        {
-            it->second->join();
-            delete it->second;
-        }
-    }
-    
     dumpRegions();
 }
 
@@ -89,7 +78,7 @@ vector<uint64_t> SSHTM::subRegionIDs ( uint64_t htmID )
     if ( htmID > 0 )
         level = IDlevel ( htmID ) + 1;
     
-    if ( level >= _magLevels.size() )
+    if ( level >= _magLevels.size() - 1 )
         return vector<uint64_t> ( 0 );
     
     if ( level == 0 )
@@ -204,13 +193,14 @@ int SSHTM::saveRegion ( uint64_t htmID )
 }
 
 // Loads star data for a specific region in this HTM and recursively for its sub-regions.
+// All regions are loaded synchronously on the current thread.
 // Returns the total number of regions loaded.
 
 int SSHTM::loadRegions ( uint64_t htmID )
 {
     int n = 0;
     
-    if ( loadRegion ( htmID ) )
+    if ( loadRegion ( htmID, true ) )
         n++;
     
     vector<uint64_t> subIDs = subRegionIDs ( htmID );
@@ -220,10 +210,15 @@ int SSHTM::loadRegions ( uint64_t htmID )
     return n;
 }
 
-// Loads star data for a single region in this HTM from a CSV-formatted file in the HTM root directory.
-// Returns pointer to object vector if sucessful, or nullptr on failure.
+// Loads star data for a single region in this HTM from a file in the HTM directory.
+// If sync is true, loads the region synchronously on the current thread, and
+// returns pointer to loaded object vector if sucessful, or nullptr on failure.
+// If sync is false, loads the region asynchronously on a background thread, and
+// returns nullptr; when finished loading region, calls notification callback
+// installed by SSHTMSetRegionLoadCallback() above, and subsequent calls to
+// loadRegion() or getObjects() return a pointer to the region's object vector.
 
-SSObjectVec *SSHTM::loadRegion ( uint64_t htmID )
+SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync )
 {
     // If region is loaded, delete thread associated with loading it,
     // then return pointer to that region's objects.
@@ -243,9 +238,9 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID )
         return getObjects ( htmID );
     }
     
-    // Always load origin region synchronously
+    // Load region synchronously.
     
-    if ( htmID == 0 )
+    if ( sync == true )
     {
         _loadRegion ( htmID );
         return _regions[htmID];
@@ -262,18 +257,23 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID )
     return nullptr;
 }
 
-// Private method to load region in a background thread.
+// Private method to load region, possibly from a background thread.
+// Returns pointed to loaded object vector if successful or nullptr on failure.
 
-void SSHTM::_loadRegion ( uint64_t htmID )
+SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID )
 {
+    SSObjectVec *objects = nullptr;
+
     string name = ID2name ( htmID );
     if ( ! name.empty() )
     {
-        SSObjectVec *objects = new SSObjectVec();
+        objects = new SSObjectVec();
         int n = SSImportObjectsFromCSV ( _rootpath + name + ".csv", *objects );
         if ( n > 0 )
             _regions[htmID] = objects;
     }
+    
+    return objects;
 }
 
 // Tests whether star data for a specific region in this HTM has been
@@ -297,6 +297,17 @@ SSObjectVec *SSHTM::getObjects ( uint64_t htmID )
 
 void SSHTM::dumpRegion ( uint64_t htmID )
 {
+    // If still loading this region asynchronously, wait for load to complete
+    
+    if ( _loadThreads[htmID] != nullptr )
+    {
+        _loadThreads[htmID]->join();
+        delete _loadThreads[htmID];
+        _loadThreads.erase ( htmID );
+    }
+
+    // Now delete object vector (and its objects) associated with this region.
+    
     if ( _regions.count ( htmID ) )
     {
         if ( _regions[htmID] != nullptr )
@@ -309,6 +320,26 @@ void SSHTM::dumpRegion ( uint64_t htmID )
 
 void SSHTM::dumpRegions ( void )
 {
+    // Let all load threads run to completion, and delete them before destroying regions!
+    
+    for ( auto it = _loadThreads.begin(); it != _loadThreads.end(); it++ )
+    {
+        if ( it->second != nullptr )
+        {
+            it->second->join();
+            delete it->second;
+        }
+    }
+    
+    // Now delete object vectors (and their objects) for all loaded regions.
+    
+    for ( auto it = _regions.begin(); it != _regions.end(); it++ )
+    {
+        if ( it->second != nullptr )
+            delete it->second;
+    }
+
+    _loadThreads.clear();
     _regions.clear();
 }
 

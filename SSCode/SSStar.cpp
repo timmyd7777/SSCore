@@ -355,6 +355,28 @@ double SSStar::magnitudeSum ( double mag1, double mag2 )
         return mag2 + magnitudeDifference ( 1.0 + brightnessRatio ( mag1 - mag2 ) );
 }
 
+// A Moffat function describes a stellar image profile on a CCD image:
+// https://ned.ipac.caltech.edu/level5/Stetson/Stetson2_2_1.html
+// Maximum intensity at center of star image, in arbitrary units, is (max).
+// Square of distance in pixels from star image center is (r2).
+// Power law exponent (beta) describes rate intensity declines as distance from center increases.
+// For real stars beta values from 2.5 to 4.675 are used, see:
+// https://www.startools.org/modules/decon/usage/the-point-spread-function-psf
+
+double SSStar::moffatFunction ( double max, double r2, double beta )
+{
+    return max / pow ( 1.0 + r2, beta );
+}
+
+// Computes radius in pixels from center of a Moffat-function star image profile
+// where intensity equals a given value (z). Other Moffat function parameters,
+// (max) and (beta) are as described above for moffatFunction().
+
+double SSStar::moffatRadius ( double z, double max, double beta )
+{
+    return sqrt ( pow ( max / z, 1.0 / beta ) - 1.0 );
+}
+
 // Returns CSV string from base data (excluding names and identifiers).
 
 string SSStar::toCSV1 ( void )

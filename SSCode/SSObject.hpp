@@ -1,9 +1,11 @@
-//  SSObject.hpp
-//  SSCore
+// SSObject.hpp
+// SSCore
 //
-//  Created by Tim DeBenedictis on 3/15/20.
-//  Copyright © 2020 Southern Stars. All rights reserved.
-//  Base class for all objects in the database (stars, planets, etc.)
+// Created by Tim DeBenedictis on 3/15/20.
+// Copyright © 2020 Southern Stars. All rights reserved.
+// Base class for all objects in the database (stars, planets, etc.)
+// Also includes SSObjectArray, a class for storing a collection of objects,
+// and saving/loading them from CSV files, with built-in memory management.
 
 #ifndef SSObject_hpp
 #define SSObject_hpp

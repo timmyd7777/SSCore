@@ -21,6 +21,7 @@
 // Its 8 children are the HTM root triangles named S0, S1, S2, S3, N0, N1, N2, N3,
 // with HTM ID numbers 8, 9, 10, 11, 12, 13, 14, 15.
 // This class also contains methods for loading, saving, and storing objects in the regions.
+// Regions can be loaded synchronously on the current thread, or asynchronously on a background thread.
 
 class SSHTM
 {
@@ -29,7 +30,7 @@ class SSHTM
     string _rootpath;
     
     map<uint64_t,thread *> _loadThreads;
-    void _loadRegion ( uint64_t htmID );
+    SSObjectVec *_loadRegion ( uint64_t htmID );
     
 public:
     
@@ -48,7 +49,7 @@ public:
     int saveRegions ( void );
     int saveRegion ( uint64_t id );
     int loadRegions ( uint64_t htmID = 0 );
-    SSObjectVec *loadRegion ( uint64_t htmID );
+    SSObjectVec *loadRegion ( uint64_t htmID, bool sync );
     void dumpRegions ( void );
     void dumpRegion ( uint64_t htmID );
     

@@ -5,6 +5,8 @@
 // Copyright © 2020 Southern Stars. All rights reserved.
 //
 // Base class for all types of celestial objects (stars, planets, constellations, etc.)
+// Also includes SSObjectArray, a class for storing a collection of objects,
+// and saving/loading them from CSV files, with built-in memory management.
 
 #include <iostream>
 #include <fstream>

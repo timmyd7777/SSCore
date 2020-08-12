@@ -9,7 +9,7 @@
 // including stars, star clusters, nebulae, and galaxies. SSStar has special
 // subclasses for double and variable stars, and for deep sky objects.
 // Includes utility methods for stellar magnitude computations
-// (absolute <-> apparent magnitude, etc.)
+// (absolute <-> apparent magnitude, etc.) and Moffat-function stellar image profiles.
 
 #ifndef SSStar_hpp
 #define SSStar_hpp
@@ -87,6 +87,11 @@ public:
     static double brightnessRatio ( double magDiff );
     static double magnitudeDifference ( double ratio );
     static double magnitudeSum ( double mag1, double mag2 );
+
+    // Moffat functions
+    
+    static double moffatFunction ( double max, double r2, double beta );
+    static double moffatRadius ( double z, double max, double beta );
 };
 
 // This subclass of SSStar stores data for double stars
