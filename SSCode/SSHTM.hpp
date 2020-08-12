@@ -66,4 +66,11 @@ public:
     static bool isinside ( const SSVector &p, const SSVector &v0, SSVector &v1, SSVector &v2 );
 };
 
+// This function is called after regions are loaded asynchronously.
+
+typedef void (* SSHTMRegionLoadCallback) ( SSHTM *pHTM, uint64_t htmID );
+
+void SSHTMSetRegionLoadCallback ( SSHTMRegionLoadCallback pCallback );
+SSHTMRegionLoadCallback SSHTMGetRegionLoadCallback ( void );
+
 #endif /* SSHTM_HPP */

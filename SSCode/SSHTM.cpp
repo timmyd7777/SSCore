@@ -13,6 +13,20 @@ int cc_ID2name ( char *name, uint64_t id );
 uint64_t cc_name2ID ( const char *name );
 int cc_name2Triangle ( const char *name, double *v0, double *v1, double *v2 );
 
+// If not NULL, this function is called after a region is loaded asynchronously.
+
+static SSHTMRegionLoadCallback _callback = nullptr;
+
+void SSHTMSetRegionLoadCallback ( SSHTMRegionLoadCallback pCallback )
+{
+    _callback = pCallback;
+}
+
+SSHTMRegionLoadCallback SSHTMGetRegionLoadCallback ( void )
+{
+    return _callback;
+}
+
 // Default constructor: empty array of magnitude limits, root path string,
 // empty map of HTM region IDs to object arrays.
 
@@ -37,6 +51,17 @@ SSHTM::SSHTM ( const vector<float> &magLevels, const string &rootpath )
 
 SSHTM::~SSHTM ( void )
 {
+    // Let all load threads run to completion, and delete them before destroying regions!
+    
+    for ( auto it = _loadThreads.begin(); it != _loadThreads.end(); it++ )
+    {
+        if ( it->second != nullptr )
+        {
+            it->second->join();
+            delete it->second;
+        }
+    }
+    
     dumpRegions();
 }
 
@@ -200,12 +225,23 @@ int SSHTM::loadRegions ( uint64_t htmID )
 
 SSObjectVec *SSHTM::loadRegion ( uint64_t htmID )
 {
-    int n = 0;
-    
-    // If region is already loaded, returns pointer to that region's objects.
+    // If region is loaded, delete thread associated with loading it,
+    // then return pointer to that region's objects.
 
     if ( regionLoaded ( htmID ) )
+    {
+        if ( _loadThreads[htmID] != nullptr )
+        {
+            _loadThreads[htmID]->join();
+            delete _loadThreads[htmID];
+            _loadThreads[htmID] = nullptr;
+
+            if ( _callback != nullptr )
+               _callback ( this, htmID );
+        }
+        
         return getObjects ( htmID );
+    }
     
     // Always load origin region synchronously
     
@@ -238,8 +274,6 @@ void SSHTM::_loadRegion ( uint64_t htmID )
         if ( n > 0 )
             _regions[htmID] = objects;
     }
-    
-    _loadThreads[htmID] = nullptr;
 }
 
 // Tests whether star data for a specific region in this HTM has been
