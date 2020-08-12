@@ -412,13 +412,13 @@ typedef double                float64;
 
 #ifdef _WIN32
 typedef __int64                int64;
-typedef unsigned __int64    uint64_t;
+//typedef unsigned __int64    uint64_t;
 
 typedef __int32 int32;
 typedef unsigned __int32 uint32;
 #else
 typedef long long            int64;
-typedef unsigned long long    uint64_t;
+//typedef unsigned long long    uint64_t;
 
 typedef long int32;
 typedef unsigned long uint32;

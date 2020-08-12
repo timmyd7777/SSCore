@@ -7,8 +7,12 @@ $(SOURCEDIR)/SSAngle.cpp \
 $(SOURCEDIR)/SSConstellation.cpp \
 $(SOURCEDIR)/SSCoordinates.cpp \
 $(SOURCEDIR)/SSEvent.cpp \
+$(SOURCEDIR)/SSHTM.cpp \
 $(SOURCEDIR)/SSIdentifier.cpp \
+$(SOURCEDIR)/SSImportGJ.cpp \
+$(SOURCEDIR)/SSImportHIP.cpp \
 $(SOURCEDIR)/SSImportMPC.cpp \
+$(SOURCEDIR)/SSImportSKY2000.cpp \
 $(SOURCEDIR)/SSJPLDEphemeris.cpp \
 $(SOURCEDIR)/SSMatrix.cpp \
 $(SOURCEDIR)/SSMoonEphemeris.cpp \
@@ -41,8 +45,12 @@ $(SOURCEDIR)/SSAngle.hpp \
 $(SOURCEDIR)/SSConstellation.cpp \
 $(SOURCEDIR)/SSCoordinates.hpp \
 $(SOURCEDIR)/SSEvent.hpp \
+$(SOURCEDIR)/SSHTM.hpp \
 $(SOURCEDIR)/SSIdentifier.hpp \
+$(SOURCEDIR)/SSImportGJ.hpp \
+$(SOURCEDIR)/SSImportHIP.hpp \
 $(SOURCEDIR)/SSImportMPC.hpp \
+$(SOURCEDIR)/SSImportSKY2000.hpp \
 $(SOURCEDIR)/SSJPLDEphemeris.hpp \
 $(SOURCEDIR)/SSMatrix.hpp \
 $(SOURCEDIR)/SSMoonEphemeris.hpp \
@@ -78,7 +86,7 @@ CFLAGS=-O2 \
 # -l = names of libraries to link with
 # -L = relative paths to directories containing libraries
 
-LDFLAGS=-lstdc++ -lm
+LDFLAGS=-lstdc++ -lm -pthread
 
 # Name of output executable file
 
