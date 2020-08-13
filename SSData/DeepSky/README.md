@@ -21,6 +21,7 @@ A few object-specific edits were made:
 - M 1 (Crab Nebula): added 2.0 kpc distance from Wikipedia.
 - M 8 (Lagoon Nebula): added 1.25 kpc distance from Wikipedia.
 - M 16 (Eagle Nebula): changed type from OC to BN.
+- M 20 (Trifid Nebula): obtained RA and Dec from Wikipedia.
 - M 24 (Sagittarius Star Cloud): added 3.0 kpc distance and 90 arcmin size from Wikipedia.
 - M 40 (Winnecke 4): added data from Wikipedia for A component.
 - M 42 (Orion Nebula): distance 412 pc from Wikipedia.
@@ -58,6 +59,7 @@ Empty fields indicate unknown or missing values.
 - Version 1.1 (30 Mar 2020): corrected erroneous proper motions for open clusters with RV.
 - Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 - Version 1.2.1 (18 Jun 2020): added 90 arcmin size to M 24 from Wikipedia.
+- Version 1.2.2 (12 Aug 2020): correct coordinates for M 20 from Wikipedia.
 
 Caldwell.csv
 ------------
