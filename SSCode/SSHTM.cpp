@@ -420,44 +420,16 @@ bool SSHTM::isinside ( const SSVector &p, const SSVector &v0, SSVector &v1, SSVe
     return cc_isinside ( &p.x, &v0.x, &v1.x, &v2.x );
 }
 
-// Original code from cc_aux.c was downloaded from:
+// Original C HTM implementation from Johns Hopkins in cc_aux.c was downloaded from:
 // http://www.skyserver.org/htm/implementation.aspx#download
-
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-
-/*
- * cc_name2ID
- * cc_isinside
- * cc_startpane
- * cc_parseVectors
- * cc_vector2ID
- * cc_radec2ID
- * cc_ID2name
- */
+// This is a cleaned-up version of that code.
 
 #define IDSIZE 64
-
-typedef double                float64;
-
-#ifdef _WIN32
-typedef __int64                int64;
-//typedef unsigned __int64    uint64_t;
-
-typedef __int32 int32;
-typedef unsigned __int32 uint32;
-#else
-typedef long long            int64;
-//typedef unsigned long long    uint64_t;
-
-typedef long int32;
-typedef unsigned long uint32;
 #define IDHIGHBIT  0x8000000000000000LL
 #define IDHIGHBIT2 0x4000000000000000LL
-#endif
 
-#define HTMNAMEMAX         32
+#define HTM_INVALID_ID 0
+#define HTMNAMEMAX     32
 
 static const double gEpsilon = 1.0E-15;
 
@@ -497,7 +469,6 @@ int N_indexes[][3] = {
   {3, 0, 2}, //N2
   {2, 0, 1} //N3
 };
-  
 
 int cc_startpane(
          double *v1, double *v2, double *v3,
@@ -544,9 +515,6 @@ double cc_sqrt3    = 1.7320508075688772935;
 
 #define copy_vec(d, s) { d[0] = s[0]; d[1] = s[1]; d[2] = s[2]; }
 
-
-
-
 uint64_t cc_vector2ID(double x, double y, double z, int depth)
 {
   uint64_t rstat = 0;
@@ -563,15 +531,13 @@ uint64_t cc_vector2ID(double x, double y, double z, int depth)
   p[1] = y;
   p[2] = z;
 
-  //
   // Get the ID of the level0 triangle, and its starting vertices
-  //
 
   startID = cc_startpane(v0, v1, v2, x, y, z, name);
   len = 2;
-  //
+
   // Start searching for the children
-  ///
+
   while(depth-- > 0){
     m4_midpoint(v0, v1, w2, dtmp);
     m4_midpoint(v1, v2, w0, dtmp);
@@ -601,7 +567,7 @@ uint64_t cc_vector2ID(double x, double y, double z, int depth)
       copy_vec(v2, w2);
     }
     else {
-      fprintf(stderr, "PANIC\n");
+      return HTM_INVALID_ID;
     }
   }
   name[len] = '\0';
@@ -621,13 +587,11 @@ int cc_isinside ( const double *p, const double *v1, const double *v2, const dou
   if (p[0] * crossp[0] + p[1] * crossp[1] + p[2] * crossp[2] < -gEpsilon)
     return 0;
 
-
   crossp[0] = v2[1] * v3[2] - v3[1] * v2[2];
   crossp[1] = v2[2] * v3[0] - v3[2] * v2[0];
   crossp[2] = v2[0] * v3[1] - v3[0] * v2[1];
   if (p[0] * crossp[0] + p[1] * crossp[1] + p[2] * crossp[2] < -gEpsilon)
     return 0;
-
 
   crossp[0] = v3[1] * v1[2] - v1[1] * v3[2];
   crossp[1] = v3[2] * v1[0] - v1[2] * v3[0];
@@ -665,54 +629,21 @@ uint64_t cc_name2ID(const char *name)
   i = 2;                     // set first pair of bits, first bit always set
   if(name[0]=='N') i++;      // for north set second bit too
   out += (i << (2*siz - 2) );
-
-  
-  /************************
-               // This code may be used later for hashing !
-               if(size==2)out -= 8;
-               else {
-               size -= 2;
-               uint32 offset = 0, level4 = 8;
-               for(i = size; i > 0; i--) { // calculate 4 ^ (level-1), level = size-2
-               offset += level4;
-               level4 *= 4;
-               }
-               out -= level4 - offset;
-               }
-  **************************/
   return out;
 }
 
-#define HTM_INVALID_ID 1
-
-/*
- * cc_IDlevel is a trusting method (assumes that the id is well formed and
- * valid) that returns the level of the trixel represented by the given
- * htm id
- */
 int cc_IDlevel(uint64_t htmid)
 {
-  uint32 size=0, i;
-
-#if defined(_WIN32)
-  uint64_t IDHIGHBIT = 1;
-  uint64_t IDHIGHBIT2= 1;
-  IDHIGHBIT = IDHIGHBIT << 63;
-  IDHIGHBIT2 = IDHIGHBIT2 << 62;
-#endif
-
+  uint32_t size=0, i;
 
   // determine index of first set bit
   for(i = 0; i < IDSIZE; i+=2) {
     if ( (htmid << i) & IDHIGHBIT ) break;
-    /*
-      if ( (id << i) & IDHIGHBIT2 )  // invalid id
+    if ( (htmid << i) & IDHIGHBIT2 )  // invalid id
       return HTM_INVALID_ID;
-      // but we trust you now...
-      */
   }
-/*   if(id == 0) */
-/*     return HTM_INVALID_ID; */
+  if(htmid == 0)
+    return HTM_INVALID_ID;
 
   size=(IDSIZE-i) >> 1;
   /* Size is the length of the string representing the name of the
@@ -723,18 +654,8 @@ int cc_IDlevel(uint64_t htmid)
 
 int cc_ID2name(char *name, uint64_t id)
 {
-
-  uint32 size=0, i;
+  uint32_t size=0, i;
   int c; // a spare character;
-
-#if defined(_WIN32)
-  uint64_t IDHIGHBIT = 1;
-  uint64_t IDHIGHBIT2= 1;
-  IDHIGHBIT = IDHIGHBIT << 63;
-  IDHIGHBIT2 = IDHIGHBIT2 << 62;
-#endif
-
-
 
   // determine index of first set bit
   for(i = 0; i < IDSIZE; i+=2) {
@@ -749,7 +670,7 @@ int cc_ID2name(char *name, uint64_t id)
 
   // fill characters starting with the last one
   for(i = 0; i < size-1; i++) {
-    c =  '0' + (int) ((id >> i*2) & (uint32) 3);
+    c =  '0' + (int) ((id >> i*2) & (uint32_t) 3);
     name[size-i-1] = (char ) c;
   }
 
@@ -771,10 +692,8 @@ int cc_name2Triangle(const char *name, double *v0, double *v1, double *v2)
   double w1[3], w2[3], w0[3];
   double dtmp;
 
-
-  //
   // Get the top level hemi-demi-semi space
-  //
+
   int k;
   int anchor_offsets[3];
   k = (int) name[1] - '0';
@@ -788,6 +707,7 @@ int cc_name2Triangle(const char *name, double *v0, double *v1, double *v2)
     anchor_offsets[1] = N_indexes[k][1];
     anchor_offsets[2] = N_indexes[k][2];
   }
+
   s = name+2;
   copy_vec(v0, anchor[anchor_offsets[0]]);
   copy_vec(v1, anchor[anchor_offsets[1]]);
