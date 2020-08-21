@@ -230,9 +230,6 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync )
             _loadThreads[htmID]->join();
             delete _loadThreads[htmID];
             _loadThreads[htmID] = nullptr;
-
-            if ( _callback != nullptr )
-               _callback ( this, htmID );
         }
         
         return getObjects ( htmID );
@@ -270,7 +267,11 @@ SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID )
         objects = new SSObjectVec();
         int n = SSImportObjectsFromCSV ( _rootpath + name + ".csv", *objects );
         if ( n > 0 )
+        {
             _regions[htmID] = objects;
+            if ( _callback != nullptr )
+                _callback ( this, htmID );
+        }
     }
     
     return objects;
