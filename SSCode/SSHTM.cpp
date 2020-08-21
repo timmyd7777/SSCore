@@ -4,6 +4,8 @@
 // Created by Tim DeBenedictis on 8/10/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <string.h>
+
 #include "SSHTM.hpp"
 
 uint64_t cc_vector2ID ( double x, double y, double z, int depth );
