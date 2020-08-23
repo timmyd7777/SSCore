@@ -26,7 +26,8 @@ struct SSMatrix
     
     static SSMatrix identity ( void );
     static SSMatrix rotation ( int n, ... );
-    
+    SSMatrix negateMiddleRow ( void );
+
     SSVector multiply ( SSVector vec );
     SSMatrix multiply ( SSMatrix mat );
     SSMatrix rotate ( int axis, double angle );

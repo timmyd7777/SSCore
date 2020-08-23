@@ -351,10 +351,7 @@ SSMatrix SSCoordinates::getEclipticMatrix ( double obliquity )
 SSMatrix SSCoordinates::getHorizonMatrix ( double lst, double lat )
 {
     SSMatrix m = SSMatrix::rotation ( 2, 2, SSAngle::kPi - lst, 1, lat - SSAngle::kHalfPi );
-    
-    m.m10 = -m.m10; m.m11 = -m.m11; m.m12 = -m.m12;
-    
-    return ( m );
+    return m.negateMiddleRow();
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates

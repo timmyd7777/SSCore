@@ -179,3 +179,11 @@ SSMatrix SSMatrix::rotation ( int n, ... )
     va_end ( ap );
     return ( m );
 }
+
+// Returns copy of matrix with middle row negated.
+// Used with left-handed horizon coordinates.
+
+SSMatrix SSMatrix::negateMiddleRow ( void )
+{
+    return SSMatrix ( m00, m01, m02, -m10, -m11, -m12, m20, m21, m22 );
+}
