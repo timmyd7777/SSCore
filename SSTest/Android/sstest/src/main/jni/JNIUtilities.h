@@ -17,8 +17,8 @@
 #include "SSObject.hpp"
 #include "SSEvent.hpp"
 
-void android_fopen_set_asset_manager ( AAssetManager* manager );
-//extern "C" FILE *android_fopen ( const char* fname, const char* mode );
+extern "C" void android_fopen_set_asset_manager ( AAssetManager* manager );
+extern "C" FILE *android_fopen ( const char* fname, const char* mode );
 bool initAssetManager ( JNIEnv *env, jclass objArrCls, jobject assetManager );
 
 jobject CreateJObject ( JNIEnv *pEnv, const char *pClassName );
