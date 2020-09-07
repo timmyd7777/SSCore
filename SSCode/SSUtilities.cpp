@@ -295,3 +295,23 @@ double mod24h ( double h )
 {
     return h - 24 * floor ( h / 24 );
 }
+
+// Returns elapsed real time in seconds since local midnight.
+
+double clocksec ( void )
+{
+    struct timespec ts = { 0 };
+    clock_gettime ( CLOCK_MONOTONIC, &ts );
+    return ts.tv_sec + 1.0e-9 * ts.tv_nsec;
+}
+
+// Returns elapsed real time in seconds since the specified clock time (ts0)
+// and replaces ts0 with the current clock time.
+
+double clocksec_since ( double &ts0 )
+{
+    double ts1 = clocksec();
+    double dt = ts1 - ts0;
+    ts0 = ts1;
+    return dt;
+}
