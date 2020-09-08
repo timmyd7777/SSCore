@@ -298,33 +298,64 @@ double mod24h ( double h )
     return h - 24 * floor ( h / 24 );
 }
 
-// Returns a timestamp in seconds with sub-microsecond precision
-// Starting point is undefined, and returned value may wrap around at midnight.
-// From https://create.stephan-brumme.com/windows-and-linux-code-timing/
+// Returns unix time (seconds since 1 January 1970) with microsecond precision.
+// Time may not increate monotonically because of system clock adjustments (leap seconds, etc.) 
+// From https://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows
 
-double seconds ( void )
+double unixtime ( void )
 {
 #ifdef _MSC_VER
-    static LARGE_INTEGER frequency = 0;
+	int64_t wintime = 0;
+	GetSystemTimeAsFileTime ( (FILETIME*) &wintime );
+	wintime -= 116444736000000000LL;  // 1 Jan 1601 to 1 Jan 1970
+	return wintime / 1.0e7;
+#else
+	struct timeval tv = { 0 };
+	gettimeofday ( &tv, nullptr );
+	return tv.tv_sec + tv.tv_usec / 1.0e6;
+#endif
+}
+
+// Returns elapsed seconds since the given start unix time,
+// and resets start time to current unix time.
+// Returned value may be negative due to system time adjustments!
+
+double unixtime_since ( double &start )
+{
+	double now = unixtime();
+	double since = now - start;
+	start = now;
+	return since;
+}
+
+// Returns a timestamp in seconds with nanosecond precision for performance timing.
+// Time increases monotonically and is not affected by system clock adjustments.
+// Starting point is undefined, and returned value may reset to zero at midnight.
+// From https://create.stephan-brumme.com/windows-and-linux-code-timing/
+
+double clocksec ( void )
+{
+#ifdef _MSC_VER
+    static LARGE_INTEGER frequency;
     if ( frequency.QuadPart == 0 )
         QueryPerformanceFrequency ( &frequency );
     
-    LARGE_INTEGER now = 0;
+    LARGE_INTEGER now;
     QueryPerformanceCounter ( &now );
     return now.QuadPart / double ( frequency.QuadPart );
 #else
     struct timespec now;
     clock_gettime ( CLOCK_MONOTONIC, &now );
-    return now.tv_sec + now.tv_nsec / 1000000000.0;
+    return now.tv_sec + now.tv_nsec / 1.0e9;
 #endif
 }
 
 // Returns elapsed seconds since the given start timestamp,
-// and resets start timestamp to current time.
+// and resets start timestamp to current monotonic clock time.
 
-double seconds_since ( double &start )
+double clocksec_since ( double &start )
 {
-    double now = seconds();
+    double now = clocksec();
     double since = now - start;
     start = now;
     return since;

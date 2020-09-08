@@ -65,7 +65,10 @@ double mod180 ( double deg );
 double mod360 ( double deg );
 double mod24h ( double h );
 
-double seconds ( void );
-double seconds_since ( double &start );
+double unixtime ( void );
+double unixtime_since ( double &start );
+
+double clocksec ( void );
+double clocksec_since ( double &start );
 
 #endif /* SSUtilities_hpp */
