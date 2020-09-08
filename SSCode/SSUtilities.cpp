@@ -8,8 +8,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <time.h>
 
 #ifdef _WIN32
+#include <windows.h>
 #include <direct.h>
 #else
 #include <unistd.h>
@@ -294,4 +296,36 @@ double mod180 ( double deg )
 double mod24h ( double h )
 {
     return h - 24 * floor ( h / 24 );
+}
+
+// Returns a timestamp in seconds with sub-microsecond precision
+// Starting point is undefined, and returned value may wrap around at midnight.
+// From https://create.stephan-brumme.com/windows-and-linux-code-timing/
+
+double seconds ( void )
+{
+#ifdef _MSC_VER
+    static LARGE_INTEGER frequency = 0;
+    if ( frequency.QuadPart == 0 )
+        QueryPerformanceFrequency ( &frequency );
+    
+    LARGE_INTEGER now = 0;
+    QueryPerformanceCounter ( &now );
+    return now.QuadPart / double ( frequency.QuadPart );
+#else
+    struct timespec now;
+    clock_gettime ( CLOCK_MONOTONIC, &now );
+    return now.tv_sec + now.tv_nsec / 1000000000.0;
+#endif
+}
+
+// Returns elapsed seconds since the given start timestamp,
+// and resets start timestamp to current time.
+
+double seconds_since ( double &start )
+{
+    double now = seconds();
+    double since = now - start;
+    start = now;
+    return since;
 }
