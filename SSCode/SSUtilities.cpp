@@ -14,6 +14,7 @@
 #include <windows.h>
 #include <direct.h>
 #else
+#include <sys/time.h>
 #include <unistd.h>
 #endif
 
