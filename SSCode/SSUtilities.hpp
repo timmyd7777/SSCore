@@ -65,7 +65,4 @@ double mod180 ( double deg );
 double mod360 ( double deg );
 double mod24h ( double h );
 
-double clocksec ( void );
-double clocksec_since ( double &ts0 );
-
 #endif /* SSUtilities_hpp */
