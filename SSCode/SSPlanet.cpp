@@ -79,6 +79,14 @@ void SSPlanet::computePositionVelocity ( double jed, double lt, SSVector &pos, S
     }
 }
 
+// Wrapper for above which computes solar system object's position/velocity at the JED in the
+// given SSCoordinates object without light time.  Overrides SSObject::computePositionVelocity().
+
+void SSPlanet::computePositionVelocity  ( SSCoordinates &coords, SSVector &pos, SSVector &vel )
+{
+    computePositionVelocity ( coords.getJED(), 0.0, pos, vel );
+}
+
 // Computes major planet's heliocentric position and velocity vectors in AU and AU/day.
 // Current time (jed) is Julian Ephemeris Date in dynamic time (TDT), not civil time (UTC).
 // Light travel time to planet (lt) is in days; may be zero for first approximation.

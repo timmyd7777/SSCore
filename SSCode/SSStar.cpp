@@ -100,6 +100,33 @@ void SSStar::sortIdentifiers ( void )
     sort ( _idents.begin(), _idents.end(), compareSSIdentifiers );
 }
 
+// Compute star's heliocentric position and velocity in AU and AU per day in the fundamental (J2000 mean equatorial)
+// reference frame at the Julian Ephemeris Date specified inside the SSCoordinates object.
+// If star's parallax is unknown, returned position will be approximately a unit vector.
+// If parallax is known, position vector magnitude will be > 206265 (i.e., 1 parsec in AU).
+
+void SSStar::computePositionVelocity ( SSCoordinates &coords, SSVector &pos, SSVector &vel )
+{
+    // Start by assuming star's heliocentric position is unchanged from J2000.
+    
+    pos = _position;
+    vel = _velocity;
+    
+    // If applying stellar space motion, and the star's space motion is known, add its space velocity
+    // (times years since J2000) to its J2000 position.
+
+    if ( coords.getStarMotion() && ! isinf ( _velocity.x ) )
+        pos += _velocity * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
+    
+    // If star's parallax is known, scale position and velocity by parallax to AU and AU/day.
+    
+    if ( _parallax > 0.0 )
+    {
+        pos *= coords.kAUPerParsec / _parallax;
+        vel *= SSTime::kDaysPerJulianYear * coords.kAUPerParsec / _parallax;
+    }
+}
+
 // Compute star's apparent direction, distance, and magnitude at the Julian Ephemeris Date
 // specified inside the SSCoordinates object.
 

@@ -89,6 +89,9 @@ public:
     SSVector getObserverPosition ( void ) { return _obsPos; }
     SSVector getObserverVelocity ( void ) { return _obsVel; }
     
+    void setObserverPosition ( SSVector pos ) { _obsPos = pos; }
+    void setObserverVelocity ( SSVector vel ) { _obsVel = vel; }
+
     bool getStarParallax ( void ) { return _starParallax; }
     bool getStarMotion ( void ) { return _starMotion; }
     bool getAberration ( void ) { return _aberration; }

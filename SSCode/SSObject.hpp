@@ -94,7 +94,11 @@ public:
     virtual string getName ( int i );                           // returns copy of i-th name string
     virtual SSIdentifier getIdentifier ( SSCatalog cat );       // returns identifier in the specified catalog, or null identifier if object has none in that catalog.
     virtual bool addIdentifier ( SSIdentifier ident );          // adds the specified identifier to the object, only if the ident is valid and not already present.
-    virtual void computeEphemeris ( class SSCoordinates &dyn );    // computes direction, distance, magnitude for the given dynamical state
+    
+    // Default empty implementations of position/velocity/ephemeris computations are overridden by subclasses!
+    
+    virtual void computeEphemeris ( class SSCoordinates &coords ) {};                                      // computes apparent direction, distance, magnitude seen from the given observer coordinates and time.
+    virtual void computePositionVelocity ( class SSCoordinates &coords, SSVector &pos, SSVector &vel ) {}; // computes heliocentric position and velocity at the time in the given coordinates object.
 
     virtual string toCSV ( void );
 };

@@ -120,13 +120,6 @@ string SSObject::toCSV ( void )
     return "";
 }
 
-// Default implementation of compteEphemeris; overridden by subclasses.
-
-void SSObject::computeEphemeris ( SSCoordinates &coords )
-{
-    
-}
-
 // Given a vector of smart pointers to SSObject, creates a mapping of SSIdentifiers
 // in a particular catalog (cat) to index number within the vector.
 // Useful for fast object retrieval by identifier (see SSIdentifierToObject()).

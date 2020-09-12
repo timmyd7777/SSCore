@@ -32,6 +32,9 @@ struct SSSpherical
 
     SSVector toVectorPosition ( void );
     SSVector toVectorVelocity ( SSSpherical vsph );
+
+    bool operator == ( SSSpherical other ) { return lon == other.lon && lat == other.lat && rad == other.rad; }
+    bool operator != ( SSSpherical other ) { return lon != other.lon || lat != other.lat || rad != other.rad; }
 };
 
 // Represents a point in a rectangular (x,y,z) coordinate system.
@@ -64,6 +67,9 @@ struct SSVector
     SSVector operator * ( double scale )  { return multiplyBy ( scale ); }
     SSVector operator / ( double scale )  { return divideBy ( scale ); }
 
+    bool operator == ( SSVector other ) { return x == other.x && y == other.y && z == other.z; }
+    bool operator != ( SSVector other ) { return x != other.x || y != other.y || z != other.z; }
+    
     void operator += ( SSVector other ) { *this = add ( other ); }
     void operator -= ( SSVector other ) { *this = subtract ( other ); }
     void operator *= ( double scale )  { *this = multiplyBy ( scale ); }

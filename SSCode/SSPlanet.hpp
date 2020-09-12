@@ -132,6 +132,7 @@ public:
 
     static void computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
     virtual void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
+    virtual void computePositionVelocity  ( SSCoordinates &coords, SSVector &pos, SSVector &vel );
     virtual float computeMagnitude ( double rad, double dist, double phase );
     virtual void computeEphemeris ( SSCoordinates &coords );
 
