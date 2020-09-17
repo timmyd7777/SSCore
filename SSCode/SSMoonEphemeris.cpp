@@ -1664,7 +1664,7 @@ SSMatrix deimosMatrix ( double jed )
 
 // Returns Triton's Neptune-centric orbital elements on a given Julian Ephemeris Date (jed).
 // The elements are referred to a fixed plane approximately equal to Neptune's equator.
-// From the Explanatory Supplement to the Astronomical Almanac, pp. 373-375.
+// From the 2012 Explanatory Supplement to the Astronomical Almanac, 3rd Ed., pp. 393-394.
 
 SSOrbit tritonOrbit ( double jed )
 {
@@ -1674,7 +1674,7 @@ SSOrbit tritonOrbit ( double jed )
     double gamma = degtorad ( 158.996 );
     double theta = mod2pi ( degtorad ( 151.401 + 0.57806 * d / 365.25 ) );
     double l = mod2pi ( degtorad ( 200.913 + 61.2588532 * d ) );
-    double n = degtorad ( 61.2588532 - 0.57806 );
+    double n = degtorad ( 61.2588532 );
     
     return ( SSOrbit ( jed, a * ( 1.0 - e ), e, gamma, 0.0, theta, l, n ) );
 }
@@ -1700,7 +1700,7 @@ SSOrbit nereidOrbit ( double jed )
 }
 
 // Returns matrix for transforming Triton's XYZ vector to the Earth's J2000 equatorial frame.
-// From the Explanatory Supplement to the Astronomical Almanac, pp. 354-356.
+// From the 2012 Explanatory Supplement to the Astronomical Almanac 2012, 3rd Ed., pp. 393 - 394.
 
 SSMatrix tritonMatrix ( double jed )
 {

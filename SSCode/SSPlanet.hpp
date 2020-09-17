@@ -87,23 +87,21 @@ protected:
 
 public:
     
-    // https://ssd.jpl.nasa.gov/?constants
-    // https://en.wikipedia.org/wiki/Planetary_mass#Values_from_the_DE405_ephemeris
-    // https://web.archive.org/web/20091208011235/http://maia.usno.navy.mil/NSFA/CBE.html
-    // https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/de405.iom.pdf
+    // IAU best estimates for planetary system masses from https://iau-a3.gitlab.io/NSFA/NSFA_cbe.html
+    // JPL DE405 solar mass from https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/de405.iom.pdf
+    // Also see https://en.wikipedia.org/wiki/Planetary_mass and https://ssd.jpl.nasa.gov/?constants
     
-    static constexpr double kMassSun = 332946.050895;
-    static constexpr double kMassMercury = 0.0552735;
-    static constexpr double kMassVenus = 0.8149981;
-    static constexpr double kMassEarth = 1.000000;
-    static constexpr double kMassMars = 0.1074468;
-    static constexpr double kMassJupiter = 317.8281;
-    static constexpr double kMassSaturn = 95.16088;
-    static constexpr double kMassUranus = 14.53572;
-    static constexpr double kMassNeptune = 17.14773;
-    static constexpr double kMassPluto = 0.002181713;
-    static constexpr double kMassEarthSystem = 1.0123000383;
-    static constexpr double kMassPlutoSystem = 0.002445344878;
+    static constexpr double kMassSun = 332946.050895;                         // JPL DE405
+    static constexpr double kMassMercury = kMassSun / 6.023657330e6;          // IAU 2015
+    static constexpr double kMassVenus = kMassSun / 4.08523719e5;             // IAU 2009
+    static constexpr double kMassEarth = 1.0;
+    static constexpr double kMassEarthSystem = kMassEarth + 1.23000371e-2;    // IAU 2009
+    static constexpr double kMassMarsSystem = kMassSun / 3.09870359e6;        // IAU 2009
+    static constexpr double kMassJupiterSystem = kMassSun / 1.047348644e3;    // IAU 2009
+    static constexpr double kMassSaturnSystem = kMassSun / 3.4979018e3 ;      // IAU 2009
+    static constexpr double kMassUranusSystem = kMassSun / 2.2902951e4;       // IAU 2015
+    static constexpr double kMassNeptuneSystem = kMassSun / 1.941226e4;       // IAU 2009
+    static constexpr double kMassPlutoSystem = kMassSun / 1.3605e8;           // IAU 2015. Value derived from SSMoonEphemeris::charonOrbit() is 0.002445344878
     
     SSPlanet ( SSObjectType type );
     SSPlanet ( SSObjectType type, SSPlanetID id );
