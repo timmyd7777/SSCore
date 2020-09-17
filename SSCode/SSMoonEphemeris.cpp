@@ -1786,10 +1786,10 @@ bool SSMoonEphemeris::marsMoonPositionVelocity ( int id, double jed, SSVector &p
 
 // Computes Jupiter's Galilean moons' Jupiter-centric position vector, in units of AU,
 // in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
-// The moon ID (id) is 501 = Io, 502 = Europa; 503 = Ganymede; 504 = Callisto; for any other moon ID,
-// this method returns false. Velocity vector (vel) is not currently calculated.
+// The moon ID (id) is 501 = Io, 502 = Europa; 503 = Ganymede; 504 = Callisto;
+// for any other moon ID, this method returns false.
 
-bool SSMoonEphemeris::jupiterMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
+bool jupiterMoonPosition ( int id, double jed, SSVector &pos )
 {
     double jsats[15] = { 0 };
     
@@ -1837,6 +1837,24 @@ bool SSMoonEphemeris::jupiterMoonPositionVelocity ( int id, double jed, SSVector
     }
 
     pos = matrix * pos;
+    return true;
+}
+
+// Computes Jupiter's Galilean moons' Jupiter-centric position vector, in units of AU,
+// in the fundamental J2000 mean equatorial frame, on a specified Julian Ephemeris Date (jed).
+// The moon ID (id) is 501 = Io, 502 = Europa; 503 = Ganymede; 504 = Callisto; for any other moon ID,
+// this method returns false. Velocity vector (vel) calculated by diffing position from one minute
+// before JED to position at JED.
+
+bool SSMoonEphemeris::jupiterMoonPositionVelocity ( int id, double jed, SSVector &pos, SSVector &vel )
+{
+    if ( ! jupiterMoonPosition ( id, jed, pos ) )
+        return false;
+    
+    if ( ! jupiterMoonPosition ( id, jed - 1.0 / 1440.0, vel ) )
+        return false;
+
+    vel = ( pos - vel ) * 1440.0;
     return true;
 }
 
