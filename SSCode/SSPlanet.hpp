@@ -87,6 +87,24 @@ protected:
 
 public:
     
+    // https://ssd.jpl.nasa.gov/?constants
+    // https://en.wikipedia.org/wiki/Planetary_mass#Values_from_the_DE405_ephemeris
+    // https://web.archive.org/web/20091208011235/http://maia.usno.navy.mil/NSFA/CBE.html
+    // https://ssd.jpl.nasa.gov/ftp/eph/planets/ioms/de405.iom.pdf
+    
+    static constexpr double kMassSun = 332946.050895;
+    static constexpr double kMassMercury = 0.0552735;
+    static constexpr double kMassVenus = 0.8149981;
+    static constexpr double kMassEarth = 1.000000;
+    static constexpr double kMassMars = 0.1074468;
+    static constexpr double kMassJupiter = 317.8281;
+    static constexpr double kMassSaturn = 95.16088;
+    static constexpr double kMassUranus = 14.53572;
+    static constexpr double kMassNeptune = 17.14773;
+    static constexpr double kMassPluto = 0.002181713;
+    static constexpr double kMassEarthSystem = 1.0123000383;
+    static constexpr double kMassPlutoSystem = 0.002445344878;
+    
     SSPlanet ( SSObjectType type );
     SSPlanet ( SSObjectType type, SSPlanetID id );
     

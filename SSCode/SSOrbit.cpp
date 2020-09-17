@@ -204,27 +204,31 @@ void SSOrbit::solveKeplerEquation ( double jde, double &nu, double &r )
     }
 }
 
-void SSOrbit::toPositionVelocity ( double jde, SSVector &pos, SSVector &vel )
-{
-    double nu, mu, r, p, h, dnu, dr;
-    double cu, su, ci, si, cn, sn, u;
+// Computes position and velocity vectors of an object in a Keplerian orbit
+// relative to its primary at the specified Julian Ephemeris Date (jed).
+// Vectors are computed in the same frame of reference as the angular orbital
+// elements: inclination (i), argument (w), node (i).
 
-    solveKeplerEquation ( jde, nu, r );
-    mu = gravityConstant ( e, q, mm );
-    mu *= mu;
+void SSOrbit::toPositionVelocity ( double jed, SSVector &pos, SSVector &vel )
+{
+    double nu, r;
+    solveKeplerEquation ( jed, nu, r );
+
+    double g = gravityConstant ( e, q, mm );
+    double mu = g * g;
     
-    p = q * ( 1.0 + e );
-    h = sqrt ( mu * p );
-    dnu = h / ( r * r );
-    dr = h * e * sin ( nu ) / p;
+    double p = q * ( 1.0 + e );
+    double h = sqrt ( mu * p );
+    double dnu = h / ( r * r );
+    double dr = h * e * sin ( nu ) / p;
     
-    u = w + nu;
-    cu = cos ( u );
-    su = sin ( u );
-    ci = cos ( i );
-    si = sin ( i );
-    cn = cos ( n );
-    sn = sin ( n );
+    double u = w + nu;
+    double cu = cos ( u );
+    double su = sin ( u );
+    double ci = cos ( i );
+    double si = sin ( i );
+    double cn = cos ( n );
+    double sn = sin ( n );
 
     pos.x = r * ( cu * cn - su * ci * sn );
     pos.y = r * ( cu * sn + su * ci * cn );
@@ -235,8 +239,14 @@ void SSOrbit::toPositionVelocity ( double jde, SSVector &pos, SSVector &vel )
     vel.z = pos.z * dr / r + r * dnu * ( cu * si );
 }
 
-SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double mu )
+// Computes and returns Keplerian orbital elements from position and velocity vectors.
+// Orbit inclination (i), argument (w), node (n) computed relative to same frame as input
+// position and velocity vectors. Gaussian gravitational constant is g.
+
+SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double g )
 {
+    double mu = g * g;
+    
     double hx = pos.y * vel.z - pos.z * vel.y;
     double hy = pos.z * vel.x - pos.x * vel.z;
     double hz = pos.x * vel.y - pos.y * vel.x;
