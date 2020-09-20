@@ -121,7 +121,9 @@ public:
     
     SSVector getPosition ( void ) { return _position; }
     SSVector getVelocity ( void ) { return _velocity; }
-
+    
+    double distance ( SSPlanet &other ) { return _position.distance ( other._position ); }
+    
     static double angularRadius ( double radius, double distance );
     double angularRadius ( void );
 
