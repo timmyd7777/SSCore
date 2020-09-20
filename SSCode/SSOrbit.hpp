@@ -9,7 +9,7 @@
 #ifndef SSOrbit_hpp
 #define SSOrbit_hpp
 
-#include <stdio.h>
+#include <math.h>
 #include "SSVector.hpp"
 
 // Stores Keplerian orbital elements, solves Kepler's equation, and computes position/velocity
@@ -41,6 +41,10 @@ struct SSOrbit
     static SSOrbit fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double g = kGaussGravHelio );
     void toPositionVelocity ( double jde, SSVector &pos, SSVector &vel );
 
+    double semiMajorAxis ( void ) { return e == 1.0 ? INFINITY : q / ( 1.0 - e ); }
+    double apoapse ( void ) { return semiMajorAxis() * ( 1.0 + e ); }
+    double period ( void ) { return e < 1.0 ? M_2PI / mm : INFINITY; }
+    
     static SSOrbit getMercuryOrbit ( double jde );
     static SSOrbit getVenusOrbit ( double jde );
     static SSOrbit getEarthOrbit ( double jde );
