@@ -96,7 +96,7 @@ void SSView::setCenter ( SSAngle lon, SSAngle lat, SSAngle rot )
     _matrix = SSMatrix::rotation ( 3, 2, -lon, 1, -lat, 0, rot );
 }
 
-// Sets celestial-to-view rotation matrix, and recalvulates spherical
+// Sets celestial-to-view rotation matrix, and recalculates spherical
 // oordinates of the field of view center, i.e. the celestial coordinates
 // that we are looking at.
 
