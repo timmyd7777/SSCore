@@ -187,3 +187,11 @@ SSMatrix SSMatrix::negateMiddleRow ( void )
 {
     return SSMatrix ( m00, m01, m02, -m10, -m11, -m12, m20, m21, m22 );
 }
+
+// Returns copy of matrix with middle column negated.
+// Used with left-handed horizon coordinates.
+
+SSMatrix SSMatrix::negateMiddleCol ( void )
+{
+    return SSMatrix ( m00, -m01, m02, m10, -m11, m12, m20, -m21, m22 );
+}
