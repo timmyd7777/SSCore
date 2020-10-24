@@ -113,7 +113,8 @@ public:
     static SSMatrix getGalacticMatrix ( void );
 
     SSVector    transform ( SSFrame from, SSFrame to, SSVector vec );
-    
+    SSMatrix    transform ( SSFrame from, SSFrame to, SSMatrix mat );
+
     SSVector applyAberration ( SSVector direction );
     SSVector removeAberration ( SSVector direction );
     

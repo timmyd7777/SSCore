@@ -397,6 +397,35 @@ SSVector SSCoordinates::transform ( SSFrame from, SSFrame to, SSVector vec )
     return vec;
 }
 
+// Transforms a rotation matrix from one reference frame to another.
+// Returns transformed matrix; does not modify input matrix.
+
+SSMatrix SSCoordinates::transform ( SSFrame from, SSFrame to, SSMatrix mat )
+{
+    if ( from != to )
+    {
+        if ( from == kEquatorial )
+            mat = _equMat.transpose() * mat;
+        else if ( from == kEcliptic )
+            mat = _eclMat.transpose() * mat;
+        else if ( from == kGalactic )
+            mat = _galMat.transpose() * mat;
+        else if ( from == kHorizon )
+            mat = _horMat.transpose() * mat;
+        
+        if ( to == kEquatorial )
+            mat = _equMat * mat;
+        else if ( to == kEcliptic )
+            mat = _eclMat * mat;
+        else if ( to == kGalactic )
+            mat = _galMat * mat;
+        else if ( to == kHorizon )
+            mat = _horMat * mat;
+    }
+    
+    return mat;
+}
+
 // Converts geodetic longitude, latitude, altitude to geocentric X, Y, Z vector.
 // geodetic.lon and .lat are in radians; geo.rad is altitude above geoid in same
 // units as equatorial radius of geoid ellipse (a). Geoid flattening (f) is ratio
