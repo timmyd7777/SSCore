@@ -37,8 +37,9 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
 {
     _id = SSIdentifier();
     _orbit = SSOrbit();
-    _Hmag = _Gmag = _radius = HUGE_VAL;
-    _position = _velocity = SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+    _Hmag = _Gmag = INFINITY;
+    _radius = 0.0;
+    _position = _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
 }
 
 SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSPlanet ( type )
@@ -320,39 +321,45 @@ float SSPlanet::computeMagnitude ( double rad, double dist, double phase )
 {
     int id = (int) _id.identifier();
     double b = radtodeg ( phase ), b2 = b * b, b3 = b2 * b;
-    float mag = HUGE_VAL;
+    float mag = INFINITY;
     
-    if ( id == kSun )
-        mag = -26.72 + 5.0 * log10 ( dist );
-    else if ( id == kMercury )
-        mag = -0.42 + 5.0 * log10 ( rad * dist ) + 0.0380 * b - 0.000273 * b2 + 0.000002 * b3;
-    else if ( id == kVenus )
-        mag = -4.40 + 5.0 * log10 ( rad * dist ) + 0.0009 * b + 0.000239 * b2 - 0.00000065 * b3;
-    else if ( id == kEarth )
-        mag = -3.86 + 5.0 * log10 ( rad * dist );
-    else if ( id == kMars )
-        mag = -1.52 + 5.0 * log10 ( rad * dist ) + 0.016 * b;
-    else if ( id == kJupiter )
-        mag = -9.40 + 5.0 * log10 ( rad * dist ) + 0.005 * b;
-    else if ( id == kSaturn )
+    if ( _type == kTypePlanet )
     {
-        // Compute Saturn's ring plane inclination in radians from dot product of its apparent direction vector
-        // and Saturn's north pole direction vector (both unit vectors in J2000 equatorial frame).
-        
-        static SSVector pole ( SSSpherical ( degtorad ( 40.589 ), degtorad ( 83.537 ) ) );
-        double rinc = M_PI_2 - acos ( _direction * pole );
-        mag = -8.88 + 5.0 * log10 ( rad * dist ) + 0.044 * b - 2.60 * fabs ( rinc ) + 1.25 * rinc * rinc;
+        if ( id == kSun )
+            mag = -26.72 + 5.0 * log10 ( dist );
+        else if ( id == kMercury )
+            mag = -0.42 + 5.0 * log10 ( rad * dist ) + 0.0380 * b - 0.000273 * b2 + 0.000002 * b3;
+        else if ( id == kVenus )
+            mag = -4.40 + 5.0 * log10 ( rad * dist ) + 0.0009 * b + 0.000239 * b2 - 0.00000065 * b3;
+        else if ( id == kEarth )
+            mag = -3.86 + 5.0 * log10 ( rad * dist );
+        else if ( id == kMars )
+            mag = -1.52 + 5.0 * log10 ( rad * dist ) + 0.016 * b;
+        else if ( id == kJupiter )
+            mag = -9.40 + 5.0 * log10 ( rad * dist ) + 0.005 * b;
+        else if ( id == kSaturn )
+        {
+            // Compute Saturn's ring plane inclination in radians from dot product of its apparent direction vector
+            // and Saturn's north pole direction vector (both unit vectors in J2000 equatorial frame).
+            
+            static SSVector pole ( SSSpherical ( degtorad ( 40.589 ), degtorad ( 83.537 ) ) );
+            double rinc = M_PI_2 - acos ( _direction * pole );
+            mag = -8.88 + 5.0 * log10 ( rad * dist ) + 0.044 * b - 2.60 * fabs ( rinc ) + 1.25 * rinc * rinc;
+        }
+        else if ( id == kUranus )
+            mag = -7.19 + 5.0 * log10 ( rad * dist ) + 0.0028 * b;
+        else if ( id == kNeptune )
+            mag = -6.87 + 5.0 * log10 ( rad * dist );
+        else if ( id == kPluto )
+            mag = -1.01 + 5.0 * log10 ( rad * dist ) + 0.041 * b;
     }
-    else if ( id == kUranus )
-        mag = -7.19 + 5.0 * log10 ( rad * dist ) + 0.0028 * b;
-    else if ( id == kNeptune )
-        mag = -6.87 + 5.0 * log10 ( rad * dist );
-    else if ( id == kPluto )
-        mag = -1.01 + 5.0 * log10 ( rad * dist ) + 0.041 * b;
-    else if ( id == kLuna )
-        mag = computeAsteroidMagnitude ( rad, dist, phase, 0.21, 0.25 );
     else if ( _type == kTypeMoon )
-        mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, isinf ( _Gmag ) ? 0.15 : _Gmag );
+    {
+        if ( id == kLuna )
+            mag = computeAsteroidMagnitude ( rad, dist, phase, 0.21, 0.25 );
+        else
+            mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, isinf ( _Gmag ) ? 0.15 : _Gmag );
+    }
     else if ( _type == kTypeAsteroid )
         mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, _Gmag );
     else if ( _type == kTypeComet )
@@ -375,7 +382,7 @@ float SSPlanet::computeAsteroidMagnitude ( double rad, double dist, double phase
     double phi1 = exp ( -3.33 * pow ( tan ( phase / 2.0 ), 0.63 ) );
     double phi2 = exp ( -1.87 * pow ( tan ( phase / 2.0 ), 1.22 ) );
     float mag = ( 1.0 - g ) * phi1 + g * phi2;
-    return mag > 0.0 ? h + 5.0 * log10 ( rad * dist ) - 2.5 * log10 ( mag ) : HUGE_VAL;
+    return mag > 0.0 ? h + 5.0 * log10 ( rad * dist ) - 2.5 * log10 ( mag ) : INFINITY;
 }
 
 // Computes comet visual magnitude.
@@ -485,21 +492,21 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     
     SSOrbit orbit;
     
-    orbit.q = fields[1].empty() ? HUGE_VAL : strtofloat64 ( fields[1] );
-    orbit.e = fields[2].empty() ? HUGE_VAL : strtofloat64 ( fields[2] );
-    orbit.i = fields[3].empty() ? HUGE_VAL : strtofloat64 ( fields[3] ) * SSAngle::kRadPerDeg;
-    orbit.w = fields[4].empty() ? HUGE_VAL : strtofloat64 ( fields[4] ) * SSAngle::kRadPerDeg;
-    orbit.n = fields[5].empty() ? HUGE_VAL : strtofloat64 ( fields[5] ) * SSAngle::kRadPerDeg;
-    orbit.m = fields[6].empty() ? HUGE_VAL : strtofloat64 ( fields[6] ) * SSAngle::kRadPerDeg;
-    orbit.mm = fields[7].empty() ? HUGE_VAL : strtofloat64 ( fields[7] ) * SSAngle::kRadPerDeg;
-    orbit.t = fields[8].empty() ? HUGE_VAL : strtofloat64 ( fields[8] );
+    orbit.q = fields[1].empty() ? INFINITY : strtofloat64 ( fields[1] );
+    orbit.e = fields[2].empty() ? INFINITY : strtofloat64 ( fields[2] );
+    orbit.i = fields[3].empty() ? INFINITY : strtofloat64 ( fields[3] ) * SSAngle::kRadPerDeg;
+    orbit.w = fields[4].empty() ? INFINITY : strtofloat64 ( fields[4] ) * SSAngle::kRadPerDeg;
+    orbit.n = fields[5].empty() ? INFINITY : strtofloat64 ( fields[5] ) * SSAngle::kRadPerDeg;
+    orbit.m = fields[6].empty() ? INFINITY : strtofloat64 ( fields[6] ) * SSAngle::kRadPerDeg;
+    orbit.mm = fields[7].empty() ? INFINITY : strtofloat64 ( fields[7] ) * SSAngle::kRadPerDeg;
+    orbit.t = fields[8].empty() ? INFINITY : strtofloat64 ( fields[8] );
 
     if ( orbit.q > 1000.0 )
         orbit.q /= SSCoordinates::kKmPerAU;
     
-    float h = fields[9].empty() ? HUGE_VAL : strtofloat ( fields[9] );
-    float g = fields[10].empty() ? HUGE_VAL : strtofloat ( fields[10] );
-    float r = fields[11].empty() ? HUGE_VAL : strtofloat ( fields[11] );
+    float h = fields[9].empty() ? INFINITY : strtofloat ( fields[9] );
+    float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
+    float r = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
 
     SSIdentifier ident;
     if ( type == kTypePlanet || type == kTypeMoon )
@@ -548,7 +555,7 @@ SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )
 
 float SSSatellite::computeSatelliteMagnitude ( double dist, double phase, double stdmag )
 {
-    double mag = HUGE_VAL;
+    double mag = INFINITY;
     
     if ( phase < M_PI )
         mag = stdmag - 15.75 + 2.5 * log10 ( dist * dist / ( ( 1.0 + cos ( phase ) ) / 2.0 ) );
@@ -684,7 +691,7 @@ int SSImportMcNames ( const string &filename, McNameMap &mcnames )
         mcname.mag = len > 41 ? strtofloat ( line.substr ( 37, 4 ) ) : 0.0;
         
         if ( mcname.mag == 0.0 )
-            mcname.mag = HUGE_VAL;
+            mcname.mag = INFINITY;
         
         mcnames.insert ( { mcname.norad, mcname } );
         nMcNames++;

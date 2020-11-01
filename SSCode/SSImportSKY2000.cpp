@@ -311,16 +311,16 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         
         // Get J2000 proper in seconds of time per year (RA) and arcsec per year (Dec).
         
-        double pmRA = HUGE_VAL;
+        double pmRA = INFINITY;
         if ( ! strPMRA.empty() )
             pmRA = SSAngle::fromArcsec ( strtofloat ( strPMRA ) * 15.0 );
         
-        double pmDec = HUGE_VAL;
+        double pmDec = INFINITY;
         if ( ! strPMDec.empty() )
             pmDec = SSAngle::fromArcsec ( strtofloat ( strPMDec ) );
         
-        SSSpherical position ( ra, dec, HUGE_VAL );
-        SSSpherical velocity ( pmRA, pmDec, HUGE_VAL );
+        SSSpherical position ( ra, dec, INFINITY );
+        SSSpherical velocity ( pmRA, pmDec, INFINITY );
         
         // Get parallax in arcsec and if > 1 mas convert to distance in light years.
         
@@ -335,13 +335,13 @@ int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObje
         
         // Get Johnson V magnitude
         
-        float vmag = HUGE_VAL;
+        float vmag = INFINITY;
         if ( ! strMag.empty() )
             vmag = strtofloat ( strMag );
         
         // Get Johnson B magnitude from B-V color index
         
-        float bmag = HUGE_VAL;
+        float bmag = INFINITY;
         if ( ! strBmV.empty() )
             bmag = strtofloat ( strBmV ) + vmag;
         

@@ -20,10 +20,10 @@ SSStar::SSStar ( SSObjectType type ) : SSObject ( type )
     _idents = vector<SSIdentifier> ( 0 );
 
     _parallax = 0.0;
-    _radvel = HUGE_VAL;
-    _position = _velocity = SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
-    _Vmag = HUGE_VAL;
-    _Bmag = HUGE_VAL;
+    _radvel = INFINITY;
+    _position = _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
+    _Vmag = INFINITY;
+    _Bmag = INFINITY;
     
     _spectrum = "";
 }
@@ -42,10 +42,10 @@ SSStar::SSStar ( void ) : SSStar ( kTypeStar )
 SSVariableStar::SSVariableStar ( void ) : SSStar ( kTypeVariableStar )
 {
     _varType = "";
-    _varMaxMag = HUGE_VAL;
-    _varMinMag = HUGE_VAL;
-    _varPeriod = HUGE_VAL;
-    _varEpoch = HUGE_VAL;
+    _varMaxMag = INFINITY;
+    _varMinMag = INFINITY;
+    _varPeriod = INFINITY;
+    _varEpoch = INFINITY;
 }
 
 // Constructs double star with all fields except type code
@@ -54,10 +54,10 @@ SSVariableStar::SSVariableStar ( void ) : SSStar ( kTypeVariableStar )
 SSDoubleStar::SSDoubleStar ( void ) : SSStar ( kTypeDoubleStar )
 {
     _comps = "";
-    _magDelta = HUGE_VAL;
-    _sep = HUGE_VAL;
-    _PA = HUGE_VAL;
-    _PAyr = HUGE_VAL;
+    _magDelta = INFINITY;
+    _sep = INFINITY;
+    _PA = INFINITY;
+    _PAyr = INFINITY;
 }
 
 // Constructs double variable star with all fields except type code
@@ -73,9 +73,9 @@ SSDoubleVariableStar::SSDoubleVariableStar ( void ) : SSDoubleStar(), SSVariable
 
 SSDeepSky::SSDeepSky ( SSObjectType type ) : SSStar ( type )
 {
-    _majAxis = HUGE_VAL;
-    _minAxis = HUGE_VAL;
-    _PA = HUGE_VAL;
+    _majAxis = INFINITY;
+    _minAxis = INFINITY;
+    _PA = INFINITY;
 }
 
 // Returns this star's identifier in a specific catalog.
@@ -154,7 +154,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
 
     if ( _direction == _position )
     {
-        _distance = _parallax > 0.0 ? coords.kAUPerParsec / _parallax : HUGE_VAL;
+        _distance = _parallax > 0.0 ? coords.kAUPerParsec / _parallax : INFINITY;
         _magnitude = _Vmag;
     }
     else
@@ -165,7 +165,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
 
         double delta = _direction.magnitude();
         _direction = _direction / delta;
-        _distance = _parallax > 0.0 ? delta * coords.kAUPerParsec / _parallax : HUGE_VAL;
+        _distance = _parallax > 0.0 ? delta * coords.kAUPerParsec / _parallax : INFINITY;
         _magnitude = _Vmag + 5.0 * log10 ( delta );
     }
 
@@ -227,7 +227,7 @@ void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 SSSpherical SSStar::getFundamentalCoords ( void )
 {
     SSSpherical coords = _position.toSpherical();
-    coords.rad = ( isinf ( _parallax ) || _parallax == 0.0 ) ? HUGE_VAL : SSCoordinates::kLYPerParsec / _parallax;
+    coords.rad = ( isinf ( _parallax ) || _parallax == 0.0 ) ? INFINITY : SSCoordinates::kLYPerParsec / _parallax;
     return coords;
 }
 
@@ -570,14 +570,14 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     SSHourMinSec ra ( fields[1] );
     SSDegMinSec dec ( fields[2] );
     
-    double pmRA = fields[3].empty() ? HUGE_VAL : SSAngle::kRadPerArcsec * strtofloat64 ( fields[3] ) * 15.0;
-    double pmDec = fields[4].empty() ? HUGE_VAL : SSAngle::kRadPerArcsec * strtofloat64 ( fields[4] );
+    double pmRA = fields[3].empty() ? INFINITY : SSAngle::kRadPerArcsec * strtofloat64 ( fields[3] ) * 15.0;
+    double pmDec = fields[4].empty() ? INFINITY : SSAngle::kRadPerArcsec * strtofloat64 ( fields[4] );
     
-    float vmag = fields[5].empty() ? HUGE_VAL : strtofloat ( fields[5] );
-    float bmag = fields[6].empty() ? HUGE_VAL : strtofloat ( fields[6] );
+    float vmag = fields[5].empty() ? INFINITY : strtofloat ( fields[5] );
+    float bmag = fields[6].empty() ? INFINITY : strtofloat ( fields[6] );
     
-    float dist = fields[7].empty() ? HUGE_VAL : strtofloat ( fields[7] ) * SSCoordinates::kLYPerParsec;
-    float radvel = fields[8].empty() ? HUGE_VAL : strtofloat ( fields[8] ) / SSCoordinates::kLightKmPerSec;
+    float dist = fields[7].empty() ? INFINITY : strtofloat ( fields[7] ) * SSCoordinates::kLYPerParsec;
+    float radvel = fields[8].empty() ? INFINITY : strtofloat ( fields[8] ) / SSCoordinates::kLightKmPerSec;
     string spec = trim ( fields[9] );
     
     // For remaining fields, attempt to parse an identifier.
@@ -620,10 +620,10 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     if ( pDoubleStar )
     {
         string comps = fields[10];
-        float dmag = fields[11].empty() ? HUGE_VAL : strtofloat ( fields[11] );
-        float sep = fields[12].empty() ? HUGE_VAL : strtofloat ( fields[12] ) / SSAngle::kArcsecPerRad;
-        float pa = fields[13].empty() ? HUGE_VAL : strtofloat ( fields[13] ) / SSAngle::kDegPerRad;
-        float year = fields[14].empty() ? HUGE_VAL : strtofloat ( fields[14] );
+        float dmag = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
+        float sep = fields[12].empty() ? INFINITY : strtofloat ( fields[12] ) / SSAngle::kArcsecPerRad;
+        float pa = fields[13].empty() ? INFINITY : strtofloat ( fields[13] ) / SSAngle::kDegPerRad;
+        float year = fields[14].empty() ? INFINITY : strtofloat ( fields[14] );
 
         pDoubleStar->setComponents ( comps );
         pDoubleStar->setMagnitudeDelta( dmag );
@@ -637,10 +637,10 @@ SSObjectPtr SSStar::fromCSV ( string csv )
         int fv = ( type == kTypeVariableStar ) ? 10 : 15;
             
         string vtype = fields[fv];
-        float vmin = fields[fv+1].empty() ? HUGE_VAL : strtofloat ( fields[fv+1] );
-        float vmax = fields[fv+2].empty() ? HUGE_VAL : strtofloat ( fields[fv+2] );
-        float vper = fields[fv+3].empty() ? HUGE_VAL : strtofloat ( fields[fv+3] );
-        double vep = fields[fv+4].empty() ? HUGE_VAL : strtofloat64 ( fields[fv+4] );
+        float vmin = fields[fv+1].empty() ? INFINITY : strtofloat ( fields[fv+1] );
+        float vmax = fields[fv+2].empty() ? INFINITY : strtofloat ( fields[fv+2] );
+        float vper = fields[fv+3].empty() ? INFINITY : strtofloat ( fields[fv+3] );
+        double vep = fields[fv+4].empty() ? INFINITY : strtofloat64 ( fields[fv+4] );
         
         pVariableStar->setVariableType ( vtype );
         pVariableStar->setMaximumMagnitude ( vmax );
@@ -651,9 +651,9 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     
     if ( pDeepSkyObject )
     {
-        float major = fields[10].empty() ? HUGE_VAL : strtofloat ( fields[10] ) / SSAngle::kArcminPerRad;
-        float minor = fields[11].empty() ? HUGE_VAL : strtofloat ( fields[11] ) / SSAngle::kArcminPerRad;
-        float pa = fields[12].empty() ? HUGE_VAL : strtofloat ( fields[12] ) / SSAngle::kDegPerRad;
+        float major = fields[10].empty() ? INFINITY : strtofloat ( fields[10] ) / SSAngle::kArcminPerRad;
+        float minor = fields[11].empty() ? INFINITY : strtofloat ( fields[11] ) / SSAngle::kArcminPerRad;
+        float pa = fields[12].empty() ? INFINITY : strtofloat ( fields[12] ) / SSAngle::kDegPerRad;
         
         pDeepSkyObject->setMajorAxis ( major );
         pDeepSkyObject->setMinorAxis ( minor );

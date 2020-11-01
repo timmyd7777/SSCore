@@ -52,27 +52,27 @@ int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
         // col 31-39: perihelion distance (AU)
         
         field = trim ( line.substr ( 30, 9 ) );
-        double q = field.empty() ? HUGE_VAL : strtofloat64 ( field );
+        double q = field.empty() ? INFINITY : strtofloat64 ( field );
         
         // col 42-49: orbital eccentricity
         
         field = trim ( line.substr ( 41, 8 ) );
-        double e = field.empty() ? HUGE_VAL : strtofloat64 ( field );
+        double e = field.empty() ? INFINITY : strtofloat64 ( field );
         
         // col 52-59: argument of perihelion, J2000.0 (degrees)
         
         field = trim ( line.substr ( 51, 8 ) );
-        double w = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double w = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 62-69: longitude of ascending node, J2000.0 (degrees)
         
         field = line.substr ( 61, 8 );
-        double n = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double n = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 72-79: inclination, J2000.0 (degrees)
         
         field = line.substr ( 71, 8 );
-        double i = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double i = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 82-85: epoch for perturbed solution - may be blank
 
@@ -84,12 +84,12 @@ int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
         // col 92-95: absolute magnitude
         
         field = trim ( line.substr ( 91, 4 ) );
-        float hmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        float hmag = field.empty() ? INFINITY : strtofloat ( field );
         
         // col 97-100: magnitude slope parameter
         
         field = trim ( line.substr ( 96, 5 ) );
-        float gmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        float gmag = field.empty() ? INFINITY : strtofloat ( field );
 
         // col 103 - 159: name including provisional desingation and/or periodic comet number
         
@@ -188,12 +188,12 @@ int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
         // col 9-13: absolute magnitude
         
         string field = trim ( line.substr ( 8, 5 ) );
-        float hmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        float hmag = field.empty() ? INFINITY : strtofloat ( field );
         
         // col 15-19: magnitude slope parameter
         
         field = trim ( line.substr ( 14, 5 ) );
-        float gmag = field.empty() ? HUGE_VAL : strtofloat ( field );
+        float gmag = field.empty() ? INFINITY : strtofloat ( field );
         
         // col 21-25: epoch in packed form
         
@@ -222,32 +222,32 @@ int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
         // col 27-35: Mean anomaly in degrees
         
         field = trim ( line.substr ( 26, 9 ) );
-        double m = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double m = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 38-46: Argument of perihelion in degrees
         
         field = trim ( line.substr ( 37, 9 ) );
-        double w = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double w = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 49-57: Longitude of ascending node in degrees
         
         field = trim ( line.substr ( 48, 9 ) );
-        double n = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double n = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 60-68: Inclination in degrees
         
         field = trim ( line.substr ( 59, 9 ) );
-        double i = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double i = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 71-79: Eccentricity
         
         field = trim ( line.substr ( 70, 9 ) );
-        double e = field.empty() ? HUGE_VAL : strtofloat64 ( field );
+        double e = field.empty() ? INFINITY : strtofloat64 ( field );
         
         // col 81-91: Mean motion in degrees per day
         
         field = trim ( line.substr ( 80, 11 ) );
-        double mm = field.empty() ? HUGE_VAL : degtorad ( strtofloat64 ( field ) );
+        double mm = field.empty() ? INFINITY : degtorad ( strtofloat64 ( field ) );
         
         // col 93-103: Semimajor axis in AU.  If not found, compute from mean motion.
         

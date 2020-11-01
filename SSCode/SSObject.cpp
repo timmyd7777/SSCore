@@ -86,9 +86,9 @@ SSObject::SSObject ( SSObjectType type )
 {
     _type = type;
     _names = vector<string> ( 0 );
-    _direction = SSVector ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
-    _distance = HUGE_VAL;
-    _magnitude = HUGE_VAL;
+    _direction = SSVector ( INFINITY, INFINITY, INFINITY );
+    _distance = INFINITY;
+    _magnitude = INFINITY;
 }
 
 string SSObject::getName ( int i )

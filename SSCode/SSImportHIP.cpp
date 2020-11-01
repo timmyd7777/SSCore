@@ -164,8 +164,8 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
 
         // Get J2000 Right Ascension and Declination
         
-        SSSpherical position ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
-        SSSpherical velocity ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        SSSpherical position ( INFINITY, INFINITY, INFINITY );
+        SSSpherical velocity ( INFINITY, INFINITY, INFINITY );
         
         position.lon = SSHourMinSec ( strRA );
         position.lat = SSDegMinSec ( strDec );
@@ -191,8 +191,8 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
         
         // Get Johnson V magnitude; get B magnitude from B-V color index.
         
-        float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
-        float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
+        float vmag = strMag.empty() ? INFINITY : strtofloat ( strMag );
+        float bmag = strBmV.empty() ? INFINITY : strtofloat ( strBmV ) + vmag;
         
         vector<SSIdentifier> idents ( 0 );
         vector<string> names ( 0 );
@@ -266,8 +266,8 @@ int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
         if ( strRA.empty() || strDec.empty() )
             continue;
         
-        SSSpherical position ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
-        SSSpherical velocity ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        SSSpherical position ( INFINITY, INFINITY, INFINITY );
+        SSSpherical velocity ( INFINITY, INFINITY, INFINITY );
 
         // Get right ascension and declination in radians
         
@@ -289,13 +289,13 @@ int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
         
         // Get Hipparcos magnitude
         
-        float vmag = HUGE_VAL;
+        float vmag = INFINITY;
         if ( ! strMag.empty() )
             vmag = strtofloat ( strMag );
         
         // Get B-V color index and use it to convert Hipparcos magnitude to Johnson B and V
         
-        float bmv = HUGE_VAL, bmag = HUGE_VAL;
+        float bmv = INFINITY, bmag = INFINITY;
         if ( ! strBmV.empty() )
         {
             bmv = strtofloat ( strBmV );
@@ -391,8 +391,8 @@ int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap 
         string strCD = trim ( line.substr ( 409, 9 ) );
         string strCP = trim ( line.substr ( 420, 9 ) );
 
-        SSSpherical position ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
-        SSSpherical velocity ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        SSSpherical position ( INFINITY, INFINITY, INFINITY );
+        SSSpherical velocity ( INFINITY, INFINITY, INFINITY );
         
         // Get right ascension and convert to radians
         
@@ -425,8 +425,8 @@ int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap 
         
         // Get Johnson V magnitude, and (if present) get B-V color index then compute Johnson B magnitude.
         
-        float vmag = strMag.empty() ? HUGE_VAL : strtofloat ( strMag );
-        float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
+        float vmag = strMag.empty() ? INFINITY : strtofloat ( strMag );
+        float bmag = strBmV.empty() ? INFINITY : strtofloat ( strBmV ) + vmag;
 
         // If we have a parallax > 1 milliarcsec, use it to compute distance in light years.
         

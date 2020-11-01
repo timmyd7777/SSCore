@@ -410,23 +410,23 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
         SSHourMinSec ra ( strRA );
         SSDegMinSec dec ( strDec );
         
-        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
-        SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), INFINITY );
+        SSSpherical motion ( INFINITY, INFINITY, INFINITY );
         
         // Get Johnson V and B magnitudes, if present.
         
-        float vmag = tokens[16].empty() ? HUGE_VAL : strtofloat ( tokens[16] );
-        float bmag = tokens[15].empty() ? HUGE_VAL : strtofloat ( tokens[15] );
+        float vmag = tokens[16].empty() ? INFINITY : strtofloat ( tokens[16] );
+        float bmag = tokens[15].empty() ? INFINITY : strtofloat ( tokens[15] );
 
         // Get angular dimensions in arcmin and position angle in arcsec, and convert to radians
         
-        float sizeX = tokens[19].empty() ? HUGE_VAL : strtofloat ( tokens[19] ) * SSAngle::kRadPerArcmin;
-        float sizeY = tokens[20].empty() ? HUGE_VAL : strtofloat ( tokens[20] ) * SSAngle::kRadPerArcmin;
-        float pa = tokens[21].empty() ? HUGE_VAL : strtofloat ( tokens[21] ) * SSAngle::kRadPerDeg;
+        float sizeX = tokens[19].empty() ? INFINITY : strtofloat ( tokens[19] ) * SSAngle::kRadPerArcmin;
+        float sizeY = tokens[20].empty() ? INFINITY : strtofloat ( tokens[20] ) * SSAngle::kRadPerArcmin;
+        float pa = tokens[21].empty() ? INFINITY : strtofloat ( tokens[21] ) * SSAngle::kRadPerDeg;
 
         // Get redshift and convert to radial velocity as fraction of light speed.
         
-        motion.rad = tokens[23].empty() ? HUGE_VAL : SSCoordinates::redShiftToRadVel ( strtofloat ( tokens[23] ) );
+        motion.rad = tokens[23].empty() ? INFINITY : SSCoordinates::redShiftToRadVel ( strtofloat ( tokens[23] ) );
         
         // Get distance in megaparsecs and convert to light years.  Prefer metric distance over redshift-derived.
         
@@ -536,8 +536,8 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         SSHourMinSec ra ( strRA );
         SSDegMinSec dec ( strDec );
         
-        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
-        SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), INFINITY );
+        SSSpherical motion ( INFINITY, INFINITY, INFINITY );
 
         // Get proper motion in R.A. and convert to radians/year
 
@@ -566,7 +566,7 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         // Get angular diameter in arcmin and convert to radians
         
         string strDiam = trim ( line.substr ( 46, 5 ) );
-        float diam = strDiam.empty() ? HUGE_VAL : degtorad ( strtofloat ( strDiam ) / 60.0 );
+        float diam = strDiam.empty() ? INFINITY : degtorad ( strtofloat ( strDiam ) / 60.0 );
 
         // Get name. Attempt to parse identifier from it.  If we recognize the name
         // as an identifier, add Messier and Caldwell numbers; get names from identifiers,
@@ -641,18 +641,18 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
         SSHourMinSec ra ( strRA );
         SSDegMinSec dec ( strDec );
         
-        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
-        SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), INFINITY );
+        SSSpherical motion ( INFINITY, INFINITY, INFINITY );
 
         // Get V magnitude
         
         string strVmag = trim ( line.substr ( 126, 5 ) );
-        float vmag = strVmag.empty() ? HUGE_VAL : strtofloat ( strVmag );
+        float vmag = strVmag.empty() ? INFINITY : strtofloat ( strVmag );
         
         // Get B magnitude from color index
         
         string strBmV = trim ( line.substr ( 147, 4 ) );
-        float bmag = strBmV.empty() ? HUGE_VAL : strtofloat ( strBmV ) + vmag;
+        float bmag = strBmV.empty() ? INFINITY : strtofloat ( strBmV ) + vmag;
             
         // Get radial velocity in km/sec and convert to fraction of light speed
         
@@ -669,7 +669,7 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
         // Get half-light radius in arcmin and convert to diameter in radians
         
         string strRad = trim ( line.substr ( 230, 4 ) );
-        float diam = strRad.empty() ? HUGE_VAL : 2.0 * degtorad ( strtofloat ( strRad ) / 60.0 );
+        float diam = strRad.empty() ? INFINITY : 2.0 * degtorad ( strtofloat ( strRad ) / 60.0 );
 
         // Get spectral type
         
@@ -762,7 +762,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
             // Get distance in kiloparsecs and convert to light years
             
             string distStr = trim ( line.substr ( 22, 6 ) );
-            float dist = distStr.empty() ? HUGE_VAL : strtofloat ( distStr ) * 1000.0 * SSCoordinates::kLYPerParsec;
+            float dist = distStr.empty() ? INFINITY : strtofloat ( distStr ) * 1000.0 * SSCoordinates::kLYPerParsec;
             if ( isinf ( dist ) )
                 continue;
             
@@ -874,8 +874,8 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
         
         // Precess B1950 coords and motion to J2000!
 
-        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), HUGE_VAL );
-        SSSpherical motion ( HUGE_VAL, HUGE_VAL, HUGE_VAL );
+        SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), INFINITY );
+        SSSpherical motion ( INFINITY, INFINITY, INFINITY );
 
         SSUpdateStarCoordsAndMotion ( 2000.0, &precession, coords, motion );
 
@@ -902,7 +902,7 @@ int SSImportPNG ( const char *main_filename, const char *dist_filename, const ch
         
         float diam = diamMap[ idents[0] ];
         if ( diam == 0.0 )
-            diam = HUGE_VAL;
+            diam = INFINITY;
 
         // Use radial velocity from PNG-identifier-to-velocity mapping created above, if nonzero.
         

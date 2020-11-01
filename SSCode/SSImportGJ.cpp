@@ -145,7 +145,7 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         // Get B1950 proper motion and position angle;
         // if both present convert to proper motion in R.A and Dec.
 
-        double pmRA = HUGE_VAL, pmDec = HUGE_VAL;
+        double pmRA = INFINITY, pmDec = INFINITY;
         if ( ! strPM.empty() && ! strPA.empty() )
         {
             double pm = SSAngle::fromArcsec ( strtofloat64 ( strPM ) );
@@ -168,17 +168,17 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
         
         // Get radial velocity in km/sec and convert to light speed.
         
-        motion.rad = strRV.empty() ? HUGE_VAL : strtofloat ( strRV ) / SSCoordinates::kLightKmPerSec;
+        motion.rad = strRV.empty() ? INFINITY : strtofloat ( strRV ) / SSCoordinates::kLightKmPerSec;
         
         // Get Johnson V magnitude
         
-        float vmag = HUGE_VAL;
+        float vmag = INFINITY;
         if ( ! strVmag.empty() )
             vmag = strtofloat ( strVmag );
         
         // Get Johnson B magnitude from color index
         
-        float bmag = HUGE_VAL;
+        float bmag = INFINITY;
         if ( ! strBmV.empty() )
             bmag = strtofloat ( strBmV ) + vmag;
 
@@ -361,21 +361,21 @@ int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &sta
         
         // Convert J2000 proper motion from arcsec to radians
         
-        float pmRA = HUGE_VAL;
+        float pmRA = INFINITY;
         if ( ! strPMRA.empty() )
             pmRA = SSAngle::fromArcsec ( strtofloat ( strPMRA ) ) / cos ( dec );
         
-        float pmDec = HUGE_VAL;
+        float pmDec = INFINITY;
         if ( ! strPMDec.empty() )
             pmDec = SSAngle::fromArcsec ( strtofloat ( strPMDec ) );
 
-        SSSpherical coords ( ra, dec, HUGE_VAL );
-        SSSpherical motion ( pmRA, pmDec, HUGE_VAL );
+        SSSpherical coords ( ra, dec, INFINITY );
+        SSSpherical motion ( pmRA, pmDec, INFINITY );
 
         // Get 2MASS J and H magnitudes.  Ignored for now.
         
-        float vmag = HUGE_VAL; // strJmag.empty() ? HUGE_VAL : strtofloat ( strJmag );
-        float bmag = HUGE_VAL; // strHmag.empty() ? HUGE_VAL : strtofloat ( strHmag );
+        float vmag = INFINITY; // strJmag.empty() ? INFINITY : strtofloat ( strJmag );
+        float bmag = INFINITY; // strHmag.empty() ? INFINITY : strtofloat ( strHmag );
 
         // Set up name and identifier vectors.
 
