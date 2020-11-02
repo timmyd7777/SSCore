@@ -417,15 +417,24 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
         computePositionVelocity ( jed, lt, _position, _velocity );
     }
 
-    // Compute apparent direction vector and distance to planet from observer's position.
-    // If desired, apply aberration of light.
+    // We may fail to compute satellite position if TLE is significantly out of date.
+    // If this happens, set direction/distance/magnitude to infinity to indicate invalid result.
     
-    _direction = coords.apparentDirection ( _position, _distance );
-    
-    // Compute planet's phase angle and visual magnitude.
-    
-    double beta = phaseAngle();
-    _magnitude = computeMagnitude ( _position.magnitude(), _distance, beta );
+    if ( _position.isnan() || isnan ( _distance ) )
+    {
+        _direction = SSVector ( INFINITY, INFINITY, INFINITY );
+        _distance = _magnitude = INFINITY;
+    }
+    else
+    {
+        // Compute apparent direction vector and distance to planet from observer's position.
+        // If desired, apply aberration of light.
+        // Compute planet's phase angle and visual magnitude.
+
+        _direction = coords.apparentDirection ( _position, _distance );
+        double beta = phaseAngle();
+        _magnitude = computeMagnitude ( _position.magnitude(), _distance, beta );
+    }
     
     // Compute planetographic-to-fundamental transformation matrix
     
@@ -602,6 +611,8 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
     // so transform output position and velocity from current to J2000 equatorial frame.
     
     _tle.toPositionVelocity ( jed - deltaT - lt, pos, vel );
+    if ( pos.isnan() || vel.isnan() )
+        return;
     
     pos /= SSCoordinates::kKmPerAU;
     vel /= SSCoordinates::kKmPerAU / SSTime::kSecondsPerDay;

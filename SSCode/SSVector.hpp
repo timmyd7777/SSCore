@@ -76,7 +76,8 @@ struct SSVector
     void operator /= ( double scale )  { *this = divideBy ( scale ); }
 
     bool isinf ( void ) { return std::isinf ( x ) || std::isinf ( y ) || std::isinf ( z ); }
-    
+    bool isnan ( void ) { return std::isnan ( x ) || std::isnan ( y ) || std::isnan ( z ); }
+
     SSAngle angularSeparation ( SSVector other );
     SSAngle positionAngle ( SSVector other );
     
