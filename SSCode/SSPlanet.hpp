@@ -124,6 +124,9 @@ public:
     
     double distance ( SSPlanet &other ) { return _position.distance ( other._position ); }
     
+    static double horizonDistance ( double radius, double distance );
+    double horizonDistance ( void );
+
     static double angularRadius ( double radius, double distance );
     double angularRadius ( void );
 

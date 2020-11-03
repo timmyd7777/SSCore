@@ -260,6 +260,23 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     vel += primaryVel[p];
 }
 
+// Returns distance to solar system object's limb (i.e. horizon) in arbitrary units.
+// Object's physical radius (radius) and distance to object center (distance)
+// must be in the same units - km, AU, etc.  Assumes object is spherical!
+
+double SSPlanet::horizonDistance ( double radius, double distance )
+{
+    return distance > radius ? sqrt ( distance * distance - radius * radius ) : 0.0;
+}
+
+// Returns distance to this solar system object's limb (i.e. horizon) in AU.
+// Object's distance must already be calculated!
+
+double SSPlanet::horizonDistance ( void )
+{
+    return horizonDistance ( _radius / SSCoordinates::kKmPerAU, _distance );
+}
+
 // Returns solar system object's angular radius in radians.
 // Object's physical radius (radius) and distance to object center (distance)
 // must be in the same units - km, AU, etc.
