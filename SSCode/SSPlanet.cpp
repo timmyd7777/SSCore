@@ -453,9 +453,11 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
         _magnitude = computeMagnitude ( _position.magnitude(), _distance, beta );
     }
     
-    // Compute planetographic-to-fundamental transformation matrix
+    // Compute planetographic-to-fundamental transformation matrix.
+    // For satellites, this has already been done in computePositionVelocity().
     
-    _pmatrix = setPlanetographicMatrix ( jed - lt );
+    if ( _type != kTypeSatellite )
+        _pmatrix = setPlanetographicMatrix ( jed - lt );
 }
 
 // Downcasts generic SSObject pointer to SSPlanet pointer.
@@ -603,6 +605,8 @@ float SSSatellite::computeMagnitude ( double rad, double dist, double phase )
 // Current time (jed) is Julian Ephemeris Date in dynamic time (TDT), not civil time (UTC).
 // Light travel time to satellite (lt) is in days; may be zero for first approximation.
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
+// Also computes satellite's "planetographic" orientation matrix, which describes how the
+// satellite is oriented relative to the Earth's J2000 mean equatorial (fundamental) frame.
 
 void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel )
 {
@@ -633,9 +637,28 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
     
     pos /= SSCoordinates::kKmPerAU;
     vel /= SSCoordinates::kKmPerAU / SSTime::kSecondsPerDay;
-    
+
     pos = earthMat * pos;
     vel = earthMat * vel;
+    
+    // Set up orientation matrix so satellite's +Z axis points in orbit plane away from Earth's center,
+    // +Y axis is perpendicular to orbit plane, +X axis points in orbit plane in direction of motion.
+    
+    SSVector zaxis = pos.normalize();
+    SSVector yaxis = vel.crossProduct ( pos ).normalize();
+    SSVector xaxis = zaxis.crossProduct ( yaxis ).normalize();
+
+    _pmatrix.m00 = xaxis.x;
+    _pmatrix.m10 = xaxis.y;
+    _pmatrix.m20 = xaxis.z;
+    
+    _pmatrix.m01 = yaxis.x;
+    _pmatrix.m11 = yaxis.y;
+    _pmatrix.m21 = yaxis.z;
+
+    _pmatrix.m02 = zaxis.x;
+    _pmatrix.m12 = zaxis.y;
+    _pmatrix.m22 = zaxis.z;
     
     // Add Earth's position (antedated for light time) and velocity to satellite position and velocity.
     
@@ -1287,9 +1310,10 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
 SSMatrix SSPlanet::setPlanetographicMatrix ( double jed )
 {
     double a0, d0, w, dw;
-    rotationElements ( jed, a0, d0, w, dw );
     
+    rotationElements ( jed, a0, d0, w, dw );
     _pmatrix = SSMatrix::rotation ( 3, 2, w, 0, SSAngle::kHalfPi - d0, 2, a0 + SSAngle::kHalfPi );
+    
     return _pmatrix;
 }
 
