@@ -266,6 +266,31 @@ double SSVector::distance ( SSVector other )
     return subtract ( other ).magnitude();
 }
 
+// Rotates vector counterclockwise around an axis unit vector (u) by an
+// angle in radians (a). Does not modify this vector; returns rotated copy!
+
+SSVector SSVector::rotate ( SSVector u, SSAngle a )
+{
+    double sina = sin ( a );
+    double cosa = cos ( a );
+    double omca = 1.0 - cosa;
+    SSVector r;
+    
+    r.x = x * ( u.x * u.x * omca + cosa )
+        + y * ( u.x * u.y * omca - u.z * sina )
+        + z * ( u.x * u.z * omca + u.y * sina );
+    
+    r.y = x * ( u.x * u.y * omca + u.z * sina )
+        + y * ( u.y * u.y * omca + cosa )
+        + z * ( u.y * u.z * omca - u.x * sina );
+    
+    r.z = x * ( u.x * u.z * omca - u.y * sina )
+        + y * ( u.y * u.z * omca + u.x * sina )
+        + z * ( u.z * u.z * omca + cosa );
+    
+    return r;
+}
+
 // Converts this rectangular vectors to spherical coordinates (lon,lat,rad).
 // Returns coordinates (lon,lat) in radians and radial distance in same
 // unit as input x,y,z vector.

@@ -118,7 +118,8 @@ public:
     float getHMagnitude ( void ) { return _Hmag; }
     float getGMagnitude ( void ) { return _Gmag; }
     float getRadius ( void ) { return _radius; }
-    
+    double flattening ( void );
+
     SSVector getPosition ( void ) { return _position; }
     SSVector getVelocity ( void ) { return _velocity; }
     
@@ -149,7 +150,6 @@ public:
     
     static void useVSOPELP ( bool use );
     static bool useVSOPELP ( void );
-    double flattening ( void );
 
     static void computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel );
     virtual void computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );

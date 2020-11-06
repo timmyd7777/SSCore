@@ -82,6 +82,7 @@ struct SSVector
     SSAngle positionAngle ( SSVector other );
     
     double distance ( SSVector other );
+    SSVector rotate ( SSVector uaxis, SSAngle theta );
 
     SSSpherical toSpherical ( void );
     SSSpherical toSphericalVelocity ( SSVector vvec );
