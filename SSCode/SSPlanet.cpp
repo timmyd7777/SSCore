@@ -4,6 +4,8 @@
 // Created by Tim DeBenedictis on 3/15/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <mutex>
+
 #include "SSCoordinates.hpp"
 #include "SSPlanet.hpp"
 #include "SSPSEphemeris.hpp"
@@ -92,6 +94,8 @@ void SSPlanet::computePositionVelocity  ( SSCoordinates &coords, SSVector &pos, 
 // Current time (jed) is Julian Ephemeris Date in dynamic time (TDT), not civil time (UTC).
 // Light travel time to planet (lt) is in days; may be zero for first approximation.
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
+
+mutex jplde_mutex;
 
 void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )
 {
@@ -185,12 +189,14 @@ void SSPlanet::computeMinorPlanetPositionVelocity ( double jed, double lt, SSVec
 // Light travel time to moon (lt) is in days; may be zero for first approximation.
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
 
+mutex moon_mutex;
+
 void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel )
 {
     static SSVector primaryPos[10], primaryVel[10];
     static double primaryJED[10] = { 0.0 };
 
-    // Get moona and primary planet identifier.
+    // Get moon and primary planet identifier.
     
     int m = (int) _id.identifier();
     int p = m / 100;
@@ -246,12 +252,15 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     }
     
     // If JED has changed since last time we computed primary's position and velocity, recompute them.
+    // Mutex lock prevents multiple threads from modifying these shared resources simultaneously.
     
+    moon_mutex.lock();
     if ( jed != primaryJED[p] )
     {
         computeMajorPlanetPositionVelocity ( p, jed, 0.0, primaryPos[p], primaryVel[p] );
         primaryJED[p] = jed;
     }
+    moon_mutex.unlock();
     
     // Add primary's position (antedated for light time) and velocity to moon's position and velocity.
     // We assume primary's velocity is constant over light time duration.
@@ -573,6 +582,8 @@ SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )
     _id = SSIdentifier ( kCatNORADSat, tle.norad );
     
     _orbit = tle.toOrbit ( 0.0 );
+    _orbit.q *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+    _orbit.mm *= SSTime::kMinutesPerDay;
 }
 
 // Computes satellite visual magnitude.
@@ -608,6 +619,8 @@ float SSSatellite::computeMagnitude ( double rad, double dist, double phase )
 // Also computes satellite's "planetographic" orientation matrix, which describes how the
 // satellite is oriented relative to the Earth's J2000 mean equatorial (fundamental) frame.
 
+mutex sat_mutex;
+
 void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel )
 {
     static SSVector earthPos, earthVel;
@@ -616,7 +629,9 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
     
     // Recompute Earth's position and velocity relative to Sun if JED has changed.
     // Asssume Earth's velocity is constant over light time duration.
+    // Sat mutex prevents multiple threads from modifying these shared resources simultaneously.
     
+    sat_mutex.lock();
     if ( jed != earthJED )
     {
         computeMajorPlanetPositionVelocity ( kEarth, jed, 0.0, earthPos, earthVel );
@@ -624,13 +639,14 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
         deltaT = SSTime ( jed ).getDeltaT() / SSTime::kSecondsPerDay;
         earthMat = SSCoordinates::getPrecessionMatrix ( jed ).transpose();
     }
-
+    sat_mutex.unlock();
+    
     // Compute satellite position & velocity relative to Earth, antedated for light time.
     // Satellite's orbit epoch is Julian Date, not JED, so subtract Delta T.
     // Output position and velocity vectors are in km and km/sec; convert to AU and AU/day;
     // Satellite orbit elements are referred to current equator, not J2000 equator,
     // so transform output position and velocity from current to J2000 equatorial frame.
-    
+  
     _tle.toPositionVelocity ( jed - deltaT - lt, pos, vel );
     if ( pos.isnan() || vel.isnan() )
         return;

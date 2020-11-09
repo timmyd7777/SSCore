@@ -2262,6 +2262,8 @@ void SSTLE::delargs ( void )
 
 // Returns Keplerian orbital elements at a specific number of minutes since epoch (tsince).
 // Based on analysis of SGP orbit model, and at least approximately correct, but needs further testing.
+// In the returned orbit, q is Earth radii, mm is radians per minute, and i, w, n are referred to
+// Earth's equatorial plane.
 
 SSOrbit SSTLE::toOrbit ( double tsince )
 {
