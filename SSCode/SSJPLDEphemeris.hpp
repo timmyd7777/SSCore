@@ -20,7 +20,7 @@
 // CAUTION: This class is a thin C++ wrapper around original C code from:
 // https://apollo.astro.amu.edu.pl/PAD/index.php?n=Dybol.JPLEph
 // This is a singleton class; you should only ever instantiate one of these!
-// It is not thread safe, and is hard-coded to read only the DE43x series
+// It should be thread safe, and is hard-coded to read only the DE43x series
 // in little-endian (Intel) binary format.  It will not read the ASCII format
 // of any ephemeris files, nor the DE43xt series which include time data.
 

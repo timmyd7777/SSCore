@@ -4,6 +4,7 @@
 // Created by Tim DeBenedictis on 4/3/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <mutex>
 #include "SSJPLDEphemeris.hpp"
 
 // Code is based on "C version software for the JPL planetary ephemerides"
@@ -705,7 +706,7 @@ void SSJPLDEphemeris::close ( void )
 // The underlying code is not thread-safe, so use mutex lock to prevent multiple threads
 // from simultaneously modifying shared resources.
 
-mutex eph_mutex;
+std::mutex eph_mutex;
 
 bool SSJPLDEphemeris::compute ( int id, double jed, bool bary, SSVector &position, SSVector &velocity )
 {
