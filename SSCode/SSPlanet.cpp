@@ -95,8 +95,6 @@ void SSPlanet::computePositionVelocity  ( SSCoordinates &coords, SSVector &pos, 
 // Light travel time to planet (lt) is in days; may be zero for first approximation.
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
 
-mutex jplde_mutex;
-
 void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )
 {
     if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
@@ -261,7 +259,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
         primaryJED[p] = jed;
     }
     moon_mutex.unlock();
-    
+
     // Add primary's position (antedated for light time) and velocity to moon's position and velocity.
     // We assume primary's velocity is constant over light time duration.
     

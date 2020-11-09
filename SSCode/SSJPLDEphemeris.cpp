@@ -702,11 +702,17 @@ void SSJPLDEphemeris::close ( void )
 // in fundamental J2000 equatorial frame (ICRS) at a given Julian Ephemeris Date (jed),
 // relative to Sun (if bary is false) or to Solar System Barycenter (if bary is true).
 // Object identifier (id) is 1 - 9 for Mercury - Pluto, 0 for Sun, or 10 for Earth's Moon.
+// The underlying code is not thread-safe, so use mutex lock to prevent multiple threads
+// from simultaneously modifying shared resources.
+
+mutex eph_mutex;
 
 bool SSJPLDEphemeris::compute ( int id, double jed, bool bary, SSVector &position, SSVector &velocity )
 {
     if ( F1 == NULL || jed < ss[0] || jed > ss[1] || id < 0 || id > 10 )
         return false;
+    
+    eph_mutex.lock();
     
     // Sun is 0 in our convention; 11 for JPL.
     
@@ -719,6 +725,7 @@ bool SSJPLDEphemeris::compute ( int id, double jed, bool bary, SSVector &positio
     position = SSVector ( rrd[0], rrd[1], rrd[2] );
     velocity = SSVector ( rrd[3], rrd[4], rrd[5] );
     
+    eph_mutex.unlock();
     return true;
 }
 
