@@ -126,6 +126,7 @@ The file contains data about cities on Earth, downloaded from the [GeoNames](htt
 - **_timezone_**:  the iana timezone id (see file timeZone.txt) varchar(40)
 - **_admin1_name_**:  admin1 code, in English
 - **_daylight_saving_**:  whether the geographical point observes daylight saving time (0: No, 1: Yes)
+- **_timezone_raw_offset_**:  GMT offset, independent of daylight saving time
 
 Except for the last two columns, the column description is copied from the [GeoNames ReadMe](http://download.geonames.org/export/dump/readme.txt).
 
