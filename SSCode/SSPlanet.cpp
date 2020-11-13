@@ -268,8 +268,8 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 }
 
 // Given a point at planetographic longituade (lon) and latitude (lat) in radians,
-// on the surface of this solar system object, computes apparent direction unit vector (dir)
-// to that point as seen from the observer's current position.
+// on the surface of this solar system object, computes apparent direction
+// unit vector (dir) to that point, seen from the observer's current position.
 // Returns true if the point is on the visible part of the planet's surface;
 // returns false if the point is "over the horizon" on the far side the planet.
 // Assumes planet's apparent direction and distance from observer have already been calculated!
