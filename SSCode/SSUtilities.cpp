@@ -130,6 +130,76 @@ vector<string> tokenize ( string str, string delim )
     return tokens;
 }
 
+// Splits a string containing comma-separated values into a vector of field strings.
+// Handles quoted fields, commas within fields, and double quotes.
+// The original string is not modified.  Based on original code found in:
+// https://stackoverflow.com/questions/1120140/how-can-i-read-and-parse-csv-files-in-c
+
+enum CSVState
+{
+    kCSVUnquotedField,
+    kCSVQuotedField,
+    kCSVQuotedQuote
+};
+
+vector<string> split_csv ( const string &csv )
+{
+    CSVState state = kCSVUnquotedField;
+    vector<string> fields {""};
+    size_t i = 0; // index of the current field
+    
+    for ( char c : csv )
+    {
+        switch ( state )
+        {
+            case kCSVUnquotedField:
+                switch ( c )
+                {
+                    case ',': // end of field
+                        fields.push_back("");
+                        i++;
+                        break;
+                    case '"':
+                        state = kCSVQuotedField;
+                        break;
+                    default:
+                        fields[i].push_back(c);
+                        break;
+                }
+                break;
+            case kCSVQuotedField:
+                switch ( c )
+                {
+                    case '"':
+                        state = kCSVQuotedQuote;
+                        break;
+                    default:
+                        fields[i].push_back(c);
+                        break;
+                }
+                break;
+            case kCSVQuotedQuote:
+                switch ( c )
+                {
+                    case ',': // , after closing quote
+                        fields.push_back(""); i++;
+                        state = kCSVUnquotedField;
+                        break;
+                    case '"': // "" -> "
+                        fields[i].push_back('"');
+                        state = kCSVQuotedField;
+                        break;
+                    default:  // end of quote
+                        state = kCSVUnquotedField;
+                        break;
+                }
+                break;
+        }
+    }
+    
+    return fields;
+}
+
 // Converts string to 32-bit signed integer.
 // Avoids throwing exceptions, unlike stoi().
 // Returns zero if string cannot be converted.

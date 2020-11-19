@@ -541,7 +541,7 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     // split string into comma-delimited fields,
     // remove leading & trailing whitespace from each field.
     
-    vector<string> fields = split ( csv, "," );
+    vector<string> fields = split_csv ( csv );
     for ( int i = 0; i < fields.size(); i++ )
         fields[i] = trim ( fields[i] );
     
