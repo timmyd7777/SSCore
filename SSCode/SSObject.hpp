@@ -35,6 +35,8 @@ enum SSObjectType
     kTypeComet = 4,                  // Comet (Halley, Encke, etc.)
     kTypeSatellite = 5,              // Artificial satellite (ISS, HST, etc.)
     kTypeSpacecraft = 6,             // Interplanetary spacecraft (Voyager, Cassini, etc.)
+    kTypeFeature = 7,                // Planetary surface features (Tycho, Jezero, etc.)
+    kTypeCity = 8,                   // City (San Francisco, New York City, etc.)
     kTypeStar = 10,                  // Single star (Canopus, Vega, etc.)
     kTypeDoubleStar = 12,            // Double star (Alpha Cen, Sirius, etc.)
     kTypeVariableStar = 13,          // Variable single star (Mira, etc.)

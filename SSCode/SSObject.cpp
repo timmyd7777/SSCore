@@ -15,6 +15,7 @@
 #include "SSObject.hpp"
 #include "SSPlanet.hpp"
 #include "SSStar.hpp"
+#include "SSFeature.hpp"
 #include "SSConstellation.hpp"
 #include "SSCoordinates.hpp"
 
@@ -30,6 +31,8 @@ static SSTypeStringMap _typeStrings =
     { kTypeComet, "CM" },
     { kTypeSatellite, "ST" },
     { kTypeSpacecraft, "SC" },
+    { kTypeFeature, "FT" },
+    { kTypeCity, "CT" },
     { kTypeStar, "SS" },
     { kTypeDoubleStar, "DS" },
     { kTypeVariableStar, "VS" },
@@ -53,6 +56,8 @@ static SSStringTypeMap _stringTypes =
     { "CM", kTypeComet },
     { "ST", kTypeSatellite },
     { "SC", kTypeSpacecraft },
+    { "FT", kTypeFeature },
+    { "CT", kTypeCity },
     { "SS", kTypeStar },
     { "DS", kTypeDoubleStar },
     { "VS", kTypeVariableStar },
@@ -166,6 +171,10 @@ SSObjectPtr SSNewObject ( SSObjectType type )
 {
     if ( type >= kTypePlanet && type <= kTypeSpacecraft )
         return new SSPlanet ( type );
+    else if ( type == kTypeFeature )
+        return new SSFeature ( type );
+    else if ( type == kTypeCity )
+        return new SSCity ( type );
     else if ( type == kTypeStar )
         return new SSStar;
     else if ( type == kTypeDoubleStar )
@@ -269,7 +278,17 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
             numObjects++;
             continue;
         }
-        
+
+        // Attempt to create planetary surface feature from CSV file line; if successful add to object vector.
+
+        pObject = SSFeature::fromCSV ( line );
+        if ( pObject )
+        {
+            objects.push_back ( pObject );
+            numObjects++;
+            continue;
+        }
+
         // Attempt to create constellation from CSV file line; if successful add to object vector.
 
         pObject = SSConstellation::fromCSV ( line );

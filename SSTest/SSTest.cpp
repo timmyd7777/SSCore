@@ -134,6 +134,14 @@ void TestSolarSystem ( string inputDir, string outputDir )
     int numMoons = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", moons );
     cout << "Imported " << numMoons << " natural satellites" << endl;
     
+    SSObjectVec features;
+    int numFeatures = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Features.csv", features );
+    cout << "Imported " << numFeatures << " non-Earth planetary surface features" << endl;
+
+    SSObjectVec cities;
+    int numCities = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Cities.csv", cities );
+    cout << "Imported " << numCities << " cities" << endl;
+
     SSObjectVec comets;
     int numComets = SSImportMPCComets ( inputDir + "/SolarSystem/Comets.txt", comets );
     cout << "Imported " << numComets << " MPC comets" << endl;
@@ -146,6 +154,12 @@ void TestSolarSystem ( string inputDir, string outputDir )
     {
         numMoons = SSExportObjectsToCSV ( outputDir + "/ExportedMoons.csv", moons );
         cout << "Exported " << numMoons << " natural satellites to " << outputDir + "/ExportedMoons.csv" << endl;
+
+        numFeatures = SSExportObjectsToCSV ( outputDir + "/ExportedFeatures.csv", features );
+        cout << "Exported " << numFeatures << " non-Earth planetary surface features to " << outputDir + "/ExportedFeatures.csv" << endl;
+
+        numCities = SSExportObjectsToCSV ( outputDir + "/ExportedCities.csv", cities );
+        cout << "Exported " << numCities << " cities to " << outputDir + "/ExportedCities.csv" << endl;
 
         numComets = SSExportObjectsToCSV ( outputDir + "/ExportedComets.csv", comets );
         cout << "Exported " << numComets << " MPC comets to " << outputDir + "/ExportedComets.csv" << endl;
@@ -657,16 +671,16 @@ int main ( int argc, const char *argv[] )
     string outpath ( argv[2] );
     
 
-    TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
-    TestVSOP2013 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/" );
-    TestEphemeris ( inpath, outpath );
+//    TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
+//    TestVSOP2013 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/" );
+//    TestEphemeris ( inpath, outpath );
 //  TestPrecession();
 //  TestSatellites ( inpath, outpath );
 //  TestJPLDEphemeris ( inpath );
-//  TestSolarSystem ( inpath, outpath );
+    TestSolarSystem ( inpath, outpath );
 //  TestConstellations ( inpath, outpath );
-    TestStars ( inpath, outpath );
-    TestDeepSky ( inpath, outpath );
+//    TestStars ( inpath, outpath );
+//    TestDeepSky ( inpath, outpath );
 /*
     SSObjectVec comets;
     int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );

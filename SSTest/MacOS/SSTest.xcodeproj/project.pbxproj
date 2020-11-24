@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		27706A4C2565BC5E003C221A /* SSFeature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27706A4A2565BC5E003C221A /* SSFeature.cpp */; };
 		4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87C2404EEEA00BDD11C /* SSAngle.cpp */; };
 		4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87E2404EF0800BDD11C /* SSVector.cpp */; };
 		4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8822404EF3800BDD11C /* SSMatrix.cpp */; };
@@ -58,6 +59,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		27706A4A2565BC5E003C221A /* SSFeature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSFeature.cpp; sourceTree = "<group>"; };
+		27706A4B2565BC5E003C221A /* SSFeature.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSFeature.hpp; sourceTree = "<group>"; };
 		4703A87B2404EEEA00BDD11C /* SSAngle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSAngle.hpp; sourceTree = "<group>"; };
 		4703A87C2404EEEA00BDD11C /* SSAngle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSAngle.cpp; sourceTree = "<group>"; };
 		4703A87E2404EF0800BDD11C /* SSVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSVector.cpp; sourceTree = "<group>"; };
@@ -154,6 +157,8 @@
 		A328D7332402DBFD00BCE781 /* SSCode */ = {
 			isa = PBXGroup;
 			children = (
+				27706A4A2565BC5E003C221A /* SSFeature.cpp */,
+				27706A4B2565BC5E003C221A /* SSFeature.hpp */,
 				4703A87C2404EEEA00BDD11C /* SSAngle.cpp */,
 				4703A87B2404EEEA00BDD11C /* SSAngle.hpp */,
 				A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */,
@@ -320,6 +325,7 @@
 				A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */,
 				A357CAA924E233B70007264B /* SSHTM.cpp in Sources */,
 				A3C22D0424574695004CE083 /* VSOP2013.cpp in Sources */,
+				27706A4C2565BC5E003C221A /* SSFeature.cpp in Sources */,
 				A3C22D1B24574892004CE083 /* VSOP2013p8.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
