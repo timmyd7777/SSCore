@@ -115,6 +115,7 @@ Cities.csv
 
 The file contains data about cities on Earth, downloaded from the [GeoNames](http://download.geonames.org/export/dump/cities1000.zip) geographical database.  Using additional data on [daylight saving time observation](http://download.geonames.org/export/dump/timeZones.txt) and [admin1 code mapping](http://download.geonames.org/export/dump/admin1CodesASCII.txt), two additional columns (admin1_name, daylight_saving) are appended to the file.  Only cities with population at least 100,000 are present.  The columns are:
 
+- **_Type_** (CT) means city
 - **_name_**:  name of geographical point (utf8) varchar(200)
 - **_asciiname_**:  name of geographical point in plain ascii characters, varchar(200)
 - **_latitude_**:  latitude in decimal degrees (wgs84)
@@ -133,12 +134,14 @@ Except for the last two columns, the column description is copied from the [GeoN
 **Revision History**
 
 Version 1.0 (10 Nov 2020): initial checkin.
+Version 1.1 (24 Nov 2020): added type column.
 
 Features.csv
 --------
 
 This file contains non-Earth planetary surface feature names, from the USGS [Gazetteer of Planetary Nomenclature](https://planetarynames.wr.usgs.gov/AdvancedSearch).  The file was downloaded using the following options:
 
+- **_Type_** (FT) means feature
 - **_System_**: All
 - **_Target_**: All
 - **_Coordinate System_**: +East, 0-360, Planetographic
@@ -150,4 +153,5 @@ This file contains non-Earth planetary surface feature names, from the USGS [Gaz
 
 **Revision History**
 
-Version 1.0 (10 Nov 2020): initial checkin.  
+Version 1.0 (10 Nov 2020): initial checkin.
+Version 1.1 (24 Nov 2020): added type column.
