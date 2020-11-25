@@ -172,9 +172,9 @@ SSObjectPtr SSNewObject ( SSObjectType type )
     if ( type >= kTypePlanet && type <= kTypeSpacecraft )
         return new SSPlanet ( type );
     else if ( type == kTypeFeature )
-        return new SSFeature ( type );
+        return new SSFeature;
     else if ( type == kTypeCity )
-        return new SSCity ( type );
+        return new SSCity;
     else if ( type == kTypeStar )
         return new SSStar;
     else if ( type == kTypeDoubleStar )

@@ -14,25 +14,25 @@
 
 #pragma pack ( push, 1 )
 
-// This subclass of SSObject stores basic data for cities.
-// Its subclasses store double and variable Feature data,
-// and deep sky object data.
+// This subclass of SSObject stores basic data for planetary surface features
+// from the IAU Gazetteer of Planetary Nomenclature:
+// https://planetarynames.wr.usgs.gov/AdvancedSearch
+// For details, see https://planetarynames.wr.usgs.gov/Page/Specifics
 
 class SSFeature : public SSObject
 {
 protected:
 
     string _name, _clean_name;              // feature name & clean feature name
-    string _target;                         // planetary object to which the feature belongs
-    string _type_code;                      // feature type code
-    string _origin;                         // feature origin
-    double _diameter;                       // diameter IN WHAT/1?!?!?!?!?!? -timmyd
-    double _lat, _lon;                      // center latitude & longitude
+    string _target;                         // planetary object to which the feature belongs; if empty string, implies Earth.
+    string _type_code;                      // feature type code; see https://planetarynames.wr.usgs.gov/DescriptorTerms
+    string _origin;                         // feature origin (short explanation of name)
+    float  _diameter;                       // diameter in kilometers
+    float  _lat, _lon;                      // center latitude & longitude in degrees. East and North are positive.
     
 public:
     
     SSFeature ( void );
-    SSFeature ( SSObjectType type );           // constructs a Feature with a specific type code
 
     // modifiers
     
@@ -51,7 +51,9 @@ public:
     virtual string toCSV ( void );
 };
 
-// This subclass of SSFeature stores data for cities.
+// This subclass of SSFeature stores data for cities obtained from:
+// http://download.geonames.org/export/dump/cities1000.zip
+// For details see http://download.geonames.org/export/dump/readme.txt
 
 class SSCity : public SSFeature
 {
@@ -59,15 +61,15 @@ protected:
 
     string _country_code;                   // 2-letter country code
     string _admin1_code, _admin1_name;      // administrative division 1:  2-letter code & name
-    string _timezone;                       // time zone (e.g. "America/Los_Angeles")
-    int _elevation;                         // elevation in meters
-    int _population;                        // population
+    string _timezone;                       // time zone name (e.g. "America/Los_Angeles")
+    float _elevation;                       // elevation in meters, -1 means unknown
+    int _population;                        // population, -1 means unknown
     bool _daylight_saving;                  // whether the city observes daylight saving time
-    double _timezone_raw_offset;            // offset from GMT, independent of daylight saving time
+    float _timezone_raw_offset;             // offset from GMT in hours, independent of daylight saving time; east is positive
     
 public:
     
-    SSCity ( SSObjectType type );
+    SSCity ( void );
 
     // modifiers
     

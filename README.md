@@ -23,6 +23,7 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSConstellation:_** This subclass of SSObject stores information for constellations and asterisms, including the official IAU constellation names, abbreviations, boundaries; and shape/figure data.
 - **_SSCoordinates:_** This class converts rectangular and spherical coordinates between different astronomical reference frames (fundamental/ICRS, equatorial, ecliptic, galactic, local horizon) at a particular time and geographic location. It also handles precession, nutation, aberration, refraction, and other coordinate-related issues; and is used in ephemeris computation. Includes new expressions for precession, valid for +/- 200,000 years from the present time!
 - **_SSEvent:_** This class computes times and circumstances of astronomical events like object rising/transit/setting, satellite passes, moon phases, conjuctions, oppositions, etc.
+- **_SSFeature:_** This subclass of SSObject represents planetary surface features as listed in the Gazetteer of Planetary Nomenclature. A subclass SSCity stores additional information for populated locations on Earth's surface from GeoNames.Org.
 - **_SSHTM:_** Implements the [Heirarchal Triangular Mesh](http://www.skyserver.org/HTM/Old_default.aspx) scheme for subdividing the sky recursively into trianglar regions, and storing/loading objects in those regions, including loading from asynchronous background threads.
 - **_SSIdentifier:_** This class represents object identifiers used in a wide variety of astronomical catalogs with a unified system of 64-bit integers, and contains methods for converting identifiers from string representations ("HR 7001", "NGC 1976", etc.) to 64-bit integers and vice-versa.
 - **_SSJPLDEphemeris:_** This class reads JPL's binary DE43x series of ephemeris files and computes very fast, sub-arcsecond-accurate lunar and planetary positions from them.
@@ -84,3 +85,4 @@ Version History
 Version 1.0, 12 Apr 2020: Initial public release.  
 Version 1.1, 12 May 2020: Added VSOP2013, ELPMPP02, SSMoonEphemeris, many fixes.  
 Version 1.2, 12 Aug 2020: Added SSView and SSHTM. Added rotational elements and planetographic coordinates to SSPlanet. Added magnitude utilities and Moffat functions to SSStar.
+Version 1.3, 24 Nov 2020: Added SSFeature. Numerous fixes to other classes as a result of work on Nanoverse project.

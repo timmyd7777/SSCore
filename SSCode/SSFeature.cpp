@@ -11,7 +11,7 @@
 // All fields except type code are set to empty strings or infinity,
 // signifying unknown/undefined values.
 
-SSFeature::SSFeature ( SSObjectType type ) : SSObject ( type )
+SSFeature::SSFeature ( void ) : SSObject ( kTypeFeature )
 {
     _name = "";
     _clean_name = "";
@@ -81,7 +81,7 @@ SSObjectPtr SSFeature::fromCSV ( string csv )
         pCity->setCountryCode ( fields[5] );
         pCity->setAdmin1Code ( fields[6] );
         pCity->setPopulation ( strtoint ( fields[7] ) );
-        if ( fields[8] != "" ) pCity->setElevation ( strtoint ( fields[8] ) );
+        if ( fields[8] != "" ) pCity->setElevation ( strtofloat ( fields[8] ) );
         pCity->setTimezone ( fields[9] );
         pCity->setAdmin1Name ( fields[10] );
         pCity->setDaylightSaving ( !!strtoint( fields[11] ) );
@@ -107,12 +107,13 @@ string SSFeature::toCSV ( void )
     return csv;
 }
 
-// Constructs single city with a specific object type code.
+// Constructs single city.
 // All fields except type code are set to empty strings or infinity,
 // signifying unknown/undefined values.
 
-SSCity::SSCity ( SSObjectType type ) : SSFeature ( type )
+SSCity::SSCity ( void ) : SSFeature()
 {
+    _type = kTypeCity;
     _country_code = "";
     _admin1_code = "";
     _admin1_name = "";
