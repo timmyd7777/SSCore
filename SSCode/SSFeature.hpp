@@ -23,8 +23,9 @@ class SSFeature : public SSObject
 {
 protected:
 
-    string _name, _clean_name;              // feature name & clean feature name
-    string _target;                         // planetary object to which the feature belongs; if empty string, implies Earth.
+    string _name;                           // feature name; may contain funky UTF8 characters
+    string _clean_name;                     // clean feature name; only contains ASCII characters
+    string _target;                         // planetary object to which the feature belongs; empty string implies the Earth.
     string _type_code;                      // feature type code; see https://planetarynames.wr.usgs.gov/DescriptorTerms
     string _origin;                         // feature origin (short explanation of name)
     float  _diameter;                       // diameter in kilometers
@@ -34,6 +35,17 @@ public:
     
     SSFeature ( void );
 
+    // accessors
+
+    string getName ( void ) { return _name; }
+    string getCleanName ( void ) { return _clean_name; }
+    string getTarget ( void ) { return _target; }
+    string getFeatureTypeCode ( void ) { return _type_code; }
+    string getOrigin ( void ) { return _origin; }
+    double getDiameter ( void ) { return _diameter; }
+    double getLatitude ( void ) { return _lat; }
+    double getLongitude ( void ) { return _lon; }
+
     // modifiers
     
     void setName ( string name ) { _name = name; }
@@ -42,8 +54,8 @@ public:
     void setFeatureTypeCode ( string type_code ) { _type_code = type_code; }
     void setOrigin ( string origin ) { _origin = origin; }
     void setDiameter ( double diameter ) { _diameter = diameter; }
-    void setLat ( double lat ) { _lat = lat; }
-    void setLon ( double lon ) { _lon = lon; }
+    void setLatitude ( double lat ) { _lat = lat; }
+    void setLongitude ( double lon ) { _lon = lon; }
 
     // imports/exports from/to CSV-format text string
     
@@ -61,7 +73,7 @@ protected:
 
     string _country_code;                   // 2-letter country code
     string _admin1_code, _admin1_name;      // administrative division 1:  2-letter code & name
-    string _timezone;                       // time zone name (e.g. "America/Los_Angeles")
+    string _timezone_name;                  // time zone name (e.g. "America/Los_Angeles")
     float _elevation;                       // elevation in meters, -1 means unknown
     int _population;                        // population, -1 means unknown
     bool _daylight_saving;                  // whether the city observes daylight saving time
@@ -71,13 +83,24 @@ public:
     
     SSCity ( void );
 
+    // accessors
+
+    string getCountryCode ( void ) { return _country_code; }
+    string getAdmin1Code ( void ) { return _admin1_code; }
+    string getAdmin1Name ( void ) { return _admin1_name; }
+    string getTimezoneName ( void ) { return _timezone_name; }
+    float getElevation ( void ) { return _elevation; }
+    int getPopulation ( void ) { return _population; }
+    bool getDaylightSaving ( void ) { return _daylight_saving; }
+    float getTimezoneRawOffset ( void ) { return _timezone_raw_offset; }
+
     // modifiers
     
     void setCountryCode ( string country_code ) { _country_code = country_code; }
     void setAdmin1Code ( string admin1_code ) { _admin1_code = admin1_code; }
     void setAdmin1Name ( string admin1_name ) { _admin1_name = admin1_name; }
-    void setTimezone ( string timezone ) { _timezone = timezone; }
-    void setElevation ( int elevation ) { _elevation = elevation; }
+    void setTimezoneName ( string timezone_name ) { _timezone_name = timezone_name; }
+    void setElevation ( float elevation ) { _elevation = elevation; }
     void setPopulation ( int population ) { _population = population; }
     void setDaylightSaving ( bool daylight_saving ) { _daylight_saving = daylight_saving; }
     void setTimezoneRawOffset ( double timezone_raw_offset ) { _timezone_raw_offset = timezone_raw_offset; }

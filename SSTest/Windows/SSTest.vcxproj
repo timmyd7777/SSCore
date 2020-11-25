@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\SSCode\SSConstellation.cpp" />
     <ClCompile Include="..\..\SSCode\SSCoordinates.cpp" />
     <ClCompile Include="..\..\SSCode\SSEvent.cpp" />
+    <ClCompile Include="..\..\SSCode\SSFeature.cpp" />
     <ClCompile Include="..\..\SSCode\SSHTM.cpp" />
     <ClCompile Include="..\..\SSCode\SSIdentifier.cpp" />
     <ClCompile Include="..\..\SSCode\SSImportGJ.cpp" />
@@ -61,6 +62,7 @@
     <ClInclude Include="..\..\SSCode\SSConstellation.hpp" />
     <ClInclude Include="..\..\SSCode\SSCoordinates.hpp" />
     <ClInclude Include="..\..\SSCode\SSEvent.hpp" />
+    <ClInclude Include="..\..\SSCode\SSFeature.hpp" />
     <ClInclude Include="..\..\SSCode\SSHTM.hpp" />
     <ClInclude Include="..\..\SSCode\SSIdentifier.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportGJ.hpp" />

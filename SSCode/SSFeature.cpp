@@ -68,21 +68,21 @@ SSObjectPtr SSFeature::fromCSV ( string csv )
     {
         pFeature->setTarget ( fields[3] );
         pFeature->setDiameter ( strtofloat64 ( fields[4] ) );
-        pFeature->setLat ( strtofloat64 ( fields[5] ) );
-        pFeature->setLon ( strtofloat64 ( fields[6] ) );
+        pFeature->setLatitude ( strtofloat64 ( fields[5] ) );
+        pFeature->setLongitude ( strtofloat64 ( fields[6] ) );
         pFeature->setFeatureTypeCode ( fields[7] );
         pFeature->setOrigin ( fields[8] );
     }
 
     if ( type == kTypeCity )
     {
-        pFeature->setLat ( strtofloat64 ( fields[3] ) );
-        pFeature->setLon ( strtofloat64 ( fields[4] ) );
+        pFeature->setLatitude ( strtofloat64 ( fields[3] ) );
+        pFeature->setLongitude ( strtofloat64 ( fields[4] ) );
         pCity->setCountryCode ( fields[5] );
         pCity->setAdmin1Code ( fields[6] );
         pCity->setPopulation ( strtoint ( fields[7] ) );
         if ( fields[8] != "" ) pCity->setElevation ( strtofloat ( fields[8] ) );
-        pCity->setTimezone ( fields[9] );
+        pCity->setTimezoneName ( fields[9] );
         pCity->setAdmin1Name ( fields[10] );
         pCity->setDaylightSaving ( !!strtoint( fields[11] ) );
         pCity->setTimezoneRawOffset ( strtofloat64 ( fields[12] ) );
@@ -117,7 +117,7 @@ SSCity::SSCity ( void ) : SSFeature()
     _country_code = "";
     _admin1_code = "";
     _admin1_name = "";
-    _timezone = "";
+    _timezone_name = "";
     _elevation = -1;
     _population = -1;
     _daylight_saving = false;
