@@ -7,6 +7,7 @@ $(SOURCEDIR)/SSAngle.cpp \
 $(SOURCEDIR)/SSConstellation.cpp \
 $(SOURCEDIR)/SSCoordinates.cpp \
 $(SOURCEDIR)/SSEvent.cpp \
+$(SOURCEDIR)/SSFeature.cpp \
 $(SOURCEDIR)/SSHTM.cpp \
 $(SOURCEDIR)/SSIdentifier.cpp \
 $(SOURCEDIR)/SSImportGJ.cpp \
@@ -45,6 +46,7 @@ $(SOURCEDIR)/SSAngle.hpp \
 $(SOURCEDIR)/SSConstellation.cpp \
 $(SOURCEDIR)/SSCoordinates.hpp \
 $(SOURCEDIR)/SSEvent.hpp \
+$(SOURCEDIR)/SSFeature.hpp \
 $(SOURCEDIR)/SSHTM.hpp \
 $(SOURCEDIR)/SSIdentifier.hpp \
 $(SOURCEDIR)/SSImportGJ.hpp \

@@ -143,7 +143,7 @@ string SSCity::toCSV ( void )
         csv += to_string( _elevation );
     csv += ",";
 
-    csv += _timezone + ",";
+    csv += _timezone_name + ",";
     
     size_t pos;
     if ( ( pos = _admin1_name.find ( "," ) ) != string::npos ) {
