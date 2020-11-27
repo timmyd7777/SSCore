@@ -182,7 +182,7 @@ int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
     while ( getline ( file, line ) )
     {
         numLines++;
-        if ( line.length() < 195 )
+        if ( line.length() < 167 )
             continue;
 
         // col 9-13: absolute magnitude
@@ -256,15 +256,21 @@ int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
         if ( a <= 0.0 )
             a = pow ( SSOrbit::kGaussGravHelio / ( mm * mm ), 1.0 / 3.0 );
         
-        // col 167-254: asteroid number (may be blank)
+        // col 167-195: (asteroid number) and/or name
         
-        field = trim ( line.substr ( 166, 8 ) );
-        SSIdentifier number = SSIdentifier::fromString ( field );
+        field = trim ( line.substr ( 166, min ( (int) line.length() - 166, 28 ) ) );
+        SSIdentifier number;
+        if ( field[0] == '(' )
+        {
+            size_t endparen = field.find ( ')' );
+            if ( endparen != string::npos )
+            {
+                number = SSIdentifier::fromString ( field.substr ( 0, endparen + 1 ) );
+                field = trim ( field.substr ( endparen + 1, string::npos ) );
+            }
+        }
         
-        // col 167-254: Name or provisional designation
-
         vector<string> names;
-        field = trim ( line.substr ( 175, 19 ) );
         if ( ! field.empty() )
             names.push_back ( field );
         
