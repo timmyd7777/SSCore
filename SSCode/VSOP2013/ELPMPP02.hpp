@@ -22,7 +22,9 @@
 
 #include "SSVector.hpp"
 
+#ifndef ELPMPP02_EMBED_SERIES
 #define ELPMPP02_EMBED_SERIES 1     // 1 to include embedded series; 0 to use external data files only
+#endif
 
 using namespace std;
 

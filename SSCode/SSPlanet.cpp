@@ -17,7 +17,9 @@
 // After investigation, Paul Schlyter's formulae seem more accurate (esp. for Pluto and the Moon) and are
 // much simpler/faster, so there's no need for the original VP version.  But it's here for safekeeping!
 
+#ifndef USE_VPEPHEMERIS
 #define USE_VPEPHEMERIS 0
+#endif
 #if USE_VPEPHEMERIS
 #include "SSVPEphemeris.hpp"
 #endif
@@ -26,7 +28,9 @@
 // These provide sub-arcsecond accuracy over a timespan from years -4000 to +8000,
 // but are much slower than Paul Schlyter's formulae.
 
+#ifndef USE_VSOP_ELP
 #define USE_VSOP_ELP 1
+#endif
 #if USE_VSOP_ELP
 #include "VSOP2013.hpp"
 #include "ELPMPP02.hpp"

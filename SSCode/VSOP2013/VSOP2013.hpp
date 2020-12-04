@@ -43,7 +43,9 @@ struct VSOP2013Series
     vector<VSOP2013Term> terms;
 };
 
+#ifndef VSOP2013_EMBED_SERIES
 #define VSOP2013_EMBED_SERIES 1   // 1 to include embedded series; 0 to use external data files only
+#endif
 
 // This class stores VSOP2013 planetary ephemeris series, reads them from data files,
 // exports them to C++ source code, and computes planetary position/velocity from them.
