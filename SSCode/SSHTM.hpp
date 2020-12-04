@@ -7,7 +7,17 @@
 #ifndef SSHTM_HPP
 #define SSHTM_HPP
 
+#ifndef USE_THREADS
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
+#define USE_THREADS 0
+#else
+#define USE_THREADS 1
+#endif
+#endif
+
+#if USE_THREADS
 #include <thread>
+#endif
 
 #include "SSObject.hpp"
 #include "SSStar.hpp"
@@ -30,7 +40,9 @@ class SSHTM
     vector<float>               _magLevels;         // faintest magnitude of objects at each HTM level; vector size is depth of mesh tree
     string                      _rootpath;          // directory containing object data files on filesystem.
     
+#if USE_THREADS
     map<uint64_t,thread *>      _loadThreads;       // background threads currently loading region objects from data files, indexed by HTM region ID
+#endif
     SSObjectVec *_loadRegion ( uint64_t htmID );    // private method to load object data file for a given HTM region ID
     
 public:
