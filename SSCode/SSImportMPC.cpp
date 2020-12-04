@@ -1,4 +1,4 @@
-// SSImportMPC.cpp
+﻿// SSImportMPC.cpp
 // SSCore
 //
 // Created by Tim DeBenedictis on 3/24/20.
@@ -102,7 +102,11 @@ int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
         if ( number )
         {
             size_t pos = field.find ( "P/" );
-            string name = ( pos == string::npos ) ? field : field.substr ( pos + 2, string::npos );
+            string name = field.substr ( 0, pos + 1 );
+            if ( ! name.empty() )
+                names.push_back ( name );
+
+            name = field.substr ( pos + 2, string::npos );
             if ( ! name.empty() )
                 names.push_back ( name );
         }
