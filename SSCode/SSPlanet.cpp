@@ -99,6 +99,8 @@ void SSPlanet::computePositionVelocity  ( SSCoordinates &coords, SSVector &pos, 
 // Light travel time to planet (lt) is in days; may be zero for first approximation.
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
 
+mutex vsop_elp_mutex;
+
 void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )
 {
     if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
@@ -107,6 +109,7 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
 #if USE_VSOP_ELP
     if ( _useVSOPELP )
     {
+        vsop_elp_mutex.lock();
         _vsop.computePositionVelocity ( id, jed - lt, pos, vel );
         if ( id == kEarth )
         {
@@ -115,6 +118,7 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
             pos -= mpos * _elp.kMoonEarthMassRatio;
             vel -= mvel * _elp.kMoonEarthMassRatio;
         }
+        vsop_elp_mutex.unlock();
     }
     else
     {
@@ -212,8 +216,6 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     {
         if ( SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
             return;
-
-        computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
 
 #if USE_VSOP_ELP
         if ( _useVSOPELP )
