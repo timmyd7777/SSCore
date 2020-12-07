@@ -85,5 +85,5 @@ Version History
 
 Version 1.0, 12 Apr 2020: Initial public release.  
 Version 1.1, 12 May 2020: Added VSOP2013, ELPMPP02, SSMoonEphemeris, many fixes.  
-Version 1.2, 12 Aug 2020: Added SSView and SSHTM. Added rotational elements and planetographic coordinates to SSPlanet. Added magnitude utilities and Moffat functions to SSStar.
-Version 1.3, 24 Nov 2020: Added SSFeature. Numerous fixes to other classes as a result of work on Nanoverse project.
+Version 1.2, 12 Aug 2020: Added SSView and SSHTM. Added rotational elements and planetographic coordinates to SSPlanet. Added magnitude utilities and Moffat functions to SSStar. 
+Version 1.3, 24 Nov 2020: Added SSFeature. Numerous fixes to other classes as a result of work on Nanoverse project. 
