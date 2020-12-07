@@ -78,6 +78,7 @@ This directory contains a test program (SSTest.cpp), which hopefully serves as a
 - **_iOS:_** open **SSTest.xcodeproj** in the iOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.  This will launch a test program in the iPhone Simulator.  There is no GUI, just text output which shows how to call the SSCore C++ classes from Swift using a plain-C wrapper (see `ContentView.swift`)
 - **_Linux:_** cd to the `Linux` directory; then type `make`.  After build completes, type `./sstest ../../SSData .` The final . tells the `sstest` executable to place file output into the current directory.
 - **_Windows:_** open **SSTest.sln** in Visual Studio 2017 or later. From Visual Studio's **Build** menu, select **Build Solution**.  Then from the **Debug** menu, select **Start Debugging** (or **Start Without Debugging** if you have selected a Release configuration.)  The Visual Studio project supports both x86 and x64 builds.
+- **_Emscripten:_** cd to the `Emscripten` directory; then type `make run`. Output files will not be persisted.
 
 Version History
 ---------------
