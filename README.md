@@ -3,9 +3,9 @@ SSCore
 
 **SSCore** is Southern Stars' astronomical core code and data library. It contains routines for astronomical calculations like time conversion, coordinate transformation, orbital mechanics, lunar and planetary position computation. It also contains functions for importing, storing, and combining data from a variety of astronomical catalogs.
 
-SSCore is written in highly portable, modern C++.  It has been tested on MacOS, iOS, Android, Linux, and Windows.  It uses common STL types and language features (string, vector, map; operator overloading) and stack-based memory management wherever possible to produce compact, highly efficient, optimized code.
+SSCore is written in highly portable, modern C++.  It has been tested on MacOS, iOS, Android, Linux, Windows, and web browsers, via [Emscripten](https://emscripten.org).  It uses common STL types and language features (string, vector, map; operator overloading) and stack-based memory management wherever possible to produce compact, highly efficient, optimized code.
 
-This repository also includes simple test programs which serve as examples of how to use the API. Build environments for MacOS, iOS, Android, Windows, and Linux are included. The iOS version includes a plain C wrapper for the C++ classes which makes them useable from Swift. The Android version contains Java wrappers and JNI code which allows the C++ classes to be called from either a Java- or Kotlin-based Android environment.
+This repository also includes simple test programs which serve as examples of how to use the API. Build environments for MacOS, iOS, Android, Windows, Linux, and Emscripten are included. The iOS version includes a plain C wrapper for the C++ classes which makes them useable from Swift. The Android version contains Java wrappers and JNI code which allows the C++ classes to be called from either a Java- or Kotlin-based Android environment.
 
 License
 -------
@@ -71,14 +71,14 @@ These files are mostly CSV-formatted text.  They can easily be imported into a s
 SSTest
 ------
 
-This directory contains a test program (SSTest.cpp), which hopefully serves as an example of how to use the C++ classes in the SSCode directory.  It also contains build environments for MacOS, iOS, Android, Windows, and Linux.  Building and running instructions for each platform follow.
+This directory contains a test program (SSTest.cpp), which hopefully serves as an example of how to use the C++ classes in the SSCode directory.  It also contains build environments for MacOS, iOS, Android, Windows, Linux, and Emscripten.  Building and running instructions for each platform follow.
 
 - **_Android:_** open the **SSTest/Android** project with Android Studio 3.6 or later.  You will also need the Android [NDK](https://developer.android.com/ndk) r20 or later to compile the C++ code. Wait a minute for Gradle sync to complete. Then from the **Build** menu, select **Make Project.** After build completes, go to the **Run** menu and select **Debug 'sstest'**.
 - **_MacOS:_** open **SSTest.xcodeproj** in the MacOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**. NOTE: by default, Xcode places the SSTest executable under `~/Library/Developer/Xcode/DerivedData`, so SSTest won't know where to find the `SSData` folder.  To fix this, from Xcode's **File** menu, select **Project Settings...**, then change **Derived Data** to **Project-relative Location** (DerivedData). This puts the `DerivedData` folder, which contains the SSTest executable, into the `SSTest/MacOS` folder adjacent to `SSData`.
 - **_iOS:_** open **SSTest.xcodeproj** in the iOS directory with Xcode 10 or later. From Xcode's **Product** menu, select **Run**.  This will launch a test program in the iPhone Simulator.  There is no GUI, just text output which shows how to call the SSCore C++ classes from Swift using a plain-C wrapper (see `ContentView.swift`)
 - **_Linux:_** cd to the `Linux` directory; then type `make`.  After build completes, type `./sstest ../../SSData .` The final . tells the `sstest` executable to place file output into the current directory.
 - **_Windows:_** open **SSTest.sln** in Visual Studio 2017 or later. From Visual Studio's **Build** menu, select **Build Solution**.  Then from the **Debug** menu, select **Start Debugging** (or **Start Without Debugging** if you have selected a Release configuration.)  The Visual Studio project supports both x86 and x64 builds.
-- **_Emscripten:_** cd to the `Emscripten` directory; then type `make run`. Output files will not be persisted.
+- **_Emscripten:_** cd to the `Emscripten` directory; then type `make run`. You will need to install the [Emscripten build tools](https://emscripten.org/docs/getting_started/downloads.html) version 2.0.8 or later beforehand!  Note, output files from the test run will not be persisted after the test executable quits.
 
 Version History
 ---------------
