@@ -76,6 +76,7 @@ SSObjectPtr SSFeature::fromCSV ( string csv )
 
     if ( type == kTypeCity )
     {
+        pFeature->setTarget ( "Earth" );
         pFeature->setLatitude ( strtofloat64 ( fields[3] ) );
         pFeature->setLongitude ( strtofloat64 ( fields[4] ) );
         pCity->setCountryCode ( fields[5] );
@@ -177,4 +178,44 @@ SSFeaturePtr SSGetFeaturePtr ( SSObjectPtr ptr )
 SSCityPtr SSGetCityPtr ( SSObjectPtr ptr )
 {
     return dynamic_cast<SSCityPtr> ( ptr );
+}
+
+// Given a vector of SSFeatures (features), sorts them by target planet name,
+// then populates a map of offsets to the first feature on each planet, keyed
+// by planet name. Returns the total number of entries in the map.
+
+int SSMakePlanetFeatureMap ( SSObjectVec &features, SSPlanetFeatureMap &map )
+{
+    // First sort features vector by target planet name in ascending alphabetical order.
+    
+    features.sort ( [] ( const SSObjectPtr &p1, const SSObjectPtr &p2 )
+                    {
+                       SSFeature *pFeature1 = SSGetFeaturePtr ( p1 );
+                       SSFeature *pFeature2 = SSGetFeaturePtr ( p2 );
+                       
+                       if ( pFeature1 && pFeature2 )
+                           return pFeature2->getTarget().compare ( pFeature1->getTarget() ) > 0 ? true : false;
+                       else
+                           return false;
+                    } );
+    
+    // Now find offsets from start of features vector to first feature for each planet.
+    // We assume the Sun has no features!
+    
+    string planet = "Sun";
+    for ( int i = 0; i < features.size(); i++ )
+    {
+        SSFeature *pFeature = SSGetFeaturePtr ( features[i] );
+        if ( pFeature == nullptr )
+            continue;
+        
+        string target = pFeature->getTarget();
+        if ( planet.compare ( target ) != 0 )
+        {
+            map.insert ( { target, i } );
+            planet = target;
+        }
+    }
+    
+    return (int) map.size();
 }

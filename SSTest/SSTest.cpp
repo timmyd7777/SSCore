@@ -18,6 +18,7 @@
 #include "SSCoordinates.hpp"
 #include "SSOrbit.hpp"
 #include "SSPlanet.hpp"
+#include "SSFeature.hpp"
 #include "SSStar.hpp"
 #include "SSConstellation.hpp"
 #include "SSImportHIP.hpp"
@@ -137,6 +138,10 @@ void TestSolarSystem ( string inputDir, string outputDir )
     SSObjectVec features;
     int numFeatures = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Features.csv", features );
     cout << "Imported " << numFeatures << " non-Earth planetary surface features" << endl;
+
+    SSPlanetFeatureMap featureMap;
+    int numFeaturePlanets = SSMakePlanetFeatureMap ( features, featureMap );
+    cout << "Indexed " << numFeaturePlanets << " planets with surface features" << endl;
 
     SSObjectVec cities;
     int numCities = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Cities.csv", cities );

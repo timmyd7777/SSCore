@@ -23,9 +23,9 @@ class SSFeature : public SSObject
 {
 protected:
 
-    string _name;                           // feature name; may contain funky UTF8 characters
-    string _clean_name;                     // clean feature name; only contains ASCII characters
-    string _target;                         // planetary object to which the feature belongs; empty string implies the Earth.
+    string _name;                           // feature name; may contain funky UTF8 characters.
+    string _clean_name;                     // clean feature name; only contains ASCII characters.
+    string _target;                         // name of planetary object to which the feature belongs.
     string _type_code;                      // feature type code; see https://planetarynames.wr.usgs.gov/DescriptorTerms
     string _origin;                         // feature origin (short explanation of name)
     float  _diameter;                       // diameter in kilometers
@@ -123,5 +123,9 @@ typedef SSCity *SSCityPtr;
 
 SSFeaturePtr SSGetFeaturePtr ( SSObjectPtr ptr );
 SSCityPtr SSGetCityPtr ( SSObjectPtr ptr );
+
+typedef map<string,int> SSPlanetFeatureMap;
+
+int SSMakePlanetFeatureMap ( SSObjectVec &features, SSPlanetFeatureMap &map );
 
 #endif /* SSFeature_hpp */
