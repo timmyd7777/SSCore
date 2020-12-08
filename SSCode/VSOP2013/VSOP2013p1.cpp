@@ -2804,26 +2804,27 @@ SSOrbit VSOP2013::mercuryOrbit ( double jed )
 {
     double a = 0.0, l = 0.0, k = 0.0, h = 0.0, q = 0.0, p = 0.0;
     double t = ( jed - 2451545.0 ) / 365250.0;
-
-    evalLongitudes ( t );
+    double ll[17] = { 0 };
+    
+    evalLongitudes ( t, ll );
 
     for ( VSOP2013Series &series : _a )
-        a += evalSeries ( t, series );
+        a += evalSeries ( t, series, ll );
     
     for ( VSOP2013Series &series : _l )
-        l += evalSeries ( t, series );
+        l += evalSeries ( t, series, ll );
     
     for ( VSOP2013Series &series : _k )
-        k += evalSeries ( t, series );
+        k += evalSeries ( t, series, ll );
     
     for ( VSOP2013Series &series : _h )
-        h += evalSeries ( t, series );
+        h += evalSeries ( t, series, ll );
     
     for ( VSOP2013Series &series : _q )
-        q += evalSeries ( t, series );
+        q += evalSeries ( t, series, ll );
     
     for ( VSOP2013Series &series : _p )
-        p += evalSeries ( t, series );
+        p += evalSeries ( t, series, ll );
     
     double e = sqrt ( k * k + h * h );  // eccentricity
     double w = atan2 ( h, k );          // longitude of perihelion

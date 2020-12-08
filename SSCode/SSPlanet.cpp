@@ -109,7 +109,6 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
 #if USE_VSOP_ELP
     if ( _useVSOPELP )
     {
-        vsop_elp_mutex.lock();
         _vsop.computePositionVelocity ( id, jed - lt, pos, vel );
         if ( id == kEarth )
         {
@@ -118,7 +117,6 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
             pos -= mpos * _elp.kMoonEarthMassRatio;
             vel -= mvel * _elp.kMoonEarthMassRatio;
         }
-        vsop_elp_mutex.unlock();
     }
     else
     {

@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <mutex>
 
 #define PRINT_SERIES    0       // 1 to comvert input series data files to output .cpp source code
 #define TRUNC_FACTOR    100     // exported seriees truncation factor: 1 exports everything, 10 exports only first tenth; 100 exports only first hundredth, etc,
@@ -169,10 +170,10 @@ void VSOP2013::printSeries ( ostream &out, const vector<VSOP2013Series> &planet 
     out << "} } };\n" << endl;   // close final series
 }
 
-// Evaluates this VSOP2013 object's fundamental longitude arguments at
-// time (t) in Julian millenia of 365250 days from J2000 (JD 2451545.0)
+// Evaluates seventeen fundamental longitude arguments in radians (ll)
+// at time (t) in Julian millenia of 365250 days from J2000 (JD 2451545.0)
 
-void VSOP2013::evalLongitudes ( double t )
+void VSOP2013::evalLongitudes ( double t, double ll[17] )
 {
     ll[0] =  4.402608631669 +  26087.90314068555 * t;     // Mercury
     ll[1] =  3.176134461576 +  10213.28554743445 * t;     // Venus
@@ -195,8 +196,10 @@ void VSOP2013::evalLongitudes ( double t )
 
 // Evaluates all terms in a particular VSOP2013 seris (ser) at time (t)
 // in Julian millenia of 365250 days from J2000 (JD 2451545.0).
+// Seventeen fundamental longitude arguments in radians (ll) must
+// have been previously computed for time t using evalLongitudes().
 
-double VSOP2013::evalSeries ( double t, const VSOP2013Series &ser )
+double VSOP2013::evalSeries ( double t, const VSOP2013Series &ser, double ll[17] )
 {
     double ta = pow ( t, ser.it );
     double sum = 0.0;
@@ -222,12 +225,13 @@ SSOrbit VSOP2013::getOrbit ( int iplanet, double jed )
 {
     double a = 0.0, l = 0.0, k = 0.0, h = 0.0, q = 0.0, p = 0.0;
     double t = ( jed - 2451545.0 ) / 365250.0;
-
-    evalLongitudes ( t );
+    double ll[17] = { 0 };
+    
+    evalLongitudes ( t, ll );
     vector<VSOP2013Series> &series = planets[iplanet - 1];
     for ( VSOP2013Series ser : series )
     {
-        double sum = evalSeries ( t, ser );
+        double sum = evalSeries ( t, ser, ll );
         if ( ser.iv == 1 )
             a += sum;
         else if ( ser.iv == 2 )
@@ -295,6 +299,8 @@ SSVector VSOP2013::toEquatorial ( SSVector ecl )
 // Computes position/velocity of Earth-Moon Barycenter (not Earth) for iplanet = 3.
 // Returns true if successful or false if planet identifier not recognized.
 
+std::mutex m;
+
 bool VSOP2013::computePositionVelocity ( int iplanet, double jed, SSVector &pos, SSVector &vel )
 {
     SSOrbit orbit;
@@ -329,5 +335,6 @@ bool VSOP2013::computePositionVelocity ( int iplanet, double jed, SSVector &pos,
     orbit.toPositionVelocity ( jed, pos, vel );
     pos = toEquatorial ( pos );
     vel = toEquatorial ( vel );
+    
     return true;
 }

@@ -53,12 +53,11 @@ struct VSOP2013Series
 class VSOP2013
 {
 protected:
-    double ll[17];                          // fundamental longitude arguments [radians]
     vector<VSOP2013Series> planets[9];      // series for each planet 0 = Mercury ... 8 = Pluto
     
 public:
-    void evalLongitudes ( double t );
-    double evalSeries ( double t, const VSOP2013Series &ser );
+    void evalLongitudes ( double t, double ll[17] );
+    double evalSeries ( double t, const VSOP2013Series &ser, double ll[17] );
     void printSeries ( ostream &out, const vector<VSOP2013Series> &planet );
     int readFile ( const string &filename, int iplanet );
     SSOrbit getOrbit ( int iplanet, double jed );
