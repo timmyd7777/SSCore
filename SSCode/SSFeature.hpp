@@ -11,6 +11,7 @@
 #define SSFeature_hpp
 
 #include "SSObject.hpp"
+#include "SSPlanet.hpp"
 
 #pragma pack ( push, 1 )
 
@@ -22,9 +23,8 @@
 class SSFeature : public SSObject
 {
 protected:
-
-    string _name;                           // feature name; may contain funky UTF8 characters.
-    string _clean_name;                     // clean feature name; only contains ASCII characters.
+//  string _name;                           // feature name; may contain funky UTF8 characters. Stored in SSObject::_names[0].
+//  string _clean_name;                     // clean feature name; only contains ASCII characters. Stored in SSObject::_names[1].
     string _target;                         // name of planetary object to which the feature belongs.
     string _type_code;                      // feature type code; see https://planetarynames.wr.usgs.gov/DescriptorTerms
     string _origin;                         // feature origin (short explanation of name)
@@ -37,8 +37,8 @@ public:
 
     // accessors
 
-    string getName ( void ) { return _name; }
-    string getCleanName ( void ) { return _clean_name; }
+    string getName ( void ) { return _names[0]; }
+    string getCleanName ( void ) { return _names[1]; }
     string getTarget ( void ) { return _target; }
     string getFeatureTypeCode ( void ) { return _type_code; }
     string getOrigin ( void ) { return _origin; }
@@ -48,8 +48,8 @@ public:
 
     // modifiers
     
-    void setName ( string name ) { _name = name; }
-    void setCleanName ( string clean_name ) { _clean_name = clean_name; }
+    void setName ( string name ) { _names[0] = name; }
+    void setCleanName ( string clean_name ) { _names[1] = clean_name; }
     void setTarget ( string target ) { _target = target; }
     void setFeatureTypeCode ( string type_code ) { _type_code = type_code; }
     void setOrigin ( string origin ) { _origin = origin; }
@@ -61,6 +61,10 @@ public:
     
     static SSObjectPtr fromCSV ( string csv );
     virtual string toCSV ( void );
+    
+    // computes apparent direction and distance; planet must already have ephemeris computed.
+    
+    void computeEphemeris ( SSPlanet *pPlanet );
 };
 
 // This subclass of SSFeature stores data for cities obtained from:

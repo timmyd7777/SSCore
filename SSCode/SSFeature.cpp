@@ -13,14 +13,26 @@
 
 SSFeature::SSFeature ( void ) : SSObject ( kTypeFeature )
 {
-    _name = "";
-    _clean_name = "";
+    // initialize SSObject::_names with two empty strings for UTF-8 name and ASCII/Clean name
+    
+    _names = vector<string> ( { "", "" } );
     _target = "";
     _type_code = "";
     _origin = "";
     _diameter = INFINITY;
     _lat = INFINITY;
     _lon = INFINITY;
+}
+
+// Computes a solar system surface feature's ephemeris values: apparent direction unit vector
+// in the fudamental frame, its distance in AU, and visibility state (saved in _magnitude).
+// The object on which the feature belongs (pTarget) must already have its ephemeris computed.
+
+void SSFeature::computeEphemeris ( SSPlanet *pTarget )
+{
+    SSAngle lon = SSAngle::fromDegrees ( _lon );
+    SSAngle lat = SSAngle::fromDegrees ( _lat );
+    _magnitude = pTarget->surfacePointDirection ( lon, lat, _direction, _distance );
 }
 
 // Allocates a new SSFeature and initializes it from a CSV-formatted string.
@@ -96,8 +108,8 @@ string SSFeature::toCSV ( void )
 {
     string csv = SSObject::typeToCode ( _type ) + ",";
 
-    csv += "\"" + _name + "\",";
-    csv += "\"" + _clean_name + "\",";
+    csv += "\"" + _names[0] + "\",";
+    csv += "\"" + _names[1] + "\",";
     csv += "\"" + _target + "\",";
     csv += format ( "%.2f", _diameter ) + ",";
     csv += format ( "%.5f", _lat ) + ",";
@@ -132,8 +144,8 @@ string SSCity::toCSV ( void )
 {
     string csv = SSObject::typeToCode ( _type ) + ",";
     
-    csv += _name + ",";
-    csv += _clean_name + ",";
+    csv += _names[0] + ",";
+    csv += _names[1] + ",";
     csv += format ( "%.5f,", _lat );
     csv += format ( "%.5f,", _lon );
     csv += _country_code + ",";
