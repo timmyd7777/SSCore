@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <mutex>
 
 #define PRINT_SERIES    0       // 1 to comvert input series data files to output .cpp source code
 #define TRUNC_FACTOR    100     // exported seriees truncation factor: 1 exports everything, 10 exports only first tenth; 100 exports only first hundredth, etc,
@@ -298,8 +297,6 @@ SSVector VSOP2013::toEquatorial ( SSVector ecl )
 // The position and velocity vectors (pos and vel) are returned in units of AU and AU/day.
 // Computes position/velocity of Earth-Moon Barycenter (not Earth) for iplanet = 3.
 // Returns true if successful or false if planet identifier not recognized.
-
-std::mutex m;
 
 bool VSOP2013::computePositionVelocity ( int iplanet, double jed, SSVector &pos, SSVector &vel )
 {
