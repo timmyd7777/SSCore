@@ -162,8 +162,11 @@ void SSPlanet::computePSPlanetMoonPositionVelocity ( int id, double jed, double 
         ecl = SSPSEphemeris::uranus ( jed - lt, pos, vel );
     else if ( id == kNeptune )
         ecl = SSPSEphemeris::neptune ( jed - lt, pos, vel );
-    else if ( id == kPluto )
+    else if ( id == kPluto )    // use Keplerian orbit to compute Pluto's velocity since PSEphemeris does not.
+    {
+        SSOrbit::getPlutoOrbit ( jed ).toPositionVelocity ( jed - lt, pos, vel );
         ecl = SSPSEphemeris::pluto ( jed - lt, pos, vel );
+    }
     else if ( id == kLuna )
     {
         ecl = SSPSEphemeris::moon ( jed - lt, pos, vel );
