@@ -22,6 +22,31 @@
 typedef map<SSObjectType,string> SSTypeStringMap;
 typedef map<string,SSObjectType> SSStringTypeMap;
 
+static SSTypeStringMap _typeNames =
+{
+    { kTypeNonexistent, "Nonexistent object" },
+    { kTypePlanet, "Planet" },
+    { kTypeMoon, "Moon" },
+    { kTypeAsteroid, "Asteroid" },
+    { kTypeComet, "Comet" },
+    { kTypeSatellite, "Satellite" },
+    { kTypeSpacecraft, "Spacecraft" },
+    { kTypeFeature, "Feature" },
+    { kTypeCity, "City" },
+    { kTypeStar, "Star" },
+    { kTypeDoubleStar, "Double star" },
+    { kTypeVariableStar, "Variable star" },
+    { kTypeDoubleVariableStar, "Double variable star" },
+    { kTypeOpenCluster, "Open cluster" },
+    { kTypeGlobularCluster, "Globular cluster" },
+    { kTypeBrightNebula, "Bright nebula" },
+    { kTypeDarkNebula, "Dark Nebula" },
+    { kTypePlanetaryNebula, "Planetary Nebula" },
+    { kTypeGalaxy, "Galaxy" },
+    { kTypeConstellation, "Constellation" },
+    { kTypeAsterism, "Asterism" }
+};
+
 static SSTypeStringMap _typeStrings =
 {
     { kTypeNonexistent, "NO" },
@@ -72,6 +97,11 @@ static SSStringTypeMap _stringTypes =
     { "AM", kTypeAsterism }
 };
 
+string SSObject::typeToName ( SSObjectType type )
+{
+    return _typeNames[ type ];
+}
+
 string SSObject::typeToCode ( SSObjectType type )
 {
     return _typeStrings[ type ];
@@ -104,7 +134,12 @@ string SSObject::getName ( int i )
         return string ( "" );
 }
 
-// Default implementation of getIdentifer; overridden by subclasses.
+// Default implementation of getIdentifer(); overridden by subclasses.
+
+SSIdentifier SSObject::getIdentifier ( int i )
+{
+    return SSIdentifier();
+}
 
 SSIdentifier SSObject::getIdentifier ( SSCatalog cat )
 {

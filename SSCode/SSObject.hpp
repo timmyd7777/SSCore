@@ -91,10 +91,12 @@ public:
     
     // Converts integer object types to two-character type codes and vice-versa.
     
+    static string typeToName ( SSObjectType type );
     static string typeToCode ( SSObjectType type );
     static SSObjectType codeToType ( string );
 
     virtual string getName ( int i );                           // returns copy of i-th name string
+    virtual SSIdentifier getIdentifier ( int i );               // returns copy of i-th catalog identifier
     virtual SSIdentifier getIdentifier ( SSCatalog cat );       // returns identifier in the specified catalog, or null identifier if object has none in that catalog.
     virtual bool addIdentifier ( SSIdentifier ident );          // adds the specified identifier to the object, only if the ident is valid and not already present.
     

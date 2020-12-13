@@ -78,6 +78,17 @@ SSDeepSky::SSDeepSky ( SSObjectType type ) : SSStar ( type )
     _PA = INFINITY;
 }
 
+// Returns i-th identifier in this star's ident vector,
+// or null identifier (i.e. zero) if i is out of range
+
+SSIdentifier SSStar::getIdentifier ( int i )
+{
+    if ( i >= 0 && i < _idents.size() )
+        return _idents[i];
+    else
+        return SSIdentifier();
+}
+
 // Returns this star's identifier in a specific catalog.
 // If not present, returns null identifier (i.e. zero).
 

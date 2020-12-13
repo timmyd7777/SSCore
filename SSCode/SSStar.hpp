@@ -58,6 +58,7 @@ public:
     
     bool addIdentifier ( SSIdentifier ident );
     SSIdentifier getIdentifier ( SSCatalog cat );
+    SSIdentifier getIdentifier ( int i );
     vector<SSIdentifier> getIdentifiers ( void ) { return _idents; }
     void sortIdentifiers ( void );
     
