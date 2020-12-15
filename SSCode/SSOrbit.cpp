@@ -267,8 +267,10 @@ SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, 
     
     double q = p / ( 1.0 + e );
     double nu = acos ( ( p / r - 1.0 ) / e );
+    if ( isnan ( nu ) )
+        nu = 0.0;
     if ( rv < 0.0 )
-        nu = - nu;
+        nu = -nu;
     
     double m = 0, mm = 0;
     
@@ -288,12 +290,12 @@ SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, 
     {
         double ha = 2.0 * atanh ( sqrt ( ( e - 1.0 ) / ( e + 1.0 ) ) * tan ( nu / 2.0 ) );
         m = e * sinh ( ha ) - ha;
-        mm = sqrt ( - mu / ( a * a * a ) );
+        mm = sqrt ( -mu / ( a * a * a ) );
     }
 
     double i = acos ( hz / h );
-    double n = SSAngle::atan2Pi ( hx, - hy );
-    double u = SSAngle::atan2Pi ( ( - pos.x * hx - pos.y * hy ) / hz, ( - pos.x * hy + pos.y * hx ) / h );
+    double n = SSAngle::atan2Pi ( hx, -hy );
+    double u = SSAngle::atan2Pi ( ( -pos.x * hx - pos.y * hy ) / hz, ( -pos.x * hy + pos.y * hx ) / h );
     double w = SSAngle ( u - nu ).mod2Pi();
     
     return SSOrbit ( jde, q, e, i, w, n, m, mm );
