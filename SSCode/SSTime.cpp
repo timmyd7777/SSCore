@@ -117,6 +117,7 @@ string SSDate::format ( const string &fmt )
     time.tm_hour = hour;
     time.tm_min = min;
     time.tm_sec = sec;
+    time.tm_wday = SSTime ( *this ).getWeekday();
     
     strftime ( str, sizeof ( str ), fmt.c_str(), &time );
     return string ( str );
@@ -252,7 +253,7 @@ int SSTime::getWeekday ( void )
 {
     int    d = floor ( jd + zone / 24.0 + 0.5 );
     
-    d = d % 7;
+    d = ( d + 1 ) % 7;
     if ( d < 0 )
         d += 7;
         
