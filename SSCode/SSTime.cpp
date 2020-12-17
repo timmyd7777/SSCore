@@ -118,6 +118,7 @@ string SSDate::format ( const string &fmt )
     time.tm_min = min;
     time.tm_sec = sec;
     time.tm_wday = SSTime ( *this ).getWeekday();
+    time.tm_gmtoff = zone * 3600.0;
     
     strftime ( str, sizeof ( str ), fmt.c_str(), &time );
     return string ( str );
