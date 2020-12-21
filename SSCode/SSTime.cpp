@@ -4,6 +4,8 @@
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
+#define _GNU_SOURCE /* for tm_gmtoff and tm_zone */
+
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -118,8 +120,10 @@ string SSDate::format ( const string &fmt )
     time.tm_min = min;
     time.tm_sec = sec;
     time.tm_wday = SSTime ( *this ).getWeekday();
+#ifndef _WINDOWS
     time.tm_gmtoff = zone * 3600.0;
-    
+#endif
+
     strftime ( str, sizeof ( str ), fmt.c_str(), &time );
     return string ( str );
 }
