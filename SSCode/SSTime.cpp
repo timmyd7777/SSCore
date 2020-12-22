@@ -4,10 +4,6 @@
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
-#ifndef __linux__
-#define _GNU_SOURCE /* for tm_gmtoff and tm_zone */
-#endif
-
 #ifdef _WIN32
 #include <windows.h>
 #else
