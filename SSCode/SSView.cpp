@@ -804,6 +804,9 @@ bool SSView::clipLine ( SSVector &v0, SSVector &v1 )
     double ydelta = v1.y - v0.y;
     double p = 0.0, q = 0.0, r = 0.0;
 
+    if ( v0.isinf() || v1.isinf() )
+        return false;
+
     // Traverse through left, right, bottom, top edges.
     
     for ( int edge = 0; edge < 4; edge++ )
