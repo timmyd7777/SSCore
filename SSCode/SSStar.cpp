@@ -166,7 +166,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
     if ( _direction == _position )
     {
         _distance = _parallax > 0.0 ? coords.kAUPerParsec / _parallax : INFINITY;
-        _magnitude = _Vmag;
+        _magnitude = _Vmag < INFINITY ? _Vmag : _Bmag;
     }
     else
     {
@@ -177,7 +177,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
         double delta = _direction.magnitude();
         _direction = _direction / delta;
         _distance = _parallax > 0.0 ? delta * coords.kAUPerParsec / _parallax : INFINITY;
-        _magnitude = _Vmag + 5.0 * log10 ( delta );
+        _magnitude = ( _Vmag < INFINITY ? _Vmag : _Bmag ) + 5.0 * log10 ( delta );
     }
 
     // Finally apply aberration of light, if desired.
