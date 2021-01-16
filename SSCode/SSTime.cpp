@@ -126,6 +126,26 @@ string SSDate::format ( const string &fmt )
     return string ( str );
 }
 
+// Converts string to date using the same format argument(s) as strptime().
+// Overwrites all internal fields except time zone and calendar system.
+// Returns true if string parsed successfully or false otherwise.
+bool SSDate::parse ( const string &fmt, const string &str )
+{
+    struct tm time = { 0 };
+    
+    if ( strptime ( str.c_str(), fmt.c_str(), &time ) == nullptr )
+        return false;
+    
+    year = time.tm_year + 1900;
+    month = time.tm_mon + 1;
+    day = time.tm_mday;
+    hour = time.tm_hour;
+    min = time.tm_min;
+    sec = time.tm_sec;
+    
+    return true;
+}
+
 // Constructs a time with default values of 1.5 Jan 2000 UTC.
 
 SSTime::SSTime ( void )

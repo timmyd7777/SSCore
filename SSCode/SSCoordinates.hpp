@@ -81,7 +81,7 @@ public:
     void setTime ( SSTime time );
     void setLocation ( SSSpherical location );
 
-    SSTime getTime ( void ) { return SSTime ( _jd ); }
+    SSTime getTime ( void ) { return _jd; }
     SSSpherical getLocation ( void ) { return SSSpherical ( _lon, _lat, _alt ); }
     double getJED ( void ) { return _jed; }
     double getLST ( void ) { return _lst; }

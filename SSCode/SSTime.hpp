@@ -49,6 +49,7 @@ struct SSDate
     SSTime toJulianDate ( void );
     
     string format ( const string &fmt );
+    bool parse ( const string &fmt, const string &str );
 };
 
 // Represents an instant in time as a Julian Date and a local time zone;
