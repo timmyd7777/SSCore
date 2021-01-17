@@ -105,6 +105,7 @@ SSTime SSDate::toJulianDate ( void )
 }
 
 // Converts date to a string using the same format argument(s) as strftime().
+// Not thread-safe!
 
 string SSDate::format ( const string &fmt )
 {
@@ -118,17 +119,23 @@ string SSDate::format ( const string &fmt )
     time.tm_min = min;
     time.tm_sec = sec;
     time.tm_wday = SSTime ( *this ).getWeekday();
-#ifndef _WINDOWS
-    time.tm_gmtoff = zone * 3600.0;
-#endif
-
+    
+    // time.tm_gmtoff is not available on Windows, and not used when formatting %z on any platform.
+    // To make strftime() output time zone, we must temporarily change the timezone global.
+    // See https://www.gnu.org/software/libc/manual/html_node/Time-Zone-Functions.html
+    
+    long old_timezone = ::timezone;
+    ::timezone = zone * -3600.0;
     strftime ( str, sizeof ( str ), fmt.c_str(), &time );
+    ::timezone = old_timezone;
+    
     return string ( str );
 }
 
 // Converts string to date using the same format argument(s) as strptime().
 // Overwrites all internal fields except time zone and calendar system.
 // Returns true if string parsed successfully or false otherwise.
+
 bool SSDate::parse ( const string &fmt, const string &str )
 {
     struct tm time = { 0 };
