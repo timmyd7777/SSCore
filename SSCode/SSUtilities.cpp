@@ -439,7 +439,7 @@ double get_timezone ( void )
 #ifdef _MSC_VER
     return _timezone / -3600.0;
 #else
-    return ::timezone;
+    return ::timezone / -3600.0;
 #endif
 }
 
