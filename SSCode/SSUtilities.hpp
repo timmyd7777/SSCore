@@ -72,4 +72,7 @@ double unixtime_since ( double &start );
 double clocksec ( void );
 double clocksec_since ( double &start );
 
+double get_timezone ( void );
+void set_timezone ( double hours );
+
 #endif /* SSUtilities_hpp */

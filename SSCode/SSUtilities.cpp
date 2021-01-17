@@ -431,3 +431,26 @@ double clocksec_since ( double &start )
     start = now;
     return since;
 }
+
+// Returns current system time zone offset in hours east of UTC
+
+double get_timezone ( void )
+{
+#ifdef _MSC_VER
+    return _timezone / -3600.0;
+#else
+    return ::timezone;
+#endif
+}
+
+// Modifies current system time zone offset in hours east of UTC
+
+void set_timezone ( double zone )
+{
+#ifdef _MSC_VER
+    _timezone = zone * -3600.0;
+#else
+    ::timezone = zone * -3600.0;
+#endif
+}
+

@@ -6,6 +6,8 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <sstream>
+#include <iomanip>
 #else
 #include <sys/time.h>
 #endif
@@ -124,10 +126,10 @@ string SSDate::format ( const string &fmt )
     // To make strftime() output time zone, we must temporarily change the timezone global.
     // See https://www.gnu.org/software/libc/manual/html_node/Time-Zone-Functions.html
     
-    long old_timezone = ::timezone;
-    ::timezone = zone * -3600.0;
+    double oldzone = get_timezone();
+    set_timezone ( zone );
     strftime ( str, sizeof ( str ), fmt.c_str(), &time );
-    ::timezone = old_timezone;
+    set_timezone ( oldzone );
     
     return string ( str );
 }
@@ -139,10 +141,17 @@ string SSDate::format ( const string &fmt )
 bool SSDate::parse ( const string &fmt, const string &str )
 {
     struct tm time = { 0 };
-    
+
+#ifdef WIN32
+    stringstream ss ( str );
+    ss >> get_time ( &time, fmt.c_str() );
+    if ( ss.fail() )
+        return false;
+#else
     if ( strptime ( str.c_str(), fmt.c_str(), &time ) == nullptr )
         return false;
-    
+#endif
+
     year = time.tm_year + 1900;
     month = time.tm_mon + 1;
     day = time.tm_mday;
