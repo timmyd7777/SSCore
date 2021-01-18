@@ -122,8 +122,12 @@ string SSDate::format ( const string &fmt )
     time.tm_sec = sec;
     time.tm_wday = SSTime ( *this ).getWeekday();
     
-    // time.tm_gmtoff is not available on Windows, and not used when formatting %z on any platform.
-    // To make strftime() output time zone, we must temporarily change the timezone global.
+#ifndef WINDOWS
+    time.tm_gmtoff = zone * 3600.0;
+#endif
+    
+    // time.tm_gmtoff is not available on Windows, and not used when formatting %z on Apple platforms (but is used for %z on Linux/Emscripten).
+    // To make strftime() output time zone on Windows, Mac, and iOS, we must temporarily change the timezone global.
     // See https://www.gnu.org/software/libc/manual/html_node/Time-Zone-Functions.html
     
     double oldzone = get_timezone();
