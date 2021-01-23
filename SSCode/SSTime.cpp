@@ -122,7 +122,7 @@ string SSDate::format ( const string &fmt )
     time.tm_sec = sec;
     time.tm_wday = SSTime ( *this ).getWeekday();
     
-#ifndef WINDOWS
+#ifndef _WINDOWS
     time.tm_gmtoff = zone * 3600.0;
 #endif
     
