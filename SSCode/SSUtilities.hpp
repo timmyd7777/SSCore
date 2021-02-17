@@ -44,6 +44,9 @@ vector<string> split ( string str, string delim );
 vector<string> tokenize ( string str, string delim );
 vector<string> split_csv ( const string &csv );
 
+bool endsWith ( const string &str, const string &suffix );
+bool startsWith ( const string& str, const string &prefix );
+
 int strtoint ( string str );
 int64_t strtoint64 ( string str );
 float strtofloat ( string str );

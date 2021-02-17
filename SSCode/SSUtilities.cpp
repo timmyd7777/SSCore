@@ -90,6 +90,22 @@ string format ( const char *fmt, ... )
     return string ( buf );
 }
 
+// Tests whether a string (str) ends with another string (suffix)
+// Adapted from https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c
+
+bool endsWith ( const string &str, const string &suffix )
+{
+    return str.size() >= suffix.size() && str.compare ( str.size() - suffix.size(), suffix.size(), suffix ) == 0;
+}
+
+// Tests whether a string (str) starts with another string (prefix)
+// Adapted from https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c
+
+bool startsWith ( const string& str, const string &prefix )
+{
+    return str.size() >= prefix.size() && str.compare ( 0, prefix.size(), prefix ) == 0;
+}
+
 // Splits a string into a vector of token strings separated by the specified delimiter.
 // Two adjacent delimiters generate an empty token string (unlike C's strtok()).
 // The original string is not modified.
