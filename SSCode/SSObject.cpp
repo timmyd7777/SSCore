@@ -153,6 +153,13 @@ bool SSObject::addIdentifier ( SSIdentifier ident )
     return false;
 }
 
+// Default implementation of getIdentifiers; overridden by subclasses.
+
+vector<SSIdentifier> SSObject::getIdentifiers ( void )
+{
+    return vector<SSIdentifier> ( 0 );
+}
+
 // Default implementation of toCSV; overridden by subclasses.
 
 string SSObject::toCSV ( void )

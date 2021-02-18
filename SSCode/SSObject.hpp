@@ -99,7 +99,7 @@ public:
     virtual SSIdentifier getIdentifier ( int i );               // returns copy of i-th catalog identifier
     virtual SSIdentifier getIdentifier ( SSCatalog cat );       // returns identifier in the specified catalog, or null identifier if object has none in that catalog.
     virtual bool addIdentifier ( SSIdentifier ident );          // adds the specified identifier to the object, only if the ident is valid and not already present.
-    
+    virtual vector<SSIdentifier> getIdentifiers ( void );       // returns vector of all object identifiers
     SSAngle angularSeparation ( SSObject &other ) { return _direction.angularSeparation ( other._direction ); }
     
     // Default empty implementations of position/velocity/ephemeris computations are overridden by subclasses!

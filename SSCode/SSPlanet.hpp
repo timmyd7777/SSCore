@@ -115,6 +115,7 @@ public:
     SSIdentifier getIdentifier ( void ) { return _id; }
     SSIdentifier getIdentifier ( int i ) { return i == 0 ? _id : SSIdentifier(); }
     SSIdentifier getIdentifier ( SSCatalog cat );
+    vector<SSIdentifier> getIdentifiers ( void ) { return vector<SSIdentifier> { _id }; }
     SSOrbit getOrbit ( void ) { return _orbit; }
     float getHMagnitude ( void ) { return _Hmag; }
     float getGMagnitude ( void ) { return _Gmag; }
