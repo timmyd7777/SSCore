@@ -415,7 +415,7 @@ int64_t SSIdentifier::identifier ( void )
     return _id % 10000000000000000LL;
 }
 
-SSIdentifier SSIdentifier::fromString ( string str )
+SSIdentifier SSIdentifier::fromString ( const string &str )
 {
     size_t len = str.length();
     

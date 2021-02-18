@@ -67,7 +67,7 @@ public:
     int64_t identifier ( void );
     
     string toString ( void );
-    static SSIdentifier fromString ( string s );
+    static SSIdentifier fromString ( const string &s );
     
     bool operator > ( SSIdentifier other ) { return _id > other._id; }
     bool operator < ( SSIdentifier &other ) const { return _id < other._id; }
