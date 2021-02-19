@@ -90,6 +90,18 @@ string format ( const char *fmt, ... )
     return string ( buf );
 }
 
+// Tests whether a string contains only numeric characters (digits, '-', '+', '.').
+// Returns false for empty strings.
+
+bool isNumeric ( const string &str )
+{
+    for ( auto it = str.begin(); it != str.end(); it++ )
+        if ( ! ( *it == '-' || *it == '+' || *it == '.' || isdigit ( *it ) ) )
+            return false;
+    
+    return str.empty() ? false : true;
+}
+
 // Tests whether a string (str) ends with another string (suffix)
 // Adapted from https://stackoverflow.com/questions/874134/find-out-if-string-ends-with-another-string-in-c
 

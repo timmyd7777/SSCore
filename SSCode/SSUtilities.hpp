@@ -44,6 +44,7 @@ vector<string> split ( string str, string delim );
 vector<string> tokenize ( string str, string delim );
 vector<string> split_csv ( const string &csv );
 
+bool isNumeric ( const string &str );
 bool endsWith ( const string &str, const string &suffix );
 bool startsWith ( const string& str, const string &prefix );
 

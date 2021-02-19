@@ -415,7 +415,7 @@ int64_t SSIdentifier::identifier ( void )
     return _id % 10000000000000000LL;
 }
 
-SSIdentifier SSIdentifier::fromString ( const string &str )
+SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type )
 {
     size_t len = str.length();
     
@@ -661,6 +661,26 @@ SSIdentifier SSIdentifier::fromString ( const string &str )
             return SSIdentifier ( kCatComNum, n );
     }
 
+    // If we have a numeric string and a solar system object type,
+    // deduce identifier from number and type code.
+
+    if ( isNumeric ( str ) )
+    {
+        int64_t n = strtoint ( str );
+        
+        if ( ( type == kTypePlanet || type == kTypeMoon ) && n >= 0 )
+            return SSIdentifier ( kCatJPLanet, n );
+        
+        if ( type == kTypeAsteroid && n > 0 )
+            return SSIdentifier ( kCatAstNum, n );
+
+        if ( type == kTypeComet && n > 0 )
+            return SSIdentifier ( kCatComNum, n );
+
+        if ( type == kTypeSatellite && n > 0 )
+            return SSIdentifier ( kCatNORADSat, n );
+    }
+    
     // We give up!  Return unknown identifier.
     
     return SSIdentifier ( kCatUnknown, 0 );
