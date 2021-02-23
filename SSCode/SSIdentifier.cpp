@@ -415,9 +415,22 @@ int64_t SSIdentifier::identifier ( void )
     return _id % 10000000000000000LL;
 }
 
-SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type )
+// Attempts to convert an indentifer in string form ("M 42", "alpha CMa", "HR 7001", "NGC 7992", etc.)
+// to numeric form. The object type code, if other than kTypeNonexistent, may be used as a hint to
+// resolve ambiguities. If Case Sensitivity matters (for example, if "M42" should convert but not "m42")
+// then set (casesens) to true. Caution: case is important for many star identifiers. For example, "mu Cep"
+// (Bayer star mu Cephei) is different from "MU Cep" (variable star MU Cephei).
+
+SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bool casesens )
 {
     size_t len = str.length();
+    
+    // If performing case-insensitive conversion, transform string to upper case
+    
+    string upstr = str;
+    if ( ! casesens )
+        for ( char &c : upstr )
+            c = toupper ( c );
     
     if ( _conmap.size() == 0 || _baymap.size() == 0 )
         mapinit();

@@ -96,7 +96,7 @@ public:
     int64_t identifier ( void );
     
     string toString ( void );
-    static SSIdentifier fromString ( const string &s, SSObjectType type = kTypeNonexistent );
+    static SSIdentifier fromString ( const string &s, SSObjectType type = kTypeNonexistent, bool casesens = true );
     
     bool operator > ( SSIdentifier other ) { return _id > other._id; }
     bool operator < ( SSIdentifier &other ) const { return _id < other._id; }
