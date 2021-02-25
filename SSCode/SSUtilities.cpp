@@ -14,6 +14,7 @@
 #include <windows.h>
 #include <direct.h>
 #else
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
 #endif
@@ -482,3 +483,25 @@ void set_timezone ( double zone )
 #endif
 }
 
+// Returns file size in bytes, or zero if file does not exist.
+
+size_t filesize ( const string &path )
+{
+    struct stat st;
+    if ( stat ( path.c_str(), &st ) == 0 )
+        return st.st_size;
+    else
+        return 0;
+}
+
+// Returns file modification time in seconds since 1 Jan 1970 UTC,
+// or zero if file does not exist.
+
+time_t filetime ( const string &path )
+{
+    struct stat st;
+    if ( stat ( path.c_str(), &st ) == 0 )
+        return st.st_mtime;
+    else
+        return 0;
+}

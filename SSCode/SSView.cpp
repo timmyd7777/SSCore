@@ -765,7 +765,7 @@ SSAngle SSView::pixelsToRadiansY ( double pixels )
     else if ( _projection == kMollweide )
         return SSAngle ( asin ( min ( pixels * scale / SSAngle::kHalfPi, 1.0 ) ) );
     else // kEquidistant, kSinusoidal:
-        return SSAngle ( min ( pixels * scale, (double) SSAngle::kPi ) );
+        return SSAngle ( min ( pixels * scale, (double) SSAngle::kHalfPi ) );
 }
 
 // Returns angle in radians corresponding to north on celestial sphere at 2D view coordinates (x,y).
@@ -882,6 +882,52 @@ bool SSView::lineWrap ( SSVector &v0, SSVector &v1 )
     return false;
 }
 
+// Given three vectors (v1, v2, v3) which define a triangle,
+// returns an integer (1, 2, 3) if any vector lies across the edges of the sky from the other two;
+// or returns zero of all points in the triangle lie on the same side of the sky.
+
+int SSView::triangleWrap ( const SSVector &v1, const SSVector &v2, const SSVector &v3 )
+{
+    if ( _projection >= kEquirectangular && ( v1.z < 0.0 || v2.z < 0.0 || v3.z < 0.0 ) )
+    {
+        if ( v1.x < _centerX && v2.x > _centerX && v3.x > _centerX )
+            return 1;
+        if ( v1.x > _centerX && v2.x < _centerX && v3.x < _centerX )
+            return 1;
+
+        if ( v1.x < _centerX && v2.x > _centerX && v3.x < _centerX )
+            return 2;
+        if ( v1.x > _centerX && v2.x < _centerX && v3.x > _centerX )
+            return 2;
+
+        if ( v1.x > _centerX && v2.x > _centerX && v3.x < _centerX )
+            return 3;
+        if ( v1.x < _centerX && v2.x < _centerX && v3.x > _centerX )
+            return 3;
+    }
+
+    return 0;
+}
+
+// Given a point (x,y), returns the x coordinate of that point reflected across
+// the edge of the sky in 360-degree projections. If the current projection does
+// not allow 360-degree fields of view, returned value equals input x.
+
+double SSView::edgeReflect ( double x, double y )
+{
+    if ( _projection < kEquirectangular )
+        return x;
+    
+    double left, right;
+    edges ( y, left, right );
+    if ( x > _centerX )
+        x = left - ( right - x );
+    else
+        x = right + ( x - left );
+    
+    return x;
+}
+
 void SSView::edgeWrap ( SSVector &v0, SSVector &v1 )
 {
     if ( _projection == kMercator || _projection == kEquirectangular )
@@ -916,6 +962,83 @@ void SSView::edgeWrap ( SSVector &v0, SSVector &v1 )
 
         if ( v1.x < _centerX )
             v1.x = _centerX - coslat * SSAngle::kPi / _scaleX;
+    }
+}
+
+// Determines the bounding rectangle of the current sky projection.
+// This may be larger or smaller than the view bounding rectangle!
+
+void SSView::skyBounds ( double &left, double &top, double &right, double &bottom )
+{
+    if ( _projection == kGnomonic || _projection == kStereographic )
+    {
+        left = top = -INFINITY;
+        right = bottom = INFINITY;
+    }
+    else if ( _projection == kOrthographic )
+    {
+        left = _centerX - 1.0 / _scaleX;
+        right = _centerX + 1.0 / _scaleX;
+        top = _centerY - 1.0 / _scaleY;
+        bottom = _centerY + 1.0 / _scaleY;
+    }
+    else if ( _projection == kMercator )
+    {
+        left = _centerX - SSAngle::kPi / _scaleX;
+        right = _centerX + SSAngle::kPi / _scaleX;
+        top = -INFINITY;
+        bottom = INFINITY;
+    }
+    else // if ( _projection == kEquirectangular || _projection == kMollweide || _projection == kSinusoidal )
+    {
+        left = _centerX - SSAngle::kPi / _scaleX;
+        right = _centerX + SSAngle::kPi / _scaleX;
+        top = _centerY - SSAngle::kHalfPi / _scaleY;
+        bottom = _centerY + SSAngle::kHalfPi / _scaleY;
+    }
+}
+
+// Determines the left and right edges of the sky area at a particular vertical coordinate (y).
+// Given the current sky projection, these may be outside the left and right edges of the view!
+
+void SSView::edges ( double y, double &xleft, double &xright )
+{
+    if ( _projection == kGnomonic || _projection == kStereographic )
+    {
+        xleft = -INFINITY;
+        xright = INFINITY;
+    }
+    else if ( _projection == kOrthographic )
+    {
+        y = ( y - _centerY ) * _scaleY;
+        if ( fabs ( y ) > 1.0 )
+        {
+            xleft = xright = _centerX;
+        }
+        else
+        {
+            double x = sqrt ( 1.0 - y * y );
+            xleft = _centerX - x / _scaleX;
+            xright = _centerX + x / _scaleX;
+        }
+    }
+    else if ( _projection == kMercator || _projection == kEquirectangular )
+    {
+        xright = _centerX + SSAngle::kPi / _scaleX;
+        xleft  = _centerX - SSAngle::kPi / _scaleX;
+    }
+    else if ( _projection == kMollweide || _projection == kSinusoidal )
+    {
+        double coslat = cos ( pixelsToRadiansY ( y - _centerY ) );
+        if ( isnan ( coslat ) )
+        {
+            xright = xleft = _centerX;
+        }
+        else
+        {
+            xright = _centerX + coslat * SSAngle::kPi / _scaleX;
+            xleft = _centerX - coslat * SSAngle::kPi / _scaleX;
+        }
     }
 }
 

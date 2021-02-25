@@ -79,4 +79,7 @@ double clocksec_since ( double &start );
 double get_timezone ( void );
 void set_timezone ( double hours );
 
+size_t filesize ( const string &path );
+time_t filetime ( const string &path );
+
 #endif /* SSUtilities_hpp */

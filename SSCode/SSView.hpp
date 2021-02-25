@@ -133,8 +133,15 @@ public:
     // clips line defined by two endpoints to view's 2D bounding rectangle
     
     bool clipLine ( SSVector &v0, SSVector &v1 );
+
+    // Detect and handle points which wrap around the edges of wide-angle 360-degree projections
+    
     bool lineWrap ( SSVector &v0, SSVector &v1 );
+    int triangleWrap ( const SSVector &v1, const SSVector &v2, const SSVector &v3 );
     void edgeWrap ( SSVector &v0, SSVector &v1 );
+    void edges ( double y, double &left, double &right );
+    double edgeReflect ( double x, double y );
+    void skyBounds ( double &left, double &top, double &right, double &bottom );
 };
 
 #endif /* SSView_hpp */
