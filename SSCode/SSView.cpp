@@ -970,6 +970,9 @@ void SSView::edgeWrap ( SSVector &v0, SSVector &v1 )
 
 void SSView::skyBounds ( double &left, double &top, double &right, double &bottom )
 {
+    double sx = fabs ( _scaleX );
+    double sy = fabs ( _scaleY );
+    
     if ( _projection == kGnomonic || _projection == kStereographic )
     {
         left = top = -INFINITY;
@@ -977,24 +980,24 @@ void SSView::skyBounds ( double &left, double &top, double &right, double &botto
     }
     else if ( _projection == kOrthographic )
     {
-        left = _centerX - 1.0 / _scaleX;
-        right = _centerX + 1.0 / _scaleX;
-        top = _centerY - 1.0 / _scaleY;
-        bottom = _centerY + 1.0 / _scaleY;
+        left = _centerX - 1.0 / sx;
+        right = _centerX + 1.0 / sx;
+        top = _centerY - 1.0 / sy;
+        bottom = _centerY + 1.0 / sy;
     }
     else if ( _projection == kMercator )
     {
-        left = _centerX - SSAngle::kPi / _scaleX;
-        right = _centerX + SSAngle::kPi / _scaleX;
+        left = _centerX - SSAngle::kPi / sx;
+        right = _centerX + SSAngle::kPi / sx;
         top = -INFINITY;
         bottom = INFINITY;
     }
     else // if ( _projection == kEquirectangular || _projection == kMollweide || _projection == kSinusoidal )
     {
-        left = _centerX - SSAngle::kPi / _scaleX;
-        right = _centerX + SSAngle::kPi / _scaleX;
-        top = _centerY - SSAngle::kHalfPi / _scaleY;
-        bottom = _centerY + SSAngle::kHalfPi / _scaleY;
+        left = _centerX - SSAngle::kPi / sx;
+        right = _centerX + SSAngle::kPi / sx;
+        top = _centerY - SSAngle::kHalfPi / sy;
+        bottom = _centerY + SSAngle::kHalfPi / sy;
     }
 }
 
@@ -1003,6 +1006,9 @@ void SSView::skyBounds ( double &left, double &top, double &right, double &botto
 
 void SSView::edges ( double y, double &xleft, double &xright )
 {
+    double sx = fabs ( _scaleX );
+    double sy = fabs ( _scaleY );
+    
     if ( _projection == kGnomonic || _projection == kStereographic )
     {
         xleft = -INFINITY;
@@ -1010,34 +1016,28 @@ void SSView::edges ( double y, double &xleft, double &xright )
     }
     else if ( _projection == kOrthographic )
     {
-        y = ( y - _centerY ) * _scaleY;
-        if ( fabs ( y ) > 1.0 )
-        {
-            xleft = xright = _centerX;
-        }
-        else
+        xleft = xright = _centerX;
+        y = ( y - _centerY ) * sy;
+        if ( fabs ( y ) < 1.0 )
         {
             double x = sqrt ( 1.0 - y * y );
-            xleft = _centerX - x / _scaleX;
-            xright = _centerX + x / _scaleX;
+            xleft = _centerX - x / sx;
+            xright = _centerX + x / sx;
         }
     }
     else if ( _projection == kMercator || _projection == kEquirectangular )
     {
-        xright = _centerX + SSAngle::kPi / _scaleX;
-        xleft  = _centerX - SSAngle::kPi / _scaleX;
+        xright = _centerX + SSAngle::kPi / sx;
+        xleft  = _centerX - SSAngle::kPi / sx;
     }
     else if ( _projection == kMollweide || _projection == kSinusoidal )
     {
+        xright = xleft = _centerX;
         double coslat = cos ( pixelsToRadiansY ( y - _centerY ) );
-        if ( isnan ( coslat ) )
+        if ( ! isnan ( coslat ) )
         {
-            xright = xleft = _centerX;
-        }
-        else
-        {
-            xright = _centerX + coslat * SSAngle::kPi / _scaleX;
-            xleft = _centerX - coslat * SSAngle::kPi / _scaleX;
+            xright = _centerX + coslat * SSAngle::kPi / sx;
+            xleft = _centerX - coslat * SSAngle::kPi / sx;
         }
     }
 }
