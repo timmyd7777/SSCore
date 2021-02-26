@@ -783,7 +783,11 @@ SSAngle SSView::north ( double x, double y )
         coords.lat = SSAngle::kHalfPi;
     
     SSVector n = project ( coords );
-    return SSAngle::atan2Pi ( n.y - y, n.x - x );
+    
+    double dx = n.x - x;
+    double dy = n.y - y;
+    
+    return SSAngle::atan2Pi ( _scaleX < 0 ? -dy : dy, _scaleX < 0 ? -dx : dx );
 }
 
 // This adaptation of the Liang-Barsky line-clipping algorithm is derived from
@@ -882,9 +886,11 @@ bool SSView::lineWrap ( SSVector &v0, SSVector &v1 )
     return false;
 }
 
-// Given three vectors (v1, v2, v3) which define a triangle,
+// Given three unit vectors (v1, v2, v3) which define a triangle on the celestial sphere,
 // returns an integer (1, 2, 3) if any vector lies across the edges of the sky from the other two;
-// or returns zero of all points in the triangle lie on the same side of the sky.
+// or returns zero of all points in the triangle lie on the same edge of the sky.
+// Nonzero values are only possible in 360-degree sky projections which unwrap
+// the entire celestial sphere onto a flat plane (Equirectangular, Mercator, etc.)
 
 int SSView::triangleWrap ( const SSVector &v1, const SSVector &v2, const SSVector &v3 )
 {
