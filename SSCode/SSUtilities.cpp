@@ -268,14 +268,15 @@ double strtofloat64 ( string str )
 // Converts a string representing an angle in deg min sec to decimal degrees.
 // Works with angle strings in any format (DD MM SS.S, DD MM.M, DD.D, etc.)
 // Assumes leading whitespace has been removed from string!
+// Returns INFINITY if string cannot be parsed as an angle.
 
 double strtodeg ( string str )
 {
     const char *cstr = str.c_str();
 
-    double deg = 0.0, min = 0.0, sec = 0.0;
-    sscanf ( cstr, "%lf %lf %lf", &deg, &min, &sec );
-    deg = fabs ( deg ) + min / 60.0 + sec / 3600.0;
+    double deg = INFINITY, min = 0.0, sec = 0.0;
+    if ( sscanf ( cstr, "%lf %lf %lf", &deg, &min, &sec ) )
+        deg = fabs ( deg ) + min / 60.0 + sec / 3600.0;
     
     return cstr[0] == '-' ? -deg : deg;
 }
