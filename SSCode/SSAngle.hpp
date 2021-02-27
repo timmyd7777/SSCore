@@ -26,6 +26,8 @@ struct SSDegMinSec
     SSDegMinSec ( char sign, short deg, short min, double sec );
     SSDegMinSec ( class SSAngle );
     
+    bool valid ( void ) { return ( sign == '+' || sign == '-' ) && ( deg >= 0 && deg < 360 && min >= 0 && min < 60 && sec >= 0.0 && sec < 60.0 ); }
+    
     double toDegrees ( void );
     string toString ( void );
     string format ( const string &fmt );
@@ -45,6 +47,8 @@ struct SSHourMinSec
     SSHourMinSec ( short hour, short min, double sec );
     SSHourMinSec ( class SSAngle );
 
+    bool valid ( void ) { return ( hour >= 0 && hour < 24 && min >= 0 && min < 60 && sec >= 0.0 && sec < 60.0 ); }
+    
     double toHours ( void );
     string toString ( void );
     string format ( const string &fmt );
