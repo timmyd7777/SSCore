@@ -57,7 +57,31 @@ static vector<string> _convec =
 static map<string,int> _conmap;
 static map<string,int> _baymap;
 
-static int string_to_bayer ( string str )
+static void mapinit ( void )
+{
+    for ( int i = 0; i < _bayvec.size(); i++ )
+        _baymap.insert ( { _bayvec[i], i + 1 } );
+
+    for ( int i = 0; i < _convec.size(); i++ )
+        _conmap.insert ( { _convec[i], i + 1 } );
+}
+
+static int string_to_con ( const string &str, bool casesens = true )
+{
+    if ( _conmap.size() == 0 )
+        mapinit();
+    
+    if ( casesens )
+        return _conmap[ str ];
+    
+    for ( int i = 0; i < _bayvec.size(); i++ )
+        if ( compare ( _convec[i], str, 0, false ) == 0 )
+            return i + 1;
+    
+    return 0;
+}
+
+static int string_to_bayer ( const string &str, bool casesens = true )
 {
     size_t len = str.length();
     
@@ -71,7 +95,7 @@ static int string_to_bayer ( string str )
     else
     {
         for ( int i = 0; i < _bayvec.size(); i++ )
-            if ( _bayvec[i].compare ( 0, len, str ) == 0 )
+            if ( compare ( _bayvec[i], str, len, casesens ) == 0 )
                 return i + 1;
     }
     
@@ -88,10 +112,13 @@ static string bayer_to_string ( int64_t bay )
         return _bayvec[ bay - 1 ];
 }
 
-static int64_t string_to_gcvs ( string str )
+static int64_t string_to_gcvs ( string str, bool casesens = true )
 {
     size_t len = str.length();
     int n1 = 0, n2 = 0;
+    
+    if ( ! casesens )
+        toUpper ( str );
     
     // Sequence R, S, T ... Z
         
@@ -192,7 +219,7 @@ string gcvs_to_string ( int64_t n )
 int64_t string_to_dm ( string str )
 {
     char     sign = 0, suffix = 0;
-    int        zone = 0, num = 0;
+    int      zone = 0, num = 0;
     
     sscanf ( str.c_str(), "%c%d%d%c", &sign, &zone, &num, &suffix );
 
@@ -220,7 +247,7 @@ int64_t string_to_dm ( string str )
 string dm_to_string ( int64_t dm )
 {
     int64_t sign = dm / 100000000;
-    int64_t    zone = ( dm - sign * 100000000 ) / 1000000;
+    int64_t zone = ( dm - sign * 100000000 ) / 1000000;
     int64_t num = ( dm - sign * 100000000 - zone * 1000000 ) / 10;
     int64_t suffix = dm - sign * 100000000 - zone * 1000000 - num * 10;
     
@@ -249,7 +276,7 @@ string dm_to_string ( int64_t dm )
 string gj_to_string ( int64_t gj )
 {
     int64_t d = gj / 10;
-    int64_t    c = gj - d * 10;
+    int64_t c = gj - d * 10;
     
     static vector<string> compvec = { "", "A", "B", "C", "D" };
     string comps = compvec[ c ];
@@ -276,7 +303,7 @@ int64_t string_to_gj ( string str )
 int64_t string_to_wds ( string str )
 {
     char    sign = 0;
-    int        ra = 0, dec = 0;
+    int     ra = 0, dec = 0;
     
     sscanf ( str.c_str(), "%d%c%d", &ra, &sign, &dec );
     
@@ -307,7 +334,7 @@ string wds_to_string ( int64_t wds )
 
 int64_t string_to_ngcic ( string str )
 {
-    int        num = 0;
+    int     num = 0;
     char    ext = 0;
 
     sscanf ( str.c_str(), "%d%c", &num, &ext );
@@ -339,8 +366,8 @@ string ngcic_to_string ( int64_t ngcic )
 int64_t string_to_pngpk ( string str )
 {
     double    lon = 0, lat = 0;
-    int        londec = 0, latdec = 0;
-    char    sign = 0;
+    int       londec = 0, latdec = 0;
+    char      sign = 0;
     
     // Comvert whitespace in penultimate position to period.
     
@@ -381,15 +408,6 @@ string pngpk_to_string ( int64_t pngpk, SSCatalog cat )
         return format ( "%03.0f%c%04.1f", londec / 10.0, sign, latdec / 10.0 );
 }
 
-static void mapinit ( void )
-{
-    for ( int i = 0; i < _bayvec.size(); i++ )
-        _baymap.insert ( { _bayvec[i], i + 1 } );
-
-    for ( int i = 0; i < _convec.size(); i++ )
-        _conmap.insert ( { _convec[i], i + 1 } );
-}
-
 SSIdentifier::SSIdentifier ( void )
 {
     _id = 0;
@@ -423,21 +441,14 @@ int64_t SSIdentifier::identifier ( void )
 
 SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bool casesens )
 {
-    size_t len = str.length();
-    
-    // If performing case-insensitive conversion, transform string to upper case
-    
-    string upstr = str;
-    if ( ! casesens )
-        for ( char &c : upstr )
-            c = toupper ( c );
-    
     if ( _conmap.size() == 0 || _baymap.size() == 0 )
         mapinit();
 
+    size_t len = str.length();
+
     // if string begins with "M", attempt to parse a Messier number
     
-    if ( str.find ( "M" ) == 0 && len > 1 )
+    if ( compare ( str, "M", 1, casesens ) == 0 && len > 1 )
     {
         int64_t m = strtoint ( str.substr ( 1, len - 1 ) );
         if ( m > 0 && m <= 110 )
@@ -446,7 +457,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "C", attempt to parse a Caldwell number
     
-    if ( str.find ( "C" ) == 0 && len > 1 )
+    if ( compare ( str, "C", 1, casesens ) == 0 && len > 1 )
     {
         int64_t c = strtoint ( str.substr ( 1, len - 1 ) );
         if ( c > 0 && c <= 109 )
@@ -455,7 +466,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "NGC", attempt to parse a New General Catalog identifier
     
-    if ( str.find ( "NGC" ) == 0 && len > 3 )
+    if ( compare ( str, "NGC", 3, casesens ) == 0 && len > 3 )
     {
         int64_t ngc = string_to_ngcic ( str.substr ( 3, len - 3 ) );
         if ( ngc )
@@ -464,7 +475,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "IC", attempt to parse an Index Catalog identifier
     
-    if ( str.find ( "IC" ) == 0 && len > 2 )
+    if ( compare ( str, "IC", 2, casesens ) == 0 && len > 2 )
     {
         int64_t ic = string_to_ngcic ( str.substr ( 2, len - 2 ) );
         if ( ic )
@@ -473,7 +484,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "Mel", attempt to parse a Melotte open cluster identifier
     
-    if ( str.find ( "Mel" ) == 0 && len > 3 )
+    if ( compare ( str, "Mel", 3, casesens ) == 0 && len > 3 )
     {
         size_t pos = str.find_first_of ( "0123456789" );
         if ( pos != string::npos )
@@ -482,7 +493,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "LBN", attempt to parse a Lynds Bright Nebula cluster identifier
     
-    if ( str.find ( "LBN" ) == 0 && len > 3 )
+    if ( compare ( str, "LBN", 3, casesens ) == 0 && len > 3 )
     {
         int64_t lbn = strtoint ( str.substr ( 3, len - 2 ) );
         if ( lbn > 0 )
@@ -491,7 +502,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "PNG", attempt to parse a Galactic Planetary Nebula number
     
-    if ( str.find ( "PNG" ) == 0 && len > 3 )
+    if ( compare ( str, "PNG", 3, casesens ) == 0 && len > 3 )
     {
         int64_t png = string_to_pngpk ( str.substr ( 3, len - 3 ) );
         if ( png )
@@ -500,7 +511,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "PK", attempt to parse a Perek-Kohoutek planetary nebula number
     
-    if ( str.find ( "PK" ) == 0 && len > 2 )
+    if ( compare ( str, "PK", 2, casesens ) == 0 && len > 2 )
     {
         int64_t pk = string_to_pngpk ( str.substr ( 2, len - 2 ) );
         if ( pk )
@@ -509,7 +520,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "PGC", attempt to parse a Principal Galaxy Catalog identifier
     
-    if ( str.find ( "PGC" ) == 0 && len > 3 )
+    if ( compare ( str, "PGC", 3, casesens ) == 0 && len > 3 )
     {
         int64_t pgc = strtoint ( str.substr ( 3, len - 3 ) );
         if ( pgc )
@@ -518,7 +529,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "UGCA", attempt to parse a Uppsala Galaxy Catalog Appendix identifier
     
-    if ( str.find ( "UGCA" ) == 0 && len > 4 )
+    if ( compare ( str, "UGCA", 4, casesens ) == 0 && len > 4 )
     {
         int64_t ugca = strtoint ( str.substr ( 4, len - 4 ) );
         if ( ugca )
@@ -527,7 +538,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     // if string begins with "UGC", attempt to parse a Uppsala Galaxy Catalog identifier
     
-    if ( str.find ( "UGC" ) == 0 && len > 3 )
+    if ( compare ( str, "UGC", 3, casesens ) == 0 && len > 3 )
     {
         int64_t ugc = strtoint ( str.substr ( 3, len - 3 ) );
         if ( ugc )
@@ -536,7 +547,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "HR", attempt to parse a Harvard Revised (Bright Star) catalog identifier
     
-    if ( str.find ( "HR" ) == 0 )
+    if ( compare ( str, "HR", 2, casesens ) == 0 )
     {
         size_t pos = str.find_first_of ( "0123456789" );
         if ( pos != string::npos )
@@ -545,7 +556,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     // if string begins with "HD", attempt to parse a Henry Draper catalog identifier
     
-    if ( str.find ( "HD" ) == 0 )
+    if ( compare ( str, "HD", 2, casesens ) == 0 )
     {
         size_t pos = str.find_first_of ( "0123456789" );
         if ( pos != string::npos )
@@ -554,7 +565,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "SAO", attempt to parse a Smithsonian Astrophyiscal Observatory catalog identifier
     
-    if ( str.find ( "SAO" ) == 0 )
+    if ( compare ( str, "SAO", 3, casesens ) == 0 )
     {
         size_t pos = str.find_first_of ( "0123456789" );
         if ( pos != string::npos )
@@ -563,7 +574,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "HIP", attempt to parse a Hipparcos catalog identifier
     
-    if ( str.find ( "HIP" ) == 0 )
+    if ( compare ( str, "HIP", 3, casesens ) == 0 )
     {
         size_t pos = str.find_first_of ( "0123456789" );
         if ( pos != string::npos )
@@ -573,7 +584,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     // if string begins with "BD" or "SD", attempt to parse a Bonner Durchmusterung catalog identifier
     // Note: "SD" is abbrevieation for Southern Durchmusterung, found in SKY2000 Master Star Catalog.
     
-    if ( str.find ( "BD" ) == 0 || str.find ( "SD" ) == 0 )
+    if ( compare ( str, "BD", 2, casesens ) == 0 || compare ( str, "SD", 2, casesens ) == 0 )
     {
         size_t pos = str.find_first_of ( "+-" );
         if ( pos != string::npos )
@@ -582,7 +593,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "CD", attempt to parse a Bonner Durchmusterung catalog identifier
     
-    if ( str.find ( "CD" ) == 0 )
+    if ( compare ( str, "CD", 2, casesens ) == 0 )
     {
         size_t pos = str.find_first_of ( "+-" );
         if ( pos != string::npos )
@@ -591,7 +602,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "CP", attempt to parse a Bonner Durchmusterung catalog identifier
     
-    if ( str.find ( "CP" ) == 0 )
+    if ( compare ( str, "CP", 2, casesens ) == 0 )
     {
         size_t pos = str.find_first_of ( "+-" );
         if ( pos != string::npos )
@@ -600,7 +611,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     // if string begins with "WDS", attempt to parse a Washington Double Star catalog identifier
     
-    if ( str.find ( "WDS" ) == 0 && len > 3 )
+    if ( compare ( str, "WDS", 3, casesens ) == 0 && len > 3 )
     {
         int64_t wds = string_to_wds ( str.substr ( 3, len - 3 ) );
         if ( wds )
@@ -609,7 +620,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     // if string begins with "GJ", "Gl", "Wo", or "NN", attempt to parse a Gliese-Jahreiss Nearby Star Catalog identifier
     
-    if ( ( str.find ( "GJ" ) == 0 || str.find ( "Gl" ) == 0 || str.find ( "NN" ) == 0 || str.find ( "Wo" ) == 0 ) && len > 2 )
+    if ( ( compare ( str, "GJ", 2, casesens ) == 0 || compare ( str, "Gl", 2, casesens ) == 0 || compare ( str, "NN", 2, casesens ) == 0 || compare ( str, "Wo", 2, casesens ) == 0 ) && len > 2 )
     {
         int64_t gj = string_to_gj ( str.substr ( 2, len - 2 ) );
         if ( gj )
@@ -621,14 +632,14 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     // attempt to parse Bayer/Flamsteed/GCVS identifier.
 
     vector<string> tokens = tokenize ( str, " " );
-    int con = tokens.size() >= 2 ? _conmap[ tokens[1] ] : 0;
+    int con = tokens.size() >= 2 ? string_to_con ( tokens[1], casesens ) : 0;
     if ( con )
     {
         string constr = tokens[1];
 
         // try parsing first token as a variable star designation; return GCVS identifier if successful.
         
-        int64_t var = string_to_gcvs ( tokens[0] );
+        int64_t var = string_to_gcvs ( tokens[0], casesens );
         if ( var > 0 )
             return SSIdentifier ( kCatGCVS, var * 100 + con );
         
@@ -651,7 +662,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
         // Try parsing first token as a Bayer letter.  If successful, return
         // a Bayer designation with the numeric portion (if any) as superscript
         
-        int bay = string_to_bayer ( tokens[0] );
+        int bay = string_to_bayer ( tokens[0], casesens );
         if ( bay > 0 )
             return SSIdentifier ( kCatBayer, ( bay * 100 + num ) * 100 + con );
     }
@@ -665,11 +676,16 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
             return SSIdentifier ( kCatAstNum, n );
     }
     
-    // if string is a number followed by "P", parse as a periodic comet number
+    // if string is a number followed by "P" (or "p" if case-insensitive),
+    // parse as a periodic comet number
     
-    if ( str.find ( "P" ) != string::npos )
+    size_t pos = str.find ( "P" );
+    if ( ! casesens && pos == string::npos )
+        pos = str.find ( "p" );
+    
+    if ( pos != string::npos )
     {
-        int64_t n = strtoint ( str.substr ( 0, str.find ( "P" ) ) );
+        int64_t n = strtoint ( str.substr ( 0, pos ) );
         if ( n > 0 )
             return SSIdentifier ( kCatComNum, n );
     }

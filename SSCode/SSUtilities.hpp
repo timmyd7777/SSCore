@@ -45,6 +45,11 @@ vector<string> split ( string str, string delim );
 vector<string> tokenize ( string str, string delim );
 vector<string> split_csv ( const string &csv );
 
+int compare ( const string &str1, const string &str2, size_t n, bool casesens = true );
+
+void toLower ( string &str );
+void toUpper ( string &str );
+
 bool isNumeric ( const string &str );
 bool endsWith ( const string &str, const string &suffix );
 bool startsWith ( const string& str, const string &prefix );

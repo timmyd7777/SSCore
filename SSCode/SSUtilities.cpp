@@ -91,6 +91,45 @@ string format ( const char *fmt, ... )
     return string ( buf );
 }
 
+// Robust string comparison function. Returns an integer less than zero if str1 is less than str2;
+// zero if str1 equals str2; or an integer greater than zero if str1 equals str2. If n > 0, only
+// the first n characters are compared. Performs a case-sensitive comparison if casesens is true;
+// performs a case insensitive comparison otherwise.
+
+int compare ( const string &str1, const string &str2, size_t n, bool casesens )
+{
+    if ( casesens )
+    {
+        if ( n > 0 )
+            return strncmp ( str1.c_str(), str2.c_str(), n );
+        else
+            return strcmp ( str1.c_str(), str2.c_str() );
+    }
+    else
+    {
+        if ( n > 0 )
+            return strncasecmp ( str1.c_str(), str2.c_str(), n );
+        else
+            return strcasecmp ( str1.c_str(), str2.c_str() );
+    }
+}
+
+// Converts a string to lower case.
+
+void toLower ( string &str )
+{
+    for ( char &c : str )
+        c = tolower ( c );
+}
+
+// Converts a string to upper case.
+
+void toUpper ( string &str )
+{
+    for ( char &c : str )
+        c = toupper ( c );
+}
+
 // Tests whether a string contains only numeric characters (digits, '-', '+', '.').
 // Returns false for empty strings.
 

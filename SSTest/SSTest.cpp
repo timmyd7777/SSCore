@@ -32,6 +32,16 @@
 #include "VSOP2013.hpp"
 #include "ELPMPP02.hpp"
 
+void exportCatalog ( SSObjectVec &objects )
+{
+    for ( int i = 0; i < objects.size(); i++ )
+    {
+        SSObjectPtr pObj = objects[i];
+        if ( pObj )
+            cout << pObj->toCSV() << endl;
+    }
+}
+
 void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 {
     SSObjectMap map = SSMakeObjectMap ( objects, cat );
@@ -679,20 +689,20 @@ int main ( int argc, const char *argv[] )
 //    TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
 //    TestVSOP2013 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/" );
 //    TestEphemeris ( inpath, outpath );
-//  TestPrecession();
-//  TestSatellites ( inpath, outpath );
-//  TestJPLDEphemeris ( inpath );
+    TestPrecession();
+    TestSatellites ( inpath, outpath );
+    TestJPLDEphemeris ( inpath );
     TestSolarSystem ( inpath, outpath );
-//  TestConstellations ( inpath, outpath );
-//    TestStars ( inpath, outpath );
-//    TestDeepSky ( inpath, outpath );
-/*
+    TestConstellations ( inpath, outpath );
+    TestStars ( inpath, outpath );
+    TestDeepSky ( inpath, outpath );
+
     SSObjectVec comets;
-    int numcom = importMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
+    int numcom = SSImportMPCComets ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Comets/MPC/CometEls.txt", comets );
     cout << "Imported " << numcom << " MPC comets" << endl;
 
     SSObjectVec asteroids;
-    int numast = importMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
+    int numast = SSImportMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
 
     SSIdentifierNameMap ngcicNameMap;
@@ -716,13 +726,14 @@ int main ( int argc, const char *argv[] )
     cout << "Imported " << numPlanNebs << " planetary nebulae" << endl;
     exportCatalog ( planNebs );
 
+    SSObjectVec objects;
     int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects );
     cout << "Imported " << numobj << " NGC-IC objects" << endl;
     exportCatalog ( objects );
 
     exportCatalog ( objects, kCatMessier, 1, 110 );
     exportCatalog ( objects, kCatCaldwell, 1, 110 );
-*/
+
     SSIdentifierMap hipHRMap;
     int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
     cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
@@ -744,8 +755,8 @@ int main ( int argc, const char *argv[] )
     cout << "Imported " << n << " Hipparcos Input Catalog stars." << endl;
 
     SSObjectVec hip2Stars;
-//  n = SSImportHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat", hip2Stars );
-//  cout << "Imported " << n << " Hipparcos New Reduction stars." << endl;
+    n = SSImportHIP2 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos New Reduction 2007/hip2.dat", hip2Stars );
+    cout << "Imported " << n << " Hipparcos New Reduction stars." << endl;
 
     SSObjectVec hipStars;
     n = SSImportHIP ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/CATS/HIP_MAIN.DAT", hipHRMap, hipBayMap, hipGCVSMap, hipNames, hicStars, hip2Stars, hipStars );
@@ -762,18 +773,18 @@ int main ( int argc, const char *argv[] )
     SSObjectVec gjACStars;
     n = SSImportGJAC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/Accurate Coordinates/table1.dat", hipStars, gjACStars );
     cout << "Imported " << n << " GJ accurate coordinate nearby stars." << endl;
-//    exportCatalog ( gjACStars );
+    exportCatalog ( gjACStars );
 
     SSObjectVec gjStars;
     n = SSImportGJCNS3 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Nearby Stars/CNS3/catalog.dat", starNames, gjACStars, gjStars );
     cout << "Imported " << n << " GJ nearby stars." << endl;
-//    exportCatalog ( gjStars );
+    exportCatalog ( gjStars );
 
     SSObjectVec skyStars;
     n = SSImportSKY2000 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/SKY2000 Master Star Catalog/ATT_sky2kv5.cat", iauNames, hipStars, gjStars, skyStars );
     cout << "Imported " << n << " SKY2000 stars." << endl;
-    // exportCatalog ( skyStars, kCatHR, 1, 9110 );
-    // SSExportObjectsToCSV ( "/Users/timmyd/Desktop/SKY2000.csv", skyStars );
+    exportCatalog ( skyStars, kCatHR, 1, 9110 );
+    SSExportObjectsToCSV ( "/Users/timmyd/Desktop/SKY2000.csv", skyStars );
     ExportObjectsToHTM ( "/Users/timmyd/Desktop/SKY2000/", skyStars );
 
 
