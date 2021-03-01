@@ -107,10 +107,17 @@ int compare ( const string &str1, const string &str2, size_t n, bool casesens )
     }
     else
     {
+#ifdef _MSC_VER
+        if ( n > 0 )
+            return _strnicmp ( str1.c_str(), str2.c_str(), n );
+        else
+            return _stricmp ( str1.c_str(), str2.c_str() );
+#else
         if ( n > 0 )
             return strncasecmp ( str1.c_str(), str2.c_str(), n );
         else
             return strcasecmp ( str1.c_str(), str2.c_str() );
+#endif
     }
 }
 
