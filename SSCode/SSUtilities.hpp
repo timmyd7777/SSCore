@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <ctime>
+#include <cstring>
 #include <string>
 #include <vector>
 
