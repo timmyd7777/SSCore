@@ -318,13 +318,24 @@ double strtofloat64 ( string str )
 
 double strtodeg ( string str )
 {
-    const char *cstr = str.c_str();
-
+    bool valid = false;
     double deg = INFINITY, min = 0.0, sec = 0.0;
-    if ( sscanf ( cstr, "%lf %lf %lf", &deg, &min, &sec ) )
-        deg = fabs ( deg ) + min / 60.0 + sec / 3600.0;
+    vector<string> tokens = tokenize ( str, " " );
+
+    if ( tokens.size() > 0 )
+        valid = sscanf ( tokens[0].c_str(), "%lf", &deg );
     
-    return cstr[0] == '-' ? -deg : deg;
+    if ( tokens.size() > 1 )
+        valid = sscanf ( tokens[1].c_str(), "%lf", &min );
+
+    if ( tokens.size() > 2 )
+        valid = sscanf ( tokens[2].c_str(), "%lf", &sec );
+    
+    if ( ! valid )
+        return INFINITY;
+    
+    deg = fabs ( deg ) + min / 60.0 + sec / 3600.0;
+    return str[0] == '-' ? -deg : deg;
 }
 
 // Converts angle in degrees to radians.
