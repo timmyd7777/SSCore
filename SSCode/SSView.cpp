@@ -153,16 +153,18 @@ SSAngle SSView::maxAngularHeight ( void )
 }
 
 // Sets angular width of field of view (in radians, always positive),
-// and reculates the horizontal and vertical scale.
+// and recalulates the horizontal and vertical scale.
 
 void SSView::setAngularWidth ( SSAngle angle )
 {
-    float width = fabs ( _width );
- 
+    if ( angle == 0.0 || isinf ( angle ) || isnan ( angle ) )
+        return;
+    
     angle = fabs ( angle );
     if ( angle > maxAngularWidth() )
         angle = maxAngularWidth();
     
+    float width = fabs ( _width );
     if ( _projection == kGnomonic )
         _scaleX = tan ( angle / 2.0 ) / ( width / 2.0 );
     else if ( _projection == kOrthographic )
@@ -181,12 +183,14 @@ void SSView::setAngularWidth ( SSAngle angle )
 
 void SSView::setAngularHeight ( SSAngle angle )
 {
-    float height = fabs ( _height );
+    if ( angle == 0.0 || isinf ( angle ) || isnan ( angle ) )
+        return;
 
     angle = fabs ( angle );
     if ( angle > maxAngularHeight() )
         angle = maxAngularHeight();
 
+    float height = fabs ( _height );
     if ( _projection == kGnomonic )
         _scaleY = tan ( angle / 2.0 ) / ( height / 2.0 );
     else if ( _projection == kOrthographic )
