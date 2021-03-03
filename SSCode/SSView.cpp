@@ -397,7 +397,7 @@ SSVector SSView::unproject ( SSVector vvec )
     {
         a = ( _centerX - vvec.x ) * _scaleX;
         b = ( _centerY - vvec.y ) * _scaleY;
-        if ( b > SSAngle::kHalfPi || b < -SSAngle::kHalfPi )
+        if ( fabs ( a ) > SSAngle::kPi || fabs ( b ) > SSAngle::kHalfPi )
             return ( cvec );
         
         x = cos ( a ) * cos ( b );
@@ -407,6 +407,9 @@ SSVector SSView::unproject ( SSVector vvec )
     else if ( _projection == kMercator )
     {
         a = ( _centerX - vvec.x ) * _scaleX;
+        if ( fabs ( a ) > SSAngle::kPi )
+            return ( cvec );
+
         b = atan ( ( _centerY - vvec.y ) * _scaleY );
         x = cos ( a ) * cos ( b );
         y = sin ( a ) * cos ( b );
@@ -415,12 +418,12 @@ SSVector SSView::unproject ( SSVector vvec )
     else if ( _projection == kMollweide )
     {
         b = ( _centerY - vvec.y ) * _scaleY / SSAngle::kHalfPi;
-        if ( b > 1.0 || b < -1.0 )
+        if ( fabs ( b ) > 1.0 )
             return ( cvec );
         
         b = asin ( b );
         a = ( _centerX - vvec.x ) * _scaleX / cos ( b );
-        if ( a > SSAngle::kPi || a < -SSAngle::kPi )
+        if ( fabs ( a ) > SSAngle::kPi )
             return ( cvec );
         
         x = cos ( a ) * cos ( b );
@@ -430,11 +433,11 @@ SSVector SSView::unproject ( SSVector vvec )
     else if ( _projection == kSinusoidal )
     {
         b = ( _centerY - vvec.y ) * _scaleY;
-        if ( b > SSAngle::kHalfPi || b < -SSAngle::kHalfPi )
+        if ( fabs ( b ) > SSAngle::kHalfPi )
             return ( cvec );
         
         a = ( _centerX - vvec.x ) * _scaleX / cos ( b );
-        if ( a > SSAngle::kPi || a < -SSAngle::kPi )
+        if ( fabs ( a ) > SSAngle::kPi )
             return ( cvec );
         
         x = cos ( a ) * cos ( b );
