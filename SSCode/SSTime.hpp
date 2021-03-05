@@ -23,7 +23,10 @@ using namespace std;
 enum SSCalendar
 {
     kGregorian = 0,        // Gregorian calendar, used after 15 October 1582 (JD 2299161).  Leap years every 4th year, but not every 100th, unless also 400th.
-    kJulian = 1            // Julian calendar, used before 4 October 1582 (JD 2299161).  Leap years every 4 years.
+    kJulian = 1,           // Julian calendar, used before 4 October 1582 (JD 2299161).  Leap years every 4 years.
+    kJewish = 2,           // modern Jewish calendar
+    kIslamic = 3,           // Islamic civil calendar
+    kIndian = 4            // Indian civil calendat
 };
 
 // Represents an instant in time as a calendar date in a local time zone.
@@ -112,6 +115,16 @@ struct SSTime
     double  getJulianEphemerisDate ( void );
     SSAngle getSiderealTime ( SSAngle lon );
     SSTime  getLocalMidnight ( void );
+    
+    static double GregorianToJD ( int y, short m, double d );
+    static double JulianToJD ( int y, short m, double d );
+    static double IslamicToJD ( int y, short m, double d );
+    static double IndianToJD ( int y, short m, double d );
+    
+    static void JDToGregorian ( double jd, int &y, short &m, double &d );
+    static void JDToJulian ( double jd, int &y, short &m, double &d );
+    static void JDToIslamic ( double jd, int &y, short &m, double &d );
+    static void JDToIndian ( double jd, int &y, short &m, double &d );
 };
 
 #endif /* SSTime_hpp */
