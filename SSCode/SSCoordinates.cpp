@@ -26,6 +26,7 @@ SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
     _starMotion = true;
     _aberration = true;
     _lighttime = true;
+    _dynamictime = true;
 }
 
 // Changes this coordinate transformation object's Julian Date (time) and recomputes
@@ -35,7 +36,7 @@ SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
 void SSCoordinates::setTime ( SSTime time )
 {
     _jd = time;
-    _jed = time.getJulianEphemerisDate();
+    _jed = _dynamictime ? time.getJulianEphemerisDate() : _jd.jd;
 
     getNutationConstants ( _jd, _de, _dl );
     _obq = getObliquity ( _jd );
@@ -70,6 +71,14 @@ void SSCoordinates::setLocation ( SSSpherical loc )
     
     geocentric = transform ( kEquatorial, kFundamental, geocentric );
     _obsPos = _obsPos.add ( geocentric / kKmPerAU );
+}
+
+// Determines whether daylight savings time is in effect at the current time and location
+
+bool SSCoordinates::isDST ( void )
+{
+    time_t t = time ( nullptr );
+    return localtime ( &t )->tm_isdst;
 }
 
 // Computes constants needed to compute precession from J2000 to a specific Julian Date (jd).

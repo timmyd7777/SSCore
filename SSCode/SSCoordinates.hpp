@@ -61,7 +61,8 @@ protected:
     bool        _starMotion;     // flag to apply stellar space motion when computing star apparent directions; default true.
     bool        _aberration;     // flag to apply aberration of light when computing all object's apparent directions; default true.
     bool        _lighttime;      // flag to apply light time correction when computing solar system object's apparent directions; default true.
-
+    bool        _dynamictime;    // flag to apply dynamic time correction (i.e. Delta T) to civil Julian Date; default true. If false, _jd and _jde will be equal.
+    
 public:
     
     static constexpr double kKmPerAU = 149597870.700;                               // kilometers per Astronomical Unit (IAU 2012)
@@ -101,6 +102,8 @@ public:
     void setStarMotion ( bool motion ) { _starMotion = motion; }
     void setAberration ( bool aberration ) { _aberration = aberration; }
     void setLightTime ( bool lighttime ) { _lighttime = lighttime; }
+    
+    bool isDST ( void );
     
     static double getObliquity ( double jd );
     static void   getNutationConstants ( double jd, double &de, double &dl );
