@@ -38,6 +38,48 @@ double SSTime::CalendarToJD ( int y, short m, double d )
     return jd;
 }
 
+static long tishri1 ( int y )
+{
+    long b = 31524 + 765433 * ( ( 235L * y - 234 ) / 19 );
+    long d = b / 25920;
+    long e = b % 25920;
+    long f = 1 + d % 7;
+    long g = ( 7L * y + 13 ) % 19 / 12;
+    long h = ( 7L * y + 6 ) % 19 / 12;
+    
+    if ( e >= 19440 || ( e >= 9924 && f == 3 && g == 0 ) || ( e >= 16788 && f == 2 && g == 0 && h == 1 ) )
+        d = d + 1;
+    
+    return d + ( ( d + 5 ) % 7 ) % 2 + 347997;
+}
+
+static long jewdays ( long k, long m )
+{
+    static int A[6][13] =
+    {
+        { 0, 30, 59, 88, 117, 147, 176, 206, 235, 265, 294, 324, 999 },
+        { 0, 30, 59, 89, 118, 148, 177, 207, 236, 266, 295, 325, 999 },
+        { 0, 30, 60, 90, 119, 149, 178, 208, 237, 267, 296, 326, 999 },
+        { 0, 30, 59, 88, 117, 147, 177, 206, 236, 265, 295, 324, 354 },
+        { 0, 30, 59, 89, 118, 148, 178, 207, 237, 266, 296, 325, 355 },
+        { 0, 30, 60, 90, 119, 149, 179, 208, 238, 267, 297, 326, 356 },
+    };
+
+    return ( k > 0 && k < 7 && m > 0 && m < 14 ) ? A[k-1][m-1] : 0;
+}
+
+// Converts a Jewish calendar date to a Julian Date. Valid for Jewish years > 0.
+// From "The Explanatory Supplement to the Astronomical Almanac", 3rd ed. (2012), pp. 619-621.
+// and http://www.ricswal.plus.com/CALENDAR/ALGORITHMS.TXT
+
+double SSTime::JewishToJD ( int y, short m, double d )
+{
+    long a = tishri1 ( y );
+    long b = tishri1 ( y + 1 );
+    long k = b - a - 352 - 27 * ( ( ( 7 * y + 13 ) % 19 ) / 12 );
+    return a + jewdays ( k, m ) + d - 1.5;
+}
+
 // Converts a Gregorian calendar date to a Julian Date.
 // Valid for all Gregorian calendar dates corresponding to JD >= 0, i.e. dates after -4713 November 23.
 // From "The Explanatory Supplement to the Astronomical Almanac" (1992), pp. 603-606.
@@ -193,6 +235,36 @@ void SSTime::JDToJulian ( double jd, int &y, short &m, double &d )
     y = 4 * k + n + i - 4716;
 }
 
+// Converts a Julian Date to a Jewish calendar date. Valid for Jewish years > 0, i.e. JD >= 347997.5.
+// From "The Explanatory Supplement to the Astronomical Almanac", 3rd ed. (2012), pp. 619-621.
+// and http://www.ricswal.plus.com/CALENDAR/ALGORITHMS.TXT
+
+void SSTime::JDToJewish ( double jd, int &y, short &m, double &d )
+{
+    jd = jd + 0.5;
+    long j = floor ( jd );
+    double f = jd - j;
+
+    long M = ( 25920 * ( j - 347996 ) ) / 765433;
+    
+    y = 19 * ( M / 235 ) + ( 19 * ( M % 235 ) - 2 ) / 235 + 1;
+    long j1 = tishri1 ( y );
+    if ( j1 > j )
+        y = y - 1;
+    
+    long a = tishri1 ( y );
+    long b = tishri1 ( y + 1 );
+    long k = b - a - 352 - 27 * ( ( ( 7 * y + 13 ) % 19 ) / 12 );
+    long c = j - a + 1;
+    
+    for ( m = 1; m < 14; m++ )
+        if ( jewdays ( k, m ) >= c )
+            break;
+    
+    m = m - 1;
+    d = c - jewdays ( k, m ) + f;
+}
+
 // Converts a Julian date (jd) to a date in the Islamic civil calendar (y/m/d).
 // Valid for all years >= 1, corresponding to JD >= 1948440. From:
 // "The Explanatory Supplement to the Astronomical Almanac" (1992), pp. 603-606.
@@ -283,15 +355,13 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
 {
     double  dayf = time.jd + time.zone / 24.0;
     
-//    if ( cal == kGregorian )
-//        SSTime::JDToGregorian ( dayf, year, month, dayf );
-//    else if ( cal == kJulian )
-//        SSTime::JDToJulian ( dayf, year, month, dayf );
-    if ( cal == kIslamic )
+    if ( cal == kJewish )
+        SSTime::JDToJewish ( dayf, year, month, dayf );
+    else if ( cal == kIslamic )
         SSTime::JDToIslamic ( dayf, year, month, dayf );
     else if ( cal == kIndian )
         SSTime::JDToIndian ( dayf, year, month, dayf );
-    else
+    else    // kGregorian, kJulian
         SSTime::JDToCalendar ( dayf, year, month, dayf );
 
     day = floor ( dayf );
@@ -412,15 +482,13 @@ SSTime::SSTime ( SSDate date )
 {
     double dayf = date.day + date.hour / 24.0 + date.min / 1440.0 + date.sec / 86400.0 - date.zone / 24.0;
     
-//    if ( date.calendar == kGregorian )
-//        jd = SSTime::GregorianToJD ( date.year, date.month, dayf );
-//    else if ( date.calendar == kJulian )
-//        jd = SSTime::JulianToJD ( date.year, date.month, dayf );
-    if ( date.calendar == kIslamic )
+    if ( date.calendar == kJewish )
+        jd = SSTime::IslamicToJD ( date.year, date.month, dayf );
+    else if ( date.calendar == kIslamic )
         jd = SSTime::IslamicToJD ( date.year, date.month, dayf );
     else if ( date.calendar == kIndian )
         jd = SSTime::IndianToJD ( date.year, date.month, dayf );
-    else
+    else // kGregorian, kJulian
         jd = SSTime::CalendarToJD ( date.year, date.month, dayf );
 
     zone = date.zone;

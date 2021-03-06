@@ -119,11 +119,13 @@ struct SSTime
     static double CalendarToJD ( int y, short m, double d );
     static double GregorianToJD ( int y, short m, double d );
     static double JulianToJD ( int y, short m, double d );
+    static double JewishToJD ( int y, short m, double d );
     static double IslamicToJD ( int y, short m, double d );
     static double IndianToJD ( int y, short m, double d );
     
     static void JDToCalendar ( double jd, int &y, short &m, double &d );
     static void JDToGregorian ( double jd, int &y, short &m, double &d );
+    static void JDToJewish ( double jd, int &y, short &m, double &d );
     static void JDToJulian ( double jd, int &y, short &m, double &d );
     static void JDToIslamic ( double jd, int &y, short &m, double &d );
     static void JDToIndian ( double jd, int &y, short &m, double &d );

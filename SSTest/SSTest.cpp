@@ -91,6 +91,67 @@ void TestTime ( void )
          << endl;
 };
 
+void TestCalendars ( void )
+{
+    double step = 36522;
+    double start = SSTime::kJ2000 + 0.5 - step * 10;
+    double stop = SSTime::kJ2000 + 0.5 + step * 10;
+    
+    int year;
+    short month;
+    double day;
+    
+    for ( double jd0 = start; jd0 <= stop; jd0 += step )
+    {
+        SSTime::JDToCalendar ( jd0, year, month, day );
+        printf ( "JD %10.1f = %5d/%02hd/%04.1f", jd0, year, month, day );
+        SSTime::JDToGregorian ( jd0, year, month, day );
+        printf ( " = Gregorian %5d/%02hd/%04.1f", year, month, day );
+        double jd1 = SSTime::GregorianToJD ( year, month, day );
+        printf ( " = JD %10.1f\n", jd1 );
+    }
+
+    for ( double jd0 = start; jd0 <= stop; jd0 += step )
+    {
+        SSTime::JDToCalendar ( jd0, year, month, day );
+        printf ( "JD %10.1f = %5d/%02hd/%04.1f", jd0, year, month, day );
+        SSTime::JDToJulian ( jd0, year, month, day );
+        printf ( " = Julian %5d/%02hd/%04.1f", year, month, day );
+        double jd1 = SSTime::JulianToJD ( year, month, day );
+        printf ( " = JD %10.1f\n", jd1 );
+    }
+
+    for ( double jd0 = start; jd0 <= stop; jd0 += step )
+    {
+        SSTime::JDToCalendar ( jd0, year, month, day );
+        printf ( "JD %10.1f = %5d/%02hd/%04.1f", jd0, year, month, day );
+        SSTime::JDToJewish ( jd0, year, month, day );
+        printf ( " = Jewish %5d/%02hd/%04.1f", year, month, day );
+        double jd1 = SSTime::JewishToJD ( year, month, day );
+        printf ( " = JD %10.1f\n", jd1 );
+    }
+
+    for ( double jd0 = start; jd0 <= stop; jd0 += step )
+    {
+        SSTime::JDToCalendar ( jd0, year, month, day );
+        printf ( "JD %10.1f = %5d/%02hd/%04.1f", jd0, year, month, day );
+        SSTime::JDToIslamic ( jd0, year, month, day );
+        printf ( " = Moslem %5d/%02hd/%04.1f", year, month, day );
+        double jd1 = SSTime::IslamicToJD ( year, month, day );
+        printf ( " = JD %10.1f\n", jd1 );
+    }
+
+    for ( double jd0 = start; jd0 <= stop; jd0 += step )
+    {
+        SSTime::JDToCalendar ( jd0, year, month, day );
+        printf ( "JD %10.1f = %5d/%02hd/%04.1f", jd0, year, month, day );
+        SSTime::JDToIndian ( jd0, year, month, day );
+        printf ( " = Indian %5d/%02hd/%04.1f", year, month, day );
+        double jd1 = SSTime::IndianToJD ( year, month, day );
+        printf ( " = JD %10.1f\n", jd1 );
+    }
+}
+
 void TestSatellites ( string inputDir, string outputDir )
 {
     string filename = inputDir + "/SolarSystem/Satellites/visual.txt";
@@ -673,7 +734,8 @@ int main ( int argc, const char *argv[] )
 #endif
     
     TestTime();
-
+    TestCalendars();
+    
     if ( argc < 3 )
     {
         cout << "Usage: SSTest <inpath> <outpath>" << endl;
