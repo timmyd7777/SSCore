@@ -28,7 +28,7 @@ double SSTime::CalendarToJD ( int y, short m, double d )
     }
 
     int b = 0;
-    if ( y >= 1582 && m >= 10 && d > 4 )
+    if ( ( y > 1582 ) || ( y == 1582 && m > 10 ) || ( y == 1582 && m == 10 && d >= 5.0 ) )
     {
         int a = floor ( y / 100.0 );
         b = 2 - a + floor ( a / 4.0 );
@@ -113,7 +113,7 @@ void SSTime::JDToCalendar ( double jd, int &year, short &month, double &day )
     int       z = floor ( j ), a = 0;
     double    f = j - z;
     
-    if ( j >= 2299161 )
+    if ( j >= 2299161.0 )
     {
         a = ( z - 1867216.25 ) / 36524.25;
         a = z + 1 + a - a / 4;

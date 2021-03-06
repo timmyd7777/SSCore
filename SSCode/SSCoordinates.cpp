@@ -77,7 +77,7 @@ void SSCoordinates::setLocation ( SSSpherical loc )
 
 bool SSCoordinates::isDST ( void )
 {
-    time_t t = time ( nullptr );
+    time_t t = _jd.toUnixTime();
     return localtime ( &t )->tm_isdst;
 }
 
