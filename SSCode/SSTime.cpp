@@ -15,7 +15,7 @@
 #include "SSAngle.hpp"
 #include "SSTime.hpp"
 
-// Converts a calendar date (year/month/day) in UTC to a Julian Date.
+// Converts a calendar date (year/month/day) in UTC to a Julian Date. Valid for all calendar dates.
 // If the date is after 4 October 1582 it is assumed to be in the Gregorian calendar; otherwise, in the Julian calendar.
 // From Jean Meeus, "Astronomical Algorithms", ch. 7, pp. 63-64.
 
@@ -145,7 +145,7 @@ double SSTime::IndianToJD ( int y, short m, double d )
     return ( jd );
 }
 
-// Converts a Julian Date (jd) to a celendar date (year/month/day) in UTC.
+// Converts a Julian Date (jd) to a celendar date (year/month/day) in UTC. Valid for all Julian Dates.
 // If the JD is after 2299161 it is assumed to be in the Gregorian calendar; otherwise, in the Julian calendar.
 // From Jean Meeus, "Astronomical Algorithms", ch. 7, pp. 63-64.
 
