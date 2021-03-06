@@ -15,6 +15,29 @@
 #include "SSAngle.hpp"
 #include "SSTime.hpp"
 
+// Converts a calendar date (year/month/day) in UTC to a Julian Date.
+// If the date is after 4 October 1582 it is assumed to be in the Gregorian calendar; otherwise, in the Julian calendar.
+// From Jean Meeus, "Astronomical Algorithms", ch. 7, pp. 63-64.
+
+double SSTime::CalendarToJD ( int y, short m, double d )
+{
+    if ( m < 3 )
+    {
+        y = y - 1;
+        m = m + 12;
+    }
+
+    int b = 0;
+    if ( y >= 1582 && m >= 10 && d > 4 )
+    {
+        int a = floor ( y / 100.0 );
+        b = 2 - a + floor ( a / 4.0 );
+    }
+
+    double jd = floor ( 365.25 * ( y + 4716 ) ) + floor ( 30.6001 * ( m + 1 ) ) + d + b - 1524.5;
+    return jd;
+}
+
 // Converts a Gregorian calendar date to a Julian Date.
 // Valid for all Gregorian calendar dates corresponding to JD >= 0, i.e. dates after -4713 November 23.
 // From "The Explanatory Supplement to the Astronomical Almanac" (1992), pp. 603-606.
@@ -78,6 +101,44 @@ double SSTime::IndianToJD ( int y, short m, double d )
        + d + 1749578.5;
        
     return ( jd );
+}
+
+// Converts a Julian Date (jd) to a celendar date (year/month/day) in UTC.
+// If the JD is after 2299161 it is assumed to be in the Gregorian calendar; otherwise, in the Julian calendar.
+// From Jean Meeus, "Astronomical Algorithms", ch. 7, pp. 63-64.
+
+void SSTime::JDToCalendar ( double jd, int &year, short &month, double &day )
+{
+    double    j = jd + 0.5;
+    int       z = floor ( j ), a = 0;
+    double    f = j - z;
+    
+    if ( j >= 2299161 )
+    {
+        a = ( z - 1867216.25 ) / 36524.25;
+        a = z + 1 + a - a / 4;
+    }
+    else
+    {
+        a = z;
+    }
+    
+    int b = a + 1524;
+    int c = floor ( ( b - 122.1 ) / 365.25 );
+    int d = floor ( 365.25 * c );
+    int e = ( b - d ) / 30.6001;
+
+    day = b - d - floor ( 30.6001 * e ) + f;
+    
+    if ( e < 14 )
+        month = e - 1;
+    else
+        month = e - 13;
+
+    if ( month > 2 )
+        year = c - 4716;
+    else
+        year = c - 4715;
 }
 
 // Converts a Julian Date (jd) to a date (y/m/d) in the Gregorian calendar.
@@ -222,14 +283,16 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
 {
     double  dayf = time.jd + time.zone / 24.0;
     
-    if ( cal == kGregorian )
-        SSTime::JDToGregorian ( dayf, year, month, dayf );
-    else if ( cal == kJulian )
-        SSTime::JDToJulian ( dayf, year, month, dayf );
-    else if ( cal == kIslamic )
+//    if ( cal == kGregorian )
+//        SSTime::JDToGregorian ( dayf, year, month, dayf );
+//    else if ( cal == kJulian )
+//        SSTime::JDToJulian ( dayf, year, month, dayf );
+    if ( cal == kIslamic )
         SSTime::JDToIslamic ( dayf, year, month, dayf );
     else if ( cal == kIndian )
         SSTime::JDToIndian ( dayf, year, month, dayf );
+    else
+        SSTime::JDToCalendar ( dayf, year, month, dayf );
 
     day = floor ( dayf );
     dayf = dayf - day;
@@ -349,14 +412,16 @@ SSTime::SSTime ( SSDate date )
 {
     double dayf = date.day + date.hour / 24.0 + date.min / 1440.0 + date.sec / 86400.0 - date.zone / 24.0;
     
-    if ( date.calendar == kGregorian )
-        jd = SSTime::GregorianToJD ( date.year, date.month, dayf );
-    else if ( date.calendar == kJulian )
-        jd = SSTime::JulianToJD ( date.year, date.month, dayf );
-    else if ( date.calendar == kIslamic )
+//    if ( date.calendar == kGregorian )
+//        jd = SSTime::GregorianToJD ( date.year, date.month, dayf );
+//    else if ( date.calendar == kJulian )
+//        jd = SSTime::JulianToJD ( date.year, date.month, dayf );
+    if ( date.calendar == kIslamic )
         jd = SSTime::IslamicToJD ( date.year, date.month, dayf );
     else if ( date.calendar == kIndian )
         jd = SSTime::IndianToJD ( date.year, date.month, dayf );
+    else
+        jd = SSTime::CalendarToJD ( date.year, date.month, dayf );
 
     zone = date.zone;
 }
