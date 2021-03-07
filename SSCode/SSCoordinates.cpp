@@ -77,8 +77,10 @@ void SSCoordinates::setLocation ( SSSpherical loc )
 
 bool SSCoordinates::isDST ( void )
 {
+    struct tm lt = { 0 };
     time_t t = _jd.toUnixTime();
-    return localtime ( &t )->tm_isdst;
+    localtime_r ( &t, &lt );
+    return lt.tm_isdst;
 }
 
 // Computes constants needed to compute precession from J2000 to a specific Julian Date (jd).

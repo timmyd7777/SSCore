@@ -511,9 +511,12 @@ SSTime SSTime::fromSystem ( void )
     return SSTime ( date );
 #else
     time_t t = time ( nullptr );
-    double zone = localtime ( &t )->tm_gmtoff / 3600.0;
-    
+    struct tm lt = { 0 };
     struct timeval tv = { 0 };
+
+    localtime_r ( &t, &lt );
+    double zone = lt.tm_gmtoff / 3600.0;
+
     gettimeofday ( &tv, nullptr );
     double jd = kJ1970 + ( tv.tv_sec + tv.tv_usec / 1000000.0 ) / 86400.0;
 

@@ -541,6 +541,30 @@ void set_timezone ( double zone )
 #endif
 }
 
+// Modifies current time zone to an IANA time zone name ("America/Los Angeles", "Australia/Sydney", etc.)
+// This will modify the current time zone offset and daylight saving time rules.
+// If zone name string is empty, sets zone to system time zone.
+
+void set_timezonename ( string zonename )
+{
+#ifdef _MSC_VER
+    _putenv_s ( "TZ", zonename.c_str() );
+    _tzset();
+#else
+    setenv ( "TZ", zonename.c_str(), 1 );
+    tzset();
+#endif
+}
+
+// Returns current IANA time zone name string ("America/Los Angeles", "Australia/Sydney", etc.)
+// An empty string returned means the system is using default time zone.
+
+string get_timzonename ( void )
+{
+    char *tz = getenv ( "TZ" );
+    return string ( tz ? tz : "" );
+}
+
 // Returns file size in bytes, or zero if file does not exist.
 
 size_t filesize ( const string &path )
