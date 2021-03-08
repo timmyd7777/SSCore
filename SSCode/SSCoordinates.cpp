@@ -5,6 +5,7 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
 #include "SSCoordinates.hpp"
+#include "SSFeature.hpp"
 #include "SSPlanet.hpp"
 
 #define NEW_PRECESSION 1    // 1 to use new long-term precession, 0 to use IAU 1976 precession.
@@ -73,7 +74,24 @@ void SSCoordinates::setLocation ( SSSpherical loc )
     _obsPos = _obsPos.add ( geocentric / kKmPerAU );
 }
 
-// Determines whether daylight savings time is in effect at the current time and location
+// Sets location to the longirude, latitude, altitude, and time zone in the specified city.
+// Changes the current IANA time zone name (stored in the TZ environment variable) to the
+// city's time zone name ("America/Los Angeles", etc.). See set_timezonename().
+
+void SSCoordinates::setLocation ( SSCity *pCity )
+{
+    SSAngle lon = SSAngle::fromDegrees ( pCity->getLongitude() );
+    SSAngle lat = SSAngle::fromDegrees ( pCity->getLatitude() );
+    double  alt = pCity->getElevation() / 1000.0;
+    
+    setLocation ( SSSpherical ( lon, lat, alt ) );
+    set_timezonename ( pCity->getTimezoneName() );
+    _jd.zone = pCity->getTimezoneRawOffset() + isDST();
+}
+
+// Determines whether daylight savings time is in effect at the current simulated time,
+// using the daylight savings time rules for the current IANA time zone name stored in
+// the TZ environment variable ("America/Los Angeles", etc.). See set_timezonename().
 
 bool SSCoordinates::isDST ( void )
 {

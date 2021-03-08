@@ -551,7 +551,10 @@ void set_timezonename ( string zonename )
     _putenv_s ( "TZ", zonename.c_str() );
     _tzset();
 #else
-    setenv ( "TZ", zonename.c_str(), 1 );
+    if ( zonename.empty() )
+        unsetenv ( "TZ" );
+    else
+        setenv ( "TZ", zonename.c_str(), 1 );
     tzset();
 #endif
 }

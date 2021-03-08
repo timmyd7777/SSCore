@@ -81,7 +81,9 @@ public:
     
     void setTime ( SSTime time );
     void setLocation ( SSSpherical location );
-
+    void setLocation ( class SSCity *pCity );
+    bool isDST ( void );
+    
     SSTime getTime ( void ) { return _jd; }
     SSSpherical getLocation ( void ) { return SSSpherical ( _lon, _lat, _alt ); }
     double getJED ( void ) { return _jed; }
@@ -102,8 +104,6 @@ public:
     void setStarMotion ( bool motion ) { _starMotion = motion; }
     void setAberration ( bool aberration ) { _aberration = aberration; }
     void setLightTime ( bool lighttime ) { _lighttime = lighttime; }
-    
-    bool isDST ( void );
     
     static double getObliquity ( double jd );
     static void   getNutationConstants ( double jd, double &de, double &dl );
