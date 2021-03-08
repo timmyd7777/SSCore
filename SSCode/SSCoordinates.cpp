@@ -76,7 +76,7 @@ void SSCoordinates::setLocation ( SSSpherical loc )
 
 // Sets location to the longirude, latitude, altitude, and time zone in the specified city.
 // Changes the current IANA time zone name (stored in the TZ environment variable) to the
-// city's time zone name ("America/Los Angeles", etc.). See set_timezonename().
+// city's time zone name ("America/Los_Angeles", etc.). See set_timezonename().
 
 void SSCoordinates::setLocation ( SSCity *pCity )
 {
@@ -91,7 +91,7 @@ void SSCoordinates::setLocation ( SSCity *pCity )
 
 // Determines whether daylight savings time is in effect at the current simulated time,
 // using the daylight savings time rules for the current IANA time zone name stored in
-// the TZ environment variable ("America/Los Angeles", etc.). See set_timezonename().
+// the TZ environment variable ("America/Los_Angeles", etc.). See set_timezonename().
 
 bool SSCoordinates::isDST ( void )
 {

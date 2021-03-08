@@ -541,7 +541,7 @@ void set_timezone ( double zone )
 #endif
 }
 
-// Modifies current time zone to an IANA time zone name ("America/Los Angeles", "Australia/Sydney", etc.)
+// Modifies current time zone to an IANA time zone name ("America/Los_Angeles", "Australia/Sydney", etc.)
 // This will modify the current time zone offset and daylight saving time rules.
 // If zone name string is empty, sets zone to system time zone.
 
@@ -559,10 +559,10 @@ void set_timezonename ( string zonename )
 #endif
 }
 
-// Returns current IANA time zone name string ("America/Los Angeles", "Australia/Sydney", etc.)
+// Returns current IANA time zone name string ("America/Los_Angeles", "Australia/Sydney", etc.)
 // An empty string returned means the system is using default time zone.
 
-string get_timzonename ( void )
+string get_timezonename ( void )
 {
     char *tz = getenv ( "TZ" );
     return string ( tz ? tz : "" );

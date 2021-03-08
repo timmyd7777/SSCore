@@ -86,7 +86,7 @@ double clocksec_since ( double &start );
 double get_timezone ( void );
 void set_timezone ( double hours );
 
-string get_timzonename ( void );
+string get_timezonename ( void );
 void set_timezonename ( string zonename );
 
 size_t filesize ( const string &path );
