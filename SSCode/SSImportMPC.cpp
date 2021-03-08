@@ -1,4 +1,4 @@
-﻿// SSImportMPC.cpp
+// SSImportMPC.cpp
 // SSCore
 //
 // Created by Tim DeBenedictis on 3/24/20.
@@ -45,7 +45,7 @@ int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
         int year = strtoint ( line.substr ( 14, 4 ) );
         int month = strtoint ( line.substr ( 19, 2 ) );
         double day = strtofloat64 ( line.substr ( 22, 7 ) );
-        double peridate = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
+        double peridate = year && month && day ? SSTime ( SSDate ( kGregorianJulian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
         if ( peridate == 0.0 )
             continue;
                 
@@ -79,7 +79,7 @@ int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
         year = strtoint ( line.substr ( 81, 4 ) );
         month = strtoint ( line.substr ( 85, 2 ) );
         day = strtofloat64 ( line.substr ( 87, 2 ) );
-        double epoch = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
+        double epoch = year && month && day ? SSTime ( SSDate ( kGregorianJulian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
         
         // col 92-95: absolute magnitude
         
@@ -221,7 +221,7 @@ int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
         else
             continue;
         
-        double epoch = year && month && day ? SSTime ( SSDate ( kGregorian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
+        double epoch = year && month && day ? SSTime ( SSDate ( kGregorianJulian, 0.0, year, month, day, 0, 0, 0 ) ).jd : 0.0;
         
         // col 27-35: Mean anomaly in degrees
         

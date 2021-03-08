@@ -22,10 +22,11 @@ using namespace std;
 
 enum SSCalendar
 {
+    kGregorianJulian = -1, // Gregorian after 4 October 1582; Julian before 15 October 1582.
     kGregorian = 0,        // Gregorian calendar, used after 15 October 1582 (JD 2299161).  Leap years every 4th year, but not every 100th, unless also 400th.
     kJulian = 1,           // Julian calendar, used before 4 October 1582 (JD 2299161).  Leap years every 4 years.
     kJewish = 2,           // modern Jewish calendar
-    kIslamic = 3,           // Islamic civil calendar
+    kIslamic = 3,          // Islamic civil calendar
     kIndian = 4            // Indian civil calendat
 };
 
@@ -35,7 +36,7 @@ struct SSTime;
 
 struct SSDate
 {
-    SSCalendar calendar;   // calendar system: kGregorian or kJulian.
+    SSCalendar calendar;   // calendar system: kGregorianJulian, kJewish, kIslamic, etc.
     double zone;           // local time zone offset from UTC in hours east of Greenwich; wwst is negative!
     int year;              // calendar year; note 0 = 1 BC, -1 = 2 BC, etc.
     short month;           // month; 1 = Jan, 2 = Feb, etc.
@@ -46,7 +47,7 @@ struct SSDate
     
     SSDate ( SSCalendar calendar, double zone, int year, short month, short day, short hour, short min, double sec );
     SSDate ( SSCalendar calendar, double zone, int year, short month, double dayf );
-    SSDate ( SSTime time, SSCalendar calendar = kGregorian );
+    SSDate ( SSTime time, SSCalendar calendar = kGregorianJulian );
     
     static SSDate fromJulianDate ( SSTime time, SSCalendar cal );
     SSTime toJulianDate ( void );

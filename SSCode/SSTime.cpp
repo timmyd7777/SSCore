@@ -355,13 +355,17 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
 {
     double  dayf = time.jd + time.zone / 24.0;
     
-    if ( cal == kJewish )
+    if ( cal == kGregorian )
+        SSTime::JDToGregorian ( dayf, year, month, dayf );
+    else if ( cal == kJulian )
+        SSTime::JDToJulian ( dayf, year, month, dayf );
+    else if ( cal == kJewish )
         SSTime::JDToJewish ( dayf, year, month, dayf );
     else if ( cal == kIslamic )
         SSTime::JDToIslamic ( dayf, year, month, dayf );
     else if ( cal == kIndian )
         SSTime::JDToIndian ( dayf, year, month, dayf );
-    else    // kGregorian, kJulian
+    else    // kGregorianJulian
         SSTime::JDToCalendar ( dayf, year, month, dayf );
 
     day = floor ( dayf );
@@ -482,13 +486,17 @@ SSTime::SSTime ( SSDate date )
 {
     double dayf = date.day + date.hour / 24.0 + date.min / 1440.0 + date.sec / 86400.0 - date.zone / 24.0;
     
-    if ( date.calendar == kJewish )
-        jd = SSTime::IslamicToJD ( date.year, date.month, dayf );
+    if ( date.calendar == kGregorian )
+        jd = SSTime::GregorianToJD ( date.year, date.month, dayf );
+    else if ( date.calendar == kJulian )
+        jd = SSTime::JulianToJD ( date.year, date.month, dayf );
+    else if ( date.calendar == kJewish )
+        jd = SSTime::JewishToJD ( date.year, date.month, dayf );
     else if ( date.calendar == kIslamic )
         jd = SSTime::IslamicToJD ( date.year, date.month, dayf );
     else if ( date.calendar == kIndian )
         jd = SSTime::IndianToJD ( date.year, date.month, dayf );
-    else // kGregorian, kJulian
+    else // kGregorianJulian
         jd = SSTime::CalendarToJD ( date.year, date.month, dayf );
 
     zone = date.zone;

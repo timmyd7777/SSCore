@@ -2127,7 +2127,7 @@ int SSTLE::read ( FILE *file )
     // Convert other parameters
 
     norad = number;
-    jdepoch = SSTime ( SSDate ( kGregorian, 0.0, year, 1, day, 0, 0, 0.0 ) );
+    jdepoch = SSTime ( SSDate ( kGregorianJulian, 0.0, year, 1, day, 0, 0, 0.0 ) );
     xndt2o = xndt20 * temp;
     xndd6o = xndd60 * 1.0e-5 * pow ( 10.0, iexp );
     bstar = bstar * 1.0e-5 * pow ( 10.0, ibexp );
@@ -2202,7 +2202,7 @@ int SSTLE::write ( ostream &file )
     // epoch in TLE format
     
     SSDate date = SSDate ( SSTime ( jdepoch ) );
-    double day = jdepoch - SSTime ( SSDate ( kGregorian, 0.0, date.year, 1, 0.0, 0, 0, 0.0 ) );
+    double day = jdepoch - SSTime ( SSDate ( kGregorianJulian, 0.0, date.year, 1, 0.0, 0, 0, 0.0 ) );
     double epoch = ( date.year % 100 ) * 1000.0 + day;
     
     // format first line of orbital elements
