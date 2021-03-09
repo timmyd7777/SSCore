@@ -254,9 +254,10 @@ SSSpherical SSPSEphemeris::moon ( double jed, SSVector &pos, SSVector &vel )
 SSOrbit SSPSEphemeris::mercuryOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
+    double c = clamp ( d, -365250.0, 365250.0 );
     double a = 0.387098; // AU
-    double e = 0.205635 + 5.59e-10 * d;
-    double i = degtorad ( 7.0047 + 5.00e-8 * d );
+    double e = 0.205635 + 5.59e-10 * c;
+    double i = degtorad ( 7.0047 + 5.00e-8 * c );
     double M = mod2pi ( degtorad ( 168.6562 + 4.0923344368 * d ) );
     double N = mod2pi ( degtorad (  48.3313 + 3.24587e-5 * d ) );
     double w = mod2pi ( degtorad (  29.1241 + 1.01444e-5 * d ) );
@@ -270,9 +271,10 @@ SSOrbit SSPSEphemeris::mercuryOrbit ( double jed )
 SSOrbit SSPSEphemeris::venusOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
+    double c = clamp ( d, -365250.0, 365250.0 );
     double a = 0.723330; // AU
-    double e = 0.006773 - 1.302e-9 * d;
-    double i = degtorad ( 3.3946 + 2.75E-8 * d );
+    double e = 0.006773 - 1.302e-9 * c;
+    double i = degtorad ( 3.3946 + 2.75E-8 * c );
     double M = mod2pi ( degtorad ( 48.0052 + 1.6021302244 * d ) );
     double N = mod2pi ( degtorad ( 76.6799 + 2.46590E-5 * d ) );
     double w = mod2pi ( degtorad ( 54.8910 + 1.38374E-5 * d ) );
@@ -291,8 +293,9 @@ SSOrbit SSPSEphemeris::venusOrbit ( double jed )
 SSOrbit SSPSEphemeris::earthOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5 + 1.0 / 24.0;
+    double c = clamp ( d, -365250.0, 365250.0 );
     double a = 1.000000; // AU
-    double e = 0.016709 - 1.151E-9 * d;
+    double e = 0.016709 - 1.151E-9 * c;
     double i = 0.0;
     double M = mod2pi ( degtorad ( 356.0470 + 0.9856002585 * d ) );
     double N = 0.0;
@@ -307,9 +310,10 @@ SSOrbit SSPSEphemeris::earthOrbit ( double jed )
 SSOrbit SSPSEphemeris::marsOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
+    double c = clamp ( d, -365250.0, 365250.0 );
     double a = 1.523688; // AU
-    double e = 0.093405 + 2.516E-9 * d;
-    double i = degtorad ( 1.8497 - 1.78E-8 * d );
+    double e = 0.093405 + 2.516E-9 * c;
+    double i = degtorad ( 1.8497 - 1.78E-8 * c );
     double M = mod2pi ( degtorad (  18.6021 + 0.5240207766 * d ) );
     double N = mod2pi ( degtorad (  49.5574 + 2.11081e-5 * d ) );
     double w = mod2pi ( degtorad ( 286.5016 + 2.92961E-5 * d ) );
@@ -323,9 +327,10 @@ SSOrbit SSPSEphemeris::marsOrbit ( double jed )
 SSOrbit SSPSEphemeris::jupiterOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
+    double c = clamp ( d, -365250.0, 365250.0 );
     double a = 5.20256; // AU
-    double e = 0.048498 + 4.469E-9 * d;
-    double i = degtorad ( 1.3030 - 1.557E-7 * d );
+    double e = 0.048498 + 4.469E-9 * c;
+    double i = degtorad ( 1.3030 - 1.557E-7 * c );
     double M = mod2pi ( degtorad (  19.8950 + 0.0830853001 * d ) );
     double N = mod2pi ( degtorad ( 100.4542 + 2.76854E-5 * d ) );
     double w = mod2pi ( degtorad ( 273.8777 + 1.64505E-5 * d ) );
@@ -339,9 +344,10 @@ SSOrbit SSPSEphemeris::jupiterOrbit ( double jed )
 SSOrbit SSPSEphemeris::saturnOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
+    double c = clamp ( d, -365250.0, 365250.0 );
     double a = 9.55475; // AU
-    double e = 0.055546 - 9.499E-9 * d;
-    double i = degtorad ( 2.4886 - 1.081E-7 * d );
+    double e = 0.055546 - 9.499E-9 * c;
+    double i = degtorad ( 2.4886 - 1.081E-7 * c );
     double M = mod2pi ( degtorad ( 316.9670 + 0.0334442282 * d ) );
     double N = mod2pi ( degtorad ( 113.6634 + 2.38980E-5 * d ) );
     double w = mod2pi ( degtorad ( 339.3939 + 2.97661E-5 * d ) );
@@ -355,9 +361,10 @@ SSOrbit SSPSEphemeris::saturnOrbit ( double jed )
 SSOrbit SSPSEphemeris::uranusOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
-    double a = 19.18171 - 1.55E-8 * d; // AU
-    double e = 0.047318 + 7.45E-9 * d;
-    double i = degtorad ( 0.7733 + 1.9E-8 * d );
+    double c = clamp ( d, -365250.0, 365250.0 );
+    double a = 19.18171 - 1.55E-8 * c; // AU
+    double e = 0.047318 + 7.45E-9 * c;
+    double i = degtorad ( 0.7733 + 1.9E-8 * c );
     double M = mod2pi ( degtorad ( 142.5905 + 0.011725806 * d ) );
     double N = mod2pi ( degtorad (  74.0005 + 1.3978E-5 * d ) );
     double w = mod2pi ( degtorad (  96.6612 + 3.0565E-5 * d ) );
@@ -371,9 +378,10 @@ SSOrbit SSPSEphemeris::uranusOrbit ( double jed )
 SSOrbit SSPSEphemeris::neptuneOrbit ( double jed )
 {
     double d = jed - SSTime::kJ2000 + 1.5;
-    double a = 30.05826 + 3.313E-8 * d; // AU
-    double e = 0.008606 + 2.15E-9 * d;
-    double i = degtorad ( 1.7700 - 2.55E-7 * d );
+    double c = clamp ( d, -365250.0, 365250.0 );
+    double a = 30.05826 + 3.313E-8 * c; // AU
+    double e = 0.008606 + 2.15E-9 * c;
+    double i = degtorad ( 1.7700 - 2.55E-7 * c );
     double M = mod2pi ( degtorad ( 260.2471 + 0.005995147 * d ) );
     double N = mod2pi ( degtorad ( 131.7806 + 3.0173E-5 * d ) );
     double w = mod2pi ( degtorad ( 272.8461 - 6.027E-6 * d ) );

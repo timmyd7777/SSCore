@@ -13,6 +13,8 @@
 // The ELPMPP02 series embedded in this C++ code contains 1/5th of the "main problem" terms
 // and 1/10th of the "perturbation" terms in the full series, resulting in a 5-10x performance
 // increase and code-size decrease from the full series, yet maintains sub-arcsecond accuracy.
+// Differences between ELP/MPP02 and JPL DE406 are < 3 arcsec in longitude and latitude and
+// < 2 km in distance over the whole time interval of DE406 [−3000; +3000].
 
 #ifndef ELPMPP02_hpp
 #define ELPMPP02_hpp

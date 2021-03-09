@@ -106,11 +106,18 @@ void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double l
     if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
         return;
 
+    // VSOP2013 is valid from years -4000 to +8000; use PS Ephemeris outside that range.
+    
 #if USE_VSOP_ELP
-    if ( _useVSOPELP )
+    double y = fabs ( jed - lt - SSTime::kJ2000 ) / 365.25;
+    if ( _useVSOPELP && y < 6000.0 )
     {
         _vsop.computePositionVelocity ( id, jed - lt, pos, vel );
-        if ( id == kEarth )
+        
+        // ELPMPP02 is valid within 3000 years of J2000; apply Earth-Moon barycenter correction
+        // if within that range. If outside it, user is not likely to care about this small correction.
+        
+        if ( id == kEarth && y < 3000.0 )
         {
             SSVector mpos, mvel;
             _elp.computePositionVelocity ( jed - lt, mpos, mvel );
@@ -162,10 +169,15 @@ void SSPlanet::computePSPlanetMoonPositionVelocity ( int id, double jed, double 
         ecl = SSPSEphemeris::uranus ( jed - lt, pos, vel );
     else if ( id == kNeptune )
         ecl = SSPSEphemeris::neptune ( jed - lt, pos, vel );
-    else if ( id == kPluto )    // use Keplerian orbit to compute Pluto's velocity since PSEphemeris does not.
+    else if ( id == kPluto )
     {
+        // use Keplerian orbit to compute Pluto's velocity since PSEphemeris does not.
+        // If within 1000 years of J2000, use PS Ephemeris fo compute Pluto's position with better accuraacy.
+        
         SSOrbit::getPlutoOrbit ( jed ).toPositionVelocity ( jed - lt, pos, vel );
-        ecl = SSPSEphemeris::pluto ( jed - lt, pos, vel );
+        double y = fabs ( jed - lt - SSTime::kJ2000 ) / 365.25;
+        if ( y < 1000.0 )
+            ecl = SSPSEphemeris::pluto ( jed - lt, pos, vel );
     }
     else if ( id == kLuna )
     {
@@ -218,8 +230,11 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
         if ( SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
             return;
 
+        // ELPMPP02 is valid within 3000 years of J2000; use PS Ephemeris if outside that range.
+
 #if USE_VSOP_ELP
-        if ( _useVSOPELP )
+        double y = fabs ( jed - lt - SSTime::kJ2000 ) / 365.25;
+        if ( _useVSOPELP && y < 3000.0 )
             _elp.computePositionVelocity ( jed - lt, pos, vel );
         else
             computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );

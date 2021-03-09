@@ -710,7 +710,7 @@ std::mutex eph_mutex;
 
 bool SSJPLDEphemeris::compute ( int id, double jed, bool bary, SSVector &position, SSVector &velocity )
 {
-    if ( F1 == NULL || jed < ss[0] || jed > ss[1] || id < 0 || id > 10 )
+    if ( F1 == NULL || jed < ss[0] || jed > ss[1] || isnan ( jed ) || id < 0 || id > 10 )
         return false;
     
     eph_mutex.lock();
