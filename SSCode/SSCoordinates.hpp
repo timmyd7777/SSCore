@@ -47,6 +47,8 @@ protected:
     double      _de;             // nutation in obliquity [radians]
     double      _dl;             // nutation in longitude [radians]
     
+    double      _jd0, _jd1;      // minimum and maximum allowable Julian Dates
+    
     SSMatrix    _preMat;         // transforms from fundamental to mean precessed equatorial frame, not including nutation.
     SSMatrix    _nutMat;         // transforms from mean precessed equatorial frame to true equatorial frame, i.e. corrects for nutation.
     SSMatrix    _equMat;         // transforms from fundamental to current true equatorial frame.
@@ -88,6 +90,9 @@ public:
     SSSpherical getLocation ( void ) { return SSSpherical ( _lon, _lat, _alt ); }
     double getJED ( void ) { return _jed; }
     double getLST ( void ) { return _lst; }
+    
+    void setTimeRange ( double jd0, double jd1 ) { _jd0 = jd0; _jd1 = jd1; }
+    void getTimeRange ( double &jd0, double &jd1 ) { jd0 = _jd0; jd1 = _jd1; }
     
     SSVector getObserverPosition ( void ) { return _obsPos; }
     SSVector getObserverVelocity ( void ) { return _obsVel; }

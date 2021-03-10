@@ -434,14 +434,15 @@ string SSDate::format ( const string &fmt )
 bool SSDate::parse ( const string &fmt, const string &str )
 {
     struct tm time = { 0 };
-
+    int negyear = startsWith ( fmt, "%Y" ) && str[0] == '-';
+        
 #ifdef WIN32
     stringstream ss ( str );
-    ss >> get_time ( &time, fmt.c_str() );
+    ss >> get_time ( &time, fmt.c_str() + negyear );
     if ( ss.fail() )
         return false;
 #else
-    if ( strptime ( str.c_str(), fmt.c_str(), &time ) == nullptr )
+    if ( strptime ( str.c_str() + negyear, fmt.c_str(), &time ) == nullptr )
         return false;
 #endif
 
@@ -451,6 +452,9 @@ bool SSDate::parse ( const string &fmt, const string &str )
     hour = time.tm_hour;
     min = time.tm_min;
     sec = time.tm_sec;
+    
+    if ( negyear )
+        year = -year;
     
     return true;
 }

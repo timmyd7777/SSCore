@@ -17,6 +17,9 @@
 
 SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
 {
+    _jd0 = -INFINITY;
+    _jd1 = INFINITY;
+    
     _lon = loc.lon;
     _lat = loc.lat;
     _alt = loc.rad;
@@ -36,7 +39,7 @@ SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
 
 void SSCoordinates::setTime ( SSTime time )
 {
-    _jd = time;
+    _jd = SSTime ( clamp ( time.jd, _jd0, _jd1 ), time.zone );
     _jed = _dynamictime ? time.getJulianEphemerisDate() : _jd.jd;
 
     getNutationConstants ( _jd, _de, _dl );
