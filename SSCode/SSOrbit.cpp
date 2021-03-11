@@ -307,6 +307,7 @@ SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, 
 // outside that interval, accuracy is about 10 arcminutes.  Based on formulae from
 // E. M. Standish, "Keplerian Elements for Approximate Positions of the Major Planets",
 // Solar System Dynamics Group, JPL/Caltech, https://ssd.jpl.nasa.gov/?planet_pos
+// Formulae have been clamped to give plausible results over an unlimited timespan.
 
 SSOrbit SSOrbit::getMercuryOrbit ( double jde )
 {
