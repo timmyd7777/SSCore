@@ -100,7 +100,12 @@ bool SSCoordinates::isDST ( void )
 {
     struct tm lt = { 0 };
     time_t t = _jd.toUnixTime();
+#ifdef _MSC_VER
+    localtime_s ( &lt, &t );
+#else
     localtime_r ( &t, &lt );
+#endif
+
     return lt.tm_isdst;
 }
 
