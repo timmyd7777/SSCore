@@ -326,10 +326,10 @@ double strtodeg ( string str )
         valid = sscanf ( tokens[0].c_str(), "%lf", &deg );
     
     if ( tokens.size() > 1 )
-        valid &= sscanf ( tokens[1].c_str(), "%lf", &min );
+        valid = sscanf ( tokens[1].c_str(), "%lf", &min ) && valid;
 
     if ( tokens.size() > 2 )
-        valid &= sscanf ( tokens[2].c_str(), "%lf", &sec );
+        valid = sscanf ( tokens[2].c_str(), "%lf", &sec ) && valid;
     
     if ( ! valid )
         return INFINITY;
