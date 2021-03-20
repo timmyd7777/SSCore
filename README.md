@@ -87,3 +87,4 @@ Version 1.0, 12 Apr 2020: Initial public release.
 Version 1.1, 12 May 2020: Added VSOP2013, ELPMPP02, SSMoonEphemeris, many fixes.  
 Version 1.2, 12 Aug 2020: Added SSView and SSHTM. Added rotational elements and planetographic coordinates to SSPlanet. Added magnitude utilities and Moffat functions to SSStar.  
 Version 1.3, 24 Nov 2020: Added SSFeature. Numerous fixes to other classes as a result of work on Nanoverse project.  
+Version 1.5, 21 Mar 2021: Added Jewish, Moslem, Indian calendars. Handle time zones with IANA names and daylight saving time. More robust angle and time parsing. Handle orbit computations over unlimited date ranges. Fix multi-threading issues; other misc. bug fixes.  
