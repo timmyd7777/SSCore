@@ -99,11 +99,11 @@ void SSPlanet::computePositionVelocity  ( SSCoordinates &coords, SSVector &pos, 
 // Light travel time to planet (lt) is in days; may be zero for first approximation.
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
 
-mutex vsop_elp_mutex;
-
 void SSPlanet::computeMajorPlanetPositionVelocity ( int id, double jed, double lt, SSVector &pos, SSVector &vel )
 {
-    if ( SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
+    // When planets or the Moon are more than 1 light day away, don't use JPL DE 408; VSOP/ELP is much faster in this case.
+
+    if ( lt < 1.0 && SSJPLDEphemeris::compute ( id, jed - lt, false, pos, vel ) )
         return;
 
     // VSOP2013 is valid from years -4000 to +8000; use PS Ephemeris outside that range.
@@ -227,7 +227,9 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     
     if ( _id.identifier() == kLuna )
     {
-        if ( SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
+        // When planets or the Moon are more than 1 light day away, don't use JPL DE 408; VSOP/ELP is much faster in this case.
+        
+        if ( lt < 1.0 && SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
             return;
 
         // ELPMPP02 is valid within 3000 years of J2000; use PS Ephemeris if outside that range.
@@ -272,21 +274,32 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     }
     
     // If JED has changed since last time we computed primary's position and velocity, recompute them.
+    // Add primary's position (antedated for light time) and velocity to moon's position and velocity.
+    // If light time is less than 1 day, assume primary's velocity is constant over light time duration.
     // Mutex lock prevents multiple threads from modifying these shared resources simultaneously.
     
     moon_mutex.lock();
-    if ( jed != primaryJED[p] )
+    if ( lt < 1.0 )
     {
-        computeMajorPlanetPositionVelocity ( p, jed, 0.0, primaryPos[p], primaryVel[p] );
-        primaryJED[p] = jed;
+        if ( primaryJED[p] != jed )
+        {
+            computeMajorPlanetPositionVelocity ( p, jed, 0.0, primaryPos[p], primaryVel[p] );
+            primaryJED[p] = jed;
+        }
+        pos += primaryPos[p] - primaryVel[p] * lt;
+        vel += primaryVel[p];
+    }
+    else
+    {
+        if ( primaryJED[p] != ( jed - lt ) )
+        {
+            computeMajorPlanetPositionVelocity ( p, jed, lt, primaryPos[p], primaryVel[p] );
+            primaryJED[p] = jed - lt;
+        }
+        pos += primaryPos[p];
+        vel += primaryVel[p];
     }
     moon_mutex.unlock();
-
-    // Add primary's position (antedated for light time) and velocity to moon's position and velocity.
-    // We assume primary's velocity is constant over light time duration.
-    
-    pos += primaryPos[p] - primaryVel[p] * lt;
-    vel += primaryVel[p];
 }
 
 // Given a point at planetographic longituade (lon) and latitude (lat) in radians,
