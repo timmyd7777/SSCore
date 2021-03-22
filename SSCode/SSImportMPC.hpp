@@ -10,6 +10,9 @@
 
 #include "SSPlanet.hpp"
 
+SSPlanetPtr SSImportMPCComet ( const string &line );
+SSPlanetPtr SSImportMPCAsteroid ( const string &line );
+
 int SSImportMPCComets ( const string &filename, SSObjectVec &comets );
 int SSImportMPCAsteroids ( const string &filename, SSObjectVec &comets );
 
