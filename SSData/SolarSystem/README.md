@@ -74,6 +74,7 @@ This table of asteroid data in MPC Export Format was compiled from the [Minor Pl
 **Revision History**
 
 Version 1.0 (2 Apr 2020): initial version
+Version 1.1 (21 Mar 2021): updated with latest data from MPC
 
 Comets.txt
 ----------
@@ -83,6 +84,7 @@ This table of comet data in MPC Export Format is a copy of the Minor Planet Cent
 **Revision History**
 
 Version 1.0 (2 Apr 2020): initial version
+Version 1.1 (21 Mar 2021): updated with latest data from MPC
 
 DE438
 -----
@@ -102,6 +104,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 
 - **_visual.txt_** is the [Visual](http://www.celestrak.com/NORAD/elements/visual.txt) (brightest) satellite list from [CelesTrak](http://www.celestrak.com)
 - **_all.txt_** is the [complete](https://www.n2yo.com/tle2/3line.tle) satellite list from [N2YO](https://www.n2yo.com)
+- **_brightest.txt_** is the [Brightestl](https://www.n2yo.com/tle2/1.txt) satellite list from [N2YO](https://www.n2yo.com)
 - **_mcnames.txt_** is Mike McCants' satellite [names file](https://www.prismnet.com/~mmccants/tles/mcnames.zip), which contains satellite size and magnitude information.
 - **_je9pel.csv_** is Mineo Wakita's amateur radio satellite [frequency file](http://www.ne.jp/asahi/hamradio/je9pel/satslist.csv), in CSV format.
 
@@ -109,6 +112,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 
 Version 1.0 (4 Apr 2020): initial checkin.  
 Version 1.1 (11 May 2020): added Mineo Wakita JE9PEL satellite radio frequency file.
+Version 1.2 (21 Mar 2021): updated with latest data from all sources; added n2yo "brightest" satellites.
 
 Cities.csv
 ----------
