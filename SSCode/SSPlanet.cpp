@@ -693,17 +693,33 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
     
     // Compute satellite position & velocity relative to Earth, antedated for light time.
     // Satellite's orbit epoch is Julian Date, not JED, so subtract Delta T.
-    // Output position and velocity vectors are in km and km/sec; convert to AU and AU/day;
-    // Satellite orbit elements are referred to current equator, not J2000 equator,
-    // so transform output position and velocity from current to J2000 equatorial frame.
-  
-    _tle.toPositionVelocity ( jed - deltaT - lt, pos, vel );
+    // If within 30 days of the epoch, use the full-precision SGP4/SDP4
+    // orbit models to compute the satellite's position.
+    // Otherwise compute the satellite's position using its Keplerian elements,
+    // updated for secular variation according to the SGP orbit model.
+    
+    double tsince = ( jed - deltaT - lt - _tle.jdepoch ) * SSTime::kMinutesPerDay;
+    if ( fabs ( tsince ) < 30 * SSTime::kMinutesPerDay )
+    {
+        // Output position and velocity vectors are in km and km/sec; convert to AU and AU/day;
+        _tle.toPositionVelocity ( jed - deltaT - lt, pos, vel );
+        pos /= SSCoordinates::kKmPerAU;
+        vel /= SSCoordinates::kKmPerAU / SSTime::kSecondsPerDay;
+    }
+    else
+    {
+        // Output position and velocity vectors are in Earth-radii and Earth-radii/min; convert to AU and AU/day;
+        _tle.toOrbit ( tsince ).toPositionVelocity ( jed - deltaT - lt, pos, vel );
+        pos *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+        vel *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU / SSTime::kMinutesPerDay;
+    }
+    
     if ( pos.isnan() || vel.isnan() )
         return;
     
-    pos /= SSCoordinates::kKmPerAU;
-    vel /= SSCoordinates::kKmPerAU / SSTime::kSecondsPerDay;
-
+    // Satellite orbit elements are referred to current equator, not J2000 equator,
+    // so transform output position and velocity from current to J2000 equatorial frame.
+  
     pos = earthMat * pos;
     vel = earthMat * vel;
     

@@ -123,10 +123,10 @@ double SSOrbit::gravityConstant ( double e, double q, double mm )
 // For elliptical orbits, true anomaly is always returned in the range 0 to kTwoPi radians.
 // For parabolic and hyperbolic orbits, true anomaly may have any positive or negative value.
 
-void SSOrbit::solveKeplerEquation ( double jde, double &nu, double &r )
+void SSOrbit::solveKeplerEquation ( double jed, double &nu, double &r )
 {
     int        i = 0;
-    double    ma = m + mm * ( jde - t );
+    double    ma = m + mm * ( jed - t );
     double    ea = 0.0, ha = 0.0, delta = 0.0, delta_ea = 0.0;
 
     if ( q == 0.0 )
