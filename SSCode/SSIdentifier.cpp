@@ -74,8 +74,8 @@ static int string_to_con ( const string &str, bool casesens = true )
     if ( casesens )
         return _conmap[ str ];
     
-    for ( int i = 0; i < _bayvec.size(); i++ )
-        if ( compare ( _convec[i], str, 0, false ) == 0 )
+    for ( int i = 0; i < _convec.size(); i++ )
+        if ( compare ( _convec[i], str, 0, casesens ) == 0 )
             return i + 1;
     
     return 0;
