@@ -131,4 +131,6 @@ bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
 bool SSAddIdentifier ( SSIdentifier ident, vector<SSIdentifier> &identVec );
 int SSAddIdentifiers ( SSIdentifier ident, SSIdentifierMap &map, SSIdentifierVec &idents );
 
+string con_to_string ( int con );
+
 #endif /* SSIdentifier_hpp */

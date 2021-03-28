@@ -66,6 +66,11 @@ static void mapinit ( void )
         _conmap.insert ( { _convec[i], i + 1 } );
 }
 
+string con_to_string ( int con )
+{
+    return con > 0 && con < _convec.size() ? _convec[con - 1] : "";
+}
+
 static int string_to_con ( const string &str, bool casesens = true )
 {
     if ( _conmap.size() == 0 )
@@ -927,7 +932,7 @@ bool SSAddIdentifier ( SSIdentifier ident, SSIdentifierVec &identVec )
 {
     if ( ident && find ( identVec.begin(), identVec.end(), ident ) == identVec.end() )
     {
-           identVec.push_back ( ident );
+        identVec.push_back ( ident );
         return true;
     }
     
