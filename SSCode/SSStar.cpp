@@ -431,8 +431,8 @@ string SSStar::toCSV1 ( void )
     csv += ra.toString() + ",";
     csv += dec.toString() + ",";
     
-    csv += isnan ( motion.lon ) ? "," : format ( "%+.5f,", ( motion.lon / 15.0 ).toArcsec() );
-    csv += isnan ( motion.lat ) ? "," : format ( "%+.4f,", motion.lat.toArcsec() );
+    csv += isnan ( motion.lon ) || isinf ( motion.lon ) ? "," : format ( "%+.5f,", ( motion.lon / 15.0 ).toArcsec() );
+    csv += isnan ( motion.lat ) || isinf ( motion.lat ) ? "," : format ( "%+.4f,", motion.lat.toArcsec() );
     
     csv += isinf ( _Vmag ) ? "," : format ( "%+.2f,", _Vmag );
     csv += isinf ( _Bmag ) ? "," : format ( "%+.2f,", _Bmag );
@@ -558,7 +558,8 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     
     SSObjectType type = SSObject::codeToType ( fields[0] );
     if ( type < kTypeStar || type > kTypeGalaxy )
-        return nullptr;
+        if ( type != kTypeNonexistent )
+            return nullptr;
     
     // Set expected field index for first identifier based on object type.
     // Verify that we have the required number if fiels and return if not.

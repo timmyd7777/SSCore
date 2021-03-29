@@ -227,6 +227,8 @@ SSObjectPtr SSNewObject ( SSObjectType type )
         return new SSDoubleVariableStar;
     else if ( type >= kTypeOpenCluster && type <= kTypeGalaxy )
         return new SSDeepSky ( type );
+    else if ( type == kTypeNonexistent )
+        return new SSDeepSky ( type );
     else if ( type >= kTypeConstellation && type <= kTypeAsterism )
         return new SSConstellation ( type );
     else

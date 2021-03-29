@@ -721,7 +721,7 @@ int SSTestMain ( const char *inputpath, const char *outputpath )
 
 #endif
 
-void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects );
+void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects, bool ngcic );
 
 int main ( int argc, const char *argv[] )
 {
@@ -732,9 +732,6 @@ int main ( int argc, const char *argv[] )
     UINT oldcp = GetConsoleOutputCP();
     SetConsoleOutputCP ( CP_UTF8 );
 #endif
-    
-    TestTime();
-    TestCalendars();
     
     if ( argc < 3 )
     {
@@ -747,10 +744,12 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
-
-//    TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
-//    TestVSOP2013 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/" );
-//    TestEphemeris ( inpath, outpath );
+#if 0
+    TestTime();
+    TestCalendars();
+    TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
+    TestVSOP2013 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/VSOP2013/solution/" );
+    TestEphemeris ( inpath, outpath );
     TestPrecession();
     TestSatellites ( inpath, outpath );
     TestJPLDEphemeris ( inpath );
@@ -766,19 +765,21 @@ int main ( int argc, const char *argv[] )
     SSObjectVec asteroids;
     int numast = SSImportMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
-
+#endif
+    
     SSIdentifierNameMap ngcicNameMap;
-    SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/CSVData/DeepSky/Names.csv", ngcicNameMap );
-
+    SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/DeepSky/Names.csv", ngcicNameMap );
+    cout << "Imported " << ngcicNameMap.size() << " NGC-IC names" << endl;
+    
     SSObjectVec clusters;
     int numClus = SSImportDAML02 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Open Clusters/Dias 2016/clusters.txt", ngcicNameMap, clusters );
     cout << "Imported " << numClus << " open clusters" << endl;
-    exportCatalog ( clusters );
+//    exportCatalog ( clusters );
 
     SSObjectVec globulars;
     int numGlobs = SSImportMWGC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Globular Clusters/Harris 2010/mwgc.original.txt", ngcicNameMap, globulars );
     cout << "Imported " << numGlobs << " globular clusters" << endl;
-    exportCatalog ( globulars );
+//    exportCatalog ( globulars );
 
     SSObjectVec planNebs;
     int numPlanNebs = SSImportPNG ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/main.dat",
@@ -786,12 +787,14 @@ int main ( int argc, const char *argv[] )
                                    "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/diam.dat",
                                    "/Users/timmyd/Projects/SouthernStars/Catalogs/Planetary Nebulae/Strasbourg-ESO 1992/vel.dat", ngcicNameMap, planNebs );
     cout << "Imported " << numPlanNebs << " planetary nebulae" << endl;
-    exportCatalog ( planNebs );
+//    exportCatalog ( planNebs );
 
     SSObjectVec objects;
     int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects );
     cout << "Imported " << numobj << " NGC-IC objects" << endl;
-    exportCatalog ( objects );
+    SSExportObjectsToCSV ( "/Users/timmyd/Desktop/NGCIC.csv", objects );
+    ExportObjectsToHTM ( "/Users/timmyd/Desktop/NGCIC/", objects, true );
+//    exportCatalog ( objects );
 
     exportCatalog ( objects, kCatMessier, 1, 110 );
     exportCatalog ( objects, kCatCaldwell, 1, 110 );
@@ -847,7 +850,7 @@ int main ( int argc, const char *argv[] )
     cout << "Imported " << n << " SKY2000 stars." << endl;
     exportCatalog ( skyStars, kCatHR, 1, 9110 );
     SSExportObjectsToCSV ( "/Users/timmyd/Desktop/SKY2000.csv", skyStars );
-    ExportObjectsToHTM ( "/Users/timmyd/Desktop/SKY2000/", skyStars );
+    ExportObjectsToHTM ( "/Users/timmyd/Desktop/SKY2000/", skyStars, false );
 
 
 #ifdef _WIN32
@@ -859,13 +862,19 @@ int main ( int argc, const char *argv[] )
 
 #include "SSHTM.hpp"
 
-void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects )
+void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects, bool ngcic )
 {
-    vector<float> maglevels = { 6.0, 7.2, 8.4, INFINITY };
+    vector<float> maglevels;
+    
+    if ( ngcic )
+        maglevels = vector<float> ( { 12.0, INFINITY } );
+    else
+        maglevels = vector<float> ( { 6.0, 7.2, 8.4, INFINITY } );
+
     SSHTM htm ( maglevels, htmdir );
     
-    cout << "Stored " << htm.store ( objects ) << " stars." << endl;
-    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " stars." << endl;
+    cout << "Stored " << htm.store ( objects ) << " objects." << endl;
+    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " objects." << endl;
     int n = htm.saveRegions();
     cout << "Exported " << n << " objects." << endl;
     
@@ -877,5 +886,5 @@ void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects )
     
     htm.dumpRegions();
     n = htm.loadRegions();
-    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " stars." << endl;
+    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " objects." << endl;
 }
