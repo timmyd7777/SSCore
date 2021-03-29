@@ -250,19 +250,23 @@ static map<string,int> _caldmap =
     { "NGC 3195", 109 }
 };
 
-// Add Messier and Caldwell numbers to a vector of identifiers
-// from NGC-IC string mappings.
+// Add Messier and Caldwell numbers to a vector of identifiers from NGC-IC string mappings.
+// Returns true if M or C identifier was added, or false if this object has no M/C identifier.
 
-void addMCIdentifiers ( vector<SSIdentifier> &idents, string ngcicStr )
+bool addMCIdentifiers ( vector<SSIdentifier> &idents, string ngcicStr )
 {
     int messNum = _messmap[ ngcicStr ];
     int caldNum = _caldmap[ ngcicStr ];
 
     if ( messNum > 0 )
-        SSAddIdentifier ( SSIdentifier ( kCatMessier, messNum ), idents );
+        if ( SSAddIdentifier ( SSIdentifier ( kCatMessier, messNum ), idents ) )
+            return true;
 
     if ( caldNum > 0 )
-        SSAddIdentifier ( SSIdentifier ( kCatCaldwell, caldNum ), idents );
+        if ( SSAddIdentifier ( SSIdentifier ( kCatCaldwell, caldNum ), idents ) )
+            return true;
+    
+    return false;
 }
 
 // Adds data from other deep sky catalogs to NGC-IC object data.
@@ -340,8 +344,9 @@ void addNGCICObjectData ( SSObjectVec &clusters, SSObjectVec &objects )
 // If these other catalogs are empty, no data will be added.
 // The function stores imported objects in vector of SSObjects (objects).
 // It returns the number of NGC-IC objects imported (13027 if successful).
+// Messier and Caldwell objects will be discarded if noMC is true.
 
-int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects )
+int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects, bool noMC )
 {
     // Open file; return on failure.
 
@@ -456,7 +461,8 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
             ngcicStr = "IC " + tokens[1] + tokens[2];
 
         SSAddIdentifier ( SSIdentifier::fromString ( ngcicStr ), idents );
-        addMCIdentifiers ( idents, ngcicStr );
+        if ( addMCIdentifiers ( idents, ngcicStr ) && noMC )
+            continue;
 
         // Get Principal Galaxy Catalog number, if any.
         

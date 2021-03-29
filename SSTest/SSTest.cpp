@@ -790,8 +790,8 @@ int main ( int argc, const char *argv[] )
 //    exportCatalog ( planNebs );
 
     SSObjectVec objects;
-    int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects );
-    cout << "Imported " << numobj << " NGC-IC objects" << endl;
+    int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects, true );
+    cout << "Imported " << numobj << " NGC-IC objects (without M/C)" << endl;
     SSExportObjectsToCSV ( "/Users/timmyd/Desktop/NGCIC.csv", objects );
     ExportObjectsToHTM ( "/Users/timmyd/Desktop/NGCIC/", objects, true );
 //    exportCatalog ( objects );
