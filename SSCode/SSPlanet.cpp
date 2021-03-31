@@ -345,12 +345,13 @@ double SSPlanet::angularRadius ( double radius, double distance )
     return distance >= radius ? asin ( radius / distance ) : SSAngle::kPi;
 }
 
-// Returns this solar system object's angular radius in radians.
+// Returns this solar system object's angular radius in radians,
+// multiplied by an optional scale factor (s).
 // Object's distance must already be calculated!
 
-double SSPlanet::angularRadius ( void )
+double SSPlanet::angularRadius ( float s )
 {
-    return angularRadius ( _radius, _distance * SSCoordinates::kKmPerAU );
+    return angularRadius ( _radius * s, _distance * SSCoordinates::kKmPerAU );
 }
 
 // Returns solar system object's phase angle in radians.

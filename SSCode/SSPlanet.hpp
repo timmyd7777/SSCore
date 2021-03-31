@@ -133,7 +133,7 @@ public:
     double horizonDistance ( void );
 
     static double angularRadius ( double radius, double distance );
-    double angularRadius ( void );
+    double angularRadius ( float s = 1.0f );
 
     static double phaseAngle ( SSVector position, SSVector direction );
     double phaseAngle ( void );
