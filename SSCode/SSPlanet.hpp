@@ -147,7 +147,7 @@ public:
     SSSpherical centralCoordinates ( void );
     SSSpherical subsolarCoordinates ( void );
 
-    bool rayIntersect ( SSVector p, SSVector u, double &d, SSVector &q );
+    bool rayIntersect ( SSVector p, SSVector u, double &d, SSVector &q, float s = 1.0f );
 
     // Sets whether to use (accurate, but slow) VSOP/ELP planetary & lunar ephemeris when JPL DE438 is not available.
     // Also USE_VSOP_ELP must be #defined as 1 at the top of SSPlanet.cpp!
@@ -161,9 +161,9 @@ public:
     virtual float computeMagnitude ( double rad, double dist, double phase );
     virtual void computeEphemeris ( SSCoordinates &coords );
 
-    double umbraLength ( void );
-    double umbraRadius ( double d );
-    double penumbraRadius ( double d );
+    double umbraLength ( float s = 1.0f );
+    double umbraRadius ( double d, float s = 1.0f );
+    double penumbraRadius ( double d, float s = 1.0f );
 
     // imports/exports from/to CSV-format text string
     

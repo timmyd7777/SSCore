@@ -1450,11 +1450,12 @@ SSSpherical SSPlanet::subsolarCoordinates ( void )
 }
 
 // Determines if a ray from an external point (p) extending in direction of the unit vector (r) intersects
-// this planet's oblate ellipsoid surface.  If so, finds distance (d) from (p) to intersection point (q).
+// this planet's oblate ellipsoid surface, with planet's radius multiplied by a scale factor (s).
+// Returns true if the ray intersects planet, and finds distance (d) from (p) to intersection point (q).
 // Assumes vectors p, q, r are all in fundamental J2000 mean equatorial reference frame.
 // Adapted from https://gis.stackexchange.com/questions/20780/point-of-intersection-for-a-ray-and-earths-surface
 
-bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q )
+bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q, float s )
 {
     // First transform vectors from fundamental to planetograhic frame
     // and get heliocentric position vector planet's center in planetographic frame.
@@ -1464,7 +1465,7 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q )
     p = tmatrix * p;
     r = tmatrix * r;
     SSVector c = tmatrix * _position;
-    double re = getRadius() / SSCoordinates::kKmPerAU;
+    double re = getRadius() * s / SSCoordinates::kKmPerAU;
     double f = flattening();
     
     // Define some variables
@@ -1520,30 +1521,33 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q )
     return true;
 }
 
-// Returns length of this solar system object's umbral shadow cone, in AU.
+// Returns length of this solar system object's umbral shadow cone, in AU,
+// with the object's physical radius multipled by a scale factor (s).
 // Uses hard-coded Sun radius of 695500 km.
 
-double SSPlanet::umbraLength ( void )
+double SSPlanet::umbraLength ( float s )
 {
-    return _position.magnitude() * _radius / ( 695500.0 - _radius );
+    return _position.magnitude() * _radius * s / ( 695500.0 - _radius * s );
 }
 
 // Returns radius of this solar system object's umbral shadow cone, in AU,
+// with the object's physical radius multipled by a scale factor (s),
 // at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
 
-double SSPlanet::umbraRadius ( double d )
+double SSPlanet::umbraRadius ( double d, float s )
 {
-    double u = umbraLength();
-    double r = _radius * ( u - d ) / u;
+    double u = umbraLength ( s );
+    double r = _radius * s * ( u - d ) / u;
     return r / SSCoordinates::kKmPerAU;
 }
 
 // Returns radius of this solar system object's penumbral shadow cone, in AU,
+// with the object's physical radius multipled by a scale factor (scale),
 // at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
 
-double SSPlanet::penumbraRadius ( double d )
+double SSPlanet::penumbraRadius ( double d, float s )
 {
-    double u = umbraLength();
-    double r = _radius * ( u + d ) / u;
+    double u = umbraLength ( s );
+    double r = _radius * s * ( u + d ) / u;
     return r / SSCoordinates::kKmPerAU;
 }
