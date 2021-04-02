@@ -250,6 +250,130 @@ static map<string,int> _caldmap =
     { "NGC 3195", 109 }
 };
 
+// This list contains ~110 of the best NGC/IC objects not present in the Messier or Caldwell catalogs.
+// It was compiled from a number of sources, and includes a few personal favorites:
+// SAC 110 Best of the NGC, from http://www.messier.seds.org/xtra/similar/sac110bn.html
+// RASC Finest 110 NGC objects, from http://www.messier.seds.org/xtra/similar/rasc-ngc.html
+// RASC 45 Deep Sky Challenge Objects, from http://www.messier.seds.org/xtra/similar/rasc-dsc.html
+// Glen Cozens 110 Deep Sky Highlights, from http://www.messier.seds.org/xtra/similar/cozens.txt
+// Jack Bennett catalog of 130 southern deep sky objects, from http://www.messier.seds.org/xtra/similar/bennett.txt
+// Named objects from Wolfgang Steinicke's Revised NGC and IC: http://www.klima-luft.de/steinicke/ngcic/rev2000/Explan.htm
+// Note: the Large Magellanic Cloud has no NGC/IC (or Messier or Caldwell!) number, but is included here for completeness.
+
+static vector<string> _bestNGCIC =
+{
+    "NGC 281", // BN in Cas, Pacman Nebula
+    "NGC 292", // GX in Tuc, Small Magellanic Cloud
+    "PGC 17223", // GX in Dor, Large Magellanic Cloud
+    "NGC 772", // GX in Ari,
+    "NGC 936", // GC in Cet,
+    "NGC 1023", // GX in Per,
+    "NGC 1232", // GX in Eri,
+    "NGC 1291", // GX in Eri,
+    "NGC 1300", // GX in Eri,
+    "NGC 1313", // GX in Ret,
+    "NGC 1316", // GX in For, Fornax A
+    "NGC 1365", // GX in For,
+    "NGC 1491", // BN in Per,
+    "NGC 1499", // BN in Per, California Nebula
+    "NGC 1535", // PN in Eri,
+    "NGC 1555", // BN in Tau, Hind's Variable Nebula
+    "NGC 1788", // BN in Ori,
+    "NGC 1931", // OC in Aur,
+    "NGC 1973/1977", // BN in Ori,
+    "NGC 2022", // PN in Ori,
+    "NGC 2024", // BN in Ori, Flame Nebula
+    "NGC 2194", // OC in Ori,
+    "NGC 2264", // OC in Mon, Christmas Tree Cluster
+    "NGC 2359", // BN in CMa, Thor's Helment
+    "NGC 2440", // PN in Pup,
+    "NGC 2539", // OC in Pup,
+    "NGC 2683", // GX in Lyn,
+    "NGC 2685", // GX in UMa, Helix Galaxy
+    "NGC 2736", // BN in Vel, Herschel's Ray, Pencil Nebula
+    "NGC 2808", // GC in Car,
+    "NGC 2841", // GX in UMa,
+    "NGC 2903", // GX in Leo,
+    "NGC 2997", // GX in Ant,
+    "NGC 3079", // GX in UMa,
+    "NGC 3172", // GX in UMi, Polarissima Borealis
+    "NGC 3184", // GX in UMa,
+    "NGC 3293", // OC in Car, Gem Cluster
+    "NGC 3344", // GX in LMi,
+    "NGC 3384", // GX in Leo,
+    "NGC 3432", // GX in LMi,
+    "NGC 3521", // GX in Leo,
+    "NGC 3607", // GX in Leo,
+    "NGC 3628", // GX in Leo,
+    "NGC 3745", // GX in Leo, Copeland's Septet
+    "NGC 3877", // GX in UMa,
+    "NGC 3918", // PN in Cen, Blue Planetary Nebula
+    "NGC 3928", // GX in UMa, Miniature Spiral
+    "NGC 3941", // GX in UMa,
+    "NGC 4026", // GX in UMa,
+    "NGC 4088", // GX in UMa,
+    "NGC 4169", // GX in Com, The Box
+    "NGC 4216", // GX in Vir,
+    "NGC 4274", // GX in Com,
+    "NGC 4361", // PN in Crv,
+    "NGC 4388", // GX in Vir,
+    "NGC 4414", // GX in Com,
+    "NGC 4435", // GX in Vir, The Eyes
+    "NGC 4438 ", // GX in Vir, The Eyes
+    "NGC 4494", // GX in Com,
+    "NGC 4526", // GX in Vir,
+    "NGC 4535", // GX in Vir,
+    "NGC 4567", // GX in Vir, Siamese Twins
+    "NGC 4568", // GX in Vir, Siamese twins
+    "NGC 4605", // GX in UMa,
+    "NGC 4656", // GX in CVn,
+    "NGC 4676", // GX in Com, The Mice
+    "NGC 4699", // GX in Vir,
+    "NGC 4725", // GX in Com,
+    "NGC 4762", // GX in Vir,
+    "NGC 5033", // GX in CVn,
+    "NGC 5053", // GC in Com,
+    "NGC 5466", // GC in Boo,
+    "NGC 5746", // GX in Vir,
+    "NGC 5907", // GX in Dra,
+    "NGC 6027", // GX in Ser, Seyfert's Sextet
+    "NGC 6210", // PN in Her,
+    "NGC 6334", // BN in Sco, Cat's Paw Nebula
+    "NGC 6357", // BN in Sco,
+    "NGC 6369", // PN in Oph, Little Ghost Nebula
+    "NGC 6388", // GC in Sco,
+    "NGC 6445", // PN in Sgr,
+    "NGC 6503", // GX in Dra,
+    "NGC 6520", // OC in Sgr,
+    "NGC 6572", // PN in Oph,
+    "NGC 6633", // OC in Oph,
+    "NGC 6712", // GC in Sct,
+    "NGC 6781", // PN in Aql,
+    "NGC 6818", // PN in Sgr, Little Gem
+    "NGC 6819", // OC in Cyg,
+    "NGC 6939", // OC in Cep,
+    "NGC 7027", // PN in Cyg,
+    "NGC 7129", // BN in Cep,
+    "NGC 7317", // GX in Peg, Stephan's Quintet
+    "NGC 7582", // GX in Gru, Grus Quartet
+    "NGC 7789", // OC in Cas, Caroline's Rose
+    "NGC 7822", // BN in Cep,
+    "IC 59/63", // BN in Cas, Gamma Cas Nebula
+    "IC 434", // BN in Ori, Horsehead Nebula
+    "IC 708", // BN in UMa, Papillon
+    "IC 1318", // BN in Cyg, Gamma Cygni Nebula
+    "IC 1396", // BN in Cep, Elephant Trunk
+    "IC 1805", // OC in Cas, Heart Nebula
+    "IC 1848", // OC in Cas, Soul Nebula
+    "IC 2118", // BN in Ori, Witch Head Neula
+    "IC 2177", // BN in Cma, Seagull Nebula
+    "IC 2220", // PN in Car, Butterfly Nebula
+    "IC 3481", // GX in Vir, Zwicky's Triplet
+    "IC 4604", // BN in Oph, Rho Ophiuchi Nebula
+    "IC 5067/5070", // BN in Cyg, Pelican Nebula
+    "IC 5173" // GX in Ind, Southern Integral Sign
+};
+
 // Add Messier and Caldwell numbers to a vector of identifiers from NGC-IC string mappings.
 // Returns true if M or C identifier was added, or false if this object has no M/C identifier.
 
