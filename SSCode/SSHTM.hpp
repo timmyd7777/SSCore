@@ -96,6 +96,21 @@ public:
     static string ID2name ( uint64_t id );
     static bool name2Triangle ( const string &name, SSVector &v0, SSVector &v1, SSVector &v2 );
     static bool isinside ( const SSVector &p, const SSVector &v0, SSVector &v1, SSVector &v2 );
+    
+    struct ObjectLoc        // Describes the location of particular object inside an HTM
+    {
+        uint64_t region;    // HTM ID of the region containing the object.
+        size_t   offset;    // Position of object within region's object vector, counting from zero.
+    };
+    
+    typedef multimap<SSIdentifier,ObjectLoc> ObjectMap;
+    map<SSCatalog,ObjectMap> _index;
+    
+    size_t loadObjectMap ( SSCatalog cat );
+    size_t saveObjectMap ( SSCatalog cat );
+
+    size_t makeObjectMap ( SSCatalog cat );
+    size_t makeObjectMap ( SSCatalog cat, uint64_t regionID, ObjectMap &objmap );
 };
 
 // Callback function to notify external HTM user when regions are loaded asynchronously.

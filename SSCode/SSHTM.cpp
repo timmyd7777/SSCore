@@ -4,6 +4,8 @@
 // Created by Tim DeBenedictis on 8/10/20.
 // Copyright © 2020 Southern Stars. All rights reserved.
 
+#include <iostream>
+#include <fstream>
 #include <string.h>
 
 #include "SSHTM.hpp"
@@ -395,6 +397,9 @@ uint64_t SSHTM::vector2ID ( const SSVector &vector, int depth )
 
 uint64_t SSHTM::name2ID ( const string &name )
 {
+    if ( name.compare ( "O0" ) == 0 )
+        return 0;
+    
     return cc_name2ID ( name.c_str() );
 }
 
@@ -757,3 +762,105 @@ int cc_name2Triangle(const char *name, double *v0, double *v1, double *v2)
   return rstat;
 }
 
+// Creates a map of objects in this HTM with identifiers in the specific catalog (cat).
+// Assumes entire HTM, including all regions and objects therein, is loaded into memory!
+// Returns number of index entries generated.
+
+size_t SSHTM::makeObjectMap ( SSCatalog cat )
+{
+    ObjectMap objmap;
+    
+    makeObjectMap ( cat, 0, objmap );
+    if ( objmap.size() > 0 )
+        _index.insert ( { cat, objmap } );
+    
+    return objmap.size();
+}
+
+// Adds index entries for objects with identifiers in the specifid catalog (cat)
+// contained in the HTM region (regionID) and, recursively, all of its sub-regions.
+// Index entries are appended to the provided ObjectIndex (index).
+// The function returns the number of index entries added.
+
+size_t SSHTM::makeObjectMap ( SSCatalog cat, uint64_t regionID, SSHTM::ObjectMap &objmap )
+{
+    size_t n = objmap.size();
+    
+    SSObjectVec *pObjects = getObjects ( regionID );
+    for ( size_t i = 0; i < pObjects->size(); i++ )
+    {
+        SSObjectPtr pObject = pObjects->at ( i );
+        vector<SSIdentifier> idents = pObject->getIdentifiers();
+        for ( SSIdentifier ident : idents )
+            if ( ident.catalog() == cat )
+                objmap.insert ( { ident, { regionID, i } } );
+    }
+    
+    vector<uint64_t> subIDs = subRegionIDs ( regionID );
+    for ( uint64_t subID : subIDs )
+        makeObjectMap ( cat, subID, objmap );
+    
+    return objmap.size() - n;
+}
+
+// Saves this HTM's object index for the specified catalog to a file.
+// Returns number of index entries written to file.
+
+size_t SSHTM::saveObjectMap ( SSCatalog cat )
+{
+    ObjectMap &objmap = _index[cat];
+
+    ofstream file ( _rootpath + "map." + to_string ( cat ) + ".csv", ios::trunc );
+    if ( ! file )
+        return 0;
+    
+    for ( auto it = objmap.begin(); it != objmap.end(); it++ )
+    {
+        SSIdentifier ident = it->first;
+        ObjectLoc loc = it->second;
+        string identstr = ident.toString();
+        string htmIDstr = SSHTM::ID2name ( loc.region );
+        file << identstr << "," << htmIDstr << "," << to_string ( loc.offset ) << endl;
+    }
+    
+    return objmap.size();
+}
+
+// Loads an object index for the specified catalog (cat) into this HTM's object indexes.
+// Returns number of index entries read from file.
+
+size_t SSHTM::loadObjectMap ( SSCatalog cat )
+{
+    ObjectMap objmap;
+    
+    // Open file; return on failure.
+
+    string filename ( _rootpath + "map." + to_string ( cat ) + ".csv" );
+    FILE *file = fopen ( filename.c_str(), "r" );
+    if ( ! file )
+        return 0;
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    while ( fgetline ( file, line ) )
+    {
+        vector<string> fields = split_csv ( line );
+        if ( fields.size() < 3 )
+            continue;
+
+        SSIdentifier ident = SSIdentifier::fromString ( fields[0], kTypeNonexistent, true );
+        if ( ident != 0 )
+        {
+            uint64_t htmID = name2ID ( fields[1] );
+            size_t offset = strtoint64 ( fields[2] );
+            objmap.insert ( { ident, { htmID, offset } } );
+        }
+    }
+    
+    // Close file. Save copy of index into this HTM's index map. Return number of index entries loaded.
+
+    fclose ( file );
+    _index.insert ( { cat, objmap } );
+    return objmap.size();
+}
