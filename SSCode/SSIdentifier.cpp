@@ -11,6 +11,82 @@
 #include "SSAngle.hpp"
 #include "SSIdentifier.hpp"
 
+static map<SSCatalog,string> _catNameMap =
+{
+    { kCatJPLanet, "JPL" },
+    { kCatAstNum, "AST" },
+    { kCatComNum, "COM" },
+    { kCatNORADSat, "NORAD" },
+    { kCatBayer, "Bay" },
+    { kCatFlamsteed, "Flam" },
+    { kCatGCVS, "GCVS" },
+    { kCatHR, "HR" },
+    { kCatGJ, "GJ" },
+    { kCatHD, "HD" },
+    { kCatSAO, "SAO" },
+    { kCatBD, "BD" },
+    { kCatCD, "CD" },
+    { kCatCP, "CP" },
+    { kCatHIP, "HIP" },
+    { kCatWDS, "WDS" },
+    { kCatMessier, "M" },
+    { kCatCaldwell, "C" },
+    { kCatNGC, "NGC" },
+    { kCatIC, "IC" },
+    { kCatMel, "Mel" },
+    { kCatSh2, "Sh2" },
+    { kCatLBN, "LBN" },
+    { kCatLDN, "LDN" },
+    { kCatPNG, "PNG" },
+    { kCatPK, "PK" },
+    { kCatPGC, "PGC" },
+    { kCatUGC, "UGC" },
+    { kCatUGCA, "UGCA" },
+};
+
+static map<string,SSCatalog> _nameCatMap =
+{
+    { "JPL", kCatJPLanet },
+    { "AST", kCatAstNum },
+    { "COM", kCatComNum },
+    { "NORAD", kCatNORADSat },
+    { "Bay", kCatBayer },
+    { "Flam", kCatFlamsteed },
+    { "GCVS", kCatGCVS },
+    { "HR", kCatHR },
+    { "GJ", kCatGJ },
+    { "HD", kCatHD },
+    { "SAO", kCatSAO },
+    { "BD", kCatBD },
+    { "CD", kCatCD },
+    { "CP", kCatCP },
+    { "HIP", kCatHIP },
+    { "WDS", kCatWDS },
+    { "M", kCatMessier },
+    { "C", kCatCaldwell },
+    { "NGC", kCatNGC },
+    { "IC", kCatIC },
+    { "Mel", kCatMel },
+    { "Sh2", kCatSh2 },
+    { "LBN", kCatLBN },
+    { "LDN", kCatLDN },
+    { "PNG", kCatPNG },
+    { "PK", kCatPK },
+    { "PGC", kCatPGC },
+    { "UGC", kCatUGC },
+    { "UGCA", kCatUGCA },
+};
+
+string catalog_to_string ( SSCatalog cat )
+{
+    return _catNameMap[cat];
+}
+
+SSCatalog string_to_catalog ( string str )
+{
+    return _nameCatMap[str];
+}
+
 static vector<string> _bayvec =
 {
     "alpha",
@@ -496,13 +572,31 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
             return SSIdentifier ( kCatMel, stoi ( str.substr ( pos, len - pos ) ) );
     }
 
-    // if string begins with "LBN", attempt to parse a Lynds Bright Nebula cluster identifier
+    // if string begins with "Sh2", attempt to parse a Sharpless bright nebula identifier
+    
+    if ( compare ( str, "Sh2", 3, casesens ) == 0 && len > 3 )
+    {
+        size_t pos = str.find_first_of ( "0123456789" );
+        if ( pos != string::npos )
+            return SSIdentifier ( kCatSh2, stoi ( str.substr ( pos, len - pos ) ) );
+    }
+
+    // if string begins with "LBN", attempt to parse a Lynds Bright Nebula identifier
     
     if ( compare ( str, "LBN", 3, casesens ) == 0 && len > 3 )
     {
         int64_t lbn = strtoint ( str.substr ( 3, len - 2 ) );
         if ( lbn > 0 )
             return SSIdentifier ( kCatLBN, lbn );
+    }
+
+    // if string begins with "LDN", attempt to parse a Lynds Dark Nebula identifier
+    
+    if ( compare ( str, "LDN", 3, casesens ) == 0 && len > 3 )
+    {
+        int64_t ldn = strtoint ( str.substr ( 3, len - 2 ) );
+        if ( ldn > 0 )
+            return SSIdentifier ( kCatLDN, ldn );
     }
 
     // if string begins with "PNG", attempt to parse a Galactic Planetary Nebula number
@@ -810,9 +904,17 @@ string SSIdentifier::toString ( void )
     {
         str = "Mel " + to_string ( id );
     }
+    else if ( cat == kCatSh2 )
+    {
+        str = "Sh2 " + to_string ( id );
+    }
     else if ( cat == kCatLBN )
     {
         str = "LBN " + to_string ( id );
+    }
+    else if ( cat == kCatLDN )
+    {
+        str = "LDN " + to_string ( id );
     }
     else if ( cat == kCatPNG )
     {

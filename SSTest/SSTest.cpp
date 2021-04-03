@@ -790,12 +790,12 @@ int main ( int argc, const char *argv[] )
 //    exportCatalog ( planNebs );
 
     SSObjectVec objects;
-    int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects, true );
-    cout << "Imported " << numobj << " NGC-IC objects (without M/C)" << endl;
-    SSExportObjectsToCSV ( "/Users/timmyd/Desktop/NGCIC.csv", objects );
+    int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2019/NI2019.txt", ngcicNameMap, clusters, globulars, planNebs, objects, false );
+    cout << "Imported " << numobj << " NGC-IC objects" /* (without M/C)" */ << endl;
+//    SSExportObjectsToCSV ( "/Users/timmyd/Desktop/NGCIC.csv", objects );
     ExportObjectsToHTM ( "/Users/timmyd/Desktop/NGCIC/", objects, true );
-//    exportCatalog ( objects );
-
+    
+    exportCatalog ( objects );
     exportCatalog ( objects, kCatMessier, 1, 110 );
     exportCatalog ( objects, kCatCaldwell, 1, 110 );
 
@@ -878,13 +878,26 @@ void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects, bool ngcic 
     int n = htm.saveRegions();
     cout << "Exported " << n << " objects." << endl;
     
+    // Create index
+    
+    vector<SSCatalog> cats = { kCatUnknown, kCatMessier, kCatCaldwell, kCatNGC, kCatIC };
+    for ( SSCatalog cat : cats )
+        if ( htm.makeObjectMap ( cat ) )
+            htm.saveObjectMap ( cat );
+
     // Finally empty the original object vector
     
     objects.clear();
 
-    // Now try dumping and reloading regions
+    // Now try dumping and reloading regions and index
     
     htm.dumpRegions();
     n = htm.loadRegions();
     cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " objects." << endl;
+    
+    for ( SSCatalog cat : cats )
+    {
+        n = htm.loadObjectMap ( cat );
+        cout << ( cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat ) ) << " map has " << n << " entries\n";
+    }
 }

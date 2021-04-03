@@ -72,12 +72,14 @@ enum SSCatalog
     kCatNGC = 32,           // New General Catalog of deep sky objects
     kCatIC = 33,            // Index Catalog of deep sky objects
     kCatMel = 34,           // Melotte Catalog of open clusters
-    kCatLBN = 35,           // Lynds Bright Nebula catalog
-    kCatPNG = 36,           // Galactic Planetary Nebulae (Strasbourg-ESO)
-    kCatPK = 37,            // Perek-Kohoutek Catalog (planetary nebulae)
-    kCatPGC = 38,           // Principal Galaxy Catalog
-    kCatUGC = 39,           // Uppsala Galaxy Catalog
-    kCatUGCA = 40           // Uppsala Galaxy Catalog Appendix
+    kCatSh2 = 35,           // Sharpless Bright Nebula catalog
+    kCatLBN = 36,           // Lynds Bright Nebula catalog
+    kCatLDN = 37,           // Lynds Dark Nebula catalog
+    kCatPNG = 38,           // Galactic Planetary Nebulae (Strasbourg-ESO)
+    kCatPK = 39,            // Perek-Kohoutek Catalog (planetary nebulae)
+    kCatPGC = 40,           // Principal Galaxy Catalog
+    kCatUGC = 41,           // Uppsala Galaxy Catalog
+    kCatUGCA = 42           // Uppsala Galaxy Catalog Appendix
 };
 
 class SSIdentifier
@@ -130,6 +132,9 @@ bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
 
 bool SSAddIdentifier ( SSIdentifier ident, vector<SSIdentifier> &identVec );
 int SSAddIdentifiers ( SSIdentifier ident, SSIdentifierMap &map, SSIdentifierVec &idents );
+
+string catalog_to_string ( SSCatalog cat );
+SSCatalog string_to_catalog ( string str );
 
 string con_to_string ( int con );
 string bayer_to_string ( int64_t bay );
