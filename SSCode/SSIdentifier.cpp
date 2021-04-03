@@ -370,15 +370,14 @@ string gj_to_string ( int64_t gj )
 
 int64_t string_to_gj ( string str )
 {
-    static map<string,int> compmap = { { "A", 1 }, { "B", 2 }, { "C", 3 }, { "D", 4 } };
-    
     size_t pos = str.find_first_of ( "ABCD" );
-    string comps = pos == string::npos ? "" : str.substr ( pos, string::npos );
-    
     int d = strtofloat64 ( str ) * 10.0 + 0.1;
-    int c = compmap[ comps ];
+    int c = pos == string::npos ? 0 : str[pos] - 'A' + 1;
 
-    return 10 * d + c;
+    if ( d == 0 )
+        return 0;
+    else
+        return 10 * d + c;
 }
 
 int64_t string_to_wds ( string str )
