@@ -132,5 +132,6 @@ bool SSAddIdentifier ( SSIdentifier ident, vector<SSIdentifier> &identVec );
 int SSAddIdentifiers ( SSIdentifier ident, SSIdentifierMap &map, SSIdentifierVec &idents );
 
 string con_to_string ( int con );
+string bayer_to_string ( int64_t bay );
 
 #endif /* SSIdentifier_hpp */

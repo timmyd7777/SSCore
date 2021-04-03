@@ -266,13 +266,15 @@ static vector<string> _bestNGCIC =
     "NGC 292", // GX in Tuc, Small Magellanic Cloud
     "PGC 17223", // GX in Dor, Large Magellanic Cloud
     "NGC 772", // GX in Ari,
-    "NGC 936", // GC in Cet,
+    "NGC 925", // GX in Tri,
+    "NGC 936", // GX in Cet,
     "NGC 1023", // GX in Per,
     "NGC 1232", // GX in Eri,
     "NGC 1291", // GX in Eri,
     "NGC 1300", // GX in Eri,
     "NGC 1313", // GX in Ret,
     "NGC 1316", // GX in For, Fornax A
+    "NGC 1333", // BN in Per,
     "NGC 1365", // GX in For,
     "NGC 1491", // BN in Per,
     "NGC 1499", // BN in Per, California Nebula
@@ -319,7 +321,7 @@ static vector<string> _bestNGCIC =
     "NGC 4388", // GX in Vir,
     "NGC 4414", // GX in Com,
     "NGC 4435", // GX in Vir, The Eyes
-    "NGC 4438 ", // GX in Vir, The Eyes
+    "NGC 4438", // GX in Vir, The Eyes
     "NGC 4494", // GX in Com,
     "NGC 4526", // GX in Vir,
     "NGC 4535", // GX in Vir,

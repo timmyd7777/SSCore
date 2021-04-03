@@ -107,7 +107,7 @@ static int string_to_bayer ( const string &str, bool casesens = true )
     return 0;
 }
 
-static string bayer_to_string ( int64_t bay )
+string bayer_to_string ( int64_t bay )
 {
     if ( bay > 50 )
         return string ( 1, bay - 51 + 'A' );
