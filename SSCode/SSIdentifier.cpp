@@ -567,18 +567,18 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "Mel", 3, casesens ) == 0 && len > 3 )
     {
-        size_t pos = str.find_first_of ( "0123456789" );
-        if ( pos != string::npos )
-            return SSIdentifier ( kCatMel, stoi ( str.substr ( pos, len - pos ) ) );
+        size_t mel = strtoint ( str.substr ( 3, len - 2 ) );
+        if ( mel > 0 )
+            return SSIdentifier ( kCatMel, mel );
     }
 
     // if string begins with "Sh2", attempt to parse a Sharpless bright nebula identifier
     
     if ( compare ( str, "Sh2", 3, casesens ) == 0 && len > 3 )
     {
-        size_t pos = str.find_first_of ( "0123456789" );
-        if ( pos != string::npos )
-            return SSIdentifier ( kCatSh2, stoi ( str.substr ( pos, len - pos ) ) );
+        int64_t sh2 = strtoint ( str.substr ( 3, len - 2 ) );
+        if ( sh2 > 0 )
+            return SSIdentifier ( kCatSh2, sh2 );
     }
 
     // if string begins with "LBN", attempt to parse a Lynds Bright Nebula identifier
