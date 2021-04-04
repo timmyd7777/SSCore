@@ -1450,6 +1450,17 @@ SSSpherical SSPlanet::subsolarCoordinates ( void )
     return coords;
 }
 
+// Returns System II longitude of Jupiter's Gred Red Spot, in degrees.
+// Formula is a manual linear fit to 2019-2021 data published here:
+// http://jupos.privat.t-online.de/img/Grs.GIF
+
+double SSPlanet::getGRSLongitude ( double jd )
+{
+    double y = SSTime ( jd ).toJulianYear();
+    double l = 350.0 + 25.5 * ( y - 2021.0 );
+    return mod360 ( l );
+}
+
 // Determines if a ray from an external point (p) extending in direction of the unit vector (r) intersects
 // this planet's oblate ellipsoid surface, with planet's radius multiplied by a scale factor (s).
 // Returns true if the ray intersects planet, and finds distance (d) from (p) to intersection point (q).

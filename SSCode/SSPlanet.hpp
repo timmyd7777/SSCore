@@ -146,7 +146,8 @@ public:
     SSMatrix setPlanetographicMatrix ( double jed );
     SSSpherical centralCoordinates ( void );
     SSSpherical subsolarCoordinates ( void );
-
+    
+    static double getGRSLongitude ( double jd );
     bool rayIntersect ( SSVector p, SSVector u, double &d, SSVector &q, float s = 1.0f );
 
     // Sets whether to use (accurate, but slow) VSOP/ELP planetary & lunar ephemeris when JPL DE438 is not available.
