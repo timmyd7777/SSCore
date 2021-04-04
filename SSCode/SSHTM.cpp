@@ -878,6 +878,9 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat )
     if ( ! file )
         return n;
 
+    NameMap nameMap;
+    IdentMap identMap;
+
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
@@ -891,7 +894,6 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat )
         
         if ( cat == kCatUnknown )
         {
-            NameMap nameMap;
             string name = fields[0];
             if ( ! name.empty() )
             {
@@ -900,11 +902,9 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat )
                 nameMap.insert ( { name, { htmID, offset } } );
                 n++;
             }
-            _nameIndex.insert ( { cat, nameMap } );
         }
         else
         {
-            IdentMap identMap;
             SSIdentifier ident = SSIdentifier::fromString ( fields[0], kTypeNonexistent, true );
             if ( ident != 0 )
             {
@@ -913,12 +913,44 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat )
                 identMap.insert ( { ident, { htmID, offset } } );
                 n++;
             }
-            _identIndex.insert ( { cat, identMap } );
         }
+    }
+    
+    // If we read anything, save the name map or ident map we just read.
+    
+    if ( n > 0 )
+    {
+        if ( cat == kCatUnknown )
+            _nameIndex.insert ( { cat, nameMap } );
+        else
+            _identIndex.insert ( { cat, identMap } );
     }
     
     // Close file. Save copy of index into this HTM's index map. Return number of index entries loaded.
 
     fclose ( file );
     return n;
+}
+
+vector<SSHTM::ObjectLoc> SSHTM::findObject ( SSIdentifier &ident )
+{
+    SSCatalog cat = ident.catalog();
+    IdentMap &map = _identIndex[cat];
+    auto it0 = map.lower_bound ( ident );
+    auto it1 = map.upper_bound ( ident );
+    vector<ObjectLoc> results;
+    for ( auto it = it0; it != it1; it++ )
+        results.push_back ( it->second );
+    return results;
+}
+
+vector<SSHTM::ObjectLoc> SSHTM::findObject ( const string &name )
+{
+    NameMap &map = _nameIndex[kCatUnknown];
+    auto it0 = map.lower_bound ( name );
+    auto it1 = map.upper_bound ( name );
+    vector<ObjectLoc> results;
+    for ( auto it = it0; it != it1; it++ )
+        results.push_back ( it->second );
+    return results;
 }
