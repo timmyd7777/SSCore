@@ -197,19 +197,20 @@ int SSHTM::saveRegion ( uint64_t htmID )
 }
 
 // Loads star data for a specific region in this HTM and recursively for its sub-regions.
-// All regions are loaded synchronously on the current thread.
-// Returns the total number of regions loaded.
+// If sync is true, regions are loaded synchronously on the current thread;
+// If sync is false, regions are loaded asynchronously on background threads.
+// Returns the number of regions loaded (will be zero if sync is false).
 
-int SSHTM::loadRegions ( uint64_t htmID )
+int SSHTM::loadRegions ( uint64_t htmID, bool sync )
 {
     int n = 0;
     
-    if ( loadRegion ( htmID, true ) )
+    if ( loadRegion ( htmID, sync ) )
         n++;
     
     vector<uint64_t> subIDs = subRegionIDs ( htmID );
     for ( int i = 0; i < subIDs.size(); i++ )
-       n += loadRegions ( subIDs[i] );
+       n += loadRegions ( subIDs[i], sync );
         
     return n;
 }
@@ -827,8 +828,8 @@ size_t SSHTM::saveObjectMap ( SSCatalog cat )
     // Open file; return on failure.
     
     string catname = cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat );
-    string filename ( "map." + catname + ".csv" );
-    ofstream file ( _rootpath + filename, ios::trunc );
+    string filepath ( _rootpath + "index/" + catname + ".csv" );
+    ofstream file ( filepath, ios::trunc );
     if ( ! file )
         return n;
     
@@ -873,8 +874,8 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat )
     // Open file; return on failure.
 
     string catname = cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat );
-    string filename ( _rootpath + "map." + catname + ".csv" );
-    FILE *file = fopen ( filename.c_str(), "r" );
+    string filepath ( _rootpath + "index/" + catname + ".csv" );
+    FILE *file = fopen ( filepath.c_str(), "r" );
     if ( ! file )
         return n;
 
@@ -932,25 +933,53 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat )
     return n;
 }
 
-vector<SSHTM::ObjectLoc> SSHTM::findObject ( SSIdentifier &ident )
+// Given an identifier, uses this HTM's identifier index to find all objects matching
+// the identifier. Object locations are appended to the vector (results);
+// returns number of object locations found.
+
+size_t SSHTM::findObjectLocs ( SSIdentifier &ident, vector<SSHTM::ObjectLoc> &results )
 {
     SSCatalog cat = ident.catalog();
+    if ( objectMapSize ( cat ) == 0 )
+        loadObjectMap ( cat );
+    
     IdentMap &map = _identIndex[cat];
     auto it0 = map.lower_bound ( ident );
     auto it1 = map.upper_bound ( ident );
-    vector<ObjectLoc> results;
+    
+    size_t n = (int) results.size();
     for ( auto it = it0; it != it1; it++ )
         results.push_back ( it->second );
-    return results;
+    return results.size() - n;
 }
 
-vector<SSHTM::ObjectLoc> SSHTM::findObject ( const string &name )
+// Given a name string (name), uses this HTM's name index to find all objects matching
+// the name string.Object locations are appended to the vector (results);
+// returns number of object locations found.
+
+size_t SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &results )
 {
+    if ( objectMapSize ( kCatUnknown ) == 0 )
+        loadObjectMap ( kCatUnknown );
+    
     NameMap &map = _nameIndex[kCatUnknown];
     auto it0 = map.lower_bound ( name );
     auto it1 = map.upper_bound ( name );
-    vector<ObjectLoc> results;
+    
+    size_t n = (int) results.size();
     for ( auto it = it0; it != it1; it++ )
         results.push_back ( it->second );
-    return results;
+    return results.size() - n;
+}
+
+// Given an object location in this HTM, synchronously loads the region containing the object
+// (if not already loaded) and returns a pointer to the object, or nullptr on failure.
+
+SSObjectPtr SSHTM::loadObject ( const ObjectLoc &loc )
+{
+    SSObjectVec *pObjects = loadRegion ( loc.region, true );
+    if ( pObjects )
+        return pObjects->at ( loc.offset );
+    
+    return nullptr;
 }

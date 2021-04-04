@@ -74,8 +74,8 @@ public:
     
     int saveRegions ( void );
     int saveRegion ( uint64_t id );
-    int loadRegions ( uint64_t htmID = 0 );
-    SSObjectVec *loadRegion ( uint64_t htmID, bool sync );
+    int loadRegions ( uint64_t htmID = 0, bool sync = true );
+    SSObjectVec *loadRegion ( uint64_t htmID, bool sync = true );
     void dumpRegions ( void );
     void dumpRegion ( uint64_t htmID );
     
@@ -119,8 +119,10 @@ public:
     
     size_t objectMapSize ( SSCatalog cat ) { return cat == kCatUnknown ? _nameIndex[cat].size() : _identIndex[cat].size(); }
     
-    vector<ObjectLoc> findObject ( const string &name );
-    vector<ObjectLoc> findObject ( SSIdentifier &ident );
+    size_t findObjectLocs ( const string &name, vector<ObjectLoc> &locs );
+    size_t findObjectLocs ( SSIdentifier &ident, vector<ObjectLoc> &locs );
+    
+    SSObjectPtr loadObject ( const ObjectLoc &loc );
 };
 
 // Callback function to notify external HTM user when regions are loaded asynchronously.
