@@ -67,8 +67,8 @@ The column format is identical to that of **Stars.csv**, above.
 **Revision History**
 
 Version 1.0 (27 Mar 2020): initial version
-Version 1.1 (30 Mar 2020): corrected erroneous proper motions for open clusters with RV; added LMC and SMC.
 Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
+Version 1.3 (3 Apr 2021): Fixed bad data for Sigma Dra, e Eri, and HIP 113020.
 
 Names.csv
 ---------
