@@ -541,7 +541,10 @@ string SSDeepSky::toCSVDS ( void )
 
 string SSDeepSky::toCSV ( void )
 {
-    return toCSV1() + toCSVDS() + toCSV2();
+    if ( _type == kTypeStar )
+        return toCSV1() + toCSV2();
+    else
+        return toCSV1() + toCSVDS() + toCSV2();
 }
 
 // Allocates a new SSStar and initializes it from a CSV-formatted string.

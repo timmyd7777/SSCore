@@ -116,6 +116,8 @@ public:
 
     size_t makeObjectMap ( SSCatalog cat );
     size_t makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap, IdentMap &identMap );
+    
+    size_t objectMapSize ( SSCatalog cat ) { return cat == kCatUnknown ? _nameIndex[cat].size() : _identIndex[cat].size(); }
 };
 
 // Callback function to notify external HTM user when regions are loaded asynchronously.
