@@ -953,22 +953,38 @@ size_t SSHTM::findObjectLocs ( SSIdentifier &ident, vector<SSHTM::ObjectLoc> &re
     return results.size() - n;
 }
 
-// Given a name string (name), uses this HTM's name index to find all objects matching
-// the name string.Object locations are appended to the vector (results);
-// returns number of object locations found.
+// Given a name string (name), uses this HTM's name index to find all objects matching the name string.
+// Pass true for (casesens) for Case-Sensitive string matching; pass false for case-insensitive matching.
+// Pass true for (begins) for "begins-with" string matching; pass false for whole-string matching.
+// Object locations are appended to the vector (results); returns number of object locations found.
 
-size_t SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &results )
+size_t SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &results, bool casesens, bool begins )
 {
     if ( objectMapSize ( kCatUnknown ) == 0 )
         loadObjectMap ( kCatUnknown );
     
     NameMap &map = _nameIndex[kCatUnknown];
-    auto it0 = map.lower_bound ( name );
-    auto it1 = map.upper_bound ( name );
-    
     size_t n = (int) results.size();
-    for ( auto it = it0; it != it1; it++ )
-        results.push_back ( it->second );
+    
+    if ( casesens == true && begins == false )
+    {
+        auto it0 = map.lower_bound ( name );
+        auto it1 = map.upper_bound ( name );
+        for ( auto it = it0; it != it1; it++ )
+            results.push_back ( it->second );
+    }
+    else
+    {
+        // We have to brute-force-search the name map for entries matching the name string.
+        // But since the map only contains a few hundred entries, this should still be fast.
+        
+        auto it0 = map.begin();
+        auto it1 = map.end();
+        for ( auto it = it0; it != it1; it++ )
+            if ( compare ( it->first, name, begins ? name.length() : 0, casesens ) == 0 )
+                results.push_back ( it->second );
+    }
+    
     return results.size() - n;
 }
 
