@@ -1019,7 +1019,7 @@ bool SSPlanet::useVSOPELP ( void )
 // 2015 https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint
 // 2009 https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2009reprint (for Earth and Moon)
 // Small periodic terms with amplitudes less than 0.001 degree omitted for Mercury, Mars, Jupiter.
-// Rotation rates are System III for Jupiter and Saturn.
+// Rotation rates are System II for Jupiter and System III for Saturn.
 
 void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w, double &wd )
 {
@@ -1073,9 +1073,9 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
             a0 = 268.056595 - 0.006499 * T;
             d0 = 64.495303 + 0.002413 * T;
             wd = 870.5360000;
-            w  = 284.95 + wd * d;
-            // System I  w = 67.1 + 877.900 * d;
-            // System II w = 43.3 + 870.270 * d;
+            // w = 67.1 + 877.900 * d; // System I
+            w = 43.3 + 870.270 * d; // System II
+            // w = 284.95 + wd * d; // System III
         }
         else if ( id == kSaturn )
         {
