@@ -955,6 +955,38 @@ string SSIdentifier::toString ( void )
     return str;
 }
 
+// Strips Bayer superscripts (alpha1 Cen -> alpha Cen),
+// DM suffixes (BD+04 3561a -> BD+04 3561), and
+// NGC and IC suffixes (NGC 7318A -> NGC 7318, IC 1318B -> IC 1318).
+// All other identifiers are returned unchanged.
+
+SSIdentifier SSIdentifier::strip ( void )
+{
+    SSCatalog cat = catalog();
+    uint64_t id = identifier();
+    
+    if ( cat == kCatBayer )
+    {
+        int64_t bay = id / 10000;
+        int64_t con = id % 100;
+        return SSIdentifier ( kCatBayer, bay * 10000 + con );
+    }
+    else if ( cat == kCatBD || cat == kCatCD || cat == kCatCP )
+    {
+        int64_t sign = id / 100000000;
+        int64_t zone = ( id - sign * 100000000 ) / 1000000;
+        int64_t num = ( id - sign * 100000000 - zone * 1000000 ) / 10;
+        return SSIdentifier ( cat, sign * 100000000 + zone * 1000000 + num * 10 );
+    }
+    else if ( cat == kCatNGC || cat == kCatIC )
+    {
+        int64_t num = id / 10;
+        return SSIdentifier ( cat, num * 10 );
+    }
+    
+    return *this;
+}
+
 bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 )
 {
     return id1 < id2;

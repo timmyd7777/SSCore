@@ -119,6 +119,8 @@ public:
     static SSIdentifier fromCaldwell ( string s );
     static SSIdentifier fromNGC ( string s );
     static SSIdentifier fromIC ( string s );
+    
+    SSIdentifier strip ( void );
 };
 
 typedef vector<SSIdentifier> SSIdentifierVec;
