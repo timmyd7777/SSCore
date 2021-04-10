@@ -106,7 +106,7 @@ protected:
     string _comps;              // component string, e.g. "A" for primary, "B" for secondary, "AB" for primary-secondary pair, etc.; empty if unknown
     float _magDelta;            // magnitude difference between components; infinite if unknown
     float _sep;                 // angular separation between components in radians; infinite if unknown
-    float _PA;                  // position angle from brighter to fainter component in fundamental mean J2000 equatorial frame; infinite if unknown
+    float _PA;                  // position angle from brighter to fainter component in radians in fundamental mean J2000 equatorial frame; infinite if unknown
     float _PAyr;                // Julian year of position angle measurement; infinite if unknown
     
     string toCSVD ( void );     // returns CSV string from double-star data (but not SStar base class).

@@ -12,7 +12,7 @@ Planets.csv
 
 This table of data on the Sun, the major planets, and Pluto is in Southern Stars CSV format was adapted from Table 1 in this paper by E.M. Standish (JPL Solar System Dynamics), ["Keplerian Elements for Approximate Positions of the Major Planets"](https://ssd.jpl.nasa.gov/txt/p_elem_t1.txt) and from JPL's ["Planets and Pluto: Physical Characteristics"](https://ssd.jpl.nasa.gov/?planet_phys_par) table.  Data for the Sun is from NASA's ["Sun Fact Sheet"](https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html).
 
-Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, ID, Name
+Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, ID, Name
 
 - **_Type_** (PL) means planet
 - **_q_** is perihelion distance (AU)
@@ -26,6 +26,7 @@ Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, ID, Name
 - **_H_** is absolute visual magnitude (i.e., V at 1.0 AU distance and 100% illumination)
 - **_G_** is magnitude phase parameter
 - **_Radius_** is equatorial radius (km)
+- **_Mass_** is planetary mass (kg)
 - **_ID_** is JPL NAIF ID
 - **_Name_** is planet name
 
@@ -34,13 +35,14 @@ Empty fields indicate unknown or missing values.
 **Revision History**
 
 Version 1.0 (31 Mar 2020): initial version
+Version 1.0 (10 Apr 2021): added planetary masses
 
 Moons.csv
 ---------
 
 This table of moon data in Southern Stars CSV format was adapted from JPL's ["Planetary Satellite Mean Orbital Parameters"](https://ssd.jpl.nasa.gov/?sat_elem) and from JPL's ["Planetary Satellite Physical Parameters"](https://ssd.jpl.nasa.gov/?sat_phys_par) table.
 
-Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, ID, Name
+Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, ID, Name
 
 - **_Type_** (MN) means moon
 - **_q_** is periapse distance (km)
@@ -54,6 +56,7 @@ Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, ID, Name
 - **_H_** is absolute visual magnitude (i.e., V at 1.0 AU distance and 100% illumination)
 - **_G_** is magnitude phase parameter
 - **_Radius_** is equatorial radius (km)
+- **_Mass_** is moon mass (kg)
 - **_ID_** is JPL NAIF ID
 - **_Name_** is moon name
 
@@ -65,6 +68,7 @@ The orbital inclinations, arguments, and nodes are referred to their Laplace Pla
 
 Version 1.0 (31 Mar 2020): initial version  
 Version 1.1 (22 Apr 2020): fixed absolute magnitudes (H)
+Version 1.2 (10 Apr 2021): added moon masses
 
 Asteroids.txt
 -------------

@@ -45,6 +45,7 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
     _orbit = SSOrbit();
     _Hmag = _Gmag = INFINITY;
     _radius = 0.0;
+    _mass = 0.0;
     _position = _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
 }
 
@@ -558,6 +559,7 @@ string SSPlanet::toCSV ( void )
     csv += isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
     csv += isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
     csv += isinf ( _radius ) ? "," : format ( "%.1f,", _radius );
+    csv += isinf ( _mass ) ? "," : format ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
 
     csv += _id ? _id.toString() + "," : ",";
         
@@ -575,7 +577,7 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     vector<string> fields = split ( csv, "," );
     
     SSObjectType type = SSObject::codeToType ( fields[0] );
-    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 14 )
+    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 15 )
         return nullptr;
     
     SSOrbit orbit;
@@ -595,15 +597,16 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     float h = fields[9].empty() ? INFINITY : strtofloat ( fields[9] );
     float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
     float r = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
+    float m = fields[12].empty() ? INFINITY : strtofloat ( fields[12] );
 
     SSIdentifier ident;
     if ( type == kTypePlanet || type == kTypeMoon )
-        ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[12] ) );
+        ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[13] ) );
     else
-        ident = SSIdentifier::fromString ( fields[12] );
+        ident = SSIdentifier::fromString ( fields[13] );
 
     vector<string> names;
-    for ( int i = 13; i < fields.size(); i++ )
+    for ( int i = 14; i < fields.size(); i++ )
         names.push_back ( trim ( fields[i] ) );
     
 	SSObjectPtr pObject = SSNewObject ( type );
@@ -615,6 +618,7 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     pPlanet->setHMagnitude ( h );
     pPlanet->setGMagnitude ( g );
     pPlanet->setRadius ( r );
+    pPlanet->setMass ( m / SSCoordinates::kKgPerEarthMass );
     pPlanet->setIdentifier ( ident );
     pPlanet->setNames ( names );
 

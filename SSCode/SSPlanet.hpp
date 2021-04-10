@@ -74,6 +74,7 @@ protected:
     float       _Hmag;          // absolute magnitude; infinite if unknown
     float       _Gmag;          // magnitude slope parameter; infinite if unknown
     float       _radius;        // equatorial radius in kilometers; 0 or infinite if unknown
+    float       _mass;          // mass in Earth masses, 0 or infinite if unknown
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
     SSMatrix    _pmatrix;       // transforms from planetographic to fundamental J2000 mean equatorial frame.
@@ -111,6 +112,7 @@ public:
     void setHMagnitude ( float hmag ) { _Hmag = hmag; }
     void setGMagnitude ( float gmag ) { _Gmag = gmag; }
     void setRadius ( float radius ) { _radius = radius; }
+    void setMass ( float mass ) { _mass = mass; }
 
     SSIdentifier getIdentifier ( void ) { return _id; }
     SSIdentifier getIdentifier ( int i ) { return i == 0 ? _id : SSIdentifier(); }
@@ -120,6 +122,7 @@ public:
     float getHMagnitude ( void ) { return _Hmag; }
     float getGMagnitude ( void ) { return _Gmag; }
     float getRadius ( void ) { return _radius; }
+    float getMass ( void ) { return _mass; }
     double flattening ( void );
 
     SSVector getPosition ( void ) { return _position; }

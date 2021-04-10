@@ -205,7 +205,8 @@ void TestSolarSystem ( string inputDir, string outputDir )
     SSObjectVec moons;
     int numMoons = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", moons );
     cout << "Imported " << numMoons << " natural satellites" << endl;
-    
+    numPlanets = SSExportObjectsToCSV ( "", moons );
+
     SSObjectVec features;
     int numFeatures = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Features.csv", features );
     cout << "Imported " << numFeatures << " non-Earth planetary surface features" << endl;
@@ -766,7 +767,7 @@ int main ( int argc, const char *argv[] )
     int numast = SSImportMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
 #endif
-    
+
     SSIdentifierNameMap ngcicNameMap;
     SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/DeepSky/Names.csv", ngcicNameMap );
     cout << "Imported " << ngcicNameMap.size() << " NGC-IC names" << endl;

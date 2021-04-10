@@ -69,6 +69,7 @@ public:
     
     static constexpr double kKmPerAU = 149597870.700;                               // kilometers per Astronomical Unit (IAU 2012)
     static constexpr double kKmPerEarthRadii = 6378.137;                            // kilometers per equatorial Earth radius (WGS84)
+    static constexpr double kKgPerEarthMass = 5.97237e24;                           // kilograms per Earth mass (JPL planet physical characteristics table)
     static constexpr double kEarthFlattening = 1 / 298.257;                         // Earth ellipsoid flattening factor (WGS84)
     static constexpr double kLightKmPerSec = 299792.458;                            // Speed of light in kilometers per second
     static constexpr double kLightAUPerDay = kLightKmPerSec * 86400.0 / kKmPerAU;   // Speed of lignt in astronomical units per day = 173.144
