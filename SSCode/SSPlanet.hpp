@@ -143,6 +143,7 @@ public:
     
     static double illumination ( double phase );
     double illumination ( void );
+    double elongation ( SSPlanet *pSun );
     
     void rotationElements ( double jed, double &a0, double &d0, double &w0, double &wdot );
     SSMatrix getPlanetographicMatrix ( void ) { return _pmatrix; }
@@ -168,6 +169,10 @@ public:
     double umbraLength ( float s = 1.0f );
     double umbraRadius ( double d, float s = 1.0f );
     double penumbraRadius ( double d, float s = 1.0f );
+
+    bool isSun ( void ) { return _type == kTypePlanet && _id.identifier() == kSun; }
+    bool isLuna ( void ) { return _type == kTypeMoon && _id.identifier() == kLuna; }
+    bool isEarth ( void ) { return _type == kTypePlanet && _id.identifier() == kEarth; }
 
     // imports/exports from/to CSV-format text string
     

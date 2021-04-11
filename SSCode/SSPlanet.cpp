@@ -389,6 +389,20 @@ double SSPlanet::illumination ( void )
     return illumination ( phaseAngle() );
 }
 
+// Returns this solar system object's elongation (i.e. difference in ecliptic longitude)
+// from the Sun, in radians, reduced to the range -pi to +pi.
+// Object's and Sun's apparent direction vectors must already be calculated!
+
+double SSPlanet::elongation ( SSPlanetPtr pSun )
+{
+    static SSMatrix m = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
+    
+    SSSpherical suncoords = m * pSun->getDirection();
+    SSSpherical coords = m * getDirection();
+    
+    return modpi ( coords.lon - suncoords.lon );
+}
+
 // Computes solar system object visual magnitude.
 // Object's distance from sun (rad) and from observer (dist) are both in AU.
 // Object's phase angle (phase) is in radians.
