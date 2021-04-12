@@ -395,7 +395,7 @@ double SSPlanet::illumination ( void )
 
 double SSPlanet::elongation ( SSPlanetPtr pSun )
 {
-    static SSMatrix m = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) );
+    static SSMatrix m = SSCoordinates::getEclipticMatrix ( SSCoordinates::getObliquity ( SSTime::kJ2000 ) ).transpose();
     
     SSSpherical suncoords = m * pSun->getDirection();
     SSSpherical coords = m * getDirection();
