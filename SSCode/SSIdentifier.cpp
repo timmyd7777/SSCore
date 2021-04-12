@@ -956,6 +956,7 @@ string SSIdentifier::toString ( void )
 }
 
 // Strips Bayer superscripts (alpha1 Cen -> alpha Cen),
+// GJ components (GJ 559B -> GJ 559)
 // DM suffixes (BD+04 3561a -> BD+04 3561), and
 // NGC and IC suffixes (NGC 7318A -> NGC 7318, IC 1318B -> IC 1318).
 // All other identifiers are returned unchanged.
@@ -969,7 +970,12 @@ SSIdentifier SSIdentifier::strip ( void )
     {
         int64_t bay = id / 10000;
         int64_t con = id % 100;
-        return SSIdentifier ( kCatBayer, bay * 10000 + con );
+        return SSIdentifier ( cat, bay * 10000 + con );
+    }
+    else if ( cat == kCatGJ )
+    {
+        int64_t gj = id / 10;
+        return SSIdentifier ( cat, 10 * gj );
     }
     else if ( cat == kCatBD || cat == kCatCD || cat == kCatCP )
     {

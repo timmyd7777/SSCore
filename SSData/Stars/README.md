@@ -62,13 +62,14 @@ This list of the 160 nearest stars is primarily based on data from [RECONS](http
 
 Identifiers and common names are from RECONS and cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley.
 
-The column format is identical to that of **Stars.csv**, above.
+The column format is identical to that of **Stars.csv**, above. The preferred order for the catalog identifiers and names is: Bayer or GCVS, Flamsteed, GJ, HD, DM, HIP, then common names.
 
 **Revision History**
 
 Version 1.0 (27 Mar 2020): initial version
 Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 Version 1.3 (3 Apr 2021): Fixed bad data for Sigma Dra, e Eri, and HIP 113020.
+Version 1.4 (11 Apr 2021): Added names for Luyten 726-8 A & B, moved many names in the GJ column to the name column.
 
 Names.csv
 ---------
