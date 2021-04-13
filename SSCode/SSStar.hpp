@@ -94,6 +94,43 @@ public:
     
     static double moffatFunction ( double max, double r2, double beta );
     static double moffatRadius ( double z, double max, double beta );
+    
+    // Spectral types and luminosity classes
+    
+    enum SpecType
+    {
+        W0 = 0,     // Wolf-Rayet stars
+        O0 = 10,
+        B0 = 20,
+        A0 = 30,
+        F0 = 40,
+        G0 = 50,
+        K0 = 60,
+        M0 = 70,
+        S0 = 80,
+        C0 = 90,    // Carbon stars
+        L0 = 100,   // Brown dwarfs
+        T0 = 110    // Brown dwarfs
+    };
+    
+    enum LumClass
+    {
+        Ia0 = 1,    // hypergiants
+        Ia  = 2,    // luminous supergiants
+        Iab = 3,    // intermediate supergiants, c
+        Ib  = 4,    // less luminous supergiants
+        II  = 5,    // bright giants
+        III = 6,    // giants, g
+        IV  = 7,    // subgiants, sg
+        V   = 8,    // main-sequence, d
+        VI  = 9,    // subdwarfs, sd
+        VII = 10    // white dwarfs, D
+    };
+    
+    static int spectralType ( const string &spectrum );
+    static int luminosityClass ( const string &spectrum );
+    static bool parseSpectrum ( const string &spectrum, int &spectype, int &lumclass );
+    static string formatSpectrum ( int spectype, int lumclass );
 };
 
 // This subclass of SSStar stores data for double stars

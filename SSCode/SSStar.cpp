@@ -415,6 +415,167 @@ double SSStar::moffatRadius ( double z, double max, double beta )
     return sqrt ( pow ( max / z, 1.0 / beta ) - 1.0 );
 }
 
+// Given a stellar spectral class string, returns integer code for spectral type.
+// Assumes leading and trailing whitespace has been removed.
+// See https://en.wikipedia.org/wiki/Stellar_classification
+
+int SSStar::spectralType ( const string &spectrum )
+{
+    int spectype = 0;
+    static char types[12] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'S', 'C', 'L', 'T'  };
+
+    for ( int i = 0; i < spectrum.length(); i++ )
+    {
+        for ( int k = 0; k < 12; k++ )
+        {
+            if ( spectrum[i] == types[k] )
+            {
+                spectype = k * 10;
+                i++;
+                if ( spectrum[i] >= '0' && spectrum[i] <= '9' )
+                    spectype += spectrum[i] - '0';
+                    
+                return spectype;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+// Given a stellar spectral class string, returns integer code for luminosity class.
+// Assumes leading and trailing whitespace has been removed.
+// See https://en.wikipedia.org/wiki/Stellar_classification
+
+int SSStar::luminosityClass ( const string &spectrum )
+{
+    int i, lumclass = 0;
+    
+    // Mt. Wilson luminosity classes c, g, sg, d, sd, and white dwarfs (D) are prefixed.
+    
+    if ( spectrum[0] == 'c' )
+        lumclass = LumClass::Iab;
+
+    if ( spectrum[0] == 'g' )
+        lumclass = LumClass::III;
+    
+    if ( spectrum[0] == 's' && spectrum.size() >= 2 )
+    {
+        if ( spectrum[1] == 'g' )
+            lumclass = LumClass::IV;
+        else if ( spectrum[1] == 'd' )
+            lumclass = LumClass::VI;
+    }
+
+    if ( spectrum[0] == 'd' )
+        lumclass = LumClass::V;
+    
+    if ( spectrum[0] == 'D' )
+        lumclass = LumClass::VII;
+    
+    if ( lumclass > 0 )
+        return lumclass;
+    
+    // Yerkes (Morgan-Keenan) luminosity classes are suffixed after spectral type.
+    // Find the first luminosity class character in the string.
+    // If none, return zero to indicate unknown luminosity class.
+    
+    i = (int) spectrum.find_first_of ( "IV" );
+    if ( i == string::npos )
+        return 0;
+    
+    // Class V, VI, VII
+    
+    if ( spectrum.compare ( i, 3, "VII", 3 ) == 0 )
+        lumclass = LumClass::VII;
+    else if ( spectrum.compare ( i, 2, "VI", 2 ) == 0 )
+        lumclass = LumClass::VI;
+    else if ( spectrum.compare ( i, 1, "V", 1 ) == 0 )
+        lumclass = LumClass::V;
+
+    // Class Ia0, Ia, Iab, Ib
+
+    else if ( spectrum.compare ( i, 3, "Iab", 3 ) == 0 )
+        lumclass = LumClass::Iab;
+    else if ( spectrum.compare ( i, 3, "IAB", 3 ) == 0 )
+        lumclass = LumClass::Iab;
+    else if ( spectrum.compare ( i, 3, "Ia0", 3 ) == 0 )
+        lumclass = LumClass::Ia0;
+    else if ( spectrum.compare ( i, 3, "IA0", 3 ) == 0 )
+        lumclass = LumClass::Ia0;
+    else if ( spectrum.compare ( i, 3, "IA+", 3 ) == 0 )
+        lumclass = LumClass::Ia0;
+    else if ( spectrum.compare ( i, 2, "Ia", 2 ) == 0 )
+        lumclass = LumClass::Ia;
+    else if ( spectrum.compare ( i, 2, "IA", 2 ) == 0 )
+        lumclass = LumClass::Ia;
+    else if ( spectrum.compare ( i, 2, "Ib", 2 ) == 0 )
+        lumclass = LumClass::Ib;
+    else if ( spectrum.compare ( i, 2, "IB", 2 ) == 0 )
+        lumclass = LumClass::Ib;
+
+    // Class II, III, and IV
+
+    else if ( spectrum.compare ( i, 3, "III", 3 ) == 0 )
+        lumclass = LumClass::III;
+    else if ( spectrum.compare ( i, 2, "II", 2 ) == 0 )
+        lumclass = LumClass::II;
+    else if ( spectrum.compare ( i, 2, "IV", 2 ) == 0 )
+        lumclass = LumClass::IV;
+    
+    return lumclass;
+}
+
+// Given a stellar spectral class string, parses integer code for spectral type
+// and luminosity class. Assumes leading and trailing whitespace has been removed.
+// See https://en.wikipedia.org/wiki/Stellar_classification
+
+bool SSStar::parseSpectrum ( const string &spectrum, int &spectype, int &lumclass )
+{
+    spectype = spectralType ( spectrum );
+    lumclass = luminosityClass ( spectrum );
+    return spectype || lumclass;
+}
+
+// Given an integer spectral type and luminosity class code,
+// formats and returns equivalennt spectral class string.
+
+string SSStar::formatSpectrum ( int spectype, int lumclass )
+{
+    string spectrum = "";
+    static char types[12] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'S', 'C', 'L', 'T'  };
+    
+    if ( lumclass == LumClass::VII )
+        spectrum.append ( 1, 'D' );
+    
+    if ( spectype > SpecType::W0 && spectype < SpecType::T0 + 9 )
+    {
+        spectrum.append ( 1, types[ spectype / 10 ] );
+        spectrum.append ( 1, '0' + spectype % 10 );
+    }
+    
+    if ( lumclass == LumClass::Ia0 )
+        spectrum.append ( "Ia0" );
+    else if ( lumclass == LumClass::Ia )
+        spectrum.append ( "Ia" );
+    else if ( lumclass == LumClass::Iab )
+        spectrum.append ( "Iab" );
+    else if ( lumclass == LumClass::Ib )
+        spectrum.append ( "Ib" );
+    else if ( lumclass == LumClass::II )
+        spectrum.append ( "II" );
+    else if ( lumclass == LumClass::III )
+        spectrum.append ( "III" );
+    else if ( lumclass == LumClass::IV )
+        spectrum.append ( "IV" );
+    else if ( lumclass == LumClass::V )
+        spectrum.append ( "V" );
+    else if ( lumclass == LumClass::VI )
+        spectrum.append ( "VI" );
+
+    return spectrum;
+}
+
 // Returns CSV string from base data (excluding names and identifiers).
 
 string SSStar::toCSV1 ( void )
