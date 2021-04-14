@@ -867,18 +867,20 @@ static vector<SpecClass> _speclass =
     { "M9", 2545, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
 };
 
-// Returns absolute magnitude based on spectral type and luminosity class,
-// or INFINITY if abolute magnitude cannot be determined this way.
+// Returns absolute visual (V) magnitude based on spectral type and luminosity class,
+// or INFINITY if absolute magnitude cannot be determined this way.
 
 float SSStar::absoluteMagnitude ( int spectype, int lumclass )
 {
+    // Use E. Mamajek's table for main sequence stars
+    
     if ( lumclass == LumClass::V )
     {
         int i  = spectype - ( SpecType::O0 + 3 );
         if ( i >= 0 && i < _specinfo.size() )
             return _specinfo[i].Mv;
     }
-    else
+    else    // use "Stellar Spectral Classificaations" MacEvoy table for other luminosity classes.
     {
         int i = spectype - ( SpecType::O0 + 1 );
         if ( i >= 0 && i < _specinfo.size() )
