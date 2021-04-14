@@ -329,6 +329,86 @@ void SSStar::bmv2rgb ( float bv, float &r, float &g, float &b )
     }
 }
 
+// Converts B-V color index (bv) to temperature in Kelvin.
+// from https://en.wikipedia.org/wiki/Color_index
+// Superseded by colorTemperature(), below.
+
+float SSStar::bmv2temp ( float bv )
+{
+   return 4600.0 * ( ( 1.0 / ( ( 0.92 * bv ) + 1.7 ) ) + ( 1.0 / ( ( 0.92 * bv ) + 0.62 ) ) );
+}
+
+// Converts B-V index to stellar surface effective temperature in Kelvins.
+// From Table 2 of "ON THE USE OF EMPIRICAL BOLOMETRIC CORRECTIONS FOR STARS",
+// Guillermo Torres, Harvard-Smithsonian Center for Astrophysics, 2010.
+// https://iopscience.iop.org/article/10.1088/0004-6256/140/5/1158/pdf
+
+float SSStar::colorTemperature ( float bv, int lumclass )
+{
+    float t = 0.0;
+    
+    if ( lumclass <= LumClass::Ib )
+    {
+        t = 4.012559732366214
+          - 1.055043117465989 * bv
+          + 2.133394538571825 * bv * bv
+          - 2.459769794654992 * bv * bv * bv
+          + 1.349423943497744 * bv * bv * bv * bv
+          - 0.283942579112032 * bv * bv * bv * bv * bv;
+    }
+    else
+    {
+        t = 3.979145106714099
+          - 0.654992268598245 * bv
+          + 1.740690042385095 * bv * bv
+          - 4.608815154057166 * bv * bv * bv
+          + 6.792599779944473 * bv * bv * bv * bv
+          - 5.396909891322525 * bv * bv * bv * bv * bv
+          + 2.192970376522490 * bv * bv * bv * bv * bv * bv
+          - 0.359495739295671 * bv * bv * bv * bv * bv * bv * bv;
+    }
+    
+    return pow ( 10.0, t );
+}
+
+// Converts B-V index to bolometric correction in magnitudes.
+// From Table 1 of "ON THE USE OF EMPIRICAL BOLOMETRIC CORRECTIONS FOR STARS",
+// Guillermo Torres, Harvard-Smithsonian Center for Astrophysics, 2010.
+// https://iopscience.iop.org/article/10.1088/0004-6256/140/5/1158/pdf
+
+float SSStar::bolometricCorrection ( float t )
+{
+    float bc = INFINITY;
+    
+    t = log10 ( t );
+    if ( t > 3.9 )
+    {
+        bc = -0.118115450538963E+06
+           + 0.137145973583929E+06 * t
+           - 0.636233812100225E+05 * t * t
+           + 0.147412923562646E+05 * t * t * t
+           - 0.170587278406872E+04 * t * t * t * t
+           + 0.788731721804990E+02 * t * t * t * t * t;
+    }
+    else if ( t > 3.7 )
+    {
+        bc = -0.370510203809015E+05
+           + 0.385672629965804E+05 * t
+           - 0.150651486316025E+05 * t * t
+           + 0.261724637119416E+04 * t * t * t
+           - 0.170623810323864E+03 * t * t * t * t;
+    }
+    else
+    {
+        bc = -0.190537291496456E+05
+           + 0.155144866764412E+05 * t
+           - 0.421278819301717E+04 * t * t
+           + 0.381476328422343E+03 * t * t * t;
+    }
+
+    return bc;
+}
+
 // Returns a star's absolute magnitude, given its apparent magnitude (appMag)
 // and distance in parsecs (dist). If the distance is zero or infinite, returns infinity.
 
@@ -416,13 +496,15 @@ double SSStar::moffatRadius ( double z, double max, double beta )
 }
 
 // Given a stellar spectral class string, returns integer code for spectral type.
+// Note obsolete types R and N are now considered part of C but are still parsed
+// separately since these are found in the SKY2000 Master Star Catalog.
 // Assumes leading and trailing whitespace has been removed.
 // See https://en.wikipedia.org/wiki/Stellar_classification
 
 int SSStar::spectralType ( const string &spectrum )
 {
     int spectype = 0;
-    static char types[12] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'S', 'C', 'L', 'T'  };
+    static char types[14] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T', 'R', 'N', 'S', 'C'  };
 
     for ( int i = 0; i < spectrum.length(); i++ )
     {
@@ -538,12 +620,13 @@ bool SSStar::parseSpectrum ( const string &spectrum, int &spectype, int &lumclas
 }
 
 // Given an integer spectral type and luminosity class code,
-// formats and returns equivalennt spectral class string.
+// formats and returns equivalent spectral class string.
+// Note obsolete types R and N are now considered part of C.
 
 string SSStar::formatSpectrum ( int spectype, int lumclass )
 {
     string spectrum = "";
-    static char types[12] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'S', 'C', 'L', 'T'  };
+    static char types[14] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T', 'R', 'N', 'S', 'C'  };
     
     if ( lumclass == LumClass::VII )
         spectrum.append ( 1, 'D' );
@@ -574,6 +657,150 @@ string SSStar::formatSpectrum ( int spectype, int lumclass )
         spectrum.append ( "VI" );
 
     return spectrum;
+}
+
+struct SpecTemp { int spec; float temp; };
+
+float SSStar::spectralTemperature ( int spectype, int lumclass )
+{
+    static vector<SpecTemp> tempsV =
+    {
+        { SpecType::O0 + 5, 54000.0f },
+        { SpecType::O0 + 6, 45000.0f },
+        { SpecType::O0 + 7, 43300.0f },
+        { SpecType::O0 + 8, 40600.0f },
+        { SpecType::O0 + 9, 37800.0f },
+        { SpecType::B0,     29200.0f },
+        { SpecType::B0 + 1, 23000.0f },
+        { SpecType::B0 + 2, 21000.0f },
+        { SpecType::B0 + 3, 17600.0f },
+        { SpecType::B0 + 5, 15200.0f },
+        { SpecType::B0 + 6, 14300.0f },
+        { SpecType::B0 + 7, 13500.0f },
+        { SpecType::B0 + 8, 12300.0f },
+        { SpecType::B0 + 9, 11400.0f },
+        { SpecType::A0,      9600.0f },
+        { SpecType::A0 + 1, 9330.0f },
+        { SpecType::A0 + 2, 9040.0f },
+        { SpecType::A0 + 3, 8750.0f },
+        { SpecType::A0 + 4, 8480.0f },
+        { SpecType::A0 + 5, 8310.0f },
+        { SpecType::A0 + 7, 7920.0f },
+        { SpecType::F0,     7350.0f },
+        { SpecType::F0 + 2, 7050.0f },
+        { SpecType::F0 + 3, 6850.0f },
+        { SpecType::F0 + 5, 6700.0f },
+        { SpecType::F0 + 6, 6550.0f },
+        { SpecType::F0 + 7, 6400.0f },
+        { SpecType::F0 + 8, 6300.0f },
+        { SpecType::G0,     6050.0f },
+        { SpecType::G0 + 1, 5930.0f },
+        { SpecType::G0 + 2, 5800.0f },
+        { SpecType::G0 + 5, 5660.0f },
+        { SpecType::G0 + 8, 5440.0f },
+        { SpecType::K0,     5240.0f },
+        { SpecType::K0 + 1, 5110.0f },
+        { SpecType::K0 + 2, 4960.0f },
+        { SpecType::K0 + 3, 4800.0f },
+        { SpecType::K0 + 4, 4600.0f },
+        { SpecType::K0 + 5, 4400.0f },
+        { SpecType::K0 + 7, 4000.0f },
+        { SpecType::M0,     3750.0f },
+        { SpecType::M0 + 1, 3700.0f },
+        { SpecType::M0 + 2, 3600.0f },
+        { SpecType::M0 + 3, 3500.0f },
+        { SpecType::M0 + 4, 3400.0f },
+        { SpecType::M0 + 5, 3200.0f },
+        { SpecType::M0 + 6, 3100.0f },
+        { SpecType::M0 + 7, 2900.0f },
+        { SpecType::M0 + 8, 2700.0f },
+        { SpecType::L0,     2600.0f },
+        { SpecType::L0 + 3, 2200.0f },
+        { SpecType::L0 + 8, 1500.0f },
+        { SpecType::T0 + 2, 1400.0f },
+        { SpecType::T0 + 6, 1000.0f },
+        { SpecType::T0 + 8, 800.0f },
+    };
+
+    static vector<SpecTemp> tempsIII =
+    {
+        { SpecType::G0 + 5, 5010.0f },
+        { SpecType::G0 + 8, 4870.0f },
+        { SpecType::K0,     4720.0f },
+        { SpecType::K0 + 1, 4580.0f },
+        { SpecType::K0 + 2, 4460.0f },
+        { SpecType::K0 + 3, 4210.0f },
+        { SpecType::K0 + 4, 4010.0f },
+        { SpecType::K0 + 5, 3780.0f },
+        { SpecType::M0,     3660.0f },
+        { SpecType::M0 + 1, 3600.0f },
+        { SpecType::M0 + 2, 3500.0f },
+        { SpecType::M0 + 3, 3300.0f },
+        { SpecType::M0 + 4, 3100.0f },
+        { SpecType::M0 + 5, 2950.0f },
+        { SpecType::M0 + 6, 2800.0f }
+    };
+    
+    static vector<SpecTemp> tempsI =
+    {
+        { SpecType::B0,     21000.0f },
+        { SpecType::B0 + 1, 16000.0f },
+        { SpecType::B0 + 2, 14000.0f },
+        { SpecType::B0 + 3, 12800.0f },
+        { SpecType::B0 + 5, 11500.0f },
+        { SpecType::B0 + 6, 11000.0f },
+        { SpecType::B0 + 7, 10500.0f },
+        { SpecType::B0 + 8, 10000.0f },
+        { SpecType::B0 + 9, 9700.0f },
+        { SpecType::A0,     9400.0f },
+        { SpecType::A0 + 1, 9100.0f },
+        { SpecType::A0 + 2, 8900.0f },
+        { SpecType::A0 + 5, 8300.0f },
+        { SpecType::F0,     7500.0f },
+        { SpecType::F0 + 2, 7200.0f },
+        { SpecType::F0 + 5, 6800.0f },
+        { SpecType::F0 + 8, 6150.0f },
+        { SpecType::G0,     5800.0f },
+        { SpecType::G0 + 2, 5500.0f },
+        { SpecType::G0 + 5, 5100.0f },
+        { SpecType::G0 + 8, 5050.0f },
+        { SpecType::K0,     4900.0f },
+        { SpecType::K0 + 1, 4700.0f },
+        { SpecType::K0 + 2, 4500.0f },
+        { SpecType::K0 + 3, 4300.0f },
+        { SpecType::K0 + 4, 4100.0f },
+        { SpecType::K0 + 5, 3750.0f },
+        { SpecType::M0,     3660.0f },
+        { SpecType::M0 + 1, 3600.0f },
+        { SpecType::M0 + 2, 3500.0f },
+        { SpecType::M0 + 3, 3300.0f },
+        { SpecType::M0 + 4, 3100.0f },
+        { SpecType::M0 + 5, 2950.0f },
+    };
+    
+    vector<SpecTemp> &temps = tempsV;
+    if ( lumclass <= LumClass::Ib )
+        temps = tempsI;
+    else if ( lumclass <= LumClass::III )
+        temps = tempsIII;
+    
+    int i;
+    for ( i = 0; i < temps.size(); i++ )
+        if ( spectype >= temps[i].spec )
+            break;
+    
+    if ( i == temps.size() )
+        return 0.0f;
+    
+    float temp = temps[i].temp;
+    if ( i < temps.size() )
+    {
+        float dt = temps[i+1].temp - temps[i].temp;
+        float ds = temps[i+1].spec - temps[i].spec;
+        temp += ( spectype - temps[i].spec ) * dt / ds;
+    }
+    
+    return temp;
 }
 
 // Returns CSV string from base data (excluding names and identifiers).

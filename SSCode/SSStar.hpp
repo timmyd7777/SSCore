@@ -83,6 +83,7 @@ public:
     // magnitude and color conversion utilities
     
     static void bmv2rgb ( float bmv, float &r, float &g, float &b );
+    static float bmv2temp ( float bmv );
     static double absoluteMagnitude ( double appMag, double distPC );
     static double apparentMagnitude ( double absMag, double distPC );
     static double distanceFromMagnitude ( double appMag, double absMag );
@@ -107,10 +108,12 @@ public:
         G0 = 50,
         K0 = 60,
         M0 = 70,
-        S0 = 80,
-        C0 = 90,    // Carbon stars
-        L0 = 100,   // Brown dwarfs
-        T0 = 110    // Brown dwarfs
+        L0 = 80,   // Brown dwarfs
+        T0 = 90,   // Brown dwarfs
+        R0 = 100,  // Carbon stars (obsolete)
+        N0 = 110,  // Carbon stars (obsolete)
+        S0 = 120,  // Carbon stars
+        C0 = 130,  // Carbon stars
     };
     
     enum LumClass
@@ -131,6 +134,9 @@ public:
     static int luminosityClass ( const string &spectrum );
     static bool parseSpectrum ( const string &spectrum, int &spectype, int &lumclass );
     static string formatSpectrum ( int spectype, int lumclass );
+    static float bolometricCorrection ( float temp );
+    static float colorTemperature ( float bmv, int lumclass );
+    static float spectralTemperature ( int spectype, int lumclass );
 };
 
 // This subclass of SSStar stores data for double stars
