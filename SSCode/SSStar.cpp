@@ -777,6 +777,128 @@ float SSStar::spectralTemperature ( int spectype, int lumclass )
     return INFINITY;
 }
 
+// Table of absolute magnitudes by spectral and luminosity class from
+// "Stellar Spectral Classification", Gray & Corbally, 2009, Appendix B.
+// Magnitude values interpolated by Bruce MacEvoy here:
+// http://www.handprint.com/ASTRO/specclass.html
+
+struct SpecClass
+{
+    const char *spec;   // MK spectral classification
+    float temp;         // main-sequence temperature (Kelvins)
+    float MvV;          // absolute visual (V) magnitude for luminosity class V (main sequence)
+    float MvIV;         // absolute visual (V) magnitude for luminosity class IV (sub-giants)
+    float MvIII;        // absolute visual (V) magnitude for luminosity class III (giants)
+    float MvII;         // absolute visual (V) magnitude for luminosity class II (bright giants)
+    float MvIb;         // absolute visual (V) magnitude for luminosity class Ib (less luminous supergiants)
+    float MvIa;         // absolute visual (V) magnitude for luminosity class Ia (more luminous supergiants)
+};
+
+static vector<SpecClass> _speclass =
+{
+    { "O1", INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "O2", INFINITY, -5.6, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "O3", 44850, -5.6, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "O4", 42860, -5.5, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "O5", 40860, -5.5, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "O6", 38870, -5.3, INFINITY, INFINITY, INFINITY, -7, INFINITY },
+    { "O7", 36870, -4.8, INFINITY, INFINITY, -6.3, INFINITY, INFINITY },
+    { "O8", 34880, -4.4, INFINITY, INFINITY, -6.2, -6.5, INFINITY },
+    { "O9", 32880, -4.3, -5, -5.6, -5.9, -6.2, -7 },
+    { "B0", 29000, -4.1, -4.6, -5, -5.6, -5.8, -7 },
+    { "B1", 24500, -3.5, -3.9, -4.4, -5.1, -5.7, -7 },
+    { "B2", 19500, -2.5, -3, -3.6, -4.4, -5.7, -7 },
+    { "B3", 16500, -1.7, -2.3, -2.9, -3.9, -5.7, -7 },
+    { "B4", INFINITY, -1.4, -2, -2.6, -3.9, -5.7, -7 },
+    { "B5", 15000, -1.1, -1.6, -2.2, -3.7, -5.7, -7 },
+    { "B6", INFINITY, -0.9, -1.3, -1.9, -3.7, -5.7, -7.1 },
+    { "B7", 13000, -0.4, -1.3, -1.6, -3.6, -5.6, -7.1 },
+    { "B8", 11500, 0, -1, -1.4, -3.4, -5.6, -7.1 },
+    { "B9", 10700, 0.7, -0.5, -0.8, -3.1, -5.5, -7.1 },
+    { "A0", 9800, 1.4, 0.3, -0.8, -2.8, -5.2, -7.1 },
+    { "A1", 9500, 1.6, 0.3, -0.4, -2.6, -5.1, -7.3 },
+    { "A2", 8900, 1.9, 0.5, -0.2, -2.4, -5, -7.5 },
+    { "A3", 8520, 2, 0.7, 0, -2.3, -4.8, -7.6 },
+    { "A4", INFINITY, 2.05, 0.95, 0.15, -2.2, -4.8, -7.65 },
+    { "A5", 8150, 2.1, 1.2, 0.3, -2.1, -4.8, -7.7 },
+    { "A6", INFINITY, 2.2, 1.35, 0.4, -2.05, -4.8, -7.75 },
+    { "A7", 7830, 2.3, 1.5, 0.5, -2, -4.8, -8 },
+    { "A8", INFINITY, 2.4, 1.55, 0.55, -2, -4.8, -8.15 },
+    { "A9", 7380, 2.5, 1.6, 0.6, -2, -4.8, -8.3 },
+    { "F0", 7250, 2.6, 1.7, 0.6, -2, -4.7, -8.5 },
+    { "F1", 7120, 2.8, 1.8, 0.6, -2, -4.7, -8.5 },
+    { "F2", 7000, 3, 1.9, 0.6, -2, -4.6, -8.4 },
+    { "F3", 6750, 3.1, 1.9, 0.6, -2, -4.6, -8.3 },
+    { "F4", INFINITY, 3.3, 2, 0.7, -2, -4.6, -8.3 },
+    { "F5", 6550, 3.4, 2.1, 0.7, -2, -4.4, -8.2 },
+    { "F6", INFINITY, 3.7, 2.2, 0.7, -2, -4.4, -8.1 },
+    { "F7", 6250, 3.8, 2.3, 0.6, -2, -4.4, -8.1 },
+    { "F8", 6170, 4, 2.4, 0.6, -2, -4.3, -8 },
+    { "F9", 6010, 4.2, 2.6, 0.6, -2, -4.2, -8 },
+    { "G0", 5900, 4.4, 2.8, 0.6, -2, -4.1, -8 },
+    { "G1", 5800, 4.5, 2.9, 0.5, -2, -4.1, -8 },
+    { "G2", 5750, 4.7, 3, 0.4, -2, -4, -8 },
+    { "G3", INFINITY, 4.9, 3, 0.4, -1.9, -4, -8 },
+    { "G4", INFINITY, 5, 3.1, 0.4, -1.9, -3.9, -8 },
+    { "G5", 5580, 5.2, 3.2, 0.4, -1.9, -3.9, -8 },
+    { "G6", INFINITY, 5.3, 3.2, 0.4, -1.9, -3.8, -8 },
+    { "G7", INFINITY, 5.5, 3.2, 0.3, -1.9, -3.8, -8 },
+    { "G8", 5430, 5.6, 3.2, 0.3, -1.9, -3.7, -8 },
+    { "G9", 5350, 5.7, 3.2, 0.25, -2, -3.7, -8 },
+    { "K0", 5280, 5.9, 3.2, 0.2, -2, -3.6, -8 },
+    { "K1", 5110, 6.1, INFINITY, 0.1, -2.1, -3.6, -8 },
+    { "K2", 4940, 6.3, INFINITY, 0.1, -2.1, -3.6, -8 },
+    { "K3", 4700, 6.9, INFINITY, -0.1, -2.2, -3.6, -8 },
+    { "K4", INFINITY, 7.4, INFINITY, -0.2, -2.3, -3.7, -8 },
+    { "K5", 4400, 8, INFINITY, -0.4, -2.5, -3.8, -8 },
+    { "K6", INFINITY, 8.2, INFINITY, -0.45, -2.5, -3.8, -7.85 },
+    { "K7", 4130, 8.5, INFINITY, -0.5, -2.5, -3.8, -7.7 },
+    { "K8", INFINITY, 8.7, INFINITY, -0.57, -2.53, -3.83, -7.6 },
+    { "K9", INFINITY, 9, INFINITY, -0.64, -2.56, -3.86, -7.45 },
+    { "M0", 3760, 9.2, INFINITY, -0.7, -2.6, -3.9, -7.3 },
+    { "M1", 3625, 9.7, INFINITY, -0.8, -2.7, -4.1, -7.3 },
+    { "M2", 3490, 10.6, INFINITY, -1.1, -2.9, -4.2, -7 },
+    { "M3", 3355, 11.6, INFINITY, -1.3, INFINITY, INFINITY, INFINITY },
+    { "M4", 3220, 12.9, INFINITY, -1.6, INFINITY, INFINITY, INFINITY },
+    { "M5", 3085, 14.5, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "M6", 2950, 16.1, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "M7", 2815, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "M8", 2680, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "M9", 2545, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+};
+
+// Returns absolute magnitude based on spectral type and luminosity class,
+// or INFINITY if abolute magnitude cannot be determined this way.
+
+float SSStar::absoluteMagnitude ( int spectype, int lumclass )
+{
+    if ( lumclass == LumClass::V )
+    {
+        int i  = spectype - ( SpecType::O0 + 3 );
+        if ( i >= 0 && i < _specinfo.size() )
+            return _specinfo[i].Mv;
+    }
+    else
+    {
+        int i = spectype - ( SpecType::O0 + 1 );
+        if ( i >= 0 && i < _specinfo.size() )
+        {
+            if ( lumclass == LumClass::IV )
+                return _speclass[i].MvIV;
+            else if ( lumclass == LumClass::III )
+                return _speclass[i].MvIII;
+            else if ( lumclass == LumClass::II )
+                return _speclass[i].MvII;
+            else if ( lumclass == LumClass::Ib || lumclass == LumClass::Iab )
+                return _speclass[i].MvIb;
+            else if ( lumclass == LumClass::Ia || lumclass == LumClass::Ia0 )
+                return _speclass[i].MvIa;
+        }
+    }
+    
+    return INFINITY;
+}
+
 // Returns CSV string from base data (excluding names and identifiers).
 
 string SSStar::toCSV1 ( void )

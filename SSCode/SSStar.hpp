@@ -137,6 +137,7 @@ public:
     static float bolometricCorrection ( float temp );
     static float colorTemperature ( float bmv, int lumclass );
     static float spectralTemperature ( int spectype, int lumclass );
+    static float absoluteMagnitude ( int spectype, int lumclass );
 };
 
 // This subclass of SSStar stores data for double stars
