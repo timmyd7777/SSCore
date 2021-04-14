@@ -662,19 +662,7 @@ string SSStar::formatSpectrum ( int spectype, int lumclass )
 // Table of main-sequence stellar properties from:
 // http://www.pas.rochester.edu/%7Eemamajek/EEM_dwarf_UBVIJHK_colors_Teff.txt
 
-struct SpecInfo
-{
-    const char *spec;   // MK spectral classification
-    float Teff;         // Stellar surface effective temperature, Kelvins
-    float BCv;          // Bolometric correction to visual (V) magnitude
-    float logL;         // log10 of bolometric luminosity
-    float Rsun;         // radius in solar radii
-    float Mv;           // absolute visual (V) magnitude
-    float BV;           // color index (B-V)
-    float Msun;         // mass in solar masses
-};
-
-static vector<SpecInfo> _specinfo =
+static vector<SSStar::SpecInfo> _specinfo =
 {
     { "O3V", 44900, -4.01, 5.82, 13.43, -5.8, -0.33, INFINITY },
     { "O4V", 42900, -3.89, 5.65, 12.13, -5.5, -0.326, INFINITY },
@@ -764,18 +752,6 @@ static vector<SpecInfo> _specinfo =
     { "T8V", 680, INFINITY, -5.71, 0.095, INFINITY, INFINITY, INFINITY },
     { "T9V", 560, INFINITY, -6.15, 0.1, INFINITY, INFINITY, INFINITY }
 };
-
-// Returns stellar surface effective temperature in Kelvins
-// based on spectral type and luminosity class, or INFINITY if unknown.
-
-float SSStar::spectralTemperature ( int spectype, int lumclass )
-{
-    int i  = spectype - ( SpecType::O0 + 3 );
-    if ( i >= 0 && i < _specinfo.size() )
-        return _specinfo[i].Teff;
-    
-    return INFINITY;
-}
 
 // Table of absolute magnitudes by spectral and luminosity class from
 // "Stellar Spectral Classification", Gray & Corbally, 2009, Appendix B.
@@ -867,38 +843,80 @@ static vector<SpecClass> _speclass =
     { "M9", 2545, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
 };
 
-// Returns absolute visual (V) magnitude based on spectral type and luminosity class,
-// or INFINITY if absolute magnitude cannot be determined this way.
+// Returns information for the given spectral type and luminosity class;
+// values that cannot be determined will be INFINITY.
 
-float SSStar::absoluteMagnitude ( int spectype, int lumclass )
+SSStar::SpecInfo SSStar::spectralClassInfo ( int spectype, int lumclass )
 {
+    SpecInfo info = { "", INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY };
+    
     // Use E. Mamajek's table for main sequence stars
     
+    int i  = spectype - ( SpecType::O0 + 3 );
+    if ( i >= 0 && i < _specinfo.size() )
+        info = _specinfo[i];
+
     if ( lumclass == LumClass::V )
+        return info;
+    
+    // get absolute magnitudes from "Stellar Spectral Classifications" table for other luminosity classes.
+    
+    i = spectype - ( SpecType::O0 + 1 );
+    if ( i >= 0 && i < _specinfo.size() )
     {
-        int i  = spectype - ( SpecType::O0 + 3 );
-        if ( i >= 0 && i < _specinfo.size() )
-            return _specinfo[i].Mv;
-    }
-    else    // use "Stellar Spectral Classificaations" MacEvoy table for other luminosity classes.
-    {
-        int i = spectype - ( SpecType::O0 + 1 );
-        if ( i >= 0 && i < _specinfo.size() )
+        if ( lumclass == LumClass::IV )
         {
-            if ( lumclass == LumClass::IV )
-                return _speclass[i].MvIV;
-            else if ( lumclass == LumClass::III )
-                return _speclass[i].MvIII;
-            else if ( lumclass == LumClass::II )
-                return _speclass[i].MvII;
-            else if ( lumclass == LumClass::Ib || lumclass == LumClass::Iab )
-                return _speclass[i].MvIb;
-            else if ( lumclass == LumClass::Ia || lumclass == LumClass::Ia0 )
-                return _speclass[i].MvIa;
+            info.spec = string ( _speclass[i].spec ) + "IV";
+            info.Mv = _speclass[i].MvIV;
         }
+        else if ( lumclass == LumClass::III )
+        {
+            info.spec = string ( _speclass[i].spec ) + "III";
+            info.Mv = _speclass[i].MvIII;
+        }
+        else if ( lumclass == LumClass::II )
+        {
+            info.spec = string ( _speclass[i].spec ) + "II";
+            info.Mv = _speclass[i].MvII;
+        }
+        else if ( lumclass == LumClass::Ib || lumclass == LumClass::Iab )
+        {
+            info.spec = string ( _speclass[i].spec ) + "Ib";
+            info.Mv = _speclass[i].MvIb;
+        }
+        else if ( lumclass == LumClass::Ia || lumclass == LumClass::Ia0 )
+        {
+            info.spec = string ( _speclass[i].spec ) + "Ia";
+            info.Mv = _speclass[i].MvIa;
+        }
+        
+        // compute luminosity based on absolute magnitude and bolometric correction using 4.725 as the Sun's
+        // absolute bolometric magnitude, calculate radius from temperature and luminosity, but set mass unknown.
+
+        float lum = luminosity ( info.Mv, info.BCv );
+        info.Rsun = radius ( info.Teff, lum );
+        info.logL = log10 ( lum );
+        info.Msun = INFINITY;
     }
     
-    return INFINITY;
+    return info;
+}
+
+// Returns star's total luminosity from absolute visual magnitude (mv)
+// and bolometric correction (bc); assumes Sun's absolute bolometric magnitude is 4.72.
+
+float SSStar::luminosity ( float mv, float bc )
+{
+    return brightnessRatio ( 4.725 - mv - bc );
+}
+
+// Returns star's radius in solar radii from its total bolometric luminosity (lum)
+// and effective surface temperature in Kelvins (temp).
+
+float SSStar::radius ( float lum, float temp )
+{
+    temp = 5770.0 / temp;
+    return temp * temp * sqrt ( lum );
 }
 
 // Returns CSV string from base data (excluding names and identifiers).

@@ -130,14 +130,29 @@ public:
         VII = 10    // white dwarfs, D
     };
     
+    // Information about a particular stellar spectral class. Values are INFINITY if unknown.
+    
+    struct SpecInfo
+    {
+        string spec;        // MK spectral type and luminosity class
+        float Teff;         // Stellar surface effective temperature, Kelvins
+        float BCv;          // Bolometric correction to visual (V) magnitude
+        float logL;         // log10 of bolometric luminosity
+        float Rsun;         // radius in solar radii
+        float Mv;           // absolute visual (V) magnitude
+        float BV;           // color index (B-V)
+        float Msun;         // mass in solar masses
+    };
+
     static int spectralType ( const string &spectrum );
     static int luminosityClass ( const string &spectrum );
     static bool parseSpectrum ( const string &spectrum, int &spectype, int &lumclass );
     static string formatSpectrum ( int spectype, int lumclass );
     static float bolometricCorrection ( float temp );
     static float colorTemperature ( float bmv, int lumclass );
-    static float spectralTemperature ( int spectype, int lumclass );
-    static float absoluteMagnitude ( int spectype, int lumclass );
+    static SpecInfo spectralClassInfo ( int spectype, int lumclass );
+    static float luminosity ( float mv, float bc );
+    static float radius ( float lum, float temp );
 };
 
 // This subclass of SSStar stores data for double stars
