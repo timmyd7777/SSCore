@@ -889,6 +889,12 @@ SSStar::SpecInfo SSStar::spectralClassInfo ( int spectype, int lumclass )
             info.spec = _speclass[i].spec + "Ia";
             info.Mv = _speclass[i].MvIa;
         }
+        else    // unknown luminosity class; can't compute lumosity, radius, mass.
+        {
+            info.spec = _speclass[i].spec;
+            info.Mv = info.Rsun = info.logL = info.Msun = INFINITY;
+            return info;
+        }
         
         // compute luminosity based on absolute magnitude and bolometric correction using 4.725 as the Sun's
         // absolute bolometric magnitude, calculate radius from temperature and luminosity, but set mass unknown.
