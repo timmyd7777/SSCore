@@ -254,6 +254,39 @@ SSSpherical SSStar::getFundamentalMotion ( void )
     return motion;
 }
 
+// Returns this star's apparent proper motion in the fundamental J2000
+// mean equatorial frame at the observer's current time and position.
+// Assumes star's apparent direction and current distance have already
+// been computed via computeEphemeris(). The proper motion in RA (motion.lon)
+// and Dec (motion.lat) are both in radians per year. Its radial velocity
+// (motion.rad) is in light years per year and will be infinite if unknown.
+
+SSSpherical SSStar::getApparentMotion ( void )
+{
+    SSSpherical motion ( INFINITY, INFINITY, _radvel );
+    
+    if ( ! _velocity.isinf() )
+    {
+        SSVector vel = _velocity;
+        SSVector pos = _position;
+        
+        // If current distance and parallax are known, compute space velocity and relative direction.
+        
+        if ( ! isinf ( _distance ) && _parallax > 0.0 )
+        {
+            vel = vel * SSCoordinates::kAUPerParsec / (double) _parallax; // [AU/year]
+            pos = _direction * _distance;                                 // [AU]
+        }
+        
+        // Overwrite J2000 radial velocity (if known) with current radial velocity in light years per year
+        
+        motion = pos.toSphericalVelocity ( vel );
+        motion.rad = isinf ( _radvel ) || _parallax == 0.0 ? _radvel : motion.rad / SSCoordinates::kAUPerLY;
+    }
+    
+    return motion;
+}
+
 // Converts B-V color index (bv) to RGB color.
 // B-V will be clamped to range -0.4 to +2.0.
 // RGB values will be returned in the range 0.0 to 1.0.

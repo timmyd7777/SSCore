@@ -66,6 +66,7 @@ public:
     SSVector getFundamentalVelocity ( void ) { return _velocity; }
     SSSpherical getFundamentalCoords ( void );
     SSSpherical getFundamentalMotion ( void );
+    SSSpherical getApparentMotion ( void );
     float getVMagnitude ( void ) { return _Vmag; }
     float getBMagnitude ( void ) { return _Bmag; }
     string getSpectralType ( void ) { return _spectrum; }
