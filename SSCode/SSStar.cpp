@@ -760,7 +760,7 @@ static vector<SSStar::SpecInfo> _specinfo =
 
 struct SpecClass
 {
-    const char *spec;   // MK spectral classification
+    string spec;        // MK spectral classification
     float temp;         // main-sequence temperature (Kelvins)
     float MvV;          // absolute visual (V) magnitude for luminosity class V (main sequence)
     float MvIV;         // absolute visual (V) magnitude for luminosity class IV (sub-giants)
@@ -866,27 +866,27 @@ SSStar::SpecInfo SSStar::spectralClassInfo ( int spectype, int lumclass )
     {
         if ( lumclass == LumClass::IV )
         {
-            info.spec = string ( _speclass[i].spec ) + "IV";
+            info.spec = _speclass[i].spec + "IV";
             info.Mv = _speclass[i].MvIV;
         }
         else if ( lumclass == LumClass::III )
         {
-            info.spec = string ( _speclass[i].spec ) + "III";
+            info.spec = _speclass[i].spec + "III";
             info.Mv = _speclass[i].MvIII;
         }
         else if ( lumclass == LumClass::II )
         {
-            info.spec = string ( _speclass[i].spec ) + "II";
+            info.spec = _speclass[i].spec + "II";
             info.Mv = _speclass[i].MvII;
         }
         else if ( lumclass == LumClass::Ib || lumclass == LumClass::Iab )
         {
-            info.spec = string ( _speclass[i].spec ) + "Ib";
+            info.spec = _speclass[i].spec + "Ib";
             info.Mv = _speclass[i].MvIb;
         }
         else if ( lumclass == LumClass::Ia || lumclass == LumClass::Ia0 )
         {
-            info.spec = string ( _speclass[i].spec ) + "Ia";
+            info.spec = _speclass[i].spec + "Ia";
             info.Mv = _speclass[i].MvIa;
         }
         

@@ -7,14 +7,14 @@
 #include <math.h>
 #include "SSVector.hpp"
 
-// Constructs spberical coordinates with default values of zero.
+// Constructs spherical coordinates with default values of zero.
 
 SSSpherical::SSSpherical ( void )
 {
     lon = lat = rad = 0.0;
 }
 
-// Constructs spberical coordinates from longitude and latitude, both in radians.
+// Constructs spherical coordinates from longitude and latitude, both in radians.
 // Since we often don't care about the radial coordinate, set it to 1.0 to make a unit vector.
 
 SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat )
@@ -24,7 +24,7 @@ SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat )
     this->rad = 1.0;
 }
 
-// Constructs spberical coordinates from longitude and latitude, both in radians,
+// Constructs spherical coordinates from longitude and latitude, both in radians,
 // and radial distance from the origin in arbitrary units.
 
 SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat, double rad )
@@ -34,7 +34,7 @@ SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat, double rad )
     this->rad = rad;
 }
 
-// Constructs spberical coordinates from a rectangular coordinate vector.
+// Constructs spherical coordinates from a rectangular coordinate vector.
 
 SSSpherical::SSSpherical ( SSVector vec )
 {

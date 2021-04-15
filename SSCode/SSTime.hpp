@@ -75,6 +75,7 @@ struct SSTime
 
     static constexpr double kDaysPerJulianYear = 365.25;               // Days per Julian year
     static constexpr double kDaysPerBesselianYear = 365.242198781;     // Days per Besselian year
+    static constexpr double kSecondsPerJulianYear = 86400.0 * 365.25;  // Seconds per Julian year = 31557600.0
 
     static constexpr double kSiderealPerSolarDays = 1.00273790934;     // Sidereal days per Solar day
     static constexpr double kSolarPerSiderealDays = 0.99726957;        // Days per Sidereal Day
