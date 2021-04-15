@@ -349,9 +349,9 @@ string dm_to_string ( int64_t dm )
         suffix = 's';
 
     if ( suffix > 0 )
-        return format ( "%c%02d %d%c", sign, zone, num, suffix );
+        return format ( "%c%02d %d%c", (int) sign, (int) zone, (int) num, (int) suffix );
     else
-        return format ( "%c%02d %d", sign, zone, num );
+        return format ( "%c%02d %d", (int) sign, (int) zone, (int) num );
 }
 
 string gj_to_string ( int64_t gj )
@@ -363,7 +363,7 @@ string gj_to_string ( int64_t gj )
     string comps = compvec[ c ];
 
     if ( d % 10 == 0 )
-        return format ( "%d", d / 10 ) + comps;
+        return format ( "%d", (int) d / 10 ) + comps;
     else
         return format ( "%.1f", d / 10.0 ) + comps;
 }
@@ -409,7 +409,7 @@ string wds_to_string ( int64_t wds )
     else
         sign = '-';
 
-    return format ( "%05d%c%04d", ra, sign, dec );
+    return format ( "%05d%c%04d", (int) ra, (int) sign, (int) dec );
 }
 
 int64_t string_to_ngcic ( string str )
@@ -434,13 +434,13 @@ int64_t string_to_ngcic ( string str )
 
 string ngcic_to_string ( int64_t ngcic )
 {
-    int64_t        num = ngcic / 10;
-    int64_t        ext = ngcic - num * 10;
+    int64_t num = ngcic / 10;
+    int64_t ext = ngcic - num * 10;
     
     if ( ext > 0 )
-        return format ( "%d%c", num, ext + 'A' - 1 );
+        return format ( "%d%c", (int) num, (int) ext + 'A' - 1 );
     else
-        return format ( "%d", num );
+        return format ( "%d", (int) num );
 }
 
 int64_t string_to_pngpk ( string str )
