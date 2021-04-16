@@ -519,7 +519,9 @@ double clocksec_since ( double &start )
     return since;
 }
 
-// Returns current system time zone offset in hours east of UTC
+// Returns current system time zone offset in hours east of UTC.
+// This is always standard time, not adjusted for daylight savings;
+// see https://www.gnu.org/software/libc/manual/html_node/Time-Zone-Functions.html
 
 double get_timezone ( void )
 {
@@ -530,7 +532,7 @@ double get_timezone ( void )
 #endif
 }
 
-// Modifies current system time zone offset in hours east of UTC
+// Modifies current system standard time zone offset in hours east of UTC
 
 void set_timezone ( double zone )
 {
