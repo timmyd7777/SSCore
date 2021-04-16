@@ -66,7 +66,6 @@ public:
     SSVector getFundamentalVelocity ( void ) { return _velocity; }
     SSSpherical getFundamentalCoords ( void );
     SSSpherical getFundamentalMotion ( void );
-    SSSpherical getApparentMotion ( void );
     float getVMagnitude ( void ) { return _Vmag; }
     float getBMagnitude ( void ) { return _Bmag; }
     string getSpectralType ( void ) { return _spectrum; }
@@ -75,6 +74,7 @@ public:
     
     void computeEphemeris ( SSCoordinates &coords );
     void computePositionVelocity ( SSCoordinates &coords, SSVector &pos, SSVector &vel );
+    SSSpherical computeApparentMotion ( SSCoordinates &coords, SSFrame frame = kFundamental );
 
     // imports/exports from/to CSV-format text string
     

@@ -127,7 +127,7 @@ public:
 
     SSVector getPosition ( void ) { return _position; }
     SSVector getVelocity ( void ) { return _velocity; }
-    
+
     double distance ( SSPlanet &other ) { return _position.distance ( other._position ); }
     
     bool surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist );
@@ -165,6 +165,7 @@ public:
     virtual void computePositionVelocity  ( SSCoordinates &coords, SSVector &pos, SSVector &vel );
     virtual float computeMagnitude ( double rad, double dist, double phase );
     virtual void computeEphemeris ( SSCoordinates &coords );
+    SSSpherical computeApparentMotion ( SSCoordinates &coords, SSFrame frame = kFundamental );
 
     double umbraLength ( float s = 1.0f );
     double umbraRadius ( double d, float s = 1.0f );

@@ -20,7 +20,7 @@
 #include <memory>
 #include <map>
 
-#include "SSVector.hpp"
+#include "SSCoordinates.hpp"
 #include "SSIdentifier.hpp"
 
 using namespace std;
@@ -75,11 +75,12 @@ public:
     virtual vector<SSIdentifier> getIdentifiers ( void );       // returns vector of all object identifiers
     SSAngle angularSeparation ( SSObject &other ) { return _direction.angularSeparation ( other._direction ); }
     
-    // Default empty implementations of position/velocity/ephemeris computations are overridden by subclasses!
+    // Default empty implementations of position/velocity/ephemeris/motion computations are overridden by subclasses!
     
-    virtual void computeEphemeris ( class SSCoordinates &coords ) {};                                      // computes apparent direction, distance, magnitude seen from the given observer coordinates and time.
-    virtual void computePositionVelocity ( class SSCoordinates &coords, SSVector &pos, SSVector &vel ) {}; // computes heliocentric position and velocity at the time in the given coordinates object.
-
+    virtual void computeEphemeris ( SSCoordinates &coords ) {};                                         // computes apparent direction, distance, magnitude seen from the given observer coordinates and time.
+    virtual void computePositionVelocity ( SSCoordinates &coords, SSVector &pos, SSVector &vel ) {};    // computes heliocentric position and velocity at the time in the given coordinates object.
+    virtual SSSpherical computeApparentMotion ( SSCoordinates &coords, SSFrame frame = kFundamental );  // computes object's apparent motion in the specified reference frame.
+    
     virtual string toCSV ( void );
 };
 

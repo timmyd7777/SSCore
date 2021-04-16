@@ -6,7 +6,6 @@
 
 #include <mutex>
 
-#include "SSCoordinates.hpp"
 #include "SSPlanet.hpp"
 #include "SSPSEphemeris.hpp"
 #include "SSJPLDEphemeris.hpp"
@@ -533,6 +532,31 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     
     if ( _type != kTypeSatellite )
         _pmatrix = setPlanetographicMatrix ( jed - lt );
+}
+
+// Returns this solar system object's apparent motion in the specified
+// coordinate system (frame) as seen from the observer time and location
+// that is stored in the provided SSCoordinates object (coords).
+// Assumes planet's current heliocentric position and velocity have already
+// been computed via computeEphemeris(). The apparent motion in RA (motion.lon)
+// and Dec (motion.lat) are both in radians per year. Its radial velocity
+// (motion.rad) is in AU per day and will be infinite if unknown.
+
+SSSpherical SSPlanet::computeApparentMotion ( SSCoordinates &coords, SSFrame frame )
+{
+    SSVector pos = coords.transform ( kFundamental, frame, _position - coords.getObserverPosition() );
+    SSVector vel = coords.transform ( kFundamental, frame, _velocity - coords.getObserverVelocity() );
+    
+    // Add this twist for the Horizon frame because it is rotating, not inertial.
+    // See https://ocw.mit.edu/courses/aeronautics-and-astronautics/16-07-dynamics-fall-2009/lecture-notes/MIT16_07F09_Lec08.pdf
+    
+    if ( frame == kHorizon )
+    {
+        static SSVector omega ( 0.0, 0.0, SSAngle::kTwoPi * SSTime::kSiderealPerSolarDays );
+        vel += coords.transform ( kEquatorial, kHorizon, omega ).crossProduct ( pos );
+    }
+    
+    return pos.toSphericalVelocity ( vel );
 }
 
 // Downcasts generic SSObject pointer to SSPlanet pointer.

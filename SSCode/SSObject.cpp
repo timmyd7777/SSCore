@@ -17,7 +17,6 @@
 #include "SSStar.hpp"
 #include "SSFeature.hpp"
 #include "SSConstellation.hpp"
-#include "SSCoordinates.hpp"
 
 typedef map<SSObjectType,string> SSTypeStringMap;
 typedef map<string,SSObjectType> SSStringTypeMap;
@@ -165,6 +164,14 @@ vector<SSIdentifier> SSObject::getIdentifiers ( void )
 string SSObject::toCSV ( void )
 {
     return "";
+}
+
+// Default implementation of computing object's apparent motion in a reference frame
+// returns unknown motion. Overridden by sublcasses SSStar and SSPlanet!
+
+SSSpherical SSObject::computeApparentMotion ( SSCoordinates &coords, SSFrame frame )
+{
+    return SSSpherical ( INFINITY, INFINITY, INFINITY );
 }
 
 // Given a vector of smart pointers to SSObject, creates a mapping of SSIdentifiers
