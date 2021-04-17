@@ -70,11 +70,15 @@ void SSCoordinates::setLocation ( SSSpherical loc )
 
     SSPlanet::computeMajorPlanetPositionVelocity ( kEarth, _jed, 0.0, _obsPos, _obsVel );
     
-    SSSpherical geodetic ( _lst, _lat, _alt );
-    SSVector geocentric = toGeocentric ( geodetic, kKmPerEarthRadii, kEarthFlattening );
+    SSSpherical geo ( _lst, _lat, _alt );
+    SSVector geopos = toGeocentricPosition ( geo, kKmPerEarthRadii, kEarthFlattening );
+    SSVector geovel = toGeocentricVelocity ( geo, kKmPerEarthRadii, kEarthFlattening );
+
+    geopos = transform ( kEquatorial, kFundamental, geopos );
+    geovel = transform ( kEquatorial, kFundamental, geovel );
     
-    geocentric = transform ( kEquatorial, kFundamental, geocentric );
-    _obsPos = _obsPos.add ( geocentric / kKmPerAU );
+    _obsPos += geopos / kKmPerAU;
+    _obsVel += geovel / kKmPerAU;
 }
 
 // Sets location to the longirude, latitude, altitude, and time zone in the specified city.
@@ -463,38 +467,18 @@ SSMatrix SSCoordinates::transform ( SSFrame from, SSFrame to, SSMatrix mat )
     return mat;
 }
 
-// Converts geodetic longitude, latitude, altitude to geocentric X, Y, Z vector.
-// geodetic.lon and .lat are in radians; geo.rad is altitude above geoid in same
-// units as equatorial radius of geoid ellipse (a). Geoid flattening (f) is ratio
-// (a - b)/(a), where b is polar radius of geoid ellipse. Rectangular XYZ vector
-// is returned in same units as (a).
-// Formula from "The Astronomical Almanac for the Year 1990", pp. K11-K13.
-
-SSVector SSCoordinates::toGeocentric ( SSSpherical geodetic, double a, double f )
-{
-    double c, s, cp = cos ( geodetic.lat ), sp = sin ( geodetic.lat );
-
-    f = ( 1.0 - f ) * ( 1.0 - f );
-    c = 1.0 / sqrt ( cp * cp + f * sp * sp );
-    s = f * c;
-    
-    double x = ( a * c + geodetic.rad ) * cp * cos ( geodetic.lon );
-    double y = ( a * c + geodetic.rad ) * cp * sin ( geodetic.lon );
-    double z = ( a * s + geodetic.rad ) * sp;
-    
-    return SSVector ( x, y, z );
-}
-
-// Converts geocentric X,Y,Z vector to geodetic longitude, latitude altitude.
-// Geoid equatorial radius (a) and flattening (f) are as for SSDynamis::toGeocentric().
+// Converts geocentric X,Y,Z position vector (geo) to geodetic longitude and
+// latitude in radians, and altitude in the same distance units as (a) below.
+// Geoid equatorial radius (a) and flattening (f) are as described below for
+// SSCoordinates::toGeocentricPosition().
 // Algorithm is from "The Astronomical Almanac for the Year 1990", pp. K11-K13.
 
-SSSpherical SSCoordinates::toGeodetic ( SSVector geocentric, double a, double f )
+SSSpherical SSCoordinates::toGeodetic ( SSVector geo, double a, double f )
 {
-    double x = geocentric.x, y = geocentric.y, z = geocentric.z;
+    double x = geo.x, y = geo.y, z = geo.z;
     double r = sqrt ( x * x + y * y );
     double e2 = 2.0 * f - f * f, s, c;
-    double lon = SSAngle::atan2Pi ( y, x );
+    double lon = atan2pi ( y, x );
     double lat = atan2 ( z, r ), lat1 = lat;
 
     if ( r > 0.0 )
@@ -516,6 +500,52 @@ SSSpherical SSCoordinates::toGeodetic ( SSVector geocentric, double a, double f 
     
     double h = r / cos ( lat ) - a * c;
     return SSSpherical ( lon, lat, h );
+}
+
+// Converts geodetic longitude, latitude, altitude to geocentric position vector.
+// Longitude (geo.lon) and latitude (geo.lat) are in radians; altitude above geoid
+// (geo.rad) is in same units as equatorial radius of geoid ellipse (a). Geoid
+// flattening (f) is ratio (a - b)/(a), where b is polar radius of geoid ellipse.
+// Rectangular XYZ position vector is returned in same units as (a).
+// Formula from "The Astronomical Almanac for the Year 1990", pp. K11-K13.
+
+SSVector SSCoordinates::toGeocentricPosition ( SSSpherical geo, double a, double f )
+{
+    double c, s, cp = cos ( geo.lat ), sp = sin ( geo.lat );
+
+    f = ( 1.0 - f ) * ( 1.0 - f );
+    c = 1.0 / sqrt ( cp * cp + f * sp * sp );
+    s = f * c;
+    
+    double x = ( a * c + geo.rad ) * cp * cos ( geo.lon );
+    double y = ( a * c + geo.rad ) * cp * sin ( geo.lon );
+    double z = ( a * s + geo.rad ) * sp;
+    
+    return SSVector ( x, y, z );
+}
+
+// Computes velocity of a point on Earth's surface relative to Earth's center due
+// to Earth's diurnal rotation. Point's geodetic longitude (geo.lon) and latitude
+// (geo.lat) are in radians; geo.rad is altitude above geoid in same units as
+// equatorial radius of geoid ellipse (a). Geoid flattening (f) is ratio (a - b)/(a),
+// where b is polar radius of geoid ellipse. Rectangular XYZ velocity vector is
+// returned in same distance units as (a), per day.
+// Formula from "Explanatory Supplement to the Astronomical Almanac", pp. 132-133.
+
+SSVector SSCoordinates::toGeocentricVelocity ( SSSpherical geo, double a, double f )
+{
+    double w = SSAngle::kTwoPi * SSTime::kSiderealPerSolarDays;
+    double c, s, cp = cos ( geo.lat ), sp = sin ( geo.lat );
+    
+    f = ( 1.0 - f ) * ( 1.0 - f );
+    c = 1.0 / sqrt ( cp * cp + f * sp * sp );
+    s = f * c;
+    
+    double vx = -w * ( a * c + geo.rad ) * cp * cos ( geo.lon );
+    double vy =  w * ( a * c + geo.rad ) * cp * sin ( geo.lon );
+    double vz = 0.0;
+    
+    return SSVector ( vx, vy, vz );
 }
 
 // Applies aberration of light to an apparent direction unit vector (p)

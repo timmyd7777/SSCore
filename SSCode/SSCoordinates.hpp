@@ -132,9 +132,10 @@ public:
     static double redShiftToRadVel ( double z );
     static double radVelToRedShift ( double rv );
     
-    static SSVector toGeocentric ( SSSpherical geodetic, double re, double f );
     static SSSpherical toGeodetic ( SSVector geocentric, double re, double f );
-
+    static SSVector toGeocentricPosition ( SSSpherical geodetic, double re, double f );
+    static SSVector toGeocentricVelocity ( SSSpherical geodetic, double re, double f );
+    
     static SSAngle refractionAngle ( SSAngle alt, bool a );
     static SSAngle applyRefraction ( SSAngle alt );
     static SSAngle removeRefraction ( SSAngle alt );
