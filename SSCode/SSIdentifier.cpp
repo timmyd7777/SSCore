@@ -739,13 +739,13 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
         
         int64_t var = string_to_gcvs ( tokens[0], casesens );
         if ( var > 0 )
-            return SSIdentifier ( kCatGCVS, var * 100 + con );
+            return SSIdentifier ( kCatGCVS, con * 10000 + var );
         
         // If first token begins with a number, return a Flamsteed catalog identification
         
         size_t pos = tokens[0].find_first_of ( "0123456789" );
         if ( pos == 0 )
-            return SSIdentifier ( kCatFlamsteed, strtoint ( tokens[0] ) * 100 + con );
+            return SSIdentifier ( kCatFlamsteed, con * 10000 + strtoint ( tokens[0] ) );
 
         // If first token contains a number, convert numeric portion
         // of token to integer, then erase numeric portion of token.
@@ -762,7 +762,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
         
         int bay = string_to_bayer ( tokens[0], casesens );
         if ( bay > 0 )
-            return SSIdentifier ( kCatBayer, ( bay * 100 + num ) * 100 + con );
+            return SSIdentifier ( kCatBayer, con * 10000 + bay * 10 + num );
     }
     
     // if string is a number inside paratheses, attempt to parse as an asteroid number
@@ -824,9 +824,9 @@ string SSIdentifier::toString ( void )
     
     if ( cat == kCatBayer )
     {
-        int64_t bay = id / 10000;
-        int64_t num = ( id - bay * 10000 ) / 100;
-        int64_t con = id % 100;
+        int64_t con = ( id / 10000 );
+        int64_t bay = ( id - 10000 * con ) / 10;
+        int64_t num = ( id - 10000 * con ) - bay * 10;
         
         string baystr = bayer_to_string ( bay );
         string constr = _convec[con - 1];
@@ -837,14 +837,14 @@ string SSIdentifier::toString ( void )
     }
     else if ( cat == kCatFlamsteed )
     {
-        int64_t num = id / 100;
-        int64_t con = id % 100;
+        int64_t con = id / 10000;
+        int64_t num = id - 10000 * con;
         str = to_string ( num ) + " " + _convec[con - 1];
     }
     else if ( cat == kCatGCVS )
     {
-        int64_t num = id / 100;
-        int64_t con = id % 100;
+        int64_t con = id / 10000;
+        int64_t num = id - 10000 * con;
         str = gcvs_to_string ( num ) + " " + _convec[con - 1];
     }
     else if ( cat == kCatHR )
@@ -968,9 +968,9 @@ SSIdentifier SSIdentifier::strip ( void )
     
     if ( cat == kCatBayer )
     {
-        int64_t bay = id / 10000;
-        int64_t con = id % 100;
-        return SSIdentifier ( cat, bay * 10000 + con );
+        int64_t con = ( id / 10000 );
+        int64_t bay = ( id - 10000 * con ) / 10;
+        return SSIdentifier ( cat, con * 10000 + bay * 10 );
     }
     else if ( cat == kCatGJ )
     {
