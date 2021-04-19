@@ -115,6 +115,7 @@ public:
     void setMass ( float mass ) { _mass = mass; }
 
     string getTypeName ( void );
+    string getNumberName ( void );
     SSIdentifier getIdentifier ( void ) { return _id; }
     SSIdentifier getIdentifier ( int i ) { return i == 0 ? _id : SSIdentifier(); }
     SSIdentifier getIdentifier ( SSCatalog cat );

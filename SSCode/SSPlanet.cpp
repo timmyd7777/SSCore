@@ -57,7 +57,57 @@ SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSPlanet ( type )
 
 string SSPlanet::getTypeName ( void )
 {
-    return typeToName ( isSun() ? kTypeStar : _type );
+    int64_t ident = _id.identifier();
+    
+    if ( _type == kTypePlanet && ident == kSun )
+        return typeToName ( kTypeStar );
+
+    if ( _type == kTypePlanet && ident == kPluto )
+        return "Dwarf Planet";
+        
+    if ( _type == kTypeAsteroid )
+        if ( ident == 1 || ident == 134340 || ident == 136199 || ident == 136108 || ident == 136472 )
+            return "Dwarf Planet";
+    
+    return typeToName ( _type );
+}
+
+// Returns solar system object name and number in string format. Examples:
+// Planets and Moons: "Sun", "Moon", "Mercury", "Venus", "Earth", etc.
+// Asteroids: "(1) Ceres", "(2) Pallas", "2019 AJ16", "(15504)"
+// Comets: "1P (Halley)", "2P (Encke), "C/1995 O1 (Hale-Bopp)"
+// Satellites: "ISS (25544)", "HST (20580)"
+
+string SSPlanet::getNumberName ( void )
+{
+    if ( _type == kTypePlanet || _type == kTypeMoon )
+        return _names[0];
+
+    if ( _type == kTypeAsteroid )
+    {
+        string name = _id.toString();
+        if ( ! _names.empty() )
+            name += " " + _names[0];
+        return name;
+    }
+    
+    if ( _type == kTypeComet )
+    {
+        if ( _names.size() == 2 )
+            return _names[0] + " (" + _names[1] + ")";
+        if ( _names.size() == 1 )
+            return _names[0];
+        return _id.toString();
+    }
+    
+    if ( _type == kTypeSatellite )
+    {
+        string name = _names.empty() ? "" : _names[0];
+        name += " (" + _id.toString() + ")";
+        return name;
+    }
+    
+    return _names.empty() ? _id.toString() : _names[0];
 }
 
 // Overrides SSObject::getIdentifier ( SSCatalog cat )
