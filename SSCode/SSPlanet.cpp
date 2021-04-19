@@ -53,6 +53,13 @@ SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSPlanet ( type )
     _id = SSIdentifier ( kCatJPLanet, id );
 }
 
+// Overrides SSObject::getTypeName()
+
+string SSPlanet::getTypeName ( void )
+{
+    return typeToName ( isSun() ? kTypeStar : _type );
+}
+
 // Overrides SSObject::getIdentifier ( SSCatalog cat )
 
 SSIdentifier SSPlanet::getIdentifier ( SSCatalog cat )

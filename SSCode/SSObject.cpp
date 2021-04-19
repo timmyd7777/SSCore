@@ -133,6 +133,11 @@ string SSObject::getName ( int i )
         return string ( "" );
 }
 
+string SSObject::getTypeName ( void )
+{
+    return typeToName ( _type );
+}
+
 // Default implementation of getIdentifer(); overridden by subclasses.
 
 SSIdentifier SSObject::getIdentifier ( int i )

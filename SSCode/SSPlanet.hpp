@@ -114,6 +114,7 @@ public:
     void setRadius ( float radius ) { _radius = radius; }
     void setMass ( float mass ) { _mass = mass; }
 
+    string getTypeName ( void );
     SSIdentifier getIdentifier ( void ) { return _id; }
     SSIdentifier getIdentifier ( int i ) { return i == 0 ? _id : SSIdentifier(); }
     SSIdentifier getIdentifier ( SSCatalog cat );
