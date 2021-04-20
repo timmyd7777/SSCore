@@ -414,7 +414,7 @@ JNIEXPORT jdouble JNICALL Java_com_southernstars_sscore_JSSCoordinates_radVelToR
 JNIEXPORT jobject JNICALL Java_com_southernstars_sscore_JSSCoordinates_toGeocentric ( JNIEnv *pEnv, jclass pJCoords, jobject pJSph, jdouble re, jdouble f )
 {
     SSSpherical sph = JSSSphericalToSSSpherical ( pEnv, pJSph );
-    SSVector vec = SSCoordinates::toGeocentric ( sph, re, f );
+    SSVector vec = SSCoordinates::toGeocentricPosition ( sph, re, f );
     return SSVectorToJSSVector ( pEnv, vec );
 }
 
