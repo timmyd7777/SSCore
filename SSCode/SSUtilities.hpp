@@ -32,7 +32,16 @@ template <typename T>  const T &clamp ( const T &value, const T &low, const T &h
 
 #ifdef ANDROID
 extern "C" FILE *android_fopen ( const char *fname, const char *mode );
+#ifndef fopen
 #define fopen(name,mode) android_fopen(name,mode)
+#endif
+
+// Android redirects stdout & stderr to /dev/null, so use Android logging to send output to logcat.
+
+#ifndef printf
+#include <android/log.h>
+#define printf(...) __android_log_print(ANDROID_LOG_INFO, "SSCore", __VA_ARGS__)
+#endif
 #endif
 
 #define M_2PI (2*M_PI)

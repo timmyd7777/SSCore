@@ -101,6 +101,7 @@ public:
     void push_back ( SSObjectPtr pObj ) { _objects.push_back ( pObj ); }
     size_t size ( void ) { return _objects.size(); }
     void clear ( void ) { _objects.clear(); }   // empties object vector but DOES NOT delete individual objects!!!
+    void erase ( void ) { for ( SSObjectPtr pObj : _objects ) delete pObj; clear(); }   // deletes all objects AND clears vector.
     void sort ( bool (*cmpfunc) ( const SSObjectPtr &p1, const SSObjectPtr &p2 ) ) { std::sort ( _objects.begin(), _objects.end(), cmpfunc ); }
 };
 

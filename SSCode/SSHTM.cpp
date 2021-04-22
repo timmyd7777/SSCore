@@ -204,10 +204,10 @@ int SSHTM::saveRegion ( uint64_t htmID )
 int SSHTM::loadRegions ( uint64_t htmID, bool sync )
 {
     int n = 0;
-    
+
     if ( loadRegion ( htmID, sync ) )
         n++;
-    
+
     vector<uint64_t> subIDs = subRegionIDs ( htmID );
     for ( int i = 0; i < subIDs.size(); i++ )
        n += loadRegions ( subIDs[i], sync );
@@ -232,14 +232,14 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync )
     if ( regionLoaded ( htmID ) )
     {
 #if USE_THREADS
-        if ( _loadThreads[htmID] != nullptr )
+        if ( _loadThreads.count ( htmID ) != 0 )
         {
-            _loadThreads[htmID]->join();
+            if ( _loadThreads[htmID]->joinable() )
+                _loadThreads[htmID]->join();
             delete _loadThreads[htmID];
-            _loadThreads[htmID] = nullptr;
+            _loadThreads.erase ( htmID );
         }
 #endif
-        
         return getObjects ( htmID );
     }
     
@@ -248,18 +248,18 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync )
     {
         // Load in a background thread
 
-        if ( _loadThreads[htmID] == nullptr )
+        if ( _loadThreads.count ( htmID ) == 0 )
         {
-            thread *pThread = new thread ( &SSHTM::_loadRegion, this, htmID );
-            _loadThreads[htmID] = pThread;
+            _loadThreads[htmID] = new thread ( &SSHTM::_loadRegion, this, htmID );
+            _loadThreads[htmID]->detach();
         }
-        
+
         return nullptr;
     }
 #endif
     
     // Load region synchronously.
-    
+
     _loadRegion ( htmID );
     return _regions[htmID];
 }
@@ -311,9 +311,10 @@ void SSHTM::dumpRegion ( uint64_t htmID )
 #if USE_THREADS
     // If still loading this region asynchronously, wait for load to complete
     
-    if ( _loadThreads[htmID] != nullptr )
+    if ( _loadThreads.count ( htmID ) != 0 )
     {
-        _loadThreads[htmID]->join();
+        if ( _loadThreads[htmID]->joinable() )
+            _loadThreads[htmID]->join();
         delete _loadThreads[htmID];
         _loadThreads.erase ( htmID );
     }
@@ -340,7 +341,8 @@ void SSHTM::dumpRegions ( void )
     {
         if ( it->second != nullptr )
         {
-            it->second->join();
+            if ( it->second->joinable() )
+                it->second->join();
             delete it->second;
         }
     }
