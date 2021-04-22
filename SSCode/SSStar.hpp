@@ -47,14 +47,14 @@ public:
     
     SSStar ( void );
     
-    void setIdentifiers ( vector<SSIdentifier> idents ) { _idents = idents; }
+    void setIdentifiers ( const vector<SSIdentifier> &idents ) { _idents = idents; }
     void setFundamentalPosition ( SSVector pos ) { _position = pos; }
     void setFundamentalVelocity ( SSVector vel ) { _velocity = vel; }
     void setFundamentalCoords ( SSSpherical coords );
     void setFundamentalMotion ( SSSpherical coords, SSSpherical motion );
     void setVMagnitude ( float vmag ) { _Vmag = vmag; }
     void setBMagnitude ( float bmag ) { _Bmag = bmag; }
-    void setSpectralType ( string spectrum ) { _spectrum = spectrum; }
+    void setSpectralType ( const string &spectrum ) { _spectrum = spectrum; }
     
     bool addIdentifier ( SSIdentifier ident );
     SSIdentifier getIdentifier ( SSCatalog cat );

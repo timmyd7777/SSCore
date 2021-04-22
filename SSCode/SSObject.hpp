@@ -57,7 +57,7 @@ public:
     
     // modifiers. Type cannot be changed after object construction!
     
-    void setNames ( vector<string> names ) { _names = names; }
+    void setNames ( const vector<string> &names ) { _names = names; }
     void setDirection ( SSVector dir ) { _direction = dir; }
     void setDistance ( double dist ) { _distance = dist; }
     void setMagnitude ( float mag ) { _magnitude = mag; }

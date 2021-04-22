@@ -446,7 +446,7 @@ void SSStar::setFundamentalCoords ( SSSpherical coords )
 // The star's radial velocity in light years per year (motion.rad) may be infinite if unknown.
 // Mathematically, both coordinates and motion are required to compute the star's rectangular
 // heliocentric position and motion; practically, if you have its motion you'll also have its position,
-// so we pass them both here.  You can extract them separately (see below).
+// so we pass them both here. You can extract them separately (see below).
 
 void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 {
