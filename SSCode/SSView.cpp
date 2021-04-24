@@ -157,7 +157,7 @@ SSAngle SSView::maxAngularHeight ( void )
 
 void SSView::setAngularWidth ( SSAngle angle )
 {
-    if ( angle == 0.0 || isinf ( angle ) || isnan ( angle ) )
+    if ( angle == 0.0 || ::isinf ( angle ) || ::isnan ( angle ) )
         return;
     
     angle = fabs ( angle );
@@ -183,7 +183,7 @@ void SSView::setAngularWidth ( SSAngle angle )
 
 void SSView::setAngularHeight ( SSAngle angle )
 {
-    if ( angle == 0.0 || isinf ( angle ) || isnan ( angle ) )
+    if ( angle == 0.0 || ::isinf ( angle ) || ::isnan ( angle ) )
         return;
 
     angle = fabs ( angle );
@@ -1047,7 +1047,7 @@ void SSView::edges ( double y, double &xleft, double &xright )
     {
         xright = xleft = _centerX;
         double coslat = cos ( pixelsToRadiansY ( y - _centerY ) );
-        if ( ! isnan ( coslat ) )
+        if ( ! ::isnan ( coslat ) )
         {
             xright = _centerX + coslat * SSAngle::kPi / sx;
             xleft = _centerX - coslat * SSAngle::kPi / sx;

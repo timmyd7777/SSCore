@@ -506,7 +506,7 @@ float SSPlanet::computeMagnitude ( double rad, double dist, double phase )
         if ( id == kLuna )
             mag = computeAsteroidMagnitude ( rad, dist, phase, 0.21, 0.25 );
         else
-            mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, isinf ( _Gmag ) ? 0.15 : _Gmag );
+            mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, ::isinf ( _Gmag ) ? 0.15 : _Gmag );
     }
     else if ( _type == kTypeAsteroid )
         mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, _Gmag );
@@ -568,7 +568,7 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
     // We may fail to compute satellite position if TLE is significantly out of date.
     // If this happens, set direction/distance/magnitude to infinity to indicate invalid result.
     
-    if ( _position.isnan() || isnan ( _distance ) )
+    if ( _position.isnan() || ::isnan ( _distance ) )
     {
         _direction = SSVector ( INFINITY, INFINITY, INFINITY );
         _distance = _magnitude = INFINITY;
@@ -639,22 +639,22 @@ string SSPlanet::toCSV ( void )
     string csv = SSObject::typeToCode ( _type ) + ",";
     
     if ( _type == kTypeMoon )
-        csv += isinf ( _orbit.q ) ? "," : format ( "%.0f,", _orbit.q * SSCoordinates::kKmPerAU );
+        csv += ::isinf ( _orbit.q ) ? "," : format ( "%.0f,", _orbit.q * SSCoordinates::kKmPerAU );
     else
-        csv += isinf ( _orbit.q ) ? "," : format ( "%.8f,", _orbit.q );
+        csv += ::isinf ( _orbit.q ) ? "," : format ( "%.8f,", _orbit.q );
 
-    csv += isinf ( _orbit.e ) ? "," : format ( "%.8f,", _orbit.e );
-    csv += isinf ( _orbit.i ) ? "," : format ( "%.8f,", _orbit.i * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.w ) ? "," : format ( "%.8f,", _orbit.w * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.n ) ? "," : format ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.m ) ? "," : format ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.mm ) ? "," : format ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
-    csv += isinf ( _orbit.t ) ? "," : format ( "%.4f,", _orbit.t );
+    csv += ::isinf ( _orbit.e ) ? "," : format ( "%.8f,", _orbit.e );
+    csv += ::isinf ( _orbit.i ) ? "," : format ( "%.8f,", _orbit.i * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.w ) ? "," : format ( "%.8f,", _orbit.w * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.n ) ? "," : format ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.m ) ? "," : format ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.mm ) ? "," : format ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.t ) ? "," : format ( "%.4f,", _orbit.t );
     
-    csv += isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
-    csv += isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
-    csv += isinf ( _radius ) ? "," : format ( "%.1f,", _radius );
-    csv += isinf ( _mass ) ? "," : format ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
+    csv += ::isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
+    csv += ::isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
+    csv += ::isinf ( _radius ) ? "," : format ( "%.1f,", _radius );
+    csv += ::isinf ( _mass ) ? "," : format ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
 
     csv += _id ? _id.toString() + "," : ",";
         

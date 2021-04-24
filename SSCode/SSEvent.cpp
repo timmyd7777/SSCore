@@ -107,7 +107,7 @@ SSTime SSEvent::riseTransitSetSearch ( SSTime time, SSCoordinates &coords, SSObj
         time = riseTransitSet ( time, coords, pObj, sign, alt );
         i++;
     }
-    while ( fabs ( time - lasttime ) > precision && ! isinf ( time ) && i < imax );
+    while ( fabs ( time - lasttime ) > precision && ! ::isinf ( time ) && i < imax );
             
     return ( time );
 }
@@ -169,7 +169,7 @@ SSPass SSEvent::riseTransitSet ( SSTime today, SSCoordinates &coords, SSObjectPt
     SSSpherical hor = { INFINITY, INFINITY, INFINITY };
     
     pass.rising.time = riseTransitSetSearchDay ( today, coords, pObj, kRise, alt );
-    if ( ! isinf ( pass.rising.time ) )
+    if ( ! ::isinf ( pass.rising.time ) )
     {
         hor = coords.transform ( kFundamental, kHorizon, pObj->getDirection() );
         pass.rising.azm = hor.lon;
@@ -177,7 +177,7 @@ SSPass SSEvent::riseTransitSet ( SSTime today, SSCoordinates &coords, SSObjectPt
     }
     
     pass.transit.time = riseTransitSetSearchDay ( today, coords, pObj, kTransit, 0.0 );
-    if ( ! isinf ( pass.transit.time ) )
+    if ( ! ::isinf ( pass.transit.time ) )
     {
         hor = coords.transform ( kFundamental, kHorizon, pObj->getDirection() );
         pass.transit.azm = hor.lon;
@@ -185,7 +185,7 @@ SSPass SSEvent::riseTransitSet ( SSTime today, SSCoordinates &coords, SSObjectPt
     }
 
     pass.setting.time = riseTransitSetSearchDay ( today, coords, pObj, kSet, alt );
-    if ( ! isinf ( pass.setting.time ) )
+    if ( ! ::isinf ( pass.setting.time ) )
     {
         hor = coords.transform ( kFundamental, kHorizon, pObj->getDirection() );
         pass.setting.azm = hor.lon;
@@ -309,10 +309,10 @@ void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr
         // so that when we compute a new distance, we will have three different values we can
         // search for a maximum or minimum.
         
-        if ( ! isinf ( curVal ) )
+        if ( ! ::isinf ( curVal ) )
             oldVal = curVal;
             
-        if ( ! isinf ( newVal ) )
+        if ( ! ::isinf ( newVal ) )
             curVal = newVal;
 
         // Find the new value of the event function at the current time.
@@ -325,7 +325,7 @@ void SSEvent::findEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSObjectPtr
         // with a search step 10x smaller, until the step is less than 1 second.
         // When we reach that precision, save the time and value, and return.
 
-        if ( ! isinf ( oldVal ) && ! isinf ( curVal ) && ! isinf ( newVal ) )
+        if ( ! ::isinf ( oldVal ) && ! ::isinf ( curVal ) && ! ::isinf ( newVal ) )
         {
             if ( ( min && ( newVal > curVal && curVal < oldVal ) && curVal <= limit )
             || ( ! min && ( newVal < curVal && curVal > oldVal ) && curVal >= limit ) )
@@ -372,7 +372,7 @@ void SSEvent::findEqualityEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSO
         // Save the current value into the old value, then find
         // the value of the event function at the current time.
 
-        if ( ! isinf ( curVal ) )
+        if ( ! ::isinf ( curVal ) )
             oldVal = curVal;
             
         curVal = func ( coords, pObj1, pObj2 );
@@ -383,7 +383,7 @@ void SSEvent::findEqualityEvents ( SSCoordinates &coords, SSObjectPtr pObj1, SSO
         // with a search step 10x smaller, until the step is less than 1 second.
         // When we reach that precision, save the time and value, and return.
 
-        if ( ! isinf ( oldVal ) && ! isinf ( curVal ) )
+        if ( ! ::isinf ( oldVal ) && ! ::isinf ( curVal ) )
         {
             if ( ( below && ( curVal >= target && oldVal < target ) )
             || ( ! below && ( curVal <= target && oldVal > target ) ) )

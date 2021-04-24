@@ -267,7 +267,7 @@ SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, 
     
     double q = p / ( 1.0 + e );
     double nu = acos ( ( p / r - 1.0 ) / e );
-    if ( isnan ( nu ) )
+    if ( ::isnan ( nu ) )
         nu = 0.0;
     if ( rv < 0.0 )
         nu = -nu;

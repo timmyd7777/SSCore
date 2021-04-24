@@ -310,7 +310,7 @@ void SSStar::computePositionVelocity ( SSCoordinates &coords, SSVector &pos, SSV
     // If applying stellar space motion, and the star's space motion is known, add its space velocity
     // (times years since J2000) to its J2000 position.
 
-    if ( coords.getStarMotion() && ! isinf ( _velocity.x ) )
+    if ( coords.getStarMotion() && ! ::isinf ( _velocity.x ) )
         pos += _velocity * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
     
     // If star's parallax is known, scale position and velocity by parallax to AU and AU/day.
@@ -334,7 +334,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
     // If applying stellar space motion, and the star's space motion is known, add its space velocity
     // (times years since J2000) to its J2000 position.
 
-    if ( coords.getStarMotion() && ! isinf ( _velocity.x ) )
+    if ( coords.getStarMotion() && ! ::isinf ( _velocity.x ) )
         _direction += _velocity * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
     
     // If applying heliocentric parallax, and the star's parallax is known, subtract the observer's
@@ -407,7 +407,7 @@ SSSpherical SSStar::computeApparentMotion ( SSCoordinates &coords, SSFrame frame
         
         // If current distance and parallax are known, compute space velocity and relative direction.
         
-        if ( ! isinf ( _distance ) && _parallax > 0.0 )
+        if ( ! ::isinf ( _distance ) && _parallax > 0.0 )
         {
             vel = vel * SSCoordinates::kAUPerParsec / (double) _parallax; // [AU/year]
             pos = _direction * _distance;                                 // [AU]
@@ -421,7 +421,7 @@ SSSpherical SSStar::computeApparentMotion ( SSCoordinates &coords, SSFrame frame
         // Overwrite J2000 radial velocity (if known) with current radial velocity in light years per year
         
         motion = pos.toSphericalVelocity ( vel );
-        motion.rad = isinf ( _radvel ) || _parallax == 0.0 ? _radvel : motion.rad / SSCoordinates::kAUPerLY;
+        motion.rad = ::isinf ( _radvel ) || _parallax == 0.0 ? _radvel : motion.rad / SSCoordinates::kAUPerLY;
     }
     
     return motion;
@@ -434,7 +434,7 @@ SSSpherical SSStar::computeApparentMotion ( SSCoordinates &coords, SSFrame frame
 
 void SSStar::setFundamentalCoords ( SSSpherical coords )
 {
-    _parallax = isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
+    _parallax = ::isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
     _position = SSVector ( coords.lon, coords.lat, 1.0 );
 }
 
@@ -450,13 +450,13 @@ void SSStar::setFundamentalCoords ( SSSpherical coords )
 
 void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 {
-    _parallax = isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
+    _parallax = ::isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
     _radvel = motion.rad;
 
     // if distance or radial velocity are unknown, treat them as zero;
     // otherwise divide radial velocity by distance; set unit distance.
     
-    if ( isinf ( coords.rad ) || isinf ( motion.rad ) )
+    if ( ::isinf ( coords.rad ) || ::isinf ( motion.rad ) )
         motion.rad = 0.0;
     else
         motion.rad /= coords.rad;
@@ -465,7 +465,7 @@ void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
     
     _position = coords.toVectorPosition();
     
-    if ( isinf ( motion.lon ) || isinf ( motion.lat ) )
+    if ( ::isinf ( motion.lon ) || ::isinf ( motion.lat ) )
         _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
     else
         _velocity = coords.toVectorVelocity ( motion );
@@ -479,7 +479,7 @@ void SSStar::setFundamentalMotion ( SSSpherical coords, SSSpherical motion )
 SSSpherical SSStar::getFundamentalCoords ( void )
 {
     SSSpherical coords = _position.toSpherical();
-    coords.rad = ( isinf ( _parallax ) || _parallax == 0.0 ) ? INFINITY : SSCoordinates::kLYPerParsec / _parallax;
+    coords.rad = ( ::isinf ( _parallax ) || _parallax == 0.0 ) ? INFINITY : SSCoordinates::kLYPerParsec / _parallax;
     return coords;
 }
 
@@ -686,7 +686,7 @@ double SSStar::distanceFromMagnitude ( double appMag, double absMag )
 
 double SSStar::brightnessRatio ( double magDiff )
 {
-    if ( isinf ( magDiff ) )
+    if ( ::isinf ( magDiff ) )
         return magDiff > 0.0 ? INFINITY : 0.0;
     else
         return pow ( 10.0, magDiff / 2.5 );
@@ -706,9 +706,9 @@ double SSStar::magnitudeDifference ( double ratio )
 
 double SSStar::magnitudeSum ( double mag1, double mag2 )
 {
-    if ( isinf ( mag2 ) )
+    if ( ::isinf ( mag2 ) )
         return mag1;
-    else if ( isinf ( mag1 ) )
+    else if ( ::isinf ( mag1 ) )
         return mag2;
     else
         return mag2 + magnitudeDifference ( 1.0 + brightnessRatio ( mag1 - mag2 ) );
@@ -998,14 +998,14 @@ string SSStar::toCSV1 ( void )
     csv += ra.toString() + ",";
     csv += dec.toString() + ",";
     
-    csv += isnan ( motion.lon ) || isinf ( motion.lon ) ? "," : format ( "%+.5f,", ( motion.lon / 15.0 ).toArcsec() );
-    csv += isnan ( motion.lat ) || isinf ( motion.lat ) ? "," : format ( "%+.4f,", motion.lat.toArcsec() );
+    csv += ::isnan ( motion.lon ) || ::isinf ( motion.lon ) ? "," : format ( "%+.5f,", ( motion.lon / 15.0 ).toArcsec() );
+    csv += ::isnan ( motion.lat ) || ::isinf ( motion.lat ) ? "," : format ( "%+.4f,", motion.lat.toArcsec() );
     
-    csv += isinf ( _Vmag ) ? "," : format ( "%+.2f,", _Vmag );
-    csv += isinf ( _Bmag ) ? "," : format ( "%+.2f,", _Bmag );
+    csv += ::isinf ( _Vmag ) ? "," : format ( "%+.2f,", _Vmag );
+    csv += ::isinf ( _Bmag ) ? "," : format ( "%+.2f,", _Bmag );
     
-    csv += isinf ( distance ) ? "," : format ( "%.3E,", distance * SSCoordinates::kParsecPerLY );
-    csv += isinf ( _radvel ) ? "," : format ( "%+.1f,", _radvel * SSCoordinates::kLightKmPerSec );
+    csv += ::isinf ( distance ) ? "," : format ( "%.3E,", distance * SSCoordinates::kParsecPerLY );
+    csv += ::isinf ( _radvel ) ? "," : format ( "%+.1f,", _radvel * SSCoordinates::kLightKmPerSec );
     
     // If spectrum contains a comma, put it in quotes.
     
@@ -1043,10 +1043,10 @@ string SSDoubleStar::toCSVD ( void )
     string csv = "";
     
     csv += _comps + ",";
-    csv += isinf ( _magDelta ) ? "," : format ( "%+.2f,", _magDelta );
-    csv += isinf ( _sep ) ? "," : format ( "%.1f,", _sep * SSAngle::kArcsecPerRad );
-    csv += isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
-    csv += isinf ( _PAyr ) ? "," : format ( "%.2f,", _PAyr );
+    csv += ::isinf ( _magDelta ) ? "," : format ( "%+.2f,", _magDelta );
+    csv += ::isinf ( _sep ) ? "," : format ( "%.1f,", _sep * SSAngle::kArcsecPerRad );
+    csv += ::isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
+    csv += ::isinf ( _PAyr ) ? "," : format ( "%.2f,", _PAyr );
 
     return csv;
 }
@@ -1066,10 +1066,10 @@ string SSVariableStar::toCSVV ( void )
     string csv = "";
     
     csv += _varType + ",";
-    csv += isinf ( _varMinMag ) ? "," : format ( "%+.2f,", _varMinMag );
-    csv += isinf ( _varMaxMag ) ? "," : format ( "%+.2f,", _varMaxMag );
-    csv += isinf ( _varPeriod ) ? "," : format ( "%.2f,", _varPeriod );
-    csv += isinf ( _varEpoch )  ? "," : format ( "%.2f,", _varEpoch );
+    csv += ::isinf ( _varMinMag ) ? "," : format ( "%+.2f,", _varMinMag );
+    csv += ::isinf ( _varMaxMag ) ? "," : format ( "%+.2f,", _varMaxMag );
+    csv += ::isinf ( _varPeriod ) ? "," : format ( "%.2f,", _varPeriod );
+    csv += ::isinf ( _varEpoch )  ? "," : format ( "%.2f,", _varEpoch );
 
     return csv;
 }
@@ -1096,9 +1096,9 @@ string SSDeepSky::toCSVDS ( void )
 {
     string csv = "";
 
-    csv += isinf ( _majAxis ) ? "," : format ( "%.2f,", _majAxis * SSAngle::kArcminPerRad );
-    csv += isinf ( _minAxis ) ? "," : format ( "%.2f,", _minAxis * SSAngle::kArcminPerRad );
-    csv += isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
+    csv += ::isinf ( _majAxis ) ? "," : format ( "%.2f,", _majAxis * SSAngle::kArcminPerRad );
+    csv += ::isinf ( _minAxis ) ? "," : format ( "%.2f,", _minAxis * SSAngle::kArcminPerRad );
+    csv += ::isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
 
     return csv;
 }
