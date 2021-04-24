@@ -49,7 +49,7 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkySt
 // Stores imported pairs of names and identifiers in nameMap.
 // Returns total number of paris added to map.
 
-int SSImportIAUStarNames ( const char *filename, SSIdentifierNameMap &nameMap )
+int SSImportIAUStarNames ( const string &filename, SSIdentifierNameMap &nameMap )
 {
     // Open file; return on failure.
 
@@ -187,7 +187,7 @@ string SKY2000VariableTypeString ( int type )
 
 // TODO: add HIP numbers and add'l Bayer letters from Hipparcos. Add nearby stars from RECONS.
 
-int SSImportSKY2000 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &stars )
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 

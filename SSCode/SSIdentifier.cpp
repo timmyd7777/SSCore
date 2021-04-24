@@ -1001,7 +1001,7 @@ bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 )
 // Reads identifier-to-name map from filename and stores results in nameMap.
 // Returns number of identifer-to-name pairs inserted into nameMap.
 
-int SSImportIdentifierNameMap ( const char *filename, SSIdentifierNameMap &nameMap )
+int SSImportIdentifierNameMap ( const string &filename, SSIdentifierNameMap &nameMap )
 {
     // Open file; return on failure.
 

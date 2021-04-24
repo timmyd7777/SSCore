@@ -75,7 +75,7 @@ int addGJComponentStars ( SSStarPtr pStar, string strGJ, string comps, SSObjectV
 // Returns the total number of stars imported (should be 3849 if successful);
 // original CNS3 contains 3803 lines; but multiples are split and Sun is excluded.
 
-int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &gjACStars, SSObjectVec &stars )
+int SSImportGJCNS3 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &gjACStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -295,7 +295,7 @@ int SSImportGJCNS3 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 // Returns the total number of stars imported (should be 4266 if successful);
 // original file contains 4106 lines, but multiples are split into single components.
 
-int SSImportGJAC ( const char *filename, SSObjectVec &hipStars, SSObjectVec &stars )
+int SSImportGJAC ( const string &filename, SSObjectVec &hipStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 

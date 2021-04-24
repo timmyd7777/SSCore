@@ -127,7 +127,7 @@ typedef vector<SSIdentifier> SSIdentifierVec;
 typedef multimap<SSIdentifier,SSIdentifier> SSIdentifierMap;
 typedef multimap<SSIdentifier,string> SSIdentifierNameMap;
 
-int SSImportIdentifierNameMap ( const char *filename, SSIdentifierNameMap &nameMap );
+int SSImportIdentifierNameMap ( const string &filename, SSIdentifierNameMap &nameMap );
 vector<string> SSIdentifiersToNames ( SSIdentifierVec &idents, SSIdentifierNameMap &nameMap );
 
 bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );

@@ -52,7 +52,7 @@ string cleanHIPNameString ( string str )
 // into map of HIP identifiers to name strings (nameMap).
 // Returns number of names imported (should be 96 if successful).
 
-int SSImportHIPNames ( const char *filename, SSIdentifierNameMap &nameMap )
+int SSImportHIPNames ( const string &filename, SSIdentifierNameMap &nameMap )
 {
     // Open file; return on failure.
 
@@ -126,7 +126,7 @@ void SSUpdateStarCoordsAndMotion ( double jyear, SSMatrix *pMatrix, SSSpherical 
 // Stores results in vector of SSObjects (stars).
 // Returns number of objects imported (118209 if successful).
 
-int SSImportHIC ( const char *filename, SSObjectVec &stars )
+int SSImportHIC ( const string &filename, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -239,7 +239,7 @@ int SSImportHIC ( const char *filename, SSObjectVec &stars )
 // Stores results in vector of SSObjects (stars).
 // Returns number of objects imported (117955 if successful).
 
-int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
+int SSImportHIP2 ( const string &filename, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -356,7 +356,7 @@ int SSImportHIP2 ( const char *filename, SSObjectVec &stars )
 // Stores results in vector of SSObjects (stars).
 // Returns number of objects imported (118218 if successful).
 
-int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap &bayMap, SSIdentifierMap &gcvsMap, SSIdentifierNameMap &nameMap, SSObjectVec &hicStars, SSObjectVec &hip2Stars, SSObjectVec &stars )
+int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMap &bayMap, SSIdentifierMap &gcvsMap, SSIdentifierNameMap &nameMap, SSObjectVec &hicStars, SSObjectVec &hip2Stars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -527,7 +527,7 @@ int SSImportHIP ( const char *filename, SSIdentifierMap &hrMap, SSIdentifierMap 
 // Returns map of HR identifiers indexed by HIP number,
 // which should contain 9077 entries if successful.
 
-int SSImportHIPHRIdentifiers ( const char *filename, SSIdentifierMap &map )
+int SSImportHIPHRIdentifiers ( const string &filename, SSIdentifierMap &map )
 {
     // Open file; return on failure.
     
@@ -564,7 +564,7 @@ int SSImportHIPHRIdentifiers ( const char *filename, SSIdentifierMap &map )
 // Returns map of Bayer/Flamsteed identifiers indexed by HIP number,
 // which should contain 4440 entries if successful.
 
-int SSImportHIPBayerIdentifiers ( const char *filename, SSIdentifierMap &map )
+int SSImportHIPBayerIdentifiers ( const string &filename, SSIdentifierMap &map )
 {
     // Open file; return on failure.
 
@@ -602,7 +602,7 @@ int SSImportHIPBayerIdentifiers ( const char *filename, SSIdentifierMap &map )
 // Returns map of GCVS identifiers indexed by HIP number,
 // which should contain 6390 entries if successful.
 
-int SSImportHIPGCVSIdentifiers ( const char *filename, SSIdentifierMap &map )
+int SSImportHIPGCVSIdentifiers ( const string &filename, SSIdentifierMap &map )
 {
     // Open file; return on failure.
 

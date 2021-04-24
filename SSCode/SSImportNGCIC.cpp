@@ -472,7 +472,7 @@ void addNGCICObjectData ( SSObjectVec &clusters, SSObjectVec &objects )
 // It returns the number of NGC-IC objects imported (13027 if successful).
 // Messier and Caldwell objects will be discarded if noMC is true.
 
-int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects, bool noMC )
+int SSImportNGCIC ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects, bool noMC )
 {
     // Open file; return on failure.
 
@@ -645,7 +645,7 @@ int SSImportNGCIC ( const char *filename, SSIdentifierNameMap &nameMap, SSObject
 // Adds Messier and Caldwell numbers when possible.
 // Returns total number of clusters imported (should be 2167).
 
-int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters )
+int SSImportDAML02 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters )
 {
     // Open file; return on failure.
 
@@ -750,7 +750,7 @@ int SSImportDAML02 ( const char *filename, SSIdentifierNameMap &nameMap, SSObjec
 // and adds Messier and Caldwell numbers when possible.
 // Returns total number of clusters imported (should be 157).
 
-int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters )
+int SSImportMWGC ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters )
 {
     // Open file; return on failure.
 
@@ -861,7 +861,7 @@ int SSImportMWGC ( const char *filename, SSIdentifierNameMap &nameMap, SSObjectV
 // and adds Messier and Caldwell numbers when possible.
 // Returns total number of planetary nebule imported (should be 1143).
 
-int SSImportPNG ( const char *main_filename, const char *dist_filename, const char *diam_filename, const char *vel_filename, SSIdentifierNameMap &nameMap, SSObjectVec &nebulae )
+int SSImportPNG ( const string &main_filename, const string &dist_filename, const string &diam_filename, const string &vel_filename, SSIdentifierNameMap &nameMap, SSObjectVec &nebulae )
 {
     string line = "";
     map<SSIdentifier,float> distMap;
