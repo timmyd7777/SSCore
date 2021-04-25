@@ -264,9 +264,12 @@ SSObjectPtr SSCloneObject ( SSObject *pObj )
 
 // Exports a vector of objects to a CSV-formatted text file.
 // If the filename is an empty string, streams CSV to standard output.
+// If a non-null filter function (filter) is provided, objects are exported
+// only if they pass the filter; optional data pointer (userData) is passed
+// to the filter but not used otherwise.
 // Returns the number of objects exported.
 
-int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects )
+int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects, SSObjectFilter filter, void *userData )
 {
     int i = 0;
     
@@ -286,21 +289,31 @@ int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects )
     if ( ! file )
         return 0;
     
-    // Stream everything to file.
+    // Stream objects which pass filter function to CSV file.
     
+    int n = 0;
     for ( i = 0; i < objects.size(); i++ )
-        file << objects[i]->toCSV() << endl;
-
-    // Return object count; file will close automatically.
+    {
+        if ( filter == nullptr || filter ( objects[i], userData ) )
+        {
+            file << objects[i]->toCSV() << endl;
+            n++;
+        }
+    }
     
-    return i;
+    // Return exported object count; file will close automatically.
+    
+    return n;
 }
 
 // Imports objects from CSV-formatted text file (filename).
 // Imported objects are appended to the input vector of SSObjects (objects).
-// Returns number of objects successfully imported.
+// If a non-null filter function (filter) is provided, objects are imported
+// only if they pass the filter; optional data pointer (userData) is passed
+// to the filter but not used otherwise.
+// Function returns number of objects successfully imported.
 
-int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
+int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects, SSObjectFilter filter, void *userData )
 {
     // Open file; return on failure.
 
@@ -315,44 +328,22 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects )
 
     while ( fgetline ( file, line ) )
     {
-        // Attempt to create solar system object from CSV file line; if successful add to object vector.
+        // Attempt to create object from CSV file line
         
         SSObjectPtr pObject = SSPlanet::fromCSV ( line );
-        if ( pObject )
+        if ( pObject == nullptr )
+            pObject = SSStar::fromCSV ( line );
+        if ( pObject == nullptr )
+            pObject = SSFeature::fromCSV ( line );
+        if ( pObject == nullptr )
+            pObject = SSConstellation::fromCSV ( line );
+
+        // if successful, and object passes filter, add it to object vector.
+            
+        if ( pObject != nullptr && ( filter == nullptr || filter ( pObject, userData ) ) )
         {
             objects.push_back ( pObject );
             numObjects++;
-            continue;
-        }
-
-        // Attempt to create star from CSV file line; if successful add to object vector.
-
-        pObject = SSStar::fromCSV ( line );
-        if ( pObject )
-        {
-            objects.push_back ( pObject );
-            numObjects++;
-            continue;
-        }
-
-        // Attempt to create planetary surface feature from CSV file line; if successful add to object vector.
-
-        pObject = SSFeature::fromCSV ( line );
-        if ( pObject )
-        {
-            objects.push_back ( pObject );
-            numObjects++;
-            continue;
-        }
-
-        // Attempt to create constellation from CSV file line; if successful add to object vector.
-
-        pObject = SSConstellation::fromCSV ( line );
-        if ( pObject )
-        {
-            objects.push_back ( pObject );
-            numObjects++;
-            continue;
         }
     }
     

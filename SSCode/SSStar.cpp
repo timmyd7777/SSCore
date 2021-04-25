@@ -334,7 +334,7 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
     // If applying stellar space motion, and the star's space motion is known, add its space velocity
     // (times years since J2000) to its J2000 position.
 
-    if ( coords.getStarMotion() && ! ::isinf ( _velocity.x ) )
+    if ( coords.getStarMotion() && ! ( _velocity.isinf() || _velocity.isnan() ) )
         _direction += _velocity * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
     
     // If applying heliocentric parallax, and the star's parallax is known, subtract the observer's

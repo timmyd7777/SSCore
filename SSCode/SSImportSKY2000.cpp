@@ -184,10 +184,11 @@ string SKY2000VariableTypeString ( int type )
 // Hipparcos stars (hipStars) and Gliese-Jahreiss nearby stars (gjStars).
 // Nothing will be added if these star vectors are empty.
 // Returns number of SKY2000 stars imported (299460 if successful).
+// If a non-null filter function (filter) is provided, objects are exported
+// only if they pass the filter; optional data pointer (userData) is passed
+// to the filter but not used otherwise.
 
-// TODO: add HIP numbers and add'l Bayer letters from Hipparcos. Add nearby stars from RECONS.
-
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &stars )
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &stars, SSObjectFilter filter, void *userData )
 {
     // Open file; return on failure.
 
@@ -457,10 +458,13 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         }
         
         // cout << pStar->toCSV() << endl;
-        stars.push_back ( pObj );
-        numStars++;
+        if ( filter == nullptr || filter ( pObj, userData ) )
+        {
+            stars.push_back ( pObj );
+            numStars++;
+        }
     }
-
+    
     // Return imported star count; file is closed automatically.
     
     return numStars;

@@ -113,8 +113,9 @@ SSObjectPtr SSCloneObject ( SSObject *pObj );
 SSObjectMap SSMakeObjectMap ( SSObjectVec &objects, SSCatalog cat );
 SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjectVec &objects );
 
-int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects );
-int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects );
+typedef bool (*SSObjectFilter) ( SSObjectPtr pObject, void *userData );
+int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects, SSObjectFilter filter = nullptr, void *userData = nullptr );
+int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects, SSObjectFilter filter = nullptr, void *userData = nullptr );
 
 #pragma pack ( pop )
 

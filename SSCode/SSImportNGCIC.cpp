@@ -470,9 +470,11 @@ void addNGCICObjectData ( SSObjectVec &clusters, SSObjectVec &objects )
 // If these other catalogs are empty, no data will be added.
 // The function stores imported objects in vector of SSObjects (objects).
 // It returns the number of NGC-IC objects imported (13027 if successful).
-// Messier and Caldwell objects will be discarded if noMC is true.
+// If a non-null filter function (filter) is provided, objects are exported
+// only if they pass the filter; optional data pointer (userData) is passed
+// to the filter but not used otherwise.
 
-int SSImportNGCIC ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects, bool noMC )
+int SSImportNGCIC ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &clusters, SSObjectVec &globulars, SSObjectVec &planNebs, SSObjectVec &objects, SSObjectFilter filter, void *userData )
 {
     // Open file; return on failure.
 
@@ -587,8 +589,7 @@ int SSImportNGCIC ( const string &filename, SSIdentifierNameMap &nameMap, SSObje
             ngcicStr = "IC " + tokens[1] + tokens[2];
 
         SSAddIdentifier ( SSIdentifier::fromString ( ngcicStr ), idents );
-        if ( addMCIdentifiers ( idents, ngcicStr ) && noMC )
-            continue;
+        addMCIdentifiers ( idents, ngcicStr );
 
         // Get Principal Galaxy Catalog number, if any.
         
@@ -623,10 +624,13 @@ int SSImportNGCIC ( const string &filename, SSIdentifierNameMap &nameMap, SSObje
         pObject->setPositionAngle ( pa );
         
         // cout << pObject->toCSV() << endl;
-        objects.push_back ( pObject );
-        numObjects++;
+        if ( filter == nullptr || filter ( pObject, userData ) )
+        {
+            objects.push_back ( pObject );
+            numObjects++;
+        }
     }
-
+    
     // Now add propper motions, distances, radial velocities, etc.
     // from other deep sky object catalogs, if we have them.
     
