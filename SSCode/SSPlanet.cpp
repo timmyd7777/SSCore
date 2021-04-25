@@ -973,7 +973,7 @@ int SSImportMcNames ( const string &filename, SSObjectVec &objects )
         if ( mcname.norad == norad )
         {
             pSat->setHMagnitude ( mcname.mag );
-            pSat->setRadius ( mcname.len / 1000.0 );
+            pSat->setRadius ( mcname.len / 2000.0 );
             n++;
         }
     }
