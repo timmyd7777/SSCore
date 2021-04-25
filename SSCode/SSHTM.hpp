@@ -34,16 +34,24 @@
 // This class also contains methods for loading, saving, and storing objects in the regions to files.
 // Regions can be loaded synchronously on the current thread, or asynchronously on a background thread.
 
+// Callback function to notify external HTM user when regions are loaded asynchronously.
+
 class SSHTM
 {
-    map<uint64_t,SSObjectVec *> _regions;           // arrays of objects loaded into memory, indexed by HTM region ID
-    vector<float>               _magLevels;         // faintest magnitude of objects at each HTM level; vector size is depth of mesh tree
-    string                      _rootpath;          // directory containing object data files on filesystem.
+public:
+    typedef int (* DataFileFunc) ( SSHTM *pHTM, uint64_t htmID, SSObjectArray *objects, void *userData );
+
+protected:
+    DataFileFunc                _readFunc = nullptr;    // custom function for reading region data files
+    DataFileFunc                _writeFunc = nullptr;   // custom function for writing region data files
+    map<uint64_t,SSObjectVec *> _regions;               // arrays of objects loaded into memory, indexed by HTM region ID
+    vector<float>               _magLevels;             // faintest magnitude of objects at each HTM level; vector size is depth of mesh tree
+    string                      _rootpath;              // directory containing object data files on filesystem.
     
 #if USE_THREADS
-    map<uint64_t,thread *>      _loadThreads;       // background threads currently loading region objects from data files, indexed by HTM region ID
+    map<uint64_t,thread *>      _loadThreads;           // background threads currently loading region objects from data files, indexed by HTM region ID
 #endif
-    SSObjectVec *_loadRegion ( uint64_t htmID );    // private method to load object data file for a given HTM region ID
+    SSObjectVec *_loadRegion ( uint64_t htmID, void *userData );    // private method to load object data file for a given HTM region ID
     
 public:
     
@@ -52,6 +60,10 @@ public:
     SSHTM();
     SSHTM ( const vector<float> &magLevels, const string &rootpath );
     virtual ~SSHTM ( void );
+    
+    // return path to directory containing region data files
+    
+    string rootPath ( void ) { return _rootpath; }
     
     // get magnitude limits for a particular HTM region ID;
     // get HTM level corresponding to a particular magnitude
@@ -72,10 +84,10 @@ public:
     
     // save region objects to file(s), load them from file(s), dump them from memory.
     
-    int saveRegions ( void );
-    int saveRegion ( uint64_t id );
-    int loadRegions ( uint64_t htmID = 0, bool sync = true );
-    SSObjectVec *loadRegion ( uint64_t htmID, bool sync = true );
+    int saveRegions ( void *userData = nullptr );
+    int saveRegion ( uint64_t id, void *userData = nullptr );
+    int loadRegions ( uint64_t htmID = 0, bool sync = true, void *userData = nullptr );
+    SSObjectVec *loadRegion ( uint64_t htmID, bool sync = true, void *userData = nullptr );
     void dumpRegions ( void );
     void dumpRegion ( uint64_t htmID );
     
@@ -123,6 +135,12 @@ public:
     size_t findObjectLocs ( SSIdentifier &ident, vector<ObjectLoc> &locs );
     
     SSObjectPtr loadObject ( const ObjectLoc &loc );
+
+    void setDataFileReadFunc ( DataFileFunc func ) { _readFunc = func; }
+    DataFileFunc getDataFileReadFunc ( void ) { return _readFunc; }
+    
+    void setDataFileWriteFunc ( DataFileFunc func ) { _writeFunc = func; }
+    DataFileFunc getDataFileWriteFunc ( void ) { return _writeFunc; }
 };
 
 // Callback function to notify external HTM user when regions are loaded asynchronously.

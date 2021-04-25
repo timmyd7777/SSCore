@@ -161,18 +161,12 @@ int SSHTM::store ( SSObjectVec &objects )
 // any existing files with the same names.
 // Returns the total number of objects written to the file(s).
 
-int SSHTM::saveRegions ( void )
+int SSHTM::saveRegions ( void *userData )
 {
     int n = 0;
     
     for ( auto it = _regions.begin(); it != _regions.end(); it++ )
-    {
-        uint64_t htmID = it->first;
-        SSObjectVec *objects = it->second;
-        string name = SSHTM::ID2name ( htmID );
-        if ( ! name.empty() )
-            n += SSExportObjectsToCSV ( _rootpath + name + ".csv", *objects );
-    }
+        saveRegion ( it->first, userData );
     
     return n;
 }
@@ -182,15 +176,16 @@ int SSHTM::saveRegions ( void )
 // CSV file will be named for its HTM region, and overwrites any existing file with same name.
 // Returns the total number of objects written to the file.
 
-int SSHTM::saveRegion ( uint64_t htmID )
+int SSHTM::saveRegion ( uint64_t htmID, void *userData )
 {
     int n = 0;
     
     if ( _regions.count ( htmID ) )
     {
-        string name = ID2name ( htmID );
-        if ( ! name.empty() )
-            n = SSExportObjectsToCSV ( _rootpath + name + ".csv", *_regions[htmID] );
+        if ( _writeFunc != nullptr )
+            n = _writeFunc ( this, htmID, _regions[htmID], userData );
+        else
+            n = SSExportObjectsToCSV ( _rootpath + ID2name ( htmID ) + ".csv", *_regions[htmID] );
     }
     
     return n;
@@ -201,16 +196,16 @@ int SSHTM::saveRegion ( uint64_t htmID )
 // If sync is false, regions are loaded asynchronously on background threads.
 // Returns the number of regions loaded (will be zero if sync is false).
 
-int SSHTM::loadRegions ( uint64_t htmID, bool sync )
+int SSHTM::loadRegions ( uint64_t htmID, bool sync, void *userData )
 {
     int n = 0;
 
-    if ( loadRegion ( htmID, sync ) )
+    if ( loadRegion ( htmID, sync, userData ) )
         n++;
 
     vector<uint64_t> subIDs = subRegionIDs ( htmID );
     for ( int i = 0; i < subIDs.size(); i++ )
-       n += loadRegions ( subIDs[i], sync );
+       n += loadRegions ( subIDs[i], sync, userData );
         
     return n;
 }
@@ -224,7 +219,7 @@ int SSHTM::loadRegions ( uint64_t htmID, bool sync )
 // loadRegion() or getObjects() return a pointer to the region's object vector.
 // If USE_THREADS is 0, this function always loads synchronously.
 
-SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync )
+SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 {
     // If region is loaded, delete thread associated with loading it,
     // then return pointer to that region's objects.
@@ -250,7 +245,7 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync )
 
         if ( _loadThreads.count ( htmID ) == 0 )
         {
-            _loadThreads[htmID] = new thread ( &SSHTM::_loadRegion, this, htmID );
+            _loadThreads[htmID] = new thread ( &SSHTM::_loadRegion, this, htmID, userData );
             _loadThreads[htmID]->detach();
         }
 
@@ -260,30 +255,31 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync )
     
     // Load region synchronously.
 
-    _loadRegion ( htmID );
+    _loadRegion ( htmID, userData );
     return _regions[htmID];
 }
 
 // Private method to load region, possibly from a background thread.
 // Returns pointed to loaded object vector if successful or nullptr on failure.
 
-SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID )
+SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, void *userData )
 {
-    SSObjectVec *objects = nullptr;
-
-    string name = ID2name ( htmID );
-    if ( ! name.empty() )
-    {
-        objects = new SSObjectVec();
-        int n = SSImportObjectsFromCSV ( _rootpath + name + ".csv", *objects );
-        if ( n > 0 )
-        {
-            _regions[htmID] = objects;
-            if ( _callback != nullptr )
-                _callback ( this, htmID );
-        }
-    }
+    int n = 0;
+    SSObjectVec *objects = new SSObjectVec();
     
+    if ( _readFunc != nullptr )
+        n = _readFunc ( this, htmID, objects, userData );
+    else
+        n = SSImportObjectsFromCSV ( _rootpath + ID2name ( htmID ) + ".csv", *objects );
+    
+    if ( n > 0 )
+        _regions[htmID] = objects;
+    else
+        delete objects;
+    
+    if ( _callback != nullptr )
+        _callback ( this, htmID );
+
     return objects;
 }
 
