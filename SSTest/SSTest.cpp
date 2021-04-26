@@ -21,6 +21,7 @@
 #include "SSFeature.hpp"
 #include "SSStar.hpp"
 #include "SSConstellation.hpp"
+#include "SSImportGCVS.hpp"
 #include "SSImportHIP.hpp"
 #include "SSImportSKY2000.hpp"
 #include "SSImportNGCIC.hpp"
@@ -766,7 +767,6 @@ int main ( int argc, const char *argv[] )
     SSObjectVec asteroids;
     int numast = SSImportMPCAsteroids ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Asteroids/MPCORB/MPCORB.DAT", asteroids );
     cout << "Imported " << numast << " MPC asteroids" << endl;
-#endif
 
     SSIdentifierNameMap ngcicNameMap;
     SSImportIdentifierNameMap ( "/Users/timmyd/Projects/SouthernStars/Projects/SSCore/SSData/DeepSky/Names.csv", ngcicNameMap );
@@ -791,18 +791,25 @@ int main ( int argc, const char *argv[] )
 //    exportCatalog ( planNebs );
 
     SSObjectVec objects;
-    bool noMC = true;
-    int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2021/NI2021.txt", ngcicNameMap, clusters, globulars, planNebs, objects, noMC );
-    cout << "Imported " << numobj << " NGC-IC objects" << ( noMC ? " without M/C\n" : "\n" ) << endl;
+    int numobj = SSImportNGCIC ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Revised NGC-IC 2021/NI2021.txt", ngcicNameMap, clusters, globulars, planNebs, objects );
+    cout << "Imported " << numobj << " NGC-IC objects" << endl;
     SSExportObjectsToCSV ( "/Users/timmyd/Desktop/NGCIC.csv", objects );
-    ExportObjectsToHTM ( "/Users/timmyd/Desktop/NGCIC/", objects, true );
     
     exportCatalog ( objects );
     exportCatalog ( objects, kCatMessier, 1, 110 );
     exportCatalog ( objects, kCatCaldwell, 1, 110 );
+#endif
+
+    SSIdentifierMap gcvsIdentMap;
+    int n = SSImportGCVSCrossIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/General Catalog of Variable Stars 2021/iv/crossid.txt", gcvsIdentMap );
+    cout << "Imported " << n << " GCVS variable star cross identifiers." << endl;
+
+    SSObjectVec gcvsStars;
+    n = SSImportGCVS ( "/Users/timmyd/Projects/SouthernStars/Catalogs/General Catalog of Variable Stars 2021/gcvs5/gcvs5.txt", gcvsIdentMap, gcvsStars );
+    cout << "Imported " << n << " GCVS variable stars." << endl;
 
     SSIdentifierMap hipHRMap;
-    int n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
+    n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );
     cout << "Imported " << n << " Hipparcos HR identifiers." << endl;
 
     SSIdentifierMap hipBayMap;
@@ -852,54 +859,10 @@ int main ( int argc, const char *argv[] )
     cout << "Imported " << n << " SKY2000 stars." << endl;
     exportCatalog ( skyStars, kCatHR, 1, 9110 );
     SSExportObjectsToCSV ( "/Users/timmyd/Desktop/SKY2000.csv", skyStars );
-    ExportObjectsToHTM ( "/Users/timmyd/Desktop/SKY2000/", skyStars, false );
-
 
 #ifdef _WIN32
     SetConsoleOutputCP ( oldcp );
 #endif
 
     return 0;
-}
-
-#include "SSHTM.hpp"
-
-void ExportObjectsToHTM ( const string htmdir, SSObjectVec &objects, bool ngcic )
-{
-    vector<float> maglevels;
-    
-    if ( ngcic )
-        maglevels = vector<float> ( { 12.0, INFINITY } );
-    else
-        maglevels = vector<float> ( { 6.0, 7.2, 8.4, INFINITY } );
-
-    SSHTM htm ( maglevels, htmdir );
-    
-    cout << "Stored " << htm.store ( objects ) << " objects." << endl;
-    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " objects." << endl;
-    int n = htm.saveRegions();
-    cout << "Exported " << n << " objects." << endl;
-    
-    // Create index
-    
-    vector<SSCatalog> cats = { kCatUnknown, kCatMessier, kCatCaldwell, kCatNGC, kCatIC };
-    for ( SSCatalog cat : cats )
-        if ( htm.makeObjectMap ( cat ) )
-            htm.saveObjectMap ( cat );
-
-    // Finally empty the original object vector
-    
-    objects.clear();
-
-    // Now try dumping and reloading regions and index
-    
-    htm.dumpRegions();
-    n = htm.loadRegions();
-    cout << "HTM has " << htm.countRegions() << " regions and " << htm.countStars() << " objects." << endl;
-    
-    for ( SSCatalog cat : cats )
-    {
-        n = htm.loadObjectMap ( cat );
-        cout << ( cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat ) ) << " map has " << n << " entries\n";
-    }
 }

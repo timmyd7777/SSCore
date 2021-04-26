@@ -501,7 +501,7 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
         SSObjectType type = kTypeStar;
 
         SSObjectPtr pObj = SSNewObject ( type );
-         pStar = SSGetStarPtr ( pObj );
+        pStar = SSGetStarPtr ( pObj );
         
         if ( pStar != nullptr )
         {
