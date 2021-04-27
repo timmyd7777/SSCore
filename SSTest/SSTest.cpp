@@ -27,6 +27,7 @@
 #include "SSImportNGCIC.hpp"
 #include "SSImportMPC.hpp"
 #include "SSImportGJ.hpp"
+#include "SSImportWDS.hpp"
 #include "SSJPLDEphemeris.hpp"
 #include "SSTLE.hpp"
 #include "SSEvent.hpp"
@@ -800,8 +801,12 @@ int main ( int argc, const char *argv[] )
     exportCatalog ( objects, kCatCaldwell, 1, 110 );
 #endif
 
+    SSObjectVec orb6Stars;
+    int n = SSImportORB6 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2016/orb6/orb6orbits.txt", orb6Stars );
+    cout << "Imported " << n << " ORB6 binary star orbits." << endl;
+
     SSIdentifierMap gcvsIdentMap;
-    int n = SSImportGCVSCrossIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/General Catalog of Variable Stars 2021/iv/crossid.txt", gcvsIdentMap );
+    n = SSImportGCVSCrossIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/General Catalog of Variable Stars 2021/iv/crossid.txt", gcvsIdentMap );
     cout << "Imported " << n << " GCVS variable star cross identifiers." << endl;
 
     SSObjectVec gcvsStars;

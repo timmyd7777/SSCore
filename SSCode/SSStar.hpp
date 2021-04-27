@@ -15,6 +15,7 @@
 #define SSStar_hpp
 
 #include "SSObject.hpp"
+#include "SSOrbit.hpp"
 
 #pragma pack ( push, 1 )
 
@@ -168,25 +169,31 @@ protected:
     float _sep;                 // angular separation between components in radians; infinite if unknown
     float _PA;                  // position angle from brighter to fainter component in radians in fundamental mean J2000 equatorial frame; infinite if unknown
     float _PAyr;                // Julian year of position angle measurement; infinite if unknown
-    
+    SSOrbit *_pOrbit;           // pointer to binary star orbit data, or nullptr if star has none
+
     string toCSVD ( void );     // returns CSV string from double-star data (but not SStar base class).
 
 public:
     
     SSDoubleStar ( void );
+    ~SSDoubleStar ( void );
+    SSDoubleStar ( const SSDoubleStar &other );
     
     void setComponents ( string comps ) { _comps = comps; }
     void setMagnitudeDelta ( float delta ) { _magDelta = delta; }
     void setSeparation ( float sep ) { _sep = sep; }
     void setPositionAngle ( float pa ) { _PA = pa; }
     void setPositionAngleYear ( float year ) { _PAyr = year; }
+    void setOrbit ( const SSOrbit &orb ) { delete _pOrbit; _pOrbit = new SSOrbit ( orb ); }
     
     string getComponents ( void ) { return _comps; }
     float getMagnitudeDelta ( void ) { return _magDelta; }
     float getSeparation ( void ) { return _sep; }
     float getPositionAngle ( void ) { return _PA; }
     float getPositionAngleYear ( void ) { return _PAyr; }
-
+    bool hasOrbit ( void ) { return _pOrbit ? true : false; }
+    SSOrbit getOrbit ( void ) { return _pOrbit ? *_pOrbit : SSOrbit(); }
+    
     virtual string toCSV ( void );
 };
 

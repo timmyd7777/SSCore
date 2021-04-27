@@ -19,7 +19,7 @@
 struct SSOrbit
 {
     double t;        // epoch of orbital elements as Julian Ephemeris Date
-    double q;        // periapse distance in astronomical units
+    double q;        // periapse distance in astronomical units for solar system objects, or in arcseconds for binary stars
     double e;        // eccentricity: 0.0 = circular, 1.0 = parabolic, > 1.0 = hyperbolic
     double i;        // inclination to reference plance in radians
     double w;        // argument of peripse in radians

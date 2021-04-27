@@ -236,7 +236,7 @@ int SSImportGCVS ( const string &filename, SSIdentifierMap &identmap, SSObjectAr
             pStar->setMaximumMagnitude ( magMin );  // here maximum magnitude = minimum light = faintest
             pStar->setMinimumMagnitude ( magMax );  // here minimum magnitude = maximum light = brightest
 
-            cout << pStar->toCSV() << endl;
+            // cout << pStar->toCSV() << endl;
             stars.push_back ( pObj );
             numStars++;
         }

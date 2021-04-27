@@ -242,6 +242,23 @@ SSDoubleStar::SSDoubleStar ( void ) : SSStar ( kTypeDoubleStar )
     _sep = INFINITY;
     _PA = INFINITY;
     _PAyr = INFINITY;
+    _pOrbit = nullptr;
+}
+
+// Destructs double star. Deletes binary star orbit data if present.
+
+SSDoubleStar::~SSDoubleStar ( void )
+{
+    delete _pOrbit;
+}
+
+// Copy constuctor clones binary orbit data record, copies all other fields.
+// Prevents double-deletes when freeing structs.
+
+SSDoubleStar::SSDoubleStar ( const SSDoubleStar &other ) : SSStar ( other )
+{
+    *this = other;
+    _pOrbit = _pOrbit ? new SSOrbit ( *_pOrbit ) : nullptr;
 }
 
 // Constructs double variable star with all fields except type code
@@ -435,7 +452,7 @@ SSSpherical SSStar::computeApparentMotion ( SSCoordinates &coords, SSFrame frame
 void SSStar::setFundamentalCoords ( SSSpherical coords )
 {
     _parallax = ::isinf ( coords.rad ) ? 0.0 : SSCoordinates::kLYPerParsec / coords.rad;
-    _position = SSVector ( coords.lon, coords.lat, 1.0 );
+    _position = SSSpherical ( coords.lon, coords.lat, 1.0 );
 }
 
 // Sets this star's spherical coordinates and proper motion in the fundamental frame
@@ -1042,11 +1059,24 @@ string SSDoubleStar::toCSVD ( void )
 {
     string csv = "";
     
-    csv += _comps + ",";
+    // If components contains a comma, put them in quotes.
+
+    csv += _comps.find ( "," ) == string::npos ? _comps + "," : "\"" + _comps + "\",";
     csv += ::isinf ( _magDelta ) ? "," : format ( "%+.2f,", _magDelta );
     csv += ::isinf ( _sep ) ? "," : format ( "%.1f,", _sep * SSAngle::kArcsecPerRad );
     csv += ::isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
     csv += ::isinf ( _PAyr ) ? "," : format ( "%.2f,", _PAyr );
+
+    if ( _pOrbit == nullptr )
+        return csv + ",,,,,,,";
+    
+    csv += format ( "%.4f,", SSTime ( _pOrbit->t ).toJulianYear() );
+    csv += format ( "%.4f,", _pOrbit->semiMajorAxis() );
+    csv += format ( "%.4f,", _pOrbit->e );
+    csv += format ( "%.2f,", radtodeg ( _pOrbit->i ) );
+    csv += format ( "%.2f,", radtodeg ( _pOrbit->w ) );
+    csv += format ( "%.2f,", radtodeg ( _pOrbit->n ) );
+    csv += format ( "%.6f,", ( SSAngle::kTwoPi / _pOrbit->mm ) / SSTime::kDaysPerJulianYear );
 
     return csv;
 }
@@ -1065,7 +1095,9 @@ string SSVariableStar::toCSVV ( void )
 {
     string csv = "";
     
-    csv += _varType + ",";
+    // If variable type contains a comma, put it in quotes.
+
+    csv += _varType.find ( "," ) == string::npos ? _varType + "," : "\"" + _varType + "\",";
     csv += ::isinf ( _varMinMag ) ? "," : format ( "%+.2f,", _varMinMag );
     csv += ::isinf ( _varMaxMag ) ? "," : format ( "%+.2f,", _varMaxMag );
     csv += ::isinf ( _varPeriod ) ? "," : format ( "%.2f,", _varPeriod );
@@ -1138,11 +1170,11 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     if ( type == kTypeStar )
         fid = 10;
     else if ( type == kTypeDoubleStar )
-        fid = 15;
+        fid = 22;
     else if ( type == kTypeVariableStar )
         fid = 15;
     else if ( type == kTypeDoubleVariableStar )
-        fid = 20;
+        fid = 27;
     else
         fid = 13;
     
@@ -1212,11 +1244,27 @@ SSObjectPtr SSStar::fromCSV ( string csv )
         pDoubleStar->setSeparation ( sep );
         pDoubleStar->setPositionAngle ( pa );
         pDoubleStar->setPositionAngleYear ( year );
+        
+        if ( fields[15].length() && fields[16].length() && fields[17].length() )
+        {
+            SSOrbit orbit;
+            
+            orbit.t = SSTime::fromJulianYear ( strtofloat64 ( fields[15] ) );
+            orbit.e = strtofloat ( fields[17] );
+            orbit.q = strtofloat ( fields[16] ) * ( 1.0 - orbit.e );
+            orbit.i = degtorad ( strtofloat ( fields[18] ) );
+            orbit.w = degtorad ( strtofloat ( fields[19] ) );
+            orbit.n = degtorad ( strtofloat ( fields[20] ) );
+            orbit.m = 0.0;
+            orbit.mm = SSAngle::kTwoPi / ( strtofloat64 ( fields[21] ) * SSTime::kDaysPerJulianYear );
+            
+            pDoubleStar->setOrbit ( orbit );
+        }
     }
-
+    
     if ( pVariableStar )
     {
-        int fv = ( type == kTypeVariableStar ) ? 10 : 15;
+        int fv = ( type == kTypeVariableStar ) ? 10 : 22;
             
         string vtype = fields[fv];
         float vmin = fields[fv+1].empty() ? INFINITY : strtofloat ( fields[fv+1] );
