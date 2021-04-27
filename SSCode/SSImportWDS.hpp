@@ -13,5 +13,6 @@
 #include "SSStar.hpp"
 
 int SSImportORB6  ( const string &filename, SSObjectArray &stars );
+int SSImportWDS  ( const string &filename, SSObjectArray &stars );
 
 #endif /* SSImportWDS_hpp */

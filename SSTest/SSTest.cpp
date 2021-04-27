@@ -802,8 +802,12 @@ int main ( int argc, const char *argv[] )
 #endif
 
     SSObjectVec orb6Stars;
-    int n = SSImportORB6 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2016/orb6/orb6orbits.txt", orb6Stars );
+    int n = SSImportORB6 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2021/orb6/orb6orbits.txt", orb6Stars );
     cout << "Imported " << n << " ORB6 binary star orbits." << endl;
+
+    SSObjectVec wdsStars;
+    n = SSImportWDS ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2021/Webtextfiles/wdsweb_summ.txt", orb6Stars );
+    cout << "Imported " << n << " WDS double stars." << endl;
 
     SSIdentifierMap gcvsIdentMap;
     n = SSImportGCVSCrossIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/General Catalog of Variable Stars 2021/iv/crossid.txt", gcvsIdentMap );
