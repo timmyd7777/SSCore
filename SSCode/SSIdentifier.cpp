@@ -726,11 +726,11 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     }
 
     // Tokenize string into words separated by whitespace.
-    // if second token is a constellation abbrevation,
+    // if last token is a constellation abbrevation,
     // attempt to parse Bayer/Flamsteed/GCVS identifier.
 
     vector<string> tokens = tokenize ( str, " " );
-    int con = tokens.size() >= 2 ? string_to_con ( tokens[1], casesens ) : 0;
+    int con = tokens.size() >= 2 ? string_to_con ( tokens[ tokens.size() - 1 ], casesens ) : 0;
     if ( con )
     {
         string constr = tokens[1];
@@ -747,8 +747,9 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
         if ( pos == 0 )
             return SSIdentifier ( kCatFlamsteed, con * 10000 + strtoint ( tokens[0] ) );
 
-        // If first token contains a number, convert numeric portion
-        // of token to integer, then erase numeric portion of token.
+        // If first token contains a number, convert numeric portion of token to integer,
+        // then erase numeric portion of token. If we have 3 tokens, convert middle to integer.
+        // This is the (optional) superscript after a Bayer letter.
         
         int num = 0;
         if ( pos != string::npos )
@@ -756,6 +757,8 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
             num = strtoint ( tokens[0].substr ( pos, string::npos ) );
             tokens[0].erase ( pos, string::npos );
         }
+        else if ( tokens.size() == 3 )
+            num = strtoint ( tokens[1] );
         
         // Try parsing first token as a Bayer letter.  If successful, return
         // a Bayer designation with the numeric portion (if any) as superscript
@@ -1083,7 +1086,7 @@ bool SSAddIdentifier ( SSIdentifier ident, SSIdentifierVec &identVec )
 // Adds identifiers only if valid and not already present in the vector.
 // Returns number of new identifiers added to idents vector.
 
-int SSAddIdentifiers ( SSIdentifier key, SSIdentifierMap &map, SSIdentifierVec &idents )
+int SSAddIdentifiers ( SSIdentifier key, const SSIdentifierMap &map, SSIdentifierVec &idents )
 {
     int n = 0;
     

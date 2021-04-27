@@ -805,8 +805,15 @@ int main ( int argc, const char *argv[] )
     int n = SSImportORB6 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2021/orb6/orb6orbits.txt", orb6Stars );
     cout << "Imported " << n << " ORB6 binary star orbits." << endl;
 
+    SSIdentifierMap wdsIdentMap;
+    n = SSImportWDSBFCrossIndex ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2018/misc/bf.txt", wdsIdentMap );
+    cout << "Imported " << n << " WDS to Bayer and Flamsteed cross identifiers." << endl;
+
+    n = SSImportWDSHIPCrossIndex ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2018/misc/wds2hds2hip.txt", wdsIdentMap );
+    cout << "Imported " << n << " WDS to Hipparcos cross identifiers." << endl;
+
     SSObjectVec wdsStars;
-    n = SSImportWDS ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2021/Webtextfiles/wdsweb_summ.txt", orb6Stars );
+    n = SSImportWDS ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2021/Webtextfiles/wdsweb_summ.txt", wdsIdentMap, wdsStars );
     cout << "Imported " << n << " WDS double stars." << endl;
 
     SSIdentifierMap gcvsIdentMap;

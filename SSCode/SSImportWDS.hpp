@@ -13,6 +13,8 @@
 #include "SSStar.hpp"
 
 int SSImportORB6  ( const string &filename, SSObjectArray &stars );
-int SSImportWDS  ( const string &filename, SSObjectArray &stars );
+int SSImportWDS  ( const string &filename, const SSIdentifierMap &identmap, SSObjectArray &stars );
+int SSImportWDSHIPCrossIndex ( const string &filename, SSIdentifierMap &identmap );
+int SSImportWDSBFCrossIndex ( const string &filename, SSIdentifierMap &identmap );
 
 #endif /* SSImportWDS_hpp */

@@ -159,11 +159,106 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
     return numStars;
 }
 
+// Imports WDS-Bayer-Flamsteed cross-index (bf.txt).
+// Inserts results into map of catalog identifiers, indexed by WDS identifier (identmap),
+// and returns number of identifiers inserted into map.
+
+int SSImportWDSBFCrossIndex ( const string &filename, SSIdentifierMap &identmap )
+{
+    // Open file; return on failure.
+    
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+    
+    // Read file line-by-line until we reach end-of-file
+
+    string line ( "" );
+    int count = 0;
+    
+    while ( getline ( file, line ) )
+    {
+        if ( line.length() < 55 )
+            continue;
+        
+        string strWDS = line.substr ( 0, 10 );
+        string strID1 = line.substr ( 22, 9 );
+        string strID2 = line.substr ( 44, 9 );
+
+        SSIdentifier wds = SSIdentifier::fromString ( "WDS " + strWDS );
+        SSIdentifier id1 = strID1[0] == '.' ? SSIdentifier() : SSIdentifier::fromString ( strID1 );
+        SSIdentifier id2 = strID2[0] == '.' ? SSIdentifier() : SSIdentifier::fromString ( strID2 );
+
+        if ( wds == 0 )
+            continue;
+        
+        // cout << wds.toString() << "," << id1.toString() << "," << id2.toString() << endl;
+        
+        if ( id1 )
+        {
+            identmap.insert ( { wds, id1 } );
+            count++;
+        }
+        
+        if ( id2 && id2 != id1.strip() )
+        {
+            identmap.insert ( { wds, id2 } );
+            count++;
+        }
+    }
+    
+    // Return count of identifiers added.  File is closed automatically.
+
+    return count;
+}
+
+// Imports WDS-Hipparcos cross-index (wds2hds2hip.txt).
+// Inserts results into map of catalog identifiers, indexed by WDS identifier (identmap),
+// and returns number of identifiers inserted into map.
+
+int SSImportWDSHIPCrossIndex ( const string &filename, SSIdentifierMap &identmap )
+{
+    // Open file; return on failure.
+    
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+    
+    // Read file line-by-line until we reach end-of-file
+
+    string line ( "" );
+    int count = 0;
+    
+    while ( getline ( file, line ) )
+    {
+        if ( line.length() < 29 )
+            continue;
+        
+        string strWDS = line.substr ( 0, 10 );
+        string strHIP = line.substr ( 23, 6 );
+
+        SSIdentifier wds = SSIdentifier::fromString ( "WDS " + strWDS );
+        SSIdentifier hip = SSIdentifier::fromString ( "HIP " + strHIP );
+
+        if ( wds == 0 || hip == 0 )
+            continue;
+        
+        // cout << wds.toString() << "," << hip.toString() << "," << endl;
+        identmap.insert ( { wds, hip } );
+        count++;
+    }
+    
+    // Return count of identifiers added.  File is closed automatically.
+
+    return count;
+}
+
 // Imports the Washington Double Star Catalog (wdsweb_summ.txt) from http://www.astro.gsu.edu/wds/
+// Adds Bayer, Flamsteed, HIP, TYC identifiers from cross index (identmap).
 // Stores results in vector of SSObjects (stars).
 // Returns number of objects imported.
 
-int SSImportWDS ( const string &filename, SSObjectArray &stars )
+int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObjectArray &stars )
 {
     // Open file; return on failure.
 
@@ -248,10 +343,10 @@ int SSImportWDS ( const string &filename, SSObjectArray &stars )
         // TODO: Get ADS, discoverer reference
         
         vector<SSIdentifier> idents;
+        SSIdentifier wds = SSIdentifier::fromString ( "WDS " + strWDS );
+        if ( wds == 0 )
+            continue;
         
-        if ( strWDS.length() )
-            idents.push_back ( SSIdentifier::fromString ( "WDS " + strWDS ) );
-
         if ( strDM.length() )
         {
             int dec = strtoint ( strDM );
@@ -263,6 +358,11 @@ int SSImportWDS ( const string &filename, SSObjectArray &stars )
                 idents.push_back ( SSIdentifier::fromString ( "CP " + strDM ) );
         }
         
+        // Add WDS and alternate catalog idents from the cross-identification table.
+        // Sert identifier vector.
+
+        idents.push_back ( wds );
+        SSAddIdentifiers ( wds, identmap, idents );
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
 
         // Construct star and insert into star vector.
@@ -287,7 +387,7 @@ int SSImportWDS ( const string &filename, SSObjectArray &stars )
             else
                 pStar->setVMagnitude ( mag1 );
 
-            // cout << pStar->toCSV() << endl;
+            cout << pStar->toCSV() << endl;
             stars.push_back ( pObj );
             numStars++;
         }

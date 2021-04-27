@@ -133,7 +133,7 @@ vector<string> SSIdentifiersToNames ( SSIdentifierVec &idents, SSIdentifierNameM
 bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
 
 bool SSAddIdentifier ( SSIdentifier ident, vector<SSIdentifier> &identVec );
-int SSAddIdentifiers ( SSIdentifier ident, SSIdentifierMap &map, SSIdentifierVec &idents );
+int SSAddIdentifiers ( SSIdentifier ident, const SSIdentifierMap &map, SSIdentifierVec &idents );
 
 string catalog_to_string ( SSCatalog cat );
 SSCatalog string_to_catalog ( string str );
