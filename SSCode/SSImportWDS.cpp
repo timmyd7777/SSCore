@@ -159,7 +159,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
     return numStars;
 }
 
-// Imports WDS-Bayer-Flamsteed cross-index (bf.txt).
+// Imports WDS-Bayer-Flamsteed cross-index (wdsbf.txt).
 // Inserts results into map of catalog identifiers, indexed by WDS identifier (identmap),
 // and returns number of identifiers inserted into map.
 

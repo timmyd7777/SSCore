@@ -60,7 +60,7 @@ static SSIdentifier GCVSIdentifier ( const string &strGCVS )
 
 // Imports GCVS cross-identifier table (crossid.txt).
 // Inserts results into map of catalog identifiers, indexed by GCVS identifier (identmap),
-// indexed by catalog, and returns number of identifiers inserted into map.
+// and returns number of identifiers inserted into map.
 
 int SSImportGCVSCrossIdentifiers ( const string &filename, SSIdentifierMap &identmap )
 {
