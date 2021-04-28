@@ -148,7 +148,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             if ( strComps[0] >= 'A' && strComps[0] <= 'D' )
                 pStar->setComponents ( strComps );
 
-            pStar->setOrbit ( orbit );
+            pStar->setOrbit ( orbit, coords.lon, coords.lat );
 
 #if 0       // test code
             cout << pStar->toCSV() << endl;

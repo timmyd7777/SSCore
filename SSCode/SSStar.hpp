@@ -169,7 +169,7 @@ protected:
     float _sep;                 // angular separation between components in radians; infinite if unknown
     float _PA;                  // position angle from brighter to fainter component in radians in fundamental mean J2000 equatorial frame; infinite if unknown
     float _PAyr;                // Julian year of position angle measurement; infinite if unknown
-    SSOrbit *_pOrbit;           // pointer to binary star orbit data, or nullptr if star has none
+    SSOrbit *_pOrbit;           // pointer to binary star orbit data referenced to fundamental J2000 mean equatorial plane, or nullptr if double star has no binary orbit
 
     string toCSVD ( void );     // returns CSV string from double-star data (but not SStar base class).
 
@@ -184,8 +184,9 @@ public:
     void setSeparation ( float sep ) { _sep = sep; }
     void setPositionAngle ( float pa ) { _PA = pa; }
     void setPositionAngleYear ( float year ) { _PAyr = year; }
-    void setOrbit ( const SSOrbit &orb ) { delete _pOrbit; _pOrbit = new SSOrbit ( orb ); }
-    
+    void setOrbit ( const SSOrbit &orbit ) { delete _pOrbit; _pOrbit = new SSOrbit ( orbit ); }
+    void setOrbit ( SSOrbit orbit, SSAngle ra, SSAngle dec );
+
     string getComponents ( void ) { return _comps; }
     float getMagnitudeDelta ( void ) { return _magDelta; }
     float getSeparation ( void ) { return _sep; }
@@ -193,7 +194,8 @@ public:
     float getPositionAngleYear ( void ) { return _PAyr; }
     bool hasOrbit ( void ) { return _pOrbit ? true : false; }
     SSOrbit getOrbit ( void ) { return _pOrbit ? *_pOrbit : SSOrbit(); }
-    
+    SSOrbit getOrbit ( SSAngle ra, SSAngle dec );
+
     virtual string toCSV ( void );
 };
 

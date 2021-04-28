@@ -1053,6 +1053,24 @@ string SSStar::toCSV ( void )
     return toCSV1() + toCSV2();
 }
 
+// Stores orbital elements (orbit) referenced to sky plane centered at (ra,dec),
+// transforming them to fundamental J2000 mean equatorial reference plane internally.
+
+void SSDoubleStar::setOrbit ( SSOrbit orbit, SSAngle ra, SSAngle dec )
+{
+    SSMatrix m = SSMatrix::rotation ( 2, 1, dec + SSAngle::kHalfPi, 2, ra );
+    setOrbit ( orbit.transform ( m ) );
+}
+
+// Returns orbital elements (orbit) referenced to sky plane centered at (ra,dec),
+// transforming them from internal fundamental J2000 mean equatorial reference plane.
+
+SSOrbit SSDoubleStar::getOrbit ( SSAngle ra, SSAngle dec )
+{
+    SSMatrix m = SSMatrix::rotation ( 2, 2, -ra, 1, -dec - SSAngle::kHalfPi );
+    return getOrbit().transform ( m );
+}
+
 // Returns CSV string from double-star data (but not SStar base class).
 
 string SSDoubleStar::toCSVD ( void )
@@ -1070,13 +1088,16 @@ string SSDoubleStar::toCSVD ( void )
     if ( _pOrbit == nullptr )
         return csv + ",,,,,,,";
     
-    csv += format ( "%.4f,", SSTime ( _pOrbit->t ).toJulianYear() );
-    csv += format ( "%.4f,", _pOrbit->semiMajorAxis() );
-    csv += format ( "%.4f,", _pOrbit->e );
-    csv += format ( "%.2f,", radtodeg ( _pOrbit->i ) );
-    csv += format ( "%.2f,", radtodeg ( _pOrbit->w ) );
-    csv += format ( "%.2f,", radtodeg ( _pOrbit->n ) );
-    csv += format ( "%.6f,", ( SSAngle::kTwoPi / _pOrbit->mm ) / SSTime::kDaysPerJulianYear );
+    SSSpherical coords = getFundamentalCoords();
+    SSOrbit orbit = getOrbit ( coords.lon, coords.lat );
+    
+    csv += format ( "%.4f,", SSTime ( orbit.t ).toJulianYear() );
+    csv += format ( "%.4f,", orbit.semiMajorAxis() );
+    csv += format ( "%.4f,", orbit.e );
+    csv += format ( "%.2f,", radtodeg ( orbit.i ) );
+    csv += format ( "%.2f,", radtodeg ( orbit.w ) );
+    csv += format ( "%.2f,", radtodeg ( orbit.n ) );
+    csv += format ( "%.6f,", ( SSAngle::kTwoPi / orbit.mm ) / SSTime::kDaysPerJulianYear );
 
     return csv;
 }
@@ -1258,7 +1279,7 @@ SSObjectPtr SSStar::fromCSV ( string csv )
             orbit.m = 0.0;
             orbit.mm = SSAngle::kTwoPi / ( strtofloat64 ( fields[21] ) * SSTime::kDaysPerJulianYear );
             
-            pDoubleStar->setOrbit ( orbit );
+            pDoubleStar->setOrbit ( orbit, coords.lon, coords.lat );
         }
     }
     
