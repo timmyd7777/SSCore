@@ -150,7 +150,13 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
 
             pStar->setOrbit ( orbit );
 
-            // cout << pStar->toCSV() << endl;
+#if 0       // test code
+            cout << pStar->toCSV() << endl;
+            SSAngle pa;
+            double r, sep;
+            orbit.toPositionSeparation ( SSTime::fromJulianYear( 2020.0 ), pa, r, sep );
+            cout << format ( "%.1f\t%.3f\t%.3f\n", pa.toDegrees(), r, sep );
+#endif
             stars.push_back ( pObj );
             numStars++;
         }

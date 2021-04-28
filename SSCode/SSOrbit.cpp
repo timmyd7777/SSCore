@@ -301,6 +301,73 @@ SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, 
     return SSOrbit ( jde, q, e, i, w, n, m, mm );
 }
 
+// Computes binary star position angle (pa), true distance (r), and apparent separation (sep)
+// from their orbital elements at a specific Julian Ephemeris Date (jed).
+// The reference plane for the angular orbital elements (i,w,n) is the plane of the sky
+// perpendicular to the line-of-sight to the binary star system.
+// The true and apparent separations are returned in the same units as the periastron (q);
+// so if q was provided in arcseconds, r and sep will be returned in arcseconds.
+// From Jean Meeus, "Astronomical Algorithms", pp. 397-400.
+
+void SSOrbit::toPositionSeparation ( double jed, SSAngle &pa, double &r, double &sep )
+{
+    double nu = 0.0;
+    solveKeplerEquation ( jed, nu, r );
+
+    double u = nu + w;
+    double cu = cos ( u );
+    double su = sin ( u );
+    double ci = cos ( i );
+    
+    pa  = SSAngle ( atan2 ( su * ci, cu ) + n ).mod2Pi();
+    sep = r * sqrt ( su * su * ci * ci + cu * cu );
+}
+
+// Transforms angular orbital elements from one reference frame to another.
+// Rotation matrix (m) describes transformation from initial to final frame.
+// Returns transformed orbit; does not modify this orbit!
+
+SSOrbit SSOrbit::transform ( SSMatrix &m )
+{
+    SSOrbit orbit ( *this );
+
+    double cw = cos ( orbit.w );
+    double sw = sin ( orbit.w );
+    double ci = cos ( orbit.i );
+    double si = sin ( orbit.i );
+    double cn = cos ( orbit.n );
+    double sn = sin ( orbit.n );
+
+    // Compute unit eccentricity vector that points toward the periapse.
+    // Compute unit angular momentum vector perpendicular to the orbit plane.
+
+    SSVector e ( cw * cn - sw * sn * ci, cw * sn + sw * cn * ci, sw * si );
+    SSVector h ( sn * si, -cn * si, ci );
+
+    // Rotate both vectors into the new frame.
+
+    e = m * e;
+    h = m * h;
+
+    // Extract the sines and cosines of the angular elements in the new frame
+    // from the transformed eccentricity and angular momentum vectors.
+
+    ci = h.z;
+    si = sqrt ( h.x * h.x + h.y * h.y );
+    cn = si == 0.0 ? 1.0 : -h.y / si;
+    sn = si == 0.0 ? 0.0 : h.x / si;
+    cw = e.x * cn + e.y * sn;
+    sw = ci == 0.0 ? e.z : ( -e.x * sn + e.y * cn ) / ci;
+
+    // Compute the transformed angular elements
+
+    orbit.i = atan2pi ( si, ci );
+    orbit.n = atan2pi ( sn, cn );
+    orbit.w = atan2pi ( sw, cw );
+    
+    return orbit;
+}
+
 // Constructs Mercury's heliocentric orbital elements at a specific Julian Ephemeris Date (jde)
 // referred to the J2000 ecliptic.  Only valid for years from -3000 to +3000.
 // For 1800 - 2100, positions predicted using this orbit are accurate to about 1 arcminute;
@@ -337,7 +404,7 @@ SSOrbit SSOrbit::getMercuryOrbit ( double jde )
     }
     
     return SSOrbit ( jde,
-                      a * ( 1.0 - e ),
+                     a * ( 1.0 - e ),
                      e,
                      SSAngle::fromDegrees ( i ),
                      SSAngle::fromDegrees ( p - n ).mod2Pi(),

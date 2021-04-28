@@ -10,7 +10,7 @@
 #define SSOrbit_hpp
 
 #include <math.h>
-#include "SSVector.hpp"
+#include "SSMatrix.hpp"
 
 // Stores Keplerian orbital elements, solves Kepler's equation, and computes position/velocity
 // at a given time; also computes orbit from position & velocity.
@@ -22,7 +22,7 @@ struct SSOrbit
     double q;        // periapse distance in astronomical units for solar system objects, or in arcseconds for binary stars
     double e;        // eccentricity: 0.0 = circular, 1.0 = parabolic, > 1.0 = hyperbolic
     double i;        // inclination to reference plance in radians
-    double w;        // argument of peripse in radians
+    double w;        // argument of periapse in radians
     double n;        // longitude of ascending node in radians
     double m;        // mean anomaly at epoch in radians
     double mm;       // mean motion, radians per day
@@ -40,7 +40,9 @@ struct SSOrbit
     void solveKeplerEquation ( double jde, double &nu, double &r );
     static SSOrbit fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double g = kGaussGravHelio );
     void toPositionVelocity ( double jde, SSVector &pos, SSVector &vel );
-
+    void toPositionSeparation ( double jde, SSAngle &pa, double &r, double &sep );
+    SSOrbit transform ( SSMatrix &m );
+    
     double semiMajorAxis ( void ) { return e == 1.0 ? INFINITY : q / ( 1.0 - e ); }
     double apoapse ( void ) { return semiMajorAxis() * ( 1.0 + e ); }
     double period ( void ) { return e < 1.0 ? M_2PI / mm : INFINITY; }
