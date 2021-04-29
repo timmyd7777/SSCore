@@ -65,9 +65,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
         // discoverer designation, so erase any leading characters before the first component designator.
         
         string strComps = trim ( line.substr ( 36, 6 ) );
-        size_t pos = strComps.find_first_of ( "ABCDEF" );
-        if ( pos != string::npos )
-            strComps.erase ( 0, pos );
+        strComps.erase ( 0, strComps.find_first_of ( "ABCDEF" ) );
 
         if ( strRAh.empty() || strDecd.empty() )
             continue;
