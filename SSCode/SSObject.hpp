@@ -55,8 +55,9 @@ public:
     double getDistance ( void ) { return _distance; }
     float getMagnitude ( void ) { return _magnitude; }
     
-    // modifiers. Type cannot be changed after object construction!
+    // modifiers. setType() with caution; _type is used to determine object class.
     
+    void setType ( SSObjectType type ) { _type = type; }
     void setNames ( const vector<string> &names ) { _names = names; }
     void setDirection ( SSVector dir ) { _direction = dir; }
     void setDistance ( double dist ) { _distance = dist; }

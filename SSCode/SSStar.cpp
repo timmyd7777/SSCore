@@ -1314,6 +1314,107 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     return ( pObject );
 }
 
+// EXPERIMENTAL function for merging data from a double/binary star record into this star record.
+// This star's component designation (A, B, C, etc.) must be present in the double star components string.
+// Returns merged record or nullptr on failure. Does not modify this record.
+
+SSStar *SSStar::addDoubleStarData ( class SSDoubleStar *pDblStar, const string &comp )
+{
+    SSDoubleStar *pNewStar = nullptr;
+    
+    size_t pos = pDblStar->getComponents().find ( comp );
+    if ( pos == string::npos )
+        return nullptr;
+    bool primary = pos == 0;    // is this the primary component?
+    
+    // Allocate new merged star record
+    
+    if ( _type == kTypeStar || _type == kTypeDoubleStar )
+        pNewStar = new SSDoubleStar();
+    else if ( _type == kTypeVariableStar || _type == kTypeDoubleVariableStar )
+        pNewStar = new SSDoubleVariableStar();
+    else
+        return nullptr;
+
+    // Save new star type before copying this star's data
+    
+    SSObjectType type = pNewStar->getType();
+    if ( _type == kTypeVariableStar || _type == kTypeDoubleVariableStar )
+        *SSGetVariableStarPtr ( pNewStar ) = *SSGetVariableStarPtr ( this );
+    else
+        *SSGetStarPtr ( pNewStar ) = *SSGetStarPtr ( this );
+    
+    // Now copy double star data.
+    // If this is not the primary, add 180 degrees to PA, and reverse magnitude delta.
+    
+    float pa = pDblStar->getPositionAngle();
+    float delta = pDblStar->getMagnitudeDelta();
+
+    pNewStar->setType ( type );
+    pNewStar->addIdentifier ( pDblStar->getIdentifier ( kCatWDS ) );
+    pNewStar->setSeparation ( pDblStar->getSeparation() );
+    pNewStar->setMagnitudeDelta ( primary ? delta : -delta );
+    pNewStar->setPositionAngle ( ::isinf ( pa ) ? INFINITY : primary ? pa : mod2pi ( pa + M_PI_2 ) );
+    pNewStar->setPositionAngleYear ( pDblStar->getPositionAngleYear() );
+    pNewStar->setComponents ( comp );
+    
+    // If double star has an orbit, compute separation and position angle from orbit.
+    // If this is not the primary component, add 180 degrees to PA of ascending node.
+    
+    if ( pDblStar->hasOrbit() )
+    {
+        SSAngle pa;
+        double r, sep;
+        SSSpherical coords = pDblStar->getFundamentalCoords();
+        SSOrbit orbit = pDblStar->getOrbit ( coords.lon, coords.lat );
+        orbit.n = primary ? orbit.n : mod2pi ( orbit.n + M_PI );
+        orbit.toPositionSeparation ( SSTime::fromJulianYear ( 2020.0 ), pa, r, sep );
+        pNewStar->setOrbit ( orbit, coords.lon, coords.lat );
+        pNewStar->setSeparation ( SSAngle::fromArcsec ( sep ) );
+        pNewStar->setPositionAngle ( pa );
+        pNewStar->setPositionAngleYear ( 2020.0 );
+    }
+    
+    return pNewStar;
+}
+
+// EXPERIMENTAL function for merging data from a variable star record into this star record.
+// Returns merged record or nullptr on failure. Does not modify this record.
+
+SSStar *SSStar::addVariableStarData ( class SSVariableStar *pVarStar )
+{
+    SSVariableStar *pNewStar = nullptr;
+    
+    // Allocate new merged star record
+
+    if ( _type == kTypeStar || _type == kTypeVariableStar )
+        pNewStar = new SSVariableStar();
+    else if ( _type == kTypeDoubleStar || _type == kTypeDoubleVariableStar )
+        pNewStar = new SSDoubleVariableStar();
+    else
+        return nullptr;
+
+    // Save new star type before copying this star's data
+    
+    SSObjectType type = pNewStar->getType();
+    if ( _type == kTypeDoubleStar || _type == kTypeDoubleVariableStar )
+        *SSGetDoubleStarPtr ( pNewStar ) = *SSGetDoubleStarPtr ( this );
+    else
+        *SSGetStarPtr ( pNewStar ) = *SSGetStarPtr ( this );
+
+    // Now copy variable star data.
+
+    pNewStar->setType ( type );
+    pNewStar->addIdentifier ( pVarStar->getIdentifier ( kCatGCVS ) );
+    pNewStar->setVariableType ( pVarStar->getVariableType() );
+    pNewStar->setMaximumMagnitude ( pVarStar->getMaximumMagnitude() );
+    pNewStar->setMinimumMagnitude ( pVarStar->getMinimumMagnitude() );
+    pNewStar->setPeriod ( pVarStar->getPeriod() );
+    pNewStar->setEpoch ( pVarStar->getEpoch() );
+    
+    return pNewStar;
+}
+
 // Downcasts generic SSObject pointer to SSStar pointer.
 // Returns nullptr if pointer is not an instance of SSStar!
 

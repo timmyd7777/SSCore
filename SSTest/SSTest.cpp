@@ -813,11 +813,27 @@ int main ( int argc, const char *argv[] )
     {
         vector<SSObjectPtr> results;
         SSStar *pNearStar = SSGetStarPtr ( nearbyStars[i] );
+
+        char comp = pNearStar->getIdentifier ( kCatGJ ).toString().back();
+        if ( comp < 'A' || comp > 'F' )
+            continue;
+        
         orb6Stars.search ( pNearStar->getFundamentalPosition(), SSAngle::fromArcmin ( 1.0 ), results );
-        if ( results.size() > 0 )
-            cout << pNearStar->toCSV() << endl;
-        for ( SSObjectPtr &pOrb6Star : results )
-            cout << pOrb6Star->toCSV() << endl;
+        if ( results.size() < 1 )
+            continue;
+        
+        for ( SSObjectPtr &pObj : results )
+        {
+            SSDoubleStarPtr pOrbStar = SSGetDoubleStarPtr ( pObj );
+            if ( pOrbStar->getComponents().length() == 2 )
+            {
+                SSDoubleStar *pNewStar = SSGetDoubleStarPtr ( pNearStar->addDoubleStarData ( pOrbStar, string ( 1, comp ) ) );
+                if ( pNewStar )
+                    cout << pNewStar->toCSV() << endl;
+                else
+                    cout << pNearStar->toCSV() << " FAILED!!!" << endl;
+            }
+        }
     }
     
     SSIdentifierMap wdsIdentMap;

@@ -146,7 +146,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             pStar->setFundamentalCoords ( coords );
             pStar->setVMagnitude ( mag1 );
             pStar->setMagnitudeDelta ( ::isinf ( mag1 ) || ::isinf ( mag2 ) ? INFINITY : mag2 - mag1 );
-            pStar->setComponents ( strComps );
+            pStar->setComponents ( strComps.empty() ? string ( "AB" ) : strComps );
             pStar->setOrbit ( orbit, coords.lon, coords.lat );
 
 #if 0       // test code
@@ -383,7 +383,7 @@ int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObj
             pStar->setSeparation ( degtorad ( sep / 3600 ) );
             pStar->setPositionAngle ( degtorad ( pa ) );
             pStar->setPositionAngleYear ( payr );
-            pStar->setComponents ( strComps );
+            pStar->setComponents ( strComps.empty() ? string ( "AB" ) : strComps );
 
             // B in the notes indicates a blue photographic magnitude.
             
