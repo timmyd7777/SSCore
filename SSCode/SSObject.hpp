@@ -103,6 +103,9 @@ public:
     void clear ( void ) { _objects.clear(); }   // empties object vector but DOES NOT delete individual objects!!!
     void erase ( void ) { for ( SSObjectPtr pObj : _objects ) delete pObj; clear(); }   // deletes all objects AND clears vector.
     void sort ( bool (*cmpfunc) ( const SSObjectPtr &p1, const SSObjectPtr &p2 ) ) { std::sort ( _objects.begin(), _objects.end(), cmpfunc ); }
+    int search ( const SSObjectPtr &pKey, bool (*cmpfunc) ( const SSObjectPtr &p1, const SSObjectPtr &p2 ), vector<SSObjectPtr> &results );
+    int search ( bool (*testfunc) ( const SSObjectPtr &pObject ), vector<SSObjectPtr> &results );
+    int search ( SSVector center, SSAngle rad, vector<SSObjectPtr> &results );
 };
 
 typedef SSObjectArray SSObjectVec;          // legacy declaration was typedef vector<SSObjectPtr> SSObjectVec; now we use SSObjectArray class

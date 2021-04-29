@@ -805,6 +805,21 @@ int main ( int argc, const char *argv[] )
     int n = SSImportORB6 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2021/orb6/orb6orbits.txt", orb6Stars );
     cout << "Imported " << n << " ORB6 binary star orbits." << endl;
 
+    SSObjectVec nearbyStars;
+    n = SSImportObjectsFromCSV ( "/Users/timmyd/Projects/SouthernStars/Nanoverse/SSCore/SSData/Stars/Nearest.csv", nearbyStars );
+    cout << "Imported " << n << " nearby stars." << endl;
+
+    for ( int i = 0; i < nearbyStars.size(); i++ )
+    {
+        vector<SSObjectPtr> results;
+        SSStar *pNearStar = SSGetStarPtr ( nearbyStars[i] );
+        orb6Stars.search ( pNearStar->getFundamentalPosition(), SSAngle::fromArcmin ( 1.0 ), results );
+        if ( results.size() > 0 )
+            cout << pNearStar->toCSV() << endl;
+        for ( SSObjectPtr &pOrb6Star : results )
+            cout << pOrb6Star->toCSV() << endl;
+    }
+    
     SSIdentifierMap wdsIdentMap;
     n = SSImportWDSBFCrossIndex ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2018/misc/bf.txt", wdsIdentMap );
     cout << "Imported " << n << " WDS to Bayer and Flamsteed cross identifiers." << endl;

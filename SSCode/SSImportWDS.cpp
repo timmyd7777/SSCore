@@ -60,8 +60,15 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
         string strWDS = trim ( line.substr ( 19, 10 ) );
         string strADS = trim ( line.substr ( 45, 5 ) );
         string strRef = trim ( line.substr ( 30, 7 ) );
-        string strComps = trim ( line.substr ( 37, 5 ) );
         
+        // Components field usually begins at char 38, but sometimes char 37, and is overwritten with
+        // discoverer designation, so erase any leading characters before the first component designator.
+        
+        string strComps = trim ( line.substr ( 36, 6 ) );
+        size_t pos = strComps.find_first_of ( "ABCDEF" );
+        if ( pos != string::npos )
+            strComps.erase ( 0, pos );
+
         if ( strRAh.empty() || strDecd.empty() )
             continue;
         
@@ -124,7 +131,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             idents.push_back ( SSIdentifier ( kCatHD, strtoint ( strHD ) ) );
         
         if ( strHIP[0] != '.' )
-            idents.push_back ( SSIdentifier ( kCatHIP, strtoint ( strHD ) ) );
+            idents.push_back ( SSIdentifier ( kCatHIP, strtoint ( strHIP ) ) );
 
         if ( strWDS[0] != '.' )
             idents.push_back ( SSIdentifier::fromString ( "WDS " + strWDS ) );
@@ -141,13 +148,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             pStar->setFundamentalCoords ( coords );
             pStar->setVMagnitude ( mag1 );
             pStar->setMagnitudeDelta ( ::isinf ( mag1 ) || ::isinf ( mag2 ) ? INFINITY : mag2 - mag1 );
-            
-            // Components field seems to often be overwritten with discoverer reference numbers,
-            // so validate it by checking that the first character is a capital A thru D.
-
-            if ( strComps[0] >= 'A' && strComps[0] <= 'D' )
-                pStar->setComponents ( strComps );
-
+            pStar->setComponents ( strComps );
             pStar->setOrbit ( orbit, coords.lon, coords.lat );
 
 #if 0       // test code
@@ -393,7 +394,7 @@ int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObj
             else
                 pStar->setVMagnitude ( mag1 );
 
-            cout << pStar->toCSV() << endl;
+            // cout << pStar->toCSV() << endl;
             stars.push_back ( pObj );
             numStars++;
         }

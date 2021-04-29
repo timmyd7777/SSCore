@@ -179,6 +179,70 @@ SSSpherical SSObject::computeApparentMotion ( SSCoordinates &coords, SSFrame fra
     return SSSpherical ( INFINITY, INFINITY, INFINITY );
 }
 
+// Binary-searches SSObjectArray for objects matching a specific object (key)
+// using a caller-supplied comparison function (cmpfunc) that returns true if
+// the first object (p1) is less than the second (p2), and false if p1 >= p2.
+// SSObjectArray must be sorted prior to search, using same comparison function!!!
+// See SSObjectArray::sort() and https://en.cppreference.com/w/cpp/algorithm/sort.
+// Results are appended to vector (results); returns number of objects found.
+
+int SSObjectArray::search ( const SSObjectPtr &pKey, bool (cmpfunc) ( const SSObjectPtr &p1, const SSObjectPtr &p2 ), vector<SSObjectPtr> &results )
+{
+    int nfound = 0;
+
+    auto range = equal_range ( _objects.begin(), _objects.end(), pKey, cmpfunc );
+    for ( auto it = range.first; it < range.second; it++ )
+    {
+        nfound++;
+        results.push_back ( *it );
+    }
+
+    return nfound;
+}
+
+// Searches SSObjectArray for objects passing a caller-supplied test function (testfunc)
+// which returns true if the object passes, and false if the object does not.
+// SSObjectArray does not need to be sorted prior to search; this search() tests all objects.
+// Results are appended to vector (results); returns number of objects found.
+
+int SSObjectArray::search ( bool (*testfunc) ( const SSObjectPtr &pObject ), vector<SSObjectPtr> &results )
+{
+    int nfound = 0;
+    
+    for ( const SSObjectPtr &pObject : _objects )
+    {
+        if ( testfunc ( pObject ) )
+        {
+            nfound++;
+            results.push_back ( pObject );
+        }
+    }
+    
+    return nfound;
+}
+
+// Searches SSObjectArray for objects appearing within a circle of (radius) radians,
+// centered on the celestial sphere at unit direction vector (center) in the fundamental frame.
+// Results are appended to vector (results); returns number of objects found within circle.
+
+int SSObjectArray::search ( SSVector center, SSAngle radius, vector<SSObjectPtr> &results )
+{
+    int nfound = 0;
+    
+    for ( const SSObjectPtr &pObject : _objects )
+    {
+        SSStar *pStar = SSGetStarPtr ( pObject );
+        SSVector vector = pStar ? pStar->getFundamentalPosition() : pObject->getDirection();
+        if ( center.angularSeparation ( vector ) < radius )
+        {
+            nfound++;
+            results.push_back ( pObject );
+        }
+    }
+    
+    return nfound;
+}
+
 // Given a vector of smart pointers to SSObject, creates a mapping of SSIdentifiers
 // in a particular catalog (cat) to index number within the vector.
 // Useful for fast object retrieval by identifier (see SSIdentifierToObject()).
