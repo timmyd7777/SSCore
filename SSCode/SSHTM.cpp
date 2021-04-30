@@ -792,7 +792,7 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap
     SSObjectVec *pObjects = getObjects ( regionID );
     for ( size_t offset = 0; offset < pObjects->size(); offset++ )
     {
-        SSObjectPtr pObject = pObjects->at ( offset );
+        SSObjectPtr pObject = pObjects->get ( offset );
 
         if ( cat == kCatUnknown )
         {
@@ -993,7 +993,7 @@ SSObjectPtr SSHTM::loadObject ( const ObjectLoc &loc )
 {
     SSObjectVec *pObjects = loadRegion ( loc.region, true );
     if ( pObjects )
-        return pObjects->at ( loc.offset );
+        return pObjects->get ( loc.offset );
     
     return nullptr;
 }

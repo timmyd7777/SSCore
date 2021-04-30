@@ -805,37 +805,6 @@ int main ( int argc, const char *argv[] )
     int n = SSImportORB6 ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2021/orb6/orb6orbits.txt", orb6Stars );
     cout << "Imported " << n << " ORB6 binary star orbits." << endl;
 
-    SSObjectVec nearbyStars;
-    n = SSImportObjectsFromCSV ( "/Users/timmyd/Projects/SouthernStars/Nanoverse/SSCore/SSData/Stars/Nearest.csv", nearbyStars );
-    cout << "Imported " << n << " nearby stars." << endl;
-
-    for ( int i = 0; i < nearbyStars.size(); i++ )
-    {
-        vector<SSObjectPtr> results;
-        SSStar *pNearStar = SSGetStarPtr ( nearbyStars[i] );
-
-        char comp = pNearStar->getIdentifier ( kCatGJ ).toString().back();
-        if ( comp < 'A' || comp > 'F' )
-            continue;
-        
-        orb6Stars.search ( pNearStar->getFundamentalPosition(), SSAngle::fromArcmin ( 1.0 ), results );
-        if ( results.size() < 1 )
-            continue;
-        
-        for ( SSObjectPtr &pObj : results )
-        {
-            SSDoubleStarPtr pOrbStar = SSGetDoubleStarPtr ( pObj );
-            if ( pOrbStar->getComponents().length() == 2 )
-            {
-                SSDoubleStar *pNewStar = SSGetDoubleStarPtr ( pNearStar->addDoubleStarData ( pOrbStar, string ( 1, comp ) ) );
-                if ( pNewStar )
-                    cout << pNewStar->toCSV() << endl;
-                else
-                    cout << pNearStar->toCSV() << " FAILED!!!" << endl;
-            }
-        }
-    }
-    
     SSIdentifierMap wdsIdentMap;
     n = SSImportWDSBFCrossIndex ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Washington Double Star Catalog 2018/misc/bf.txt", wdsIdentMap );
     cout << "Imported " << n << " WDS to Bayer and Flamsteed cross identifiers." << endl;
@@ -854,6 +823,10 @@ int main ( int argc, const char *argv[] )
     SSObjectVec gcvsStars;
     n = SSImportGCVS ( "/Users/timmyd/Projects/SouthernStars/Catalogs/General Catalog of Variable Stars 2021/gcvs5/gcvs5.txt", gcvsIdentMap, gcvsStars );
     cout << "Imported " << n << " GCVS variable stars." << endl;
+
+    SSObjectVec nearbyStars;
+    n = SSImportObjectsFromCSV ( "/Users/timmyd/Projects/SouthernStars/Nanoverse/SSCore/SSData/Stars/Nearest.csv", nearbyStars );
+    cout << "Imported " << n << " nearby stars." << endl;
 
     SSIdentifierMap hipHRMap;
     n = SSImportHIPHRIdentifiers ( "/Users/timmyd/Projects/SouthernStars/Catalogs/Hipparcos/TABLES/IDENT3.DOC", hipHRMap );

@@ -179,6 +179,18 @@ SSSpherical SSObject::computeApparentMotion ( SSCoordinates &coords, SSFrame fra
     return SSSpherical ( INFINITY, INFINITY, INFINITY );
 }
 
+SSObjectPtr SSObjectArray::set ( size_t index, SSObjectPtr pNew )
+{
+    if ( index >= 0 && index < size() )
+    {
+        SSObjectPtr pOld = _objects[index];
+        _objects[index] = pNew;
+        return pOld;
+    }
+
+    return nullptr;
+}
+
 // Binary-searches SSObjectArray for objects matching a specific object (key)
 // using a caller-supplied comparison function (cmpfunc) that returns true if
 // the first object (p1) is less than the second (p2), and false if p1 >= p2.
