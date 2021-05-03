@@ -816,13 +816,21 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap
     return ( cat == kCatUnknown ? nameMap.size() : identMap.size() ) - n;
 }
 
-// Saves this HTM's object map for the specified catalog to a file.
+// Saves this HTM's object map for the specified catalog (cat) to a file.
+// Writes objects with user-definded function (saveFunc) and data (userData);
+// if these are nullptr, writes map in CSV format to HTM's "index" subdirectory.
 // Returns number of map entries written to file.
 
-size_t SSHTM::saveObjectMap ( SSCatalog cat )
+size_t SSHTM::saveObjectMap ( SSCatalog cat, IdentMapFunc saveFunc, void *userData )
 {
     int n = 0;
     
+    if ( saveFunc != nullptr && cat != kCatUnknown )
+    {
+        n = saveFunc ( this, cat, &_identIndex[cat], userData );
+        return n;
+    }
+
     // Open file; return on failure.
     
     string catname = cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat );
@@ -863,56 +871,66 @@ size_t SSHTM::saveObjectMap ( SSCatalog cat )
 }
 
 // Loads an object map for the specified catalog (cat) into this HTM's object indexes.
+// Writes objects with user-definded function (saveFunc) and data (userData);
+// if these are nullptr, reads map in CSV format from HTM's "index" subdirectory.
 // Returns number of map entries read from file.
 
-size_t SSHTM::loadObjectMap ( SSCatalog cat )
+size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userData )
 {
     int n = 0;
-
-    // Open file; return on failure.
-
-    string catname = cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat );
-    string filepath ( _rootpath + "index/" + catname + ".csv" );
-    FILE *file = fopen ( filepath.c_str(), "r" );
-    if ( ! file )
-        return n;
-
     NameMap nameMap;
     IdentMap identMap;
 
-    // Read file line-by-line until we reach end-of-file
-
-    string line = "";
-    while ( fgetline ( file, line ) )
+    if ( loadFunc != nullptr && cat != kCatUnknown )
     {
-        vector<string> fields = split_csv ( line );
-        if ( fields.size() < 3 )
-            continue;
+        n = loadFunc ( this, cat, &identMap, userData );
+    }
+    else
+    {
+        // Open file; return on failure.
 
-        // Read name map if catalog is not specified; otherwise read identifier map.
+        string catname = cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat );
+        string filepath ( _rootpath + "index/" + catname + ".csv" );
+        FILE *file = fopen ( filepath.c_str(), "r" );
+        if ( ! file )
+            return n;
+
+        // Read file line-by-line until we reach end-of-file
+
+        string line = "";
+        while ( fgetline ( file, line ) )
+        {
+            vector<string> fields = split_csv ( line );
+            if ( fields.size() < 3 )
+                continue;
+
+            // Read name map if catalog is not specified; otherwise read identifier map.
+            
+            if ( cat == kCatUnknown )
+            {
+                string name = fields[0];
+                if ( ! name.empty() )
+                {
+                    uint64_t htmID = name2ID ( fields[1] );
+                    size_t offset = strtoint64 ( fields[2] );
+                    nameMap.insert ( { name, { htmID, offset } } );
+                    n++;
+                }
+            }
+            else
+            {
+                SSIdentifier ident = SSIdentifier::fromString ( fields[0], kTypeNonexistent, true );
+                if ( ident != 0 )
+                {
+                    uint64_t htmID = name2ID ( fields[1] );
+                    size_t offset = strtoint64 ( fields[2] );
+                    identMap.insert ( { ident, { htmID, offset } } );
+                    n++;
+                }
+            }
+        }
         
-        if ( cat == kCatUnknown )
-        {
-            string name = fields[0];
-            if ( ! name.empty() )
-            {
-                uint64_t htmID = name2ID ( fields[1] );
-                size_t offset = strtoint64 ( fields[2] );
-                nameMap.insert ( { name, { htmID, offset } } );
-                n++;
-            }
-        }
-        else
-        {
-            SSIdentifier ident = SSIdentifier::fromString ( fields[0], kTypeNonexistent, true );
-            if ( ident != 0 )
-            {
-                uint64_t htmID = name2ID ( fields[1] );
-                size_t offset = strtoint64 ( fields[2] );
-                identMap.insert ( { ident, { htmID, offset } } );
-                n++;
-            }
-        }
+        fclose ( file );
     }
     
     // If we read anything, save the name map or ident map we just read.
@@ -924,10 +942,7 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat )
         else
             _identIndex.insert ( { cat, identMap } );
     }
-    
-    // Close file. Save copy of index into this HTM's index map. Return number of index entries loaded.
 
-    fclose ( file );
     return n;
 }
 

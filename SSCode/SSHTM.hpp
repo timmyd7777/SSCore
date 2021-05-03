@@ -123,8 +123,10 @@ public:
     map<SSCatalog,NameMap>  _nameIndex;
     map<SSCatalog,IdentMap> _identIndex;
 
-    size_t loadObjectMap ( SSCatalog cat );
-    size_t saveObjectMap ( SSCatalog cat );
+    typedef int (* IdentMapFunc) ( SSHTM *pHTM, SSCatalog cat, IdentMap *pMap, void *userData );
+
+    size_t loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc = nullptr, void *userData = nullptr );
+    size_t saveObjectMap ( SSCatalog cat, IdentMapFunc saveFunc = nullptr, void *userData = nullptr );
 
     size_t makeObjectMap ( SSCatalog cat );
     size_t makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap, IdentMap &identMap );
