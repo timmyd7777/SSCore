@@ -76,10 +76,12 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
         SSDegMinSec  dec ( strDecd + " " + strDecm + " " + strDecs );
         SSSpherical coords ( SSAngle ( ra ), SSAngle ( dec ), INFINITY );
         
-        // Get Magnitudes
+        // Get Magnitudes. Swap if needed so mag2 is always fainter than mag1.
         
         float mag1 = strMag1[0] == '.' ? INFINITY : strtofloat ( strMag1 );
         float mag2 = strMag2[0] == '.' ? INFINITY : strtofloat ( strMag2 );
+        if ( mag2 < mag1 )
+            swap<float> ( mag1, mag2 );
 
         // Get orbital period and convert to mean motion in radians per day
 
@@ -323,11 +325,13 @@ int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObj
         double pmDec = strPMDec.empty() ? INFINITY : strtofloat64 ( strPMDec ) * 1.0e-3;
         SSSpherical motion ( SSAngle::fromArcsec ( pmRA ), SSAngle::fromArcsec ( pmDec ), INFINITY );
 
-        // Get Magnitudes
+        // Get Magnitudes. Swap if needed so mag2 is always fainter than mag1.
         
         float mag1 = strMag1.empty() ? INFINITY : strtofloat ( strMag1 );
         float mag2 = strMag2.empty() ? INFINITY : strtofloat ( strMag2 );
-
+        if ( mag2 < mag1 )
+            swap<float> ( mag1, mag2 );
+        
         // K in the notes indicates a infrared magnitudes that we can't use.
 
         if ( notes.find ( "K" ) != string::npos )

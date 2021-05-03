@@ -243,6 +243,7 @@ SSDoubleStar::SSDoubleStar ( void ) : SSStar ( kTypeDoubleStar )
     _PA = INFINITY;
     _PAyr = INFINITY;
     _pOrbit = nullptr;
+    _pPrimary = nullptr;
 }
 
 // Destructs double star. Deletes binary star orbit data if present.
@@ -385,6 +386,30 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
     
     if ( coords.getAberration() )
         _direction = coords.applyAberration ( _direction );
+}
+
+// Compute double star's apparent direction, distance, and magnitude at the Julian Ephemeris Date
+// specified inside the SSCoordinates object.
+
+void SSDoubleStar::computeEphemeris ( SSCoordinates &coords )
+{
+    if ( _pPrimary == nullptr || _pOrbit == nullptr || _pPrimary == this )
+    {
+        SSStar::computeEphemeris ( coords );
+        return;
+    }
+    
+    // NOTE: this only works when viewed from within Solar System
+    
+    SSVector pos, vel;
+    _pOrbit->toPositionVelocity ( coords.getJED(), pos, vel );
+    SSVector dir = _pPrimary->getDirection() + pos / SSAngle::kArcsecPerRad;
+    
+    _direction = dir.normalize();
+    _distance = _pPrimary->getDistance();
+    _magnitude = _Vmag < INFINITY ? _Vmag : _Bmag;  // TODO: correct for distance
+    
+    // Don't apply aberration, was already applied to primary star
 }
 
 // Returns this star's apparent proper motion in the coordinate system (frame)

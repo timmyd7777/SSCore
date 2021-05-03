@@ -241,8 +241,12 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
             }
         }
         
+        // Get GCVS identifier, but reject all-numeric NSV variable star identifiers.
+        
         string strVar = trim ( line.substr ( 108, 10 ) );
-
+        if ( isNumeric ( strVar ) )
+            strVar = "";
+        
         // Extract RA and Dec, adding whitespace to separate hour/deg, min, sec
         
         string strRA = trim ( line.substr ( 118, 2 ) ) + " "
@@ -380,8 +384,8 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         
         names = SSIdentifiersToNames ( idents, nameMap );
         
-        bool isVar = ! ( strVarType.empty() && strVarMax.empty() && strVarMax.empty() && strVarPer.empty() );
-        bool isDbl = ! ( strWDS.empty() && strDblMag.empty() && strDblSep.empty() );
+        bool isVar = ! strVar.empty();
+        bool isDbl = ! strWDS.empty();
 
         SSObjectType type = kTypeNonexistent;
 
