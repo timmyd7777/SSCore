@@ -259,7 +259,7 @@ SSDoubleStar::~SSDoubleStar ( void )
 SSDoubleStar::SSDoubleStar ( const SSDoubleStar &other ) : SSStar ( other )
 {
     *this = other;
-    _pOrbit = _pOrbit ? new SSOrbit ( *_pOrbit ) : nullptr;
+    cloneOrbit();
 }
 
 // Constructs double variable star with all fields except type code
@@ -1122,7 +1122,10 @@ string SSDoubleStar::toCSVD ( void )
     csv += format ( "%.2f,", radtodeg ( orbit.i ) );
     csv += format ( "%.2f,", radtodeg ( orbit.w ) );
     csv += format ( "%.2f,", radtodeg ( orbit.n ) );
-    csv += format ( "%.6f,", ( SSAngle::kTwoPi / orbit.mm ) / SSTime::kDaysPerJulianYear );
+    if ( orbit.mm == 0.0 )
+        csv += ",";
+    else
+        csv += format ( "%.6f,", ( SSAngle::kTwoPi / orbit.mm ) / SSTime::kDaysPerJulianYear );
 
     return csv;
 }

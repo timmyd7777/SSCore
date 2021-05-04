@@ -198,7 +198,10 @@ public:
     SSOrbit getOrbit ( void ) { return _pOrbit ? *_pOrbit : SSOrbit(); }
     SSOrbit getOrbit ( SSAngle ra, SSAngle dec );
     SSStar *getPrimary ( void ) { return _pPrimary; }
-
+    
+    // Used in copy contructor.
+    void cloneOrbit ( void ) { _pOrbit = _pOrbit ? new SSOrbit ( *_pOrbit ) : nullptr; }
+    
     void computeEphemeris ( SSCoordinates &coords );
     virtual string toCSV ( void );
 };
