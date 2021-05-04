@@ -389,27 +389,46 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
 }
 
 // Compute double star's apparent direction, distance, and magnitude at the Julian Ephemeris Date
-// specified inside the SSCoordinates object.
+// specified inside the SSCoordinates object. If double star has an orbit, compute current separation
+// and position angle. If double star has an orbit and a primary, compute everything relative to primary.
 
 void SSDoubleStar::computeEphemeris ( SSCoordinates &coords )
 {
-    if ( _pPrimary == nullptr || _pOrbit == nullptr || _pPrimary == this )
+    // If double star has an orbit and a valid primary, compute orbital position relative to primary,
+    // then apparent direction, distance, and magnitude. Otherwise treat this as a normal star.
+    
+    if ( _pOrbit && _pPrimary && _pPrimary != this )
+    {
+        // NOTE: this only works when viewed from within Solar System
+        
+        SSVector pos, vel;
+        _pOrbit->toPositionVelocity ( coords.getJED(), pos, vel );
+        SSVector dir = _pPrimary->getDirection() + pos / SSAngle::kArcsecPerRad;
+        
+        // Don't apply aberration, was already applied to primary star
+
+        _direction = dir.normalize();
+        _distance = _pPrimary->getDistance();
+        _magnitude = _Vmag < INFINITY ? _Vmag : _Bmag;  // TODO: correct for distance
+    }
+    else
     {
         SSStar::computeEphemeris ( coords );
-        return;
     }
     
-    // NOTE: this only works when viewed from within Solar System
-    
-    SSVector pos, vel;
-    _pOrbit->toPositionVelocity ( coords.getJED(), pos, vel );
-    SSVector dir = _pPrimary->getDirection() + pos / SSAngle::kArcsecPerRad;
-    
-    _direction = dir.normalize();
-    _distance = _pPrimary->getDistance();
-    _magnitude = _Vmag < INFINITY ? _Vmag : _Bmag;  // TODO: correct for distance
-    
-    // Don't apply aberration, was already applied to primary star
+    // If double star has an orbit, compute current separation and position angle.
+
+    if ( _pOrbit )
+    {
+        SSAngle pa;
+        double r, sep;
+        SSSpherical radec = _direction;
+        SSOrbit orbit = getOrbit ( radec.lon, radec.lat );
+        orbit.toPositionSeparation ( coords.getJED(), pa, r, sep );
+        _sep = sep / SSAngle::kArcsecPerRad;
+        _PA = pa;
+        _PAyr = coords.getTime().toJulianYear();
+    }
 }
 
 // Returns this star's apparent proper motion in the coordinate system (frame)
