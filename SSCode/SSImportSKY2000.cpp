@@ -42,6 +42,11 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkySt
 
     if ( ! pSkyStar->getIdentifier ( kCatGJ ) )
         pSkyStar->addIdentifier ( gjIdent );
+
+    // If the SKY2000 star has no proper names, but does have a GJ identifier, add the GJ star's proper names.
+    
+    if ( ! pSkyStar->getNames().size() && gjIdent && pStar->getNames().size() )
+        pSkyStar->setNames ( pStar->getNames() );
 }
 
 // Imports IAU official star name table from Working Group on Star Names
@@ -383,7 +388,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         // Construct star and insert into star vector.
         
         names = SSIdentifiersToNames ( idents, nameMap );
-        
+
         bool isVar = ! strVar.empty();
         bool isDbl = ! strWDS.empty();
 

@@ -332,6 +332,10 @@ SSObjectPtr SSCloneObject ( SSObject *pObj )
     {
         SSObjectPtr pNewObj = SSNewObject ( pObj->getType() );
         *pNewObj = *pObj;
+        
+        if ( SSGetDoubleStarPtr ( pNewObj ) )
+            SSGetDoubleStarPtr ( pNewObj )->cloneOrbit();
+        
         return pNewObj;
     }
     
