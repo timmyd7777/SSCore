@@ -20,7 +20,7 @@ HIP and additional Bayer latin identifiers were added from Hipparcos, and GJ num
 
 The column format is:
 
-Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year], [Vtype, Vmin, Vmax, Vper, Vepoch], Ident1, Ident2, Ident3..., Common1, Common2...
+Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year, T, a, e, i, w, n, P], [Vtype, Vmin, Vmax, Vper, Vepoch], Ident1, Ident2, Ident3..., Common1, Common2...
 
 - **_Type_** is object type: single star (SS), double star (DS), variable star (VS), double variable star (DV)
 - **_RA_** is J2000 right ascension
@@ -36,7 +36,14 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year], 
 - **_Delta_** is magnitude difference between components.
 - **_Sep_** is angular separation between components in arcseconds.
 - **_PA_** is position angle in degrees
-- **_Year_** is year of separation and PA measurement
+- **_Year_** is Julian year of separation and PA measurement
+- **_T_** is Julian year of periastron for binary stars
+- **_a_** is semimajor axis in arcseconds for binary stars
+- **_e_** is orbital eccentricity for binary stars
+- **_i_** is orbital plane inclination to sky plane, in degrees, for binary stars
+- **_w_** is argument of periastron, in degrees, for binary stars
+- **_n_** is position angle of ascending node, in degrees, for binary stars
+- **_P_** is orbital period, in years, for binary stars
 - **_Vtype_** is variability type code from GCVS
 - **_Vmin_** is minimum (brightest) magnitude
 - **_Vmax_** is maximum (faintest) magnitude 
@@ -45,7 +52,7 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year], 
 - **_Ident1, Ident2, etc._** are catalog identifiers in preferred order: Bayer, Flamsteed, GCVS, HR, HD, SAO, BD, CD, CP, WDS
 - **_Common1, Common2, etc._** are star common names.
 
-Fields **_[Comp ... Year]_** are only present for star types DS and DV.  
+Fields **_[Comp ... P]_** are only present for star types DS and DV.  
 Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV.  
 Empty fields indicate unknown or missing values.
 
@@ -54,6 +61,7 @@ Empty fields indicate unknown or missing values.
 - Version 1.0 (27 Mar 2020): initial version
 - Version 1.1 (30 Mar 2020): corrected erroneous proper motions for open clusters with RV.
 - Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
+- Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS, a few nearby star proper names.
 
 Nearest.csv
 -----------
@@ -66,10 +74,11 @@ The column format is identical to that of **Stars.csv**, above. The preferred or
 
 **Revision History**
 
-Version 1.0 (27 Mar 2020): initial version
-Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
-Version 1.3 (3 Apr 2021): Fixed bad data for Sigma Dra, e Eri, and HIP 113020.
-Version 1.4 (11 Apr 2021): Added names for Luyten 726-8 A & B, moved many names in the GJ column to the name column.
+- Version 1.0 (27 Mar 2020): initial version
+- Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
+- Version 1.3 (3 Apr 2021): Fixed bad data for Sigma Dra, e Eri, and HIP 113020.
+- Version 1.4 (11 Apr 2021): Added names for Luyten 726-8 A & B, moved many names in the GJ column to the name column.
+- Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS. Fixed a few common names assigned to the wrong stars.
 
 Names.csv
 ---------
