@@ -14,6 +14,8 @@ Brightest.csv
 
 This bright star catalog was extracted from NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated with data from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239) and the Gliese-Jahreiss [Catalog of Nearby Stars, 3rd Edition](ftp://cdsarc.u-strasbg.fr/cats/V/70A/) (CNS3). It contains all 9092 stars from SKY2000 with HR (Harvard Revised = Bright Star) catalog numbers.
 
+Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm).
+
 The original HR catalog has 9110 entries. Four HR numbers missing from SKY2000 (928, 4374, 4969, 5977) are double star secondary components; these were added to HR 927 (52 Ari), HR 4375 (xi UMa), HR 4968 (alpha Com), and HR 5978 (xi Sco). The other missing HR numbers (92, 95, 182, 1057, 1841, 2472, 2496, 3515, 3671, 6309, 6515, 7189, 7539, 8296) are all "bad" HR objects which are novae, supernovae, or deep sky objects. 
 
 HIP and additional Bayer latin identifiers were added from Hipparcos, and GJ numbers added from the CNS3, using HD identifiers as a cross reference. Star common names are taken from the official [IAU star name list](http://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt)
@@ -32,7 +34,7 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year, T
 - **_Dist_** is distance in parsecs
 - **_RV_** is radial velocity in km/sec
 - **_Type_** is stellar spectral type.
-- **_Comp_** is component(s) of double star: A, B, C, etc.
+- **_Comp_** is component(s) of double star: A, B, C, etc. See note below for binary stars.
 - **_Delta_** is magnitude difference between components.
 - **_Sep_** is angular separation between components in arcseconds.
 - **_PA_** is position angle in degrees
@@ -55,6 +57,8 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year, T
 Fields **_[Comp ... P]_** are only present for star types DS and DV.  
 Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV.  
 Empty fields indicate unknown or missing values.
+
+For binary stars with orbits, the **_Comp_** field contains two characters: first this component's identifier, then the other component's identifier.  So, "AB" means "this component is A, and the other component in the binary pair is B", and "DC" means "this component is D, and the other component in the binary pair is C". This convention resolves ambiguities in the original binary star orbit catalog, which contains orbits for pairs ("AB", "CD", "AB,C") rather than individual components ("A", "B", "C", "D", etc.)
 
 **Revision History**
 

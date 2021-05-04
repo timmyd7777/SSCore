@@ -478,3 +478,26 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
     
     return numStars;
 }
+
+// SKY2000 is missing four HR stars, all double star secondary components.
+// This function adds those missing HR identifiers to their four SKY2000 primary stars.
+// Returns the number of HR identifiers added (which should be 4!)
+
+int SSAddSKY2000MissingHRNumbers ( SSObjectVec &stars )
+{
+    int n = 0;
+
+    static map<int64_t,int64_t> sky2000missingHR = // map from SKY2000 HR to missing HR
+    { { 927, 928 }, { 4375, 4374 }, { 4968, 4969 }, { 5978, 5977 } };
+    
+    for ( int i = 0; i < stars.size(); i++ )
+    {
+        SSStar *pStar = SSGetStarPtr ( stars.get ( i ) );
+        int64_t hr = pStar->getIdentifier ( kCatHR ).identifier();
+        hr = sky2000missingHR[hr];
+        if ( hr )
+            n += pStar->addIdentifier ( SSIdentifier ( kCatHR, hr ) );
+    }
+    
+    return n;
+}
