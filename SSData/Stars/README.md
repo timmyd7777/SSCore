@@ -72,7 +72,7 @@ Nearest.csv
 
 This list of the 160 nearest stars is primarily based on data from [RECONS](http://www.recons.org/TOP100.posted.htm). Wherever possible, accurate coordinates and proper motion are from [Accurate Coordinates for Gliese Catalog Stars](https://cdsarc.unistra.fr/ftp/J/PASP/122/885). Johnson B (blue) magnitudes and radial velocities are preferentially from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239), the [Hipparcos Input Catalog](https://cdsarc.unistra.fr/ftp/I/196), or the Gliese [Catalog of Nearby Stars](ftp://cdsarc.u-strasbg.fr/cats/V/70A/).
 
-Identifiers and common names are from RECONS and cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley.
+Identifiers and common names are from RECONS and cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley, and NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145). Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm).
 
 The column format is identical to that of **Stars.csv**, above. The preferred order for the catalog identifiers and names is: Bayer or GCVS, Flamsteed, GJ, HD, DM, HIP, then common names.
 
