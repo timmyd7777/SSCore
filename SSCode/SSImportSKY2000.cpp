@@ -401,11 +401,9 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         // Otherwise, if we don't have any GCVS stars, use the GCVS identifier string from SKY2000.
         
         SSIdentifier hdIdent = SSIdentifier ( kCatHD, strtoint ( strHD ) ), gcvsIdent = 0;
-        if ( hdIdent == SSIdentifier ( kCatHD, 19356 ) )
-            hdIdent = hdIdent;
-        SSVariableStarPtr pGCVSStar = SSGetVariableStarPtr ( SSIdentifierToObject ( hdIdent, gcvsMap, gcvsStars ) );
-        if ( pGCVSStar )
-            gcvsIdent = pGCVSStar->getIdentifier ( kCatGCVS );
+        SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSIdentifierToObject ( hdIdent, gcvsMap, gcvsStars ) );
+        if ( pGCVStar )
+            gcvsIdent = pGCVStar->getIdentifier ( kCatGCVS );
         else if ( gcvsStars.size() == 0 && strVar.length() > 0 )
             gcvsIdent = SSIdentifier::fromString ( strVar );
         SSAddIdentifier ( gcvsIdent, idents );
@@ -415,7 +413,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         
         names = SSIdentifiersToNames ( idents, nameMap );
 
-        bool isVar = pGCVSStar != nullptr || (int64_t) gcvsIdent > 0;
+        bool isVar = pGCVStar != nullptr || (int64_t) gcvsIdent > 0;
         bool isDbl = ! strWDS.empty();
 
         SSObjectType type = kTypeNonexistent;
@@ -451,13 +449,16 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
         if ( pVar != nullptr )
         {
-            if ( pGCVSStar )
+            // If we have a matching star from the GCVS, copy its variability data;
+            // otherwise use variability data already present in SKY2000.
+            
+            if ( pGCVStar )
             {
-                pVar->setMinimumMagnitude ( pGCVSStar->getMinimumMagnitude() );
-                pVar->setMaximumMagnitude ( pGCVSStar->getMaximumMagnitude() );
-                pVar->setPeriod ( pGCVSStar->getPeriod() );
-                pVar->setEpoch ( pGCVSStar->getEpoch() );
-                pVar->setVariableType ( pGCVSStar->getVariableType() );
+                pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
+                pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
+                pVar->setPeriod ( pGCVStar->getPeriod() );
+                pVar->setEpoch ( pGCVStar->getEpoch() );
+                pVar->setVariableType ( pGCVStar->getVariableType() );
             }
             else
             {
