@@ -188,12 +188,14 @@ string SKY2000VariableTypeString ( int type )
 // Adds additional HIP, Bayer, and GJ identifiers from vectors of
 // Hipparcos stars (hipStars) and Gliese-Jahreiss nearby stars (gjStars).
 // Nothing will be added if these star vectors are empty.
+// Adds GCVS identifiers and variability information from vector of GCVS stars (gcvsStars);
+// if this is empty, uses GCVS identifiers and variability info already present in SKY2000.
 // Returns number of SKY2000 stars imported (299460 if successful).
 // If a non-null filter function (filter) is provided, objects are exported
 // only if they pass the filter; optional data pointer (userData) is passed
 // to the filter but not used otherwise.
 
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &stars, SSObjectFilter filter, void *userData )
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSObjectVec &stars, SSObjectFilter filter, void *userData )
 {
     // Open file; return on failure.
 
@@ -201,11 +203,12 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
     if ( ! file )
         return 0;
 
-    // Make index of HD catalog numbers in the Hipparcos and GJ star vectors.
+    // Make index of HD catalog numbers in the Hipparcos, GJ, GCVS star vectors.
     
     SSObjectMap hipMap = SSMakeObjectMap ( hipStars, kCatHD );
     SSObjectMap gjMap = SSMakeObjectMap ( gjStars, kCatHD );
-
+    SSObjectMap gcvsMap = SSMakeObjectMap ( gcvsStars, kCatHD );
+    
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
@@ -366,9 +369,6 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         if ( ! strFlm.empty() )
             SSAddIdentifier ( SSIdentifier::fromString ( strFlm ), idents );
         
-        if ( ! strVar.empty() )
-            SSAddIdentifier ( SSIdentifier::fromString ( strVar ), idents );
-
         if ( ! strHR.empty() )
             SSAddIdentifier ( SSIdentifier ( kCatHR, strtoint ( strHR ) ), idents );
 
@@ -384,12 +384,26 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         if ( ! strWDS.empty() )
             SSAddIdentifier ( SSIdentifier::fromString ( "WDS " + strWDS ), idents );
         
+        // Look for a GCVS star with the same HD number as our SKY2000 star.
+        // If we find one, add the GCVS star identifier to the SKY2000 star identifiers.
+        // Otherwise, if we don't have any GCVS stars, use the GCVS identifier string from SKY2000.
+        
+        SSIdentifier hdIdent = SSIdentifier ( kCatHD, strtoint ( strHD ) ), gcvsIdent = 0;
+        if ( hdIdent == SSIdentifier ( kCatHD, 19356 ) )
+            hdIdent = hdIdent;
+        SSVariableStarPtr pGCVSStar = SSGetVariableStarPtr ( SSIdentifierToObject ( hdIdent, gcvsMap, gcvsStars ) );
+        if ( pGCVSStar )
+            gcvsIdent = pGCVSStar->getIdentifier ( kCatGCVS );
+        else if ( gcvsStars.size() == 0 && strVar.length() > 0 )
+            gcvsIdent = SSIdentifier::fromString ( strVar );
+        SSAddIdentifier ( gcvsIdent, idents );
+
         // Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
         
         names = SSIdentifiersToNames ( idents, nameMap );
 
-        bool isVar = ! strVar.empty();
+        bool isVar = pGCVSStar != nullptr || (int64_t) gcvsIdent > 0;
         bool isDbl = ! strWDS.empty();
 
         SSObjectType type = kTypeNonexistent;
@@ -425,26 +439,37 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
         if ( pVar != nullptr )
         {
-            // Minimum magnitude is magnitude at maximum light, and vice-vera!
-            
-            if ( ! strVarMin.empty() )
-                pVar->setMinimumMagnitude ( strtofloat ( strVarMax ) );
+            if ( pGCVSStar )
+            {
+                pVar->setMinimumMagnitude ( pGCVSStar->getMinimumMagnitude() );
+                pVar->setMaximumMagnitude ( pGCVSStar->getMaximumMagnitude() );
+                pVar->setPeriod ( pGCVSStar->getPeriod() );
+                pVar->setEpoch ( pGCVSStar->getEpoch() );
+                pVar->setVariableType ( pGCVSStar->getVariableType() );
+            }
+            else
+            {
+                // Minimum magnitude is magnitude at maximum light, and vice-vera!
+                
+                if ( ! strVarMin.empty() )
+                    pVar->setMinimumMagnitude ( strtofloat ( strVarMax ) );
 
-            if ( ! strVarMax.empty() )
-                pVar->setMaximumMagnitude ( strtofloat ( strVarMin ) );
+                if ( ! strVarMax.empty() )
+                    pVar->setMaximumMagnitude ( strtofloat ( strVarMin ) );
 
-            // Get variability period in days and convert epoch to Julian Date.
-            
-            if ( ! strVarPer.empty() )
-                pVar->setPeriod ( strtofloat ( strVarPer ) );
+                // Get variability period in days and convert epoch to Julian Date.
+                
+                if ( ! strVarPer.empty() )
+                    pVar->setPeriod ( strtofloat ( strVarPer ) );
 
-            if ( ! strVarEpoch.empty() )
-                pVar->setEpoch ( strtofloat ( strVarEpoch ) + 2400000.0 );
+                if ( ! strVarEpoch.empty() )
+                    pVar->setEpoch ( strtofloat ( strVarEpoch ) + 2400000.0 );
 
-            // Store variability type
-            
-            if ( ! strVarType.empty() )
-                pVar->setVariableType ( strVarType );
+                // Store variability type
+                
+                if ( ! strVarType.empty() )
+                    pVar->setVariableType ( strVarType );
+            }
         }
         
         SSDoubleStarPtr pDbl = SSGetDoubleStarPtr ( pObj );
