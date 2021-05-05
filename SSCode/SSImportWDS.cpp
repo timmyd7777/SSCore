@@ -102,7 +102,9 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             orbit.q /= 1.0e3;
         else if ( unit == 'u' )
             orbit.q /= 1.0e6;
-        
+        else if ( unit == 'M' )
+            orbit.q *= 60.0;
+
         // Convert inclination, argument of periastron,
         // position angle of ascending node to radians;
         // mean anomaly is zero at periastron.
@@ -152,11 +154,13 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             pStar->setOrbit ( orbit, coords.lon, coords.lat );
 
 #if 0       // test code
-            cout << pStar->toCSV() << endl;
             SSAngle pa;
             double r, sep;
-            orbit.toPositionSeparation ( SSTime::fromJulianYear( 2020.0 ), pa, r, sep );
-            cout << format ( "%.1f\t%.3f\t%.3f\n", pa.toDegrees(), r, sep );
+            orbit.toPositionSeparation ( SSTime::fromJulianYear ( 2020.0 ), pa, r, sep );
+            pStar->setSeparation ( sep / SSAngle::kArcsecPerRad );
+            pStar->setPositionAngle ( pa );
+            pStar->setPositionAngleYear ( 2020.0 );
+            cout << pStar->toCSV() << endl;
 #endif
             stars.push_back ( pObj );
             numStars++;
