@@ -48,7 +48,7 @@ SSDoubleStarPtr getWDStar ( SSObjectVec &wdsStars, SSSpherical coords, char comp
         if ( sep > 0.0 && sep > orbit.apoapse() * 2 )
             return nullptr;
 
-        cout << pWDStar->toCSV() << endl;
+        // cout << pWDStar->toCSV() << endl;
 
         // If component matches first char of WDS component string like AB, BC, CD, component is primary.
         

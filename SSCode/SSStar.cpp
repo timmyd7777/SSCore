@@ -388,6 +388,19 @@ void SSStar::computeEphemeris ( SSCoordinates &coords )
         _direction = coords.applyAberration ( _direction );
 }
 
+// Returns true if this is the primary component of a double star system,
+// or false if this is a secondary or tertiary component.
+
+bool SSDoubleStar::isPrimary ( void )
+{
+    if ( _comps.length() > 0 && _comps[0] == 'A' )
+        return true;
+    else if ( _pOrbit != nullptr && _comps.length() == 2 && _comps[0] < _comps[1] )
+        return true;
+    else
+        return false;
+}
+
 // Compute double star's apparent direction, distance, and magnitude at the Julian Ephemeris Date
 // specified inside the SSCoordinates object. If double star has an orbit, compute current separation
 // and position angle. If double star has an orbit and a primary, compute everything relative to primary.
