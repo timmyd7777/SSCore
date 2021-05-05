@@ -16,6 +16,6 @@
 #include "SSStar.hpp"
 
 int SSImportIAUStarNames ( const string &filename, SSIdentifierNameMap &nameMap );
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSObjectVec &stars, SSObjectFilter filter = nullptr, void *userData = nullptr );
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSObjectVec &wdsStars, SSObjectVec &stars, SSObjectFilter filter = nullptr, void *userData = nullptr );
 
 #endif /* SSImportSKY2000_hpp */

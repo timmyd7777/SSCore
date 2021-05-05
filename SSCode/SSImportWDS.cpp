@@ -153,15 +153,16 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             pStar->setComponents ( strComps.empty() ? string ( "AB" ) : strComps );
             pStar->setOrbit ( orbit, coords.lon, coords.lat );
 
-#if 0       // test code
+            // Compute separation and position angle for the year 2020
+            
             SSAngle pa;
             double r, sep;
             orbit.toPositionSeparation ( SSTime::fromJulianYear ( 2020.0 ), pa, r, sep );
             pStar->setSeparation ( sep / SSAngle::kArcsecPerRad );
             pStar->setPositionAngle ( pa );
             pStar->setPositionAngleYear ( 2020.0 );
-            cout << pStar->toCSV() << endl;
-#endif
+
+            // cout << pStar->toCSV() << endl;
             stars.push_back ( pObj );
             numStars++;
         }

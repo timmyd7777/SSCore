@@ -11,6 +11,65 @@
 #include <iostream>
 #include <fstream>
 
+// Searches for double star in double star vector (wdsStars)
+// within 1 arcminute of target coordinates (coords)
+// matching a component character A, B, C, D, etc. (comp)
+// with an angular separation in arcseconds (sep); will be ignored if zero.
+// If found, returns primary component character (prim), and
+// returns pointer to matching double star, or nullptr if none.
+
+SSDoubleStarPtr getWDStar ( SSObjectVec &wdsStars, SSSpherical coords, char comp, char &prim, float sep )
+{
+    if ( comp < 'A' || comp > 'F' )
+       return nullptr;
+        
+    // Find all WDS stars whose primaries are within 1 arcminute of the target coordinates.
+    
+    vector<SSObjectPtr> results;
+    wdsStars.search ( coords, SSAngle::fromArcmin ( 1.0 ), results );
+    if ( results.size() < 1 )
+        return nullptr;
+    
+    for ( SSObjectPtr &pObj : results )
+    {
+        SSDoubleStarPtr pWDStar = SSGetDoubleStarPtr ( pObj );
+        if ( pWDStar == nullptr )
+            continue;
+        
+        // Reject binary orbits for unseen components like Aa, Bb, etc.
+        
+        string compsWD = pWDStar->getComponents();
+        if ( compsWD.length() < 2 || ( compsWD[1] >= 'a' && compsWD[1] <= 'z' ) )
+            continue;
+
+        // Reject orbit if separation is greater than twice the apastron.
+        
+        SSOrbit orbit = pWDStar->getOrbit();
+        if ( sep > 0.0 && sep > orbit.apoapse() * 2 )
+            return nullptr;
+
+        cout << pWDStar->toCSV() << endl;
+
+        // If component matches first char of WDS component string like AB, BC, CD, component is primary.
+        
+        if ( compsWD.length() == 2 && compsWD[0] == comp && compsWD[1] == compsWD[0] + 1 )
+        {
+            prim = comp;
+            return pWDStar;
+        }
+        
+        // If component matches last char of WDS component string, component is secondary.
+        
+        if ( compsWD.back() == comp )
+        {
+            prim = compsWD[0];
+            return pWDStar;
+        }
+    }
+    
+    return nullptr;
+}
+
 // Adds identifiers from other star catalog (stars) to a SKY2000 star (pStars).
 
 void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkyStar )
@@ -195,7 +254,7 @@ string SKY2000VariableTypeString ( int type )
 // only if they pass the filter; optional data pointer (userData) is passed
 // to the filter but not used otherwise.
 
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSObjectVec &stars, SSObjectFilter filter, void *userData )
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSObjectVec &wdsStars, SSObjectVec &stars, SSObjectFilter filter, void *userData )
 {
     // Open file; return on failure.
 
@@ -408,6 +467,13 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
             gcvsIdent = SSIdentifier::fromString ( strVar );
         SSAddIdentifier ( gcvsIdent, idents );
 
+        // If this star has a double star component string, look for a matching WDS star and get its primary component.
+        
+        char primComp = 0;
+        SSDoubleStarPtr pWDStar = nullptr;
+        if ( strDblComp.length() > 0 && wdsStars.size() > 0 )
+            pWDStar = getWDStar ( wdsStars, SSSpherical ( ra, dec, 1.0 ), strDblComp[0], primComp, strtofloat ( strDblSep ) );
+            
         // Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
         
@@ -488,20 +554,43 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         SSDoubleStarPtr pDbl = SSGetDoubleStarPtr ( pObj );
         if ( pDbl != nullptr )
         {
-            if ( ! strDblComp.empty() )
-                pDbl->setComponents ( strDblComp );
+            // If we have a matching WDS star, copy orbit and double star info from WDS star;
+            // otherwise use double star info from SKY2000.
             
-            if ( ! strDblMag.empty() )
-                pDbl->setMagnitudeDelta ( strtofloat ( strDblMag ) );
-            
-            if ( ! strDblSep.empty() )
-                pDbl->setSeparation ( SSAngle::fromArcsec ( strtofloat ( strDblSep ) ) );
-            
-            if ( ! strDblPA.empty() )
-                pDbl->setPositionAngle( SSAngle::fromDegrees ( strtofloat ( strDblPA ) ) );
-            
-            if ( ! strDblPAyr.empty() )
-                pDbl->setPositionAngleYear ( strtofloat ( strDblPAyr ) );
+            if ( pWDStar )
+            {
+                if ( pWDStar->hasOrbit() )
+                {
+                    char comp = strDblComp[0];
+                    pDbl->setOrbit ( pWDStar->getOrbit() );
+                    if ( comp == primComp )
+                        pDbl->setComponents ( pWDStar->getComponents() );
+                    else
+                        pDbl->setComponents ( string ( 1, comp ) + string ( 1, primComp ) );
+                }
+                
+                pDbl->setMagnitudeDelta ( pWDStar->getMagnitudeDelta() );
+                pDbl->setSeparation ( pWDStar->getSeparation() );
+                pDbl->setPositionAngle ( pWDStar->getPositionAngle() );
+                pDbl->setPositionAngleYear ( pWDStar->getPositionAngleYear() );
+            }
+            else
+            {
+                if ( ! strDblComp.empty() )
+                    pDbl->setComponents ( strDblComp );
+                
+                if ( ! strDblMag.empty() )
+                    pDbl->setMagnitudeDelta ( strtofloat ( strDblMag ) );
+                
+                if ( ! strDblSep.empty() )
+                    pDbl->setSeparation ( SSAngle::fromArcsec ( strtofloat ( strDblSep ) ) );
+                
+                if ( ! strDblPA.empty() )
+                    pDbl->setPositionAngle( SSAngle::fromDegrees ( strtofloat ( strDblPA ) ) );
+                
+                if ( ! strDblPAyr.empty() )
+                    pDbl->setPositionAngleYear ( strtofloat ( strDblPAyr ) );
+            }
         }
         
         // cout << pStar->toCSV() << endl;
