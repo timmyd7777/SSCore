@@ -133,8 +133,8 @@ public:
     
     size_t objectMapSize ( SSCatalog cat ) { return cat == kCatUnknown ? _nameIndex[cat].size() : _identIndex[cat].size(); }
     
-    size_t findObjectLocs ( const string &name, vector<ObjectLoc> &locs, bool casesens = true, bool begins = false );
-    size_t findObjectLocs ( SSIdentifier &ident, vector<ObjectLoc> &locs );
+    int findObjectLocs ( const string &name, vector<ObjectLoc> &locs, bool casesens = true, bool begins = false );
+    int findObjectLocs ( SSIdentifier &ident, vector<ObjectLoc> &locs );
     
     SSObjectPtr loadObject ( const ObjectLoc &loc );
 

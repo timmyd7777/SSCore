@@ -947,23 +947,24 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userDa
 }
 
 // Given an identifier, uses this HTM's identifier index to find all objects matching
-// the identifier. Object locations are appended to the vector (results);
-// returns number of object locations found.
+// the identifier. Object locations are appended to the vector (results).
+// Returns number of object locations found, or -1 if there is no object map
+// for the catalog to which the identifier belongs.
 
-size_t SSHTM::findObjectLocs ( SSIdentifier &ident, vector<SSHTM::ObjectLoc> &results )
+int SSHTM::findObjectLocs ( SSIdentifier &ident, vector<SSHTM::ObjectLoc> &results )
 {
     SSCatalog cat = ident.catalog();
     if ( objectMapSize ( cat ) == 0 )
-        loadObjectMap ( cat );
+        return -1;
     
     IdentMap &map = _identIndex[cat];
     auto it0 = map.lower_bound ( ident );
     auto it1 = map.upper_bound ( ident );
     
-    size_t n = (int) results.size();
+    int n = (int) results.size();
     for ( auto it = it0; it != it1; it++ )
         results.push_back ( it->second );
-    return results.size() - n;
+    return (int) results.size() - n;
 }
 
 // Given a name string (name), uses this HTM's name index to find all objects matching the name string.
@@ -971,13 +972,13 @@ size_t SSHTM::findObjectLocs ( SSIdentifier &ident, vector<SSHTM::ObjectLoc> &re
 // Pass true for (begins) for "begins-with" string matching; pass false for whole-string matching.
 // Object locations are appended to the vector (results); returns number of object locations found.
 
-size_t SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &results, bool casesens, bool begins )
+int SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &results, bool casesens, bool begins )
 {
     if ( objectMapSize ( kCatUnknown ) == 0 )
-        loadObjectMap ( kCatUnknown );
+        return -1;
     
     NameMap &map = _nameIndex[kCatUnknown];
-    size_t n = (int) results.size();
+    int n = (int) results.size();
     
     if ( casesens == true && begins == false )
     {
@@ -998,7 +999,7 @@ size_t SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &res
                 results.push_back ( it->second );
     }
     
-    return results.size() - n;
+    return (int) results.size() - n;
 }
 
 // Given an object location in this HTM, synchronously loads the region containing the object
