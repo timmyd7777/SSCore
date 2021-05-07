@@ -413,6 +413,41 @@ SSOrbit SSOrbit::getMercuryOrbit ( double jde )
                      SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
+// Computes array of points outlining orbit, starting at true anomaly nu0 in radians.
+
+void SSOrbit::computePoints ( double nu0, int npoints, vector<SSVector> &points )
+{
+    // Compute some initial quantities.
+    
+    double cosi = cos ( i );
+    double sini = sin ( i );
+    double cosn = cos ( n );
+    double sinn = sin ( n );
+    
+    // Loop around the orbit, starting and ending at the object's current position.
+    
+    for ( int point = 0; point <= npoints; point++ )
+    {
+        // Compute true anomaly and distance at current point.
+        
+        double nu = nu0 + M_2PI * point / npoints;
+        double r = q * ( 1.0 + e ) / ( 1.0 + e * cos ( nu ) );
+        
+        // Compute XYZ offset of orbit point from primary.
+        
+        double cosu = cos ( nu + w );
+        double sinu = sin ( nu + w );
+        double x = r * ( cosu * cosn - sinu * cosi * sinn );
+        double y = r * ( cosu * sinn + sinu * cosi * cosn );
+        double z = r * ( sinu * sini );
+        
+        // Transform orbit point from orbit reference frame to fundamental frame
+        // and save in orbit points array.
+        
+        points.push_back ( SSVector ( x, y, z ) );
+    }
+}
+
 // Constructs Venus's orbital elements at a specific Julian Ephemeris Date (jde)
 // referred to the J2000 ecliptic.  See comments for getMercuryOrbit regarding
 // validity range, accuracy, and source.

@@ -42,7 +42,8 @@ struct SSOrbit
     void toPositionVelocity ( double jde, SSVector &pos, SSVector &vel );
     void toPositionSeparation ( double jde, SSAngle &pa, double &r, double &sep );
     SSOrbit transform ( SSMatrix &m );
-    
+    void computePoints ( double nu0, int npoints, vector<SSVector> &points );
+
     double semiMajorAxis ( void ) { return e == 1.0 ? INFINITY : q / ( 1.0 - e ); }
     double apoapse ( void ) { return semiMajorAxis() * ( 1.0 + e ); }
     double period ( void ) { return e < 1.0 ? M_2PI / mm : INFINITY; }
