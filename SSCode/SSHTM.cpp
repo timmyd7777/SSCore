@@ -1013,3 +1013,36 @@ SSObjectPtr SSHTM::loadObject ( const ObjectLoc &loc )
     
     return nullptr;
 }
+
+// Searches an HTM region and all of its sub-regions, recursively, for objects within a circle
+// centered on the celestial sphere at unit direction vector (center) in the fundamental frame,
+// of (radius) radians. Only searches regions pre-loaded into memory; does not load regions.
+// Results are appended to vector (results). Returns number of objects found within circle.
+
+int SSHTM::search ( uint64_t htmID, SSVector center, SSAngle rad, vector<SSObjectPtr> &results )
+{
+    // Unless this is the root region, get region center and angular radius. Always search root!
+    // If non-root region's bounding circle does not intersect search circle, don't search it.
+    
+    if ( htmID > 0 )
+    {
+        SSVector v0, v1, v2;
+        name2Triangle ( ID2name ( htmID ), v0, v1, v2 );
+        SSVector vC = ( v0 + v1 + v2 ) / 3.0;
+        SSAngle r = vC.angularSeparation ( v0 );
+        if ( center.angularSeparation ( vC ) > r + rad )
+            return 0;
+    }
+    
+    // Search this region's objects if they're loaded into memory.
+    // Then recursively search this region's sub-regions.
+    
+    SSObjectVec *pObjects = getObjects ( htmID );
+    int n = pObjects ? pObjects->search ( center, rad, results ) : 0;
+    
+    vector<uint64_t> subIDs = subRegionIDs ( htmID );
+    for ( int i = 0; i < subIDs.size(); i++ )
+       n += search ( subIDs[i], center, rad, results );
+
+    return n;
+}

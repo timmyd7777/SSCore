@@ -11,14 +11,14 @@
 #include <iostream>
 #include <fstream>
 
-// Searches for double star in double star vector (wdsStars)
+// Searches for double star in double star HTM (wdsHTM)
 // within 1 arcminute of target coordinates (coords)
 // matching a component character A, B, C, D, etc. (comp)
 // with an angular separation in arcseconds (sep); will be ignored if zero.
 // If found, returns primary component character (prim), and
 // returns pointer to matching double star, or nullptr if none.
 
-SSDoubleStarPtr getWDStar ( SSObjectVec &wdsStars, SSSpherical coords, char comp, char &prim, float sep )
+SSDoubleStarPtr getWDStar ( SSHTM &wdsHTM, SSSpherical coords, char comp, char &prim, float sep )
 {
     if ( comp < 'A' || comp > 'F' )
        return nullptr;
@@ -26,7 +26,7 @@ SSDoubleStarPtr getWDStar ( SSObjectVec &wdsStars, SSSpherical coords, char comp
     // Find all WDS stars whose primaries are within 1 arcminute of the target coordinates.
     
     vector<SSObjectPtr> results;
-    wdsStars.search ( coords, SSAngle::fromArcmin ( 1.0 ), results );
+    wdsHTM.search ( 0, coords, SSAngle::fromArcmin ( 1.0 ), results );
     if ( results.size() < 1 )
         return nullptr;
     
@@ -44,10 +44,18 @@ SSDoubleStarPtr getWDStar ( SSObjectVec &wdsStars, SSSpherical coords, char comp
 
         // Reject orbit if separation is greater than twice the apastron.
         
-        SSOrbit orbit = pWDStar->getOrbit();
-        if ( sep > 0.0 && sep > orbit.apoapse() * 2 )
-            return nullptr;
-
+        if ( pWDStar->hasOrbit() )
+        {
+            SSOrbit orbit = pWDStar->getOrbit();
+            if ( sep > 0.0 && sep > orbit.apoapse() * 2 )
+                return nullptr;
+        }
+        else
+        {
+            if ( sep > 0.0 && SSAngle::fromArcsec ( sep ) > pWDStar->getSeparation() * 2 )
+                return nullptr;
+        }
+        
         // cout << pWDStar->toCSV() << endl;
 
         // If component matches first char of WDS component string like AB, BC, CD, component is primary.
@@ -254,7 +262,7 @@ string SKY2000VariableTypeString ( int type )
 // only if they pass the filter; optional data pointer (userData) is passed
 // to the filter but not used otherwise.
 
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSObjectVec &wdsStars, SSObjectVec &stars, SSObjectFilter filter, void *userData )
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars, SSObjectFilter filter, void *userData )
 {
     // Open file; return on failure.
 
@@ -471,8 +479,8 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         
         char primComp = 0;
         SSDoubleStarPtr pWDStar = nullptr;
-        if ( strDblComp.length() > 0 && wdsStars.size() > 0 )
-            pWDStar = getWDStar ( wdsStars, SSSpherical ( ra, dec, 1.0 ), strDblComp[0], primComp, strtofloat ( strDblSep ) );
+        if ( strDblComp.length() > 0 && wdsHTM.countRegions() > 0 )
+            pWDStar = getWDStar ( wdsHTM, SSSpherical ( ra, dec, 1.0 ), strDblComp[0], primComp, strtofloat ( strDblSep ) );
             
         // Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.

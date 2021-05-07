@@ -409,3 +409,48 @@ int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObj
     
     return numStars;
 }
+
+// Imports ORB6 catalog to Heirarchal Triangular Mesh (htm) instead of SSObjectArray.
+// Returns number of ORB6 stars stored in HTM.
+
+int SSImportORB6toHTM ( const string &filename, SSHTM &htm )
+{
+    SSObjectArray stars;
+    int n = SSImportORB6 ( filename, stars );
+    if ( n > 0 )
+    {
+        vector<float> magLevels = { INFINITY };
+        htm = SSHTM ( magLevels, "" );
+        n = htm.store ( stars );
+        if ( n > 0 )
+        {
+            stars.clear();
+            return n;
+        }
+    }
+
+    return 0;
+}
+
+// Imports WDS catalog to Heirarchal Triangular Mesh (htm) instead of SSObjectArray.
+// Returns number of WDS stars stored in HTM.
+
+int SSImportWDStoHTM ( const string &filename, const SSIdentifierMap &identmap, SSHTM &htm )
+{
+    SSObjectArray stars;
+    int n = SSImportWDS ( filename, identmap, stars );
+    if ( n > 0 )
+    {
+        vector<float> magLevels = { 6.0, 7.2, 8.4, INFINITY };
+        htm = SSHTM ( magLevels, "" );
+        n = htm.store ( stars );
+        if ( n > 0 )
+        {
+            stars.clear();
+            return n;
+        }
+    }
+
+    return 0;
+}
+

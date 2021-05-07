@@ -143,6 +143,8 @@ public:
     
     void setDataFileWriteFunc ( DataFileFunc func ) { _writeFunc = func; }
     DataFileFunc getDataFileWriteFunc ( void ) { return _writeFunc; }
+
+    int search ( uint64_t htmID, SSVector center, SSAngle rad, vector<SSObjectPtr> &results );
 };
 
 // Callback function to notify external HTM user when regions are loaded asynchronously.
