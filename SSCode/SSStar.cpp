@@ -416,6 +416,7 @@ void SSDoubleStar::computeEphemeris ( SSCoordinates &coords )
         
         SSVector pos, vel;
         _pOrbit->toPositionVelocity ( coords.getJED(), pos, vel );
+        _pPrimary->computeEphemeris ( coords );
         SSVector dir = _pPrimary->getDirection() + pos / SSAngle::kArcsecPerRad;
         
         // Don't apply aberration, was already applied to primary star

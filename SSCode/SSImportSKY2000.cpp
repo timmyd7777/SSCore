@@ -48,12 +48,12 @@ SSDoubleStarPtr getWDStar ( SSHTM &wdsHTM, SSSpherical coords, char comp, char &
         {
             SSOrbit orbit = pWDStar->getOrbit();
             if ( sep > 0.0 && sep > orbit.apoapse() * 2 )
-                return nullptr;
+                continue;
         }
         else
         {
             if ( sep > 0.0 && SSAngle::fromArcsec ( sep ) > pWDStar->getSeparation() * 2 )
-                return nullptr;
+                continue;
         }
         
         // cout << pWDStar->toCSV() << endl;
@@ -481,7 +481,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         SSDoubleStarPtr pWDStar = nullptr;
         if ( strDblComp.length() > 0 && wdsHTM.countRegions() > 0 )
             pWDStar = getWDStar ( wdsHTM, SSSpherical ( ra, dec, 1.0 ), strDblComp[0], primComp, strtofloat ( strDblSep ) );
-            
+        
         // Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
         
