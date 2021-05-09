@@ -148,7 +148,7 @@ int SSImportConstellations ( const string &filename, SSObjectVec &constellations
         // If successful, append new constellation to object vector.
         
         // cout << pCon->toCSV() << endl;
-        constellations.push_back ( pObject );
+        constellations.append ( pObject );
         numCons++;
     }
     

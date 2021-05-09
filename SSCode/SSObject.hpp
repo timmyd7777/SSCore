@@ -100,7 +100,9 @@ public:
     SSObjectPtr get ( size_t index ) { return index >= 0 && index < size() ? _objects.at ( index ) : nullptr; }
     SSObjectPtr set ( size_t index, SSObjectPtr pObj );
     SSObjectPtr operator [] ( size_t index ) { return get ( index ); }
-    void push_back ( SSObjectPtr pObj ) { _objects.push_back ( pObj ); }
+    void append ( SSObjectPtr pObj ) { _objects.push_back ( pObj ); }
+    void insert ( SSObjectPtr pObj, size_t index ) { _objects.insert ( _objects.begin() + index, pObj ); }
+    void remove ( size_t index ) { _objects.erase ( _objects.begin() + index ); }   // DOES NOT actually delete object!!!
     size_t size ( void ) { return _objects.size(); }
     void clear ( void ) { _objects.clear(); }   // empties object vector but DOES NOT delete individual objects!!!
     void erase ( void ) { for ( SSObjectPtr pObj : _objects ) delete pObj; clear(); }   // deletes all objects AND clears vector.
@@ -108,6 +110,9 @@ public:
     int search ( const SSObjectPtr &pKey, bool (*cmpfunc) ( const SSObjectPtr &p1, const SSObjectPtr &p2 ), vector<SSObjectPtr> &results );
     int search ( bool (*testfunc) ( const SSObjectPtr &pObject ), vector<SSObjectPtr> &results );
     int search ( SSVector center, SSAngle rad, vector<SSObjectPtr> &results );
+    int search ( SSVector center, SSAngle rad, vector<size_t> &results );
+    int erase ( SSVector center, SSAngle rad );
+    int erase ( SSObjectArray &stars, SSAngle rad );
 };
 
 typedef SSObjectArray SSObjectVec;          // legacy declaration was typedef vector<SSObjectPtr> SSObjectVec; now we use SSObjectArray class

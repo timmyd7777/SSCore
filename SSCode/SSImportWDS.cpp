@@ -163,7 +163,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
             pStar->setPositionAngleYear ( 2020.0 );
 
             // cout << pStar->toCSV() << endl;
-            stars.push_back ( pObj );
+            stars.append ( pObj );
             numStars++;
         }
     }
@@ -402,7 +402,7 @@ int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObj
                 pStar->setVMagnitude ( mag1 );
 
             // cout << pStar->toCSV() << endl;
-            stars.push_back ( pObj );
+            stars.append ( pObj );
             numStars++;
         }
     }

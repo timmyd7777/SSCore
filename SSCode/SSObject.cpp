@@ -235,23 +235,74 @@ int SSObjectArray::search ( bool (*testfunc) ( const SSObjectPtr &pObject ), vec
 
 // Searches SSObjectArray for objects appearing within a circle of (radius) radians,
 // centered on the celestial sphere at unit direction vector (center) in the fundamental frame.
-// Results are appended to vector (results); returns number of objects found within circle.
+// Indexes of found objects are appended to vector (results); returns number of objects found.
 
-int SSObjectArray::search ( SSVector center, SSAngle radius, vector<SSObjectPtr> &results )
+int SSObjectArray::search ( SSVector center, SSAngle radius, vector<size_t> &results )
 {
     int nfound = 0;
     
-    for ( const SSObjectPtr &pObject : _objects )
+    for ( size_t index = 0; index < _objects.size(); index++ )
     {
-        SSStar *pStar = SSGetStarPtr ( pObject );
-        SSVector vector = pStar ? pStar->getFundamentalPosition() : pObject->getDirection();
-        if ( center.angularSeparation ( vector ) < radius )
+        SSStar *pStar = SSGetStarPtr ( _objects[index] );
+        if ( pStar && center.angularSeparation ( pStar->getFundamentalPosition() ) < radius )
         {
             nfound++;
-            results.push_back ( pObject );
+            results.push_back ( index );
         }
     }
     
+    return nfound;
+}
+
+// Deletes objects in this SSObjectArray appearing within a circle of (radius) radians,
+// centered on the celestial sphere at unit direction vector (center) in the fundamental frame.
+// Returns number of objects deleted.
+
+int SSObjectArray::erase ( SSVector center, SSAngle radius )
+{
+    int nfound = 0;
+    
+    for ( size_t index = 0; index < _objects.size(); index++ )
+    {
+        SSStar *pStar = SSGetStarPtr ( _objects[index] );
+        if ( pStar && center.angularSeparation ( pStar->getFundamentalPosition() ) < radius )
+        {
+            nfound++;
+            cout << _objects[index]->toCSV() << endl;
+            delete _objects[index];
+            _objects.erase ( _objects.begin() + index );
+        }
+    }
+    
+    return nfound;
+}
+
+// Deletes objects in this SSObjectArray appearing within a circle of (radius) radians,
+// centered on any star in another SSObjectArray (stars).
+// Returns number of objects deleted.
+
+int SSObjectArray::erase ( SSObjectVec &stars, SSAngle radius )
+{
+    int n = 0;
+    for ( SSObjectPtr pObject : stars._objects )
+    {
+        SSStarPtr pStar = SSGetStarPtr ( pObject );
+        if ( pStar )
+            n += erase ( pStar->getFundamentalPosition(), radius );
+    }
+    return n;
+}
+
+// Searches SSObjectArray for objects appearing within a circle of (radius) radians,
+// centered on the celestial sphere at unit direction vector (center) in the fundamental frame.
+// Pointers to found objects are appended to vector (results); returns number of objects found.
+
+int SSObjectArray::search ( SSVector center, SSAngle radius, vector<SSObjectPtr> &results )
+{
+    vector<size_t> indexes;
+    int nfound = search ( center, radius, indexes );
+    for ( size_t index : indexes )
+        results.push_back ( _objects[index] );
     return nfound;
 }
 
@@ -422,7 +473,7 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects, SSObj
             
         if ( pObject != nullptr && ( filter == nullptr || filter ( pObject, userData ) ) )
         {
-            objects.push_back ( pObject );
+            objects.append ( pObject );
             numObjects++;
         }
     }

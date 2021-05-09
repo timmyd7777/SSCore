@@ -604,7 +604,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         // cout << pStar->toCSV() << endl;
         if ( filter == nullptr || filter ( pObj, userData ) )
         {
-            stars.push_back ( pObj );
+            stars.append ( pObj );
             numStars++;
         }
     }

@@ -288,7 +288,7 @@ int SSImportMPCComets ( const string &filename, SSObjectVec &comets )
         SSPlanetPtr pComet = SSImportMPCComet ( line );
         if ( pComet )
         {
-            comets.push_back ( pComet );
+            comets.append ( pComet );
             numComets++;
         }
     }
@@ -320,7 +320,7 @@ int SSImportMPCAsteroids ( const string &filename, SSObjectVec &asteroids )
         SSPlanetPtr pAsteroid = SSImportMPCAsteroid ( line );
         if ( pAsteroid )
         {
-            asteroids.push_back ( pAsteroid );
+            asteroids.append ( pAsteroid );
             numAsteroids++;
         }
     }

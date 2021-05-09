@@ -626,7 +626,7 @@ int SSImportNGCIC ( const string &filename, SSIdentifierNameMap &nameMap, SSObje
         // cout << pObject->toCSV() << endl;
         if ( filter == nullptr || filter ( pObject, userData ) )
         {
-            objects.push_back ( pObject );
+            objects.append ( pObject );
             numObjects++;
         }
     }
@@ -738,7 +738,7 @@ int SSImportDAML02 ( const string &filename, SSIdentifierNameMap &nameMap, SSObj
         pObject->setMajorAxis ( diam );
 
         // cout << pObject->toCSV() << endl;
-        clusters.push_back ( pObject );
+        clusters.append ( pObject );
         numClusters++;
     }
     
@@ -848,7 +848,7 @@ int SSImportMWGC ( const string &filename, SSIdentifierNameMap &nameMap, SSObjec
         pObject->setSpectralType ( specStr );
         
         // cout << pObject->toCSV() << endl;
-        clusters.push_back ( pObject );
+        clusters.append ( pObject );
         numClusters++;
     }
 
@@ -1076,7 +1076,7 @@ int SSImportPNG ( const string &main_filename, const string &dist_filename, cons
         pObject->setMajorAxis ( diam );
         
         // cout << pObject->toCSV() << endl;
-        nebulae.push_back ( pObject );
+        nebulae.append ( pObject );
         numNebulae++;
     }
     

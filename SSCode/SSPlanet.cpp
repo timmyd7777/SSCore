@@ -873,7 +873,7 @@ int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites 
         SSSatellite *pSat = new SSSatellite ( tle );
         if ( pSat )
         {
-            satellites.push_back ( SSObjectPtr ( pSat ) );
+            satellites.append ( SSObjectPtr ( pSat ) );
             numSats++;
         }
     }

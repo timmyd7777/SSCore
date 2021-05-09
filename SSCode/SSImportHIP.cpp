@@ -225,7 +225,7 @@ int SSImportHIC ( const string &filename, SSObjectVec &stars )
             pStar->setSpectralType ( strSpec );
 
             // cout << pStar->toCSV() << endl;
-            stars.push_back ( pObj );
+            stars.append ( pObj );
             numStars++;
         }
     }
@@ -338,7 +338,7 @@ int SSImportHIP2 ( const string &filename, SSObjectVec &stars )
             pStar->setBMagnitude ( bmag );
 
             // cout << pStar->toCSV() << endl;
-            stars.push_back ( pObj );
+            stars.append ( pObj );
             numStars++;
         }
     }
@@ -513,7 +513,7 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
             pStar->setSpectralType ( strSpec );
 
             // cout << pStar->toCSV() << endl;
-            stars.push_back ( pObj );
+            stars.append ( pObj );
             numStars++;
         }
     }

@@ -131,7 +131,7 @@ bool SSHTM::store ( SSStar *pStar )
     if ( _regions.count ( htmID ) == 0 )
         _regions[htmID] = new SSObjectVec();
     
-    _regions[htmID]->push_back ( pStar );
+    _regions[htmID]->append ( pStar );
     return true;
 }
 
