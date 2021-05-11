@@ -1067,6 +1067,46 @@ float SSStar::radius ( float lum, float temp )
     return temp * temp * sqrt ( lum );
 }
 
+// Returns this star's radius in solar radii, computed from temperature and luminosity,
+// or returns INFINITY if radius cannot be computed.
+
+float SSStar::radius ( void )
+{
+    // parse spectral class, get spectral temperature;
+    // use color temperature if spectral temperature is not available.
+
+    float temperature = INFINITY;
+    int spectype = 0, lumclass = 0;
+    SSStar::SpecInfo spec = SSStar::spectralClassInfo ( 0, 0 );
+    if ( _type >= kTypeStar && _type <= kTypeDoubleVariableStar )
+    {
+        SSStar::parseSpectrum ( _spectrum, spectype, lumclass );
+        spec = SSStar::spectralClassInfo ( spectype, lumclass );
+        if ( isinf ( spec.Teff ) )
+            temperature = SSStar::colorTemperature ( _Bmag - _Vmag, lumclass );
+        else
+            temperature = spec.Teff;
+    }
+
+    // if parallax is known, compute and show absolute magnitude and luminosity
+    // from visual magnitude and distance; otherwise derive from spectral class.
+
+    float absmag = isinf ( _Vmag ) ? _Bmag : _Vmag;
+    float luminosity = INFINITY;
+    if ( isinf ( absmag ) || _parallax <= 0.0 )
+    {
+        absmag = spec.Mv;
+        luminosity = pow ( 10.0, spec.logL );
+    }
+    else
+    {
+        absmag = SSStar::absoluteMagnitude ( absmag, 1.0 / _parallax );
+        luminosity = SSStar::luminosity ( absmag, spec.BCv );
+    }
+    
+    return SSStar::radius ( luminosity, temperature );
+}
+
 // Returns CSV string from base data (excluding names and identifiers).
 
 string SSStar::toCSV1 ( void )

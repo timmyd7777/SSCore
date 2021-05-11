@@ -155,6 +155,7 @@ public:
     static SpecInfo spectralClassInfo ( int spectype, int lumclass );
     static float luminosity ( float mv, float bc );
     static float radius ( float lum, float temp );
+    float radius ( void );
 };
 
 // This subclass of SSStar stores data for double stars
