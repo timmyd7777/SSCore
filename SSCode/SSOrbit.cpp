@@ -125,7 +125,7 @@ double SSOrbit::gravityConstant ( double e, double q, double mm )
 
 void SSOrbit::solveKeplerEquation ( double jed, double &nu, double &r )
 {
-    int        i = 0;
+    int       i = 0;
     double    ma = m + mm * ( jed - t );
     double    ea = 0.0, ha = 0.0, delta = 0.0, delta_ea = 0.0;
 
@@ -193,7 +193,7 @@ void SSOrbit::solveKeplerEquation ( double jed, double &nu, double &r )
         ha = asinh ( ma / e );
         do
         {
-            delta = ha - e * sinh ( ha ) + m;
+            delta = ha - e * sinh ( ha ) + ma;
             ha -= delta / ( 1.0 - e * cosh ( ha ) );
             i++;
         }
