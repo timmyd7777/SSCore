@@ -336,8 +336,10 @@ void SSStar::computePositionVelocity ( SSCoordinates &coords, SSVector &pos, SSV
     if ( _parallax > 0.0 )
     {
         pos *= coords.kAUPerParsec / _parallax;
-        vel *= SSTime::kDaysPerJulianYear * coords.kAUPerParsec / _parallax;
+        vel *= coords.kAUPerParsec / _parallax;
     }
+    
+    vel /= SSTime::kDaysPerJulianYear;
 }
 
 // Compute star's apparent direction, distance, and magnitude at the Julian Ephemeris Date
@@ -414,16 +416,24 @@ void SSDoubleStar::computeEphemeris ( SSCoordinates &coords )
     {
         // NOTE: this only works when viewed from within Solar System
         
-        SSVector pos, vel;
+        SSVector pos, vel, dir;
         _pOrbit->toPositionVelocity ( coords.getJED(), pos, vel );
         _pPrimary->computeEphemeris ( coords );
-        SSVector dir = _pPrimary->getDirection() + pos / SSAngle::kArcsecPerRad;
+        _magnitude = _Vmag < INFINITY ? _Vmag : _Bmag;
+        if ( getParallax() > 0.0 && _pPrimary->getParallax() > 0.0 )
+        {
+            dir = _pPrimary->getDirection() * _pPrimary->getDistance() + pos / (double) _parallax;
+            _direction = dir.normalize ( _distance );
+            _magnitude += 5.0 * log10 ( _distance / ( coords.kAUPerParsec / _parallax ) );
+        }
+        else
+        {
+            dir = _pPrimary->getDirection() + pos / SSAngle::kArcsecPerRad;
+            _direction = dir.normalize();
+            _distance = _pPrimary->getDistance();
+        }
         
         // Don't apply aberration, was already applied to primary star
-
-        _direction = dir.normalize();
-        _distance = _pPrimary->getDistance();
-        _magnitude = _Vmag < INFINITY ? _Vmag : _Bmag;  // TODO: correct for distance
     }
     else
     {
