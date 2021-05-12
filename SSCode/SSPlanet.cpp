@@ -1126,6 +1126,15 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
     double d = jed - 2451545.0;
     double T = d / 36525.0;
     
+    // default for all other objects: north pole is ecliptic north pole and rotation rate is 1 revolution/day.
+
+    a0 = 270.0;
+    d0 = 66.561;
+    wd = 360.0;
+    w  = wd * d;
+
+    // overrides for specific objects
+    
     if ( _type == kTypePlanet )
     {
         if ( id == kSun )
@@ -1476,7 +1485,31 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
             a0 = 132.993;
             d0 =  -6.163;
             wd =  56.3625225;
-            w  = 122.695 + d;
+            w  = 122.695 + wd * d;
+        }
+    }
+    else if ( _type == kTypeAsteroid )
+    {
+        if ( id == 1 )  // Ceres
+        {
+            a0 = 291.418;
+            d0 = 66.764;
+            wd = 952.1532;
+            w  = 170.650 + wd * d;
+        }
+        else if ( id == 2 ) // Pallas
+        {
+            a0 = 33;
+            d0 = -3;
+            wd = 1105.8036;
+            w  = 38 + wd * d;
+        }
+        else if ( id == 4 ) // Vesta
+        {
+            a0 = 309.031;
+            d0 =  42.235;
+            wd = 1617.3329428;
+            w  = 285.39 + wd * d;
         }
     }
     
