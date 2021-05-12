@@ -58,7 +58,7 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
     float d = fields[11].empty() ? 0.0 : strtofloat ( fields[11] );
     float m = fields[12].empty() ? 0.0 : strtofloat ( fields[12] ) / SSOrbit::kGravity;
-    float p = fields[13].empty() ? 0.0 : strtofloat ( fields[13] ) / 24.0;
+//    float p = fields[13].empty() ? 0.0 : strtofloat ( fields[13] ) / 24.0;
 
     // Allocate new object; return nullptr on failure
     
@@ -66,10 +66,10 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     if ( pAstCom == nullptr )
         return nullptr;
     
-    if ( number )
-        pAsteroid->setIdentifier ( number );
+//    if ( number )
+//        pAsteroid->setIdentifier ( number );
+//    pAstCom->setNames ( names );
     
-    pAstCom->setNames ( names );
     pAstCom->setOrbit ( orbit );
     pAstCom->setHMagnitude ( h );
     pAstCom->setGMagnitude ( g );
