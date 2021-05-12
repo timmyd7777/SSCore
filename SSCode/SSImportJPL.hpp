@@ -11,6 +11,6 @@
 #include "SSPlanet.hpp"
 
 SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type );
-int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec &objects );
+int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec &objects, SSObjectFilter filter = nullptr, void *userData = nullptr );
 
 #endif /* SSImportJPL_hpp */

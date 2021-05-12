@@ -656,8 +656,9 @@ string SSPlanet::toCSV ( void )
     csv += ::isinf ( _radius ) ? "," : format ( "%.1f,", _radius );
     csv += ::isinf ( _mass ) ? "," : format ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
 
-    csv += _id ? _id.toString() + "," : ",";
-        
+    // Never print identifier for comets, since this is always duplicated in the first name.
+    
+    csv += _id && _type != kTypeComet ? _id.toString() + "," : ",";
     for ( int i = 0; i < _names.size(); i++ )
         csv += _names[i] + ",";
 

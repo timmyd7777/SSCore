@@ -10,6 +10,10 @@
 
 // Converts one line of a JPL DASTCOM export CSV file to an SSPlanet of kTypeAsteroid
 // or kTypeComet (type); all other object types fail to create an SSPlanet.
+// Expected CSV format for asteroids is:
+// full_name,equinox,a,e,i,w,om,ma,epoch,H,G,diameter,GM,rot_per
+// Expected CSV format for comets is:
+// full_name,equinox,q,e,i,w,om,tp,epoch,M1,K1,diameter,GM,rot_per
 // Returns pointer to newly-allocated SSPlanet if successful or nullptr on failure.
 
 SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
@@ -38,6 +42,11 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     orbit.m = degtorad ( strtofloat64 ( fields[7] ) );
     orbit.t = strtofloat64 ( fields[8] );
 
+    // reject invalid orbits
+    
+    if ( orbit.q <= 0.0 || orbit.t <= 0.0 )
+        return nullptr;
+    
     // For asteroids, compute perihelion from semimajor axis and eccentricity
     
     if ( type == kTypeAsteroid )
@@ -56,19 +65,14 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     
     float h = fields[9].empty() ? INFINITY : strtofloat ( fields[9] );
     float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
-    float d = fields[11].empty() ? 0.0 : strtofloat ( fields[11] );
-    float m = fields[12].empty() ? 0.0 : strtofloat ( fields[12] ) / SSOrbit::kGravity;
-//    float p = fields[13].empty() ? 0.0 : strtofloat ( fields[13] ) / 24.0;
+    float d = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
+    float m = fields[12].empty() ? INFINITY : strtofloat ( fields[12] ) / SSOrbit::kGravity;
+    float p = fields[13].empty() ? 0.0 : strtofloat ( fields[13] ) / 24.0; p = p;   // supress unused variable warning
 
-    // Allocate new object; return nullptr on failure
-    
-    SSPlanetPtr pAstCom = new SSPlanet ( type );
-    if ( pAstCom == nullptr )
-        return nullptr;
-    
     // parse number, name, designation
     
     int number = 0;
+    vector<string> names;
     string name = "", desig = "";
     if ( type == kTypeAsteroid )
     {
@@ -78,14 +82,17 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
             size_t p0 = fields[0].find ( ' ' );
             size_t p1 = fields[0].find ( '(' );
             size_t p2 = fields[0].find ( ')' );
-            name  = fields[0].substr ( p0 + 1, p1 - p0 - 1 );
-            desig = fields[0].substr ( p1 + 1, p2 - p1 - 1 );
+            if ( p1 - p0 > 2 )
+                names.push_back ( fields[0].substr ( p0 + 1, p1 - p0 - 2 ) );   // name
+            if ( p2 - p1 > 1 )
+                names.push_back ( fields[0].substr ( p1 + 1, p2 - p1 - 1 ) );   // designation
         }
         else
         {
             size_t p1 = fields[0].find ( '(' );
             size_t p2 = fields[0].find ( ')' );
-            desig = fields[0].substr ( p1 + 1, p2 - p1 - 1 );
+            if ( p2 - p1 > 1 )
+                names.push_back ( fields[0].substr ( p1 + 1, p2 - p1 - 1 ) );   // designation
         }
     }
     else
@@ -93,36 +100,48 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
         number = strtoint ( fields[0] );
         if ( number > 0 )
         {
-            name = fields[0].substr ( fields[0].find_first_of ( "PD" ) + 1, string::npos );
+            size_t p0 = fields[0].find ( '/' );
+            names.push_back ( fields[0].substr ( 0, p0 ) );                     // designation
+            names.push_back ( fields[0].substr ( p0 + 1, string::npos ) );      // name
         }
         else
         {
             size_t p1 = fields[0].find ( '(' );
             size_t p2 = fields[0].find ( ')' );
-            name = fields[0].substr ( p1 + 1, p2 - p1 - 1 );
-            desig = fields[0].substr ( 0, p1 - 1 );
+            names.push_back ( fields[0].substr ( 0, p1 - 1 ) );                 // designation
+            names.push_back ( fields[0].substr ( p1 + 1, p2 - p1 - 1 ) );       // name
         }
     }
     
-//    if ( number )
-//        pAsteroid->setIdentifier ( number );
-//    pAstCom->setNames ( names );
+    // Allocate new object; return nullptr on failure
     
+    SSPlanetPtr pAstCom = new SSPlanet ( type );
+    if ( pAstCom == nullptr )
+        return nullptr;
+    
+    pAstCom->setNames ( names );
+    if ( number )
+        pAstCom->setIdentifier ( SSIdentifier ( type == kTypeAsteroid ? kCatAstNum : kCatComNum, number ) );
+
     pAstCom->setOrbit ( orbit );
     pAstCom->setHMagnitude ( h );
     pAstCom->setGMagnitude ( g );
     pAstCom->setRadius ( d / 2.0 );
     pAstCom->setMass ( m / SSCoordinates::kKgPerEarthMass );
 
+    // cout << pAstCom->toCSV() << endl;
     return pAstCom;
 }
 
 // Read asteroid or comet data from a JPL DASTCOM export file in CSV format for objects
 // of kTypeAsteroid or kTypeComet (type) from https://ssd.jpl.nasa.gov/sbdb_query.cgi
 // Imported data is appended to the input vector of SSObjects (objects).
+// If a non-null filter function (filter) is provided, objects are imported
+// only if they pass the filter; optional data pointer (userData) is passed
+// to the filter but not used otherwise.
 // Returns number of objects successfully imported.
 
-int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec &objects )
+int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec &objects, SSObjectFilter filter, void *userData )
 {
     if ( type < kTypeAsteroid || type > kTypeComet )
         return 0;
@@ -143,8 +162,11 @@ int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec 
         SSPlanetPtr pAstCom = SSImportJPLAstCom ( line, type );
         if ( pAstCom )
         {
-            objects.append ( pAstCom );
-            numAstCom++;
+            if ( filter == nullptr || filter ( pAstCom, userData ) )
+            {
+                objects.append ( pAstCom );
+                numAstCom++;
+            }
         }
     }
     
