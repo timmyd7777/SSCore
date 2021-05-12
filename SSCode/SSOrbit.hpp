@@ -27,6 +27,7 @@ struct SSOrbit
     double m;        // mean anomaly at epoch in radians
     double mm;       // mean motion, radians per day
 
+    static constexpr double kGravity = 6.67259e-20;                 // Newtonian gravitational constant for mass in kilograms, time in seconds, distance in kilometers [km^3 / kg / sec^2] (JPL)
     static constexpr double kGaussGravHelio = 0.01720209895;        // Gaussian gravitational constant for heliocentric orbits with time in days and distance in AU
     static constexpr double kGaussGravGeo = 0.0743669161;           // Gaussian gravitational constant for geocentric orbits with time in minutes and distance in Earth-radii
     
