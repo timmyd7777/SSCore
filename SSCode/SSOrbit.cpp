@@ -176,8 +176,8 @@ void SSOrbit::solveKeplerEquation ( double jed, double &nu, double &r )
         {
             s2 = s * s;
             s3 = s2 * s;
-            s = ( 2.0 * s3 + m ) / ( 3.0 * ( s2 + 1.0 ) );
-            delta = s3 + 3.0 * s - m;
+            s = ( 2.0 * s3 + ma ) / ( 3.0 * ( s2 + 1.0 ) );
+            delta = s3 + 3.0 * s - ma;
             i++;
         }
         while ( fabs ( delta ) > kTolerance && i < kMaxIterations );

@@ -39,7 +39,7 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     orbit.i = degtorad ( strtofloat64 ( fields[4] ) );
     orbit.w = degtorad ( strtofloat64 ( fields[5] ) );
     orbit.n = degtorad ( strtofloat64 ( fields[6] ) );
-    orbit.m = degtorad ( strtofloat64 ( fields[7] ) );
+    orbit.m = strtofloat64 ( fields[7] );
     orbit.t = strtofloat64 ( fields[8] );
 
     // reject invalid orbits
@@ -56,10 +56,13 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     
     orbit.mm = SSOrbit::meanMotion ( orbit.e, orbit.q );
     
-    // For comets, compute mean anomaly at epoch from perihelion date and mean motion
+    // For asteroids, convert mean anomaly to radians.
+    // For comets, compute mean anomaly at epoch from perihelion date and mean motion.
     
-    if ( type == kTypeComet )
-        orbit.m = orbit.mm * ( orbit.m - orbit.t );
+    if ( type == kTypeAsteroid )
+        orbit.m = degtorad ( orbit.m );
+    else
+        orbit.m = orbit.mm * ( orbit.t - orbit.m );
     
     // Get magnitude parameters, diameter in km, mass in kg, rotation period in days (currenntly ignored)
     
