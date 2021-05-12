@@ -66,6 +66,44 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     if ( pAstCom == nullptr )
         return nullptr;
     
+    // parse number, name, designation
+    
+    int number = 0;
+    string name = "", desig = "";
+    if ( type == kTypeAsteroid )
+    {
+        number = strtoint ( fields[0] );
+        if ( number > 0 )
+        {
+            size_t p0 = fields[0].find ( ' ' );
+            size_t p1 = fields[0].find ( '(' );
+            size_t p2 = fields[0].find ( ')' );
+            name  = fields[0].substr ( p0 + 1, p1 - p0 - 1 );
+            desig = fields[0].substr ( p1 + 1, p2 - p1 - 1 );
+        }
+        else
+        {
+            size_t p1 = fields[0].find ( '(' );
+            size_t p2 = fields[0].find ( ')' );
+            desig = fields[0].substr ( p1 + 1, p2 - p1 - 1 );
+        }
+    }
+    else
+    {
+        number = strtoint ( fields[0] );
+        if ( number > 0 )
+        {
+            name = fields[0].substr ( fields[0].find_first_of ( "PD" ) + 1, string::npos );
+        }
+        else
+        {
+            size_t p1 = fields[0].find ( '(' );
+            size_t p2 = fields[0].find ( ')' );
+            name = fields[0].substr ( p1 + 1, p2 - p1 - 1 );
+            desig = fields[0].substr ( 0, p1 - 1 );
+        }
+    }
+    
 //    if ( number )
 //        pAsteroid->setIdentifier ( number );
 //    pAstCom->setNames ( names );
