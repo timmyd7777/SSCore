@@ -128,7 +128,7 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
 
     pAstCom->setOrbit ( orbit );
     pAstCom->setHMagnitude ( h );
-    pAstCom->setGMagnitude ( g );
+    pAstCom->setGMagnitude ( type == kTypeComet ? g / 2.5 : g );
     pAstCom->setRadius ( d / 2.0 );
     pAstCom->setMass ( m / SSCoordinates::kKgPerEarthMass );
 
