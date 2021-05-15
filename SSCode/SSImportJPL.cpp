@@ -11,9 +11,9 @@
 // Converts one line of a JPL DASTCOM export CSV file to an SSPlanet of kTypeAsteroid
 // or kTypeComet (type); all other object types fail to create an SSPlanet.
 // Expected CSV format for asteroids is:
-// full_name,equinox,a,e,i,w,om,ma,epoch,H,G,diameter,GM,rot_per
+// full_name,equinox,a,e,i,w,om,ma,epoch,H,G,diameter,GM,rot_per,albedo,BV,spec_T
 // Expected CSV format for comets is:
-// full_name,equinox,q,e,i,w,om,tp,epoch,M1,K1,diameter,GM,rot_per
+// full_name,equinox,q,e,i,w,om,tp,epoch,M1,K1,diameter,GM,rot_per,albedo,BV,spec_T
 // Returns pointer to newly-allocated SSPlanet if successful or nullptr on failure.
 
 SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
@@ -24,7 +24,7 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     // split string into comma-delimited fields; require at least 14
 
     vector<string> fields = split_csv ( line );
-    if ( fields.size() < 14 )
+    if ( fields.size() < 17 )
         return nullptr;
     
     // remove leading & trailing whitespace/line breaks from each field.
@@ -70,7 +70,9 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
     float d = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
     float m = fields[12].empty() ? INFINITY : strtofloat ( fields[12] ) / SSOrbit::kGravity;
-    float p = fields[13].empty() ? 0.0 : strtofloat ( fields[13] ) / 24.0; p = p;   // supress unused variable warning
+    float p = fields[13].empty() ? INFINITY : strtofloat ( fields[13] ) / 24.0;
+    float a = fields[14].empty() ? INFINITY : strtofloat ( fields[14] );
+    float c = fields[15].empty() ? INFINITY : strtofloat ( fields[15] );
 
     // parse number, name, designation
     
@@ -129,8 +131,12 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     pAstCom->setOrbit ( orbit );
     pAstCom->setHMagnitude ( h );
     pAstCom->setGMagnitude ( type == kTypeComet ? g / 2.5 : g );
+    pAstCom->setColorIndex ( c );
     pAstCom->setRadius ( d / 2.0 );
     pAstCom->setMass ( m / SSCoordinates::kKgPerEarthMass );
+    pAstCom->setRotationPeriod ( p );
+    pAstCom->setAlbedo ( a );
+    pAstCom->setTaxonomy ( fields[16] );
 
     // cout << pAstCom->toCSV() << endl;
     return pAstCom;

@@ -35,6 +35,7 @@ protected:
     
     SSObjectType    _type;          // object type code
     vector<string>  _names;         // vector of name string(s)
+    string          _description;   // plain-text object description (may be empty)
     SSVector        _direction;     // apparent direction to object as unit vector in fundamental reference frame; infinite if unknown
     double          _distance;      // distance to object in AU; infinite if unknown
     float           _magnitude;     // visual magnitude; infinite if unknown
@@ -51,6 +52,7 @@ public:
     
     SSObjectType getType ( void ) { return _type; }
     vector<string> getNames ( void ) { return _names; }
+    string getDescription ( void ) { return _description; }
     SSVector getDirection ( void ) { return _direction; }
     double getDistance ( void ) { return _distance; }
     float getMagnitude ( void ) { return _magnitude; }
@@ -59,6 +61,7 @@ public:
     
     void setType ( SSObjectType type ) { _type = type; }
     void setNames ( const vector<string> &names ) { _names = names; }
+    void setDescription ( const string &desc ) { _description = desc; }
     void setDirection ( SSVector dir ) { _direction = dir; }
     void setDistance ( double dist ) { _distance = dist; }
     void setMagnitude ( float mag ) { _magnitude = mag; }

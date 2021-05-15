@@ -43,8 +43,12 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
     _id = SSIdentifier();
     _orbit = SSOrbit();
     _Hmag = _Gmag = INFINITY;
+    _BminV = INFINITY;
     _radius = 0.0;
     _mass = 0.0;
+    _rotper = INFINITY;
+    _albedo = INFINITY;
+    _taxonomy = "";
     _position = _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
 }
 
@@ -370,7 +374,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist )
 {
     SSVector point = SSSpherical ( lon, lat, getRadius() / SSCoordinates::kKmPerAU );
-    point.z *= 1.0 - flattening();
+    point.z *= 1.0 - getFlattening();
     point = getPlanetographicMatrix() * point;
     dir = ( point + getDirection() * getDistance() ).normalize ( dist );
     return dir * point < 0.0;
@@ -735,6 +739,9 @@ SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )
     _orbit = tle.toOrbit ( 0.0 );
     _orbit.q *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
     _orbit.mm *= SSTime::kMinutesPerDay;
+    
+    _launchDate = INFINITY;
+    _launchSite = _sourceCountry = "";
 }
 
 // Computes satellite visual magnitude.
@@ -1001,7 +1008,7 @@ int SSImportSatelliteFrequencyData ( const string &filename, SatFreqMap &freqmap
 
     string line = "";
     int nFreqs = 0;
-    vector<SatFreqData> freqvec;
+    vector<SSSatellite::FreqData> freqvec;
 
     while ( getline ( file, line ) )
     {
@@ -1009,16 +1016,16 @@ int SSImportSatelliteFrequencyData ( const string &filename, SatFreqMap &freqmap
         if ( fields.size() < 8 )
             continue;
         
-        SatFreqData freq = { 0, "", "", "", "", "", "", "" };
+        SSSatellite::FreqData freq = { 0, "", "", "", "", "", "", "" };
         
-        freq.name = fields[0];
+        freq.name = trim ( fields[0] );
         freq.norad = strtoint ( fields[1] );
-        freq.uplink = fields[2];
-        freq.downlink = fields[3];
-        freq.beacon = fields[4];
-        freq.mode = fields[5];
-        freq.callsign = fields[6];
-        freq.status = fields[7];
+        freq.uplink = trim ( fields[2] );
+        freq.downlink = trim ( fields[3] );
+        freq.beacon = trim ( fields[4] );
+        freq.mode = trim ( fields[5] );
+        freq.callsign = trim ( fields[6] );
+        freq.status = trim ( fields[7] );
         
         if ( freq.norad < 1 )
             continue;
@@ -1073,16 +1080,110 @@ int SSImportSatelliteFrequencyData ( const string &filename, SSObjectVec &object
         // If we find one, copy satellite frequency vector into satellite.
         
         int norad = pSat->getTLE().norad;
-        vector<SatFreqData> freqvec = freqmap[norad];
+        vector<SSSatellite::FreqData> freqvec = freqmap[norad];
         if ( freqvec.size() > 0 && freqvec[0].norad == norad )
         {
-            // TODO: actually store the vector of SatFreqData into pSat!
-            
+            pSat->setRadioFrequencies ( freqvec );
             n += freqvec.size();
         }
     }
     
     // Return total number of satellites matched to amateur radio frequencies.
+    
+    return n;
+}
+
+// Imports N2YO satellite auxiliar data file:
+// http://www.ne.jp/asahi/hamradio/je9pel/satslist.csv
+// into a map of vectors of N2Data structs indexed by NORAD number.
+// Returns number of N2Data records imported from file.
+
+int SSImportN2Data ( const string &filename, N2DataMap &datamap )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int n = 0;
+
+    while ( getline ( file, line ) )
+    {
+        vector<string> fields = split_csv ( line );
+        if ( fields.size() < 8 )
+            continue;
+        
+        N2Data data;
+        
+        data.norad = strtoint ( fields[0] );
+        data.name = fields[1];
+        data.type = fields[2];
+        data.source = fields[3];
+        data.description = fields[4];
+        data.launch_site = fields[5];
+        data.launch_date = SSTime ( SSDate ( "%Y-%m-%d", fields[6] ) );
+        data.decay_date = SSTime ( SSDate ( "%Y-%m-%d", fields[7] ) );
+        if ( data.decay_date < SSTime::kB1950 )
+            data.decay_date = INFINITY;
+        
+        if ( data.norad < 1 )
+            continue;
+        
+        datamap.insert ( { data.norad, data } );
+        n++;
+    }
+    
+    // Return number of N2Data structs read from file.  File will close automatically.
+
+    return n;
+}
+
+// Imports N2YO satellite auxiliar data file into the vector of SSObjects (satellites),
+// which may contain any solar system objects in addition to satellites.
+// Returns number of N2Data records successfully imported.
+
+int SSImportN2Data ( const string &filename, SSObjectVec &satellites )
+{
+    N2DataMap datamap;
+    
+    // First read the McNames file; return 0 if we fail.
+    
+    int n = SSImportN2Data ( filename, datamap );
+    if ( n == 0 || datamap.size() == 0 )
+        return 0;
+    
+    // For each object in the solar system object vector...
+    
+    n = 0;
+    for ( int i = 0; i < satellites.size(); i++ )
+    {
+        // If the object is not a satellite, continue
+        
+        SSSatellite *pSat = SSGetSatellitePtr ( satellites[i] );
+        if ( pSat == nullptr )
+            continue;
+        
+        // Get satellite's NORAD number. Look for McName record with same number.
+        // If we find one, copy McName magnitude and size into satellite.
+        
+        int norad = pSat->getTLE().norad;
+        N2Data data = datamap[norad];
+        if ( data.norad == norad )
+        {
+            pSat->setTaxonomy ( data.type );
+            pSat->setDescription ( data.description );
+            pSat->setSourceCountry ( data.source );
+            pSat->setLaunchSite ( data.launch_site );
+            pSat->setLaunchDate ( data.launch_date );
+            n++;
+        }
+    }
+    
+    // Return total number of McName records matched.
     
     return n;
 }
@@ -1120,6 +1221,7 @@ bool SSPlanet::useVSOPELP ( void )
 // 2009 https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2009reprint (for Earth and Moon)
 // Small periodic terms with amplitudes less than 0.001 degree omitted for Mercury, Mars, Jupiter.
 // Rotation rates are System II for Jupiter and System III for Saturn.
+// Returns true if successful; if false, returns default rotational elements.
 
 void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w, double &wd )
 {
@@ -1127,11 +1229,11 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
     double d = jed - 2451545.0;
     double T = d / 36525.0;
     
-    // default for all other objects: north pole is ecliptic north pole and rotation rate is 1 revolution/day.
+    // default for all other objects: north pole is ecliptic north pole and rotation rate is zero.
 
     a0 = 270.0;
     d0 = 66.561;
-    wd = 360.0;
+    wd = 0.0;
     w  = wd * d;
 
     // overrides for specific objects
@@ -1537,7 +1639,7 @@ SSMatrix SSPlanet::setPlanetographicMatrix ( double jed )
 // Data from "Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015", page 28:
 // https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint
 
-double SSPlanet::flattening ( void )
+double SSPlanet::getFlattening ( void )
 {
     double f = 0.0;
     int id = (int) _id.identifier();
@@ -1611,7 +1713,7 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q, fl
     r = tmatrix * r;
     SSVector c = tmatrix * _position;
     double re = getRadius() * s / SSCoordinates::kKmPerAU;
-    double f = flattening();
+    double f = getFlattening();
     
     // Define some variables
     

@@ -73,8 +73,12 @@ protected:
     SSOrbit     _orbit;         // current orbital elements
     float       _Hmag;          // absolute magnitude; infinite if unknown
     float       _Gmag;          // magnitude slope parameter; infinite if unknown
+    float       _BminV;         // B-V color index; infinite if unknown
     float       _radius;        // equatorial radius in kilometers; 0 or infinite if unknown
     float       _mass;          // mass in Earth masses, 0 or infinite if unknown
+    float       _rotper;        // sidereal rotation period in days, 0 or infinite if unknown
+    float       _albedo;        // geometric albedo; infinite if unknown
+    string      _taxonomy;      // spectral taxonomic type (Tholen) for asteroids; empty if unknown
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
     SSMatrix    _pmatrix;       // transforms from planetographic to fundamental J2000 mean equatorial frame.
@@ -111,9 +115,13 @@ public:
     void setOrbit ( SSOrbit orbit ) { _orbit = orbit; }
     void setHMagnitude ( float hmag ) { _Hmag = hmag; }
     void setGMagnitude ( float gmag ) { _Gmag = gmag; }
+    void setColorIndex ( float bmv ) { _BminV = bmv; }
     void setRadius ( float radius ) { _radius = radius; }
     void setMass ( float mass ) { _mass = mass; }
-
+    void setRotationPeriod ( float period ) { _rotper = period; }
+    void setAlbedo ( float a ) { _albedo = a; }
+    void setTaxonomy ( string tax ) { _taxonomy = tax; }
+    
     string getTypeName ( void );
     string getNumberName ( void );
     SSIdentifier getIdentifier ( void ) { return _id; }
@@ -123,9 +131,13 @@ public:
     SSOrbit getOrbit ( void ) { return _orbit; }
     float getHMagnitude ( void ) { return _Hmag; }
     float getGMagnitude ( void ) { return _Gmag; }
+    float getColorIndex ( void ) { return _BminV; }
     float getRadius ( void ) { return _radius; }
     float getMass ( void ) { return _mass; }
-    double flattening ( void );
+    float getRotationPeriod ( void ) { return _rotper; }
+    float getAlbedo ( void ) { return _albedo; }
+    string getTaxonomy ( void ) { return _taxonomy; }
+    double getFlattening ( void );
 
     SSVector getPosition ( void ) { return _position; }
     SSVector getVelocity ( void ) { return _velocity; }
@@ -189,8 +201,27 @@ public:
 
 class SSSatellite : public SSPlanet
 {
+public:
+    
+    struct FreqData
+    {
+        int    norad;             // NORAD tracking number
+        string name;              // satellite name
+        string uplink;            // uplink frequency(ies), MHz
+        string downlink;          // downlink frequency(ies), MHz
+        string beacon;            // beacon frequency, MHz
+        string mode;              // modulation scheme and rate, if known
+        string callsign;          // callsign
+        string status;            // current status
+    };
+
 protected:
-    SSTLE _tle;
+    
+    SSTLE   _tle;               // current orbit from Two-Line-Element data
+    string  _sourceCountry;     // source country code
+    string  _launchSite;        // launch side code
+    float   _launchDate;        // launch date [Julian Date]; infinity if unknown
+    vector<FreqData> _freqData; // frequency data for radio tranmitter(s)
     
 public:
     
@@ -201,6 +232,16 @@ public:
     virtual void  computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     virtual float computeMagnitude ( double rad, double dist, double phase );
     static  float computeSatelliteMagnitude ( double dist, double phase, double stdmag );
+    
+    vector<FreqData> getRadioFrequencies ( void ) { return _freqData; }
+    string getSourceCountry ( void ) { return _sourceCountry; }
+    string getLaunchSite ( void ) { return _launchSite; }
+    double getLaunchDate ( void ) { return _launchDate; }
+
+    void setRadioFrequencies ( const vector<FreqData> &freqs ) { _freqData = freqs; }
+    void setSourceCountry ( string source ) { _sourceCountry = source; }
+    void setLaunchSite ( string site ) { _launchSite = site; }
+    void setLaunchDate ( double jd ) { _launchDate = jd; }
 };
 
 // convenient aliases for pointers to various subclasses of SSPlanet
@@ -232,21 +273,28 @@ int SSImportMcNames ( const string &filename, SSObjectVec &objects );
 
 // Struct used to store CSV-parsed data from amateur satellite frequency table
 
-struct SatFreqData
-{
-    int    norad;             // NORAD tracking number
-    string name;              // satellite name
-    string uplink;            // uplink frequency(ies), MHz
-    string downlink;          // downlink frequency(ies), MHz
-    string beacon;            // beacon frequency, MHz
-    string mode;              // modulation scheme and rate, if known
-    string callsign;          // callsign
-    string status;            // current status
-};
-
-typedef map<int,vector<SatFreqData>> SatFreqMap;
+typedef map<int,vector<SSSatellite::FreqData>> SatFreqMap;
 
 int SSImportSatelliteFrequencyData ( const string &path, SatFreqMap &satfreqs );
 int SSImportSatelliteFrequencyData ( const string &path, SSObjectVec &objects );
+
+// Struct used to hold data from n2yo.com auxiliary data CSV file
+
+struct N2Data
+{
+    int    norad;              // NORAD tracking number
+    string name;               // object name
+    string type;               // 'RB' = rocket body, 'DEB' = debris
+    string source;             // source country abbreviation, e.g. "USA", "CIS", etc.
+    string description;        // blob of descriptive text
+    string launch_site;        // launch site abbreviation, e.g. "AFETR", etc.
+    float  launch_date;        // Julian date of launch
+    float  decay_date;         // Julian date of reentry
+};
+
+typedef map<int,N2Data> N2DataMap;
+
+int SSImportN2Data ( const string &path, N2DataMap &n2data );
+int SSImportN2Data ( const string &path, SSObjectVec &satellites );
 
 #endif /* SSPlanet_hpp */

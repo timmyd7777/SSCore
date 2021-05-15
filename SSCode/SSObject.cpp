@@ -120,6 +120,7 @@ SSObject::SSObject ( SSObjectType type )
 {
     _type = type;
     _names = vector<string> ( 0 );
+    _description = "";
     _direction = SSVector ( INFINITY, INFINITY, INFINITY );
     _distance = INFINITY;
     _magnitude = INFINITY;
@@ -268,7 +269,7 @@ int SSObjectArray::erase ( SSVector center, SSAngle radius )
         if ( pStar && center.angularSeparation ( pStar->getFundamentalPosition() ) < radius )
         {
             nfound++;
-            cout << _objects[index]->toCSV() << endl;
+            // cout << _objects[index]->toCSV() << endl;
             delete _objects[index];
             _objects.erase ( _objects.begin() + index );
         }

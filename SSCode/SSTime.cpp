@@ -379,6 +379,16 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
     zone = time.zone;
 }
 
+// Constructs date from string using the same format argument(s) as strptime().
+// Date will be filled with zeros if string not parsed sucessfully.
+
+SSDate::SSDate ( const string &fmt, const string &str )
+{
+    year = month = day = sec = hour = min = sec = zone = 0;
+    calendar = kGregorian;
+    parse ( fmt, str );
+}
+
 // Returns an SSDate object representing the calendar date that corresponds
 // to the Julian date in the provided SSTime object, using the time zone
 // stored in the SSTime object, and the specified calendar system (calendar).
