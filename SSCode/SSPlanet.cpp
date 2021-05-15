@@ -373,7 +373,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 
 bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist )
 {
-    SSVector point = SSSpherical ( lon, lat, getRadius() / SSCoordinates::kKmPerAU );
+    SSVector point = SSSpherical ( lon, lat, _radius < INFINITY ? _radius / SSCoordinates::kKmPerAU : 0.0 );
     point.z *= 1.0 - getFlattening();
     point = getPlanetographicMatrix() * point;
     dir = ( point + getDirection() * getDistance() ).normalize ( dist );
@@ -394,7 +394,10 @@ double SSPlanet::horizonDistance ( double radius, double distance )
 
 double SSPlanet::horizonDistance ( void )
 {
-    return horizonDistance ( _radius / SSCoordinates::kKmPerAU, _distance );
+    if ( _radius < INFINITY )
+        return horizonDistance ( _radius / SSCoordinates::kKmPerAU, _distance );
+    else
+        return _distance;
 }
 
 // Returns solar system object's angular radius in radians.
@@ -412,7 +415,10 @@ double SSPlanet::angularRadius ( double radius, double distance )
 
 double SSPlanet::angularRadius ( float s )
 {
-    return angularRadius ( _radius * s, _distance * SSCoordinates::kKmPerAU );
+    if ( _radius < INFINITY )
+        return angularRadius ( _radius * s, _distance * SSCoordinates::kKmPerAU );
+    else
+        return 0.0;
 }
 
 // Returns solar system object's phase angle in radians.
@@ -1712,7 +1718,7 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q, fl
     p = tmatrix * p;
     r = tmatrix * r;
     SSVector c = tmatrix * _position;
-    double re = getRadius() * s / SSCoordinates::kKmPerAU;
+    double re = _radius < INFINITY ? _radius * s / SSCoordinates::kKmPerAU : 0.0;
     double f = getFlattening();
     
     // Define some variables
@@ -1774,7 +1780,10 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q, fl
 
 double SSPlanet::umbraLength ( float s )
 {
-    return _position.magnitude() * _radius * s / ( 695500.0 - _radius * s );
+    if ( _radius < INFINITY )
+        return _position.magnitude() * _radius * s / ( 695500.0 - _radius * s );
+    else
+        return 0.0;
 }
 
 // Returns radius of this solar system object's umbral shadow cone, in AU,
@@ -1784,7 +1793,7 @@ double SSPlanet::umbraLength ( float s )
 double SSPlanet::umbraRadius ( double d, float s )
 {
     double u = umbraLength ( s );
-    double r = _radius * s * ( u - d ) / u;
+    double r = _radius < INFINITY ? _radius * s * ( u - d ) / u : 0.0;
     return r / SSCoordinates::kKmPerAU;
 }
 
@@ -1795,6 +1804,6 @@ double SSPlanet::umbraRadius ( double d, float s )
 double SSPlanet::penumbraRadius ( double d, float s )
 {
     double u = umbraLength ( s );
-    double r = _radius * s * ( u + d ) / u;
+    double r = _radius < INFINITY ? _radius * s * ( u + d ) / u : 0.0;
     return r / SSCoordinates::kKmPerAU;
 }
