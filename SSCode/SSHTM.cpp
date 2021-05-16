@@ -119,8 +119,8 @@ bool SSHTM::store ( SSStar *pStar )
         mag = pStar->getBMagnitude();
     
     SSVector pos = pStar->getFundamentalPosition();
-    
-    int level = magLevel ( mag );
+
+    int level = pStar->getParallax() > 0.1 ? 0 : magLevel ( mag );
     if ( level < 0 )
         return false;
     
