@@ -425,17 +425,9 @@ void SSOrbit::computePoints ( double nu0, int npoints, vector<SSVector> &points 
     double sinn = sin ( n );
     
     // Compute maximum valid true anomaly
-    
-    double numax = M_PI;
-    if ( e < 1.0 )
-        numax = M_PI;
-    else if ( e == 1.0 )
-        numax = M_PI - M_2PI / npoints;
-    else // e > 1.0
-        numax = acos ( -1.0 / e );
-    
     // Loop around the orbit, starting and ending at the object's current position.
     
+    double numax = e < 1.0 ? M_PI : min ( M_PI - M_2PI / npoints, acos ( -1.0 / e ) );
     for ( int point = 0; point <= npoints; point++ )
     {
         // Compute true anomaly and distance at current point.
