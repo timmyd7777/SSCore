@@ -790,7 +790,8 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap
     size_t n = cat == kCatUnknown ? nameMap.size() : identMap.size();
     
     SSObjectVec *pObjects = getObjects ( regionID );
-    for ( size_t offset = 0; offset < pObjects->size(); offset++ )
+    size_t nObjects = pObjects ? pObjects->size() : 0;
+    for ( size_t offset = 0; offset < nObjects; offset++ )
     {
         SSObjectPtr pObject = pObjects->get ( offset );
 

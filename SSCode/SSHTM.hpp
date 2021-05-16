@@ -73,8 +73,8 @@ public:
 
     // store an individual object or an antire array of objects in this HTM
 
-    bool store ( SSStar *pStar );
-    int store ( SSObjectVec &objects );
+    virtual bool store ( SSStar *pStar );
+    virtual int store ( SSObjectVec &objects );
  
     // Count number of regions and objects in HTM or in a region therein.
     
@@ -98,14 +98,14 @@ public:
     
     // Get child HTM region IDs of a particular region; gets empty vector if region has no children.
     
-    vector<uint64_t> subRegionIDs ( uint64_t id );
+    virtual vector<uint64_t> subRegionIDs ( uint64_t id );
 
     // wrappers around functions in original Johns Hopkins C HTM implementation, cc_aux.c
     
-    static uint64_t vector2ID ( const SSVector &vector, int depth );
-    static uint64_t name2ID ( const string &name );
-    static int IDlevel ( uint64_t id );
-    static string ID2name ( uint64_t id );
+    virtual uint64_t vector2ID ( const SSVector &vector, int depth );
+    virtual uint64_t name2ID ( const string &name );
+    virtual int IDlevel ( uint64_t id );
+    virtual string ID2name ( uint64_t id );
     static bool name2Triangle ( const string &name, SSVector &v0, SSVector &v1, SSVector &v2 );
     static bool isinside ( const SSVector &p, const SSVector &v0, SSVector &v1, SSVector &v2 );
     
