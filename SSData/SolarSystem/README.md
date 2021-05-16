@@ -12,7 +12,7 @@ Planets.csv
 
 This table of data on the Sun, the major planets, and Pluto is in Southern Stars CSV format was adapted from Table 1 in this paper by E.M. Standish (JPL Solar System Dynamics), ["Keplerian Elements for Approximate Positions of the Major Planets"](https://ssd.jpl.nasa.gov/txt/p_elem_t1.txt) and from JPL's ["Planets and Pluto: Physical Characteristics"](https://ssd.jpl.nasa.gov/?planet_phys_par) table.  Data for the Sun is from NASA's ["Sun Fact Sheet"](https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html).
 
-Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, ID, Name
+Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, RotPer, Albedo, ID, Name
 
 - **_Type_** (PL) means planet
 - **_q_** is perihelion distance (AU)
@@ -27,6 +27,8 @@ Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, ID, Name
 - **_G_** is magnitude phase parameter
 - **_Radius_** is equatorial radius (km)
 - **_Mass_** is planetary mass (kg)
+- **_RotPer_** is sidereal rotation period (days); negative if retrograde
+- **_Albedo_** is geometric albedo
 - **_ID_** is JPL NAIF ID
 - **_Name_** is planet name
 
@@ -35,40 +37,24 @@ Empty fields indicate unknown or missing values.
 **Revision History**
 
 Version 1.0 (31 Mar 2020): initial version
-Version 1.0 (10 Apr 2021): added planetary masses
+Version 1.1 (10 Apr 2021): added planetary masses
+Version 1.2 (16 May 2021): added rotation periods and albedos
 
 Moons.csv
 ---------
 
-This table of moon data in Southern Stars CSV format was adapted from JPL's ["Planetary Satellite Mean Orbital Parameters"](https://ssd.jpl.nasa.gov/?sat_elem) and from JPL's ["Planetary Satellite Physical Parameters"](https://ssd.jpl.nasa.gov/?sat_phys_par) table.
+This table of moon data in Southern Stars CSV format was adapted from JPL's ["Planetary Satellite Mean Orbital Parameters"](https://ssd.jpl.nasa.gov/?sat_elem) and from JPL's ["Planetary Satellite Physical Parameters"](https://ssd.jpl.nasa.gov/?sat_phys_par) table. Rotation periods are from the [2015 Report](https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint) of the IAU Working Group on Cartographic Coordinates and Rotational Elements.
 
-Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, ID, Name
-
-- **_Type_** (MN) means moon
-- **_q_** is periapse distance (km)
-- **_e_** is eccentricity
-- **_i_** is inclination (deg)
-- **_w_** is argument of periapse (deg)
-- **_N_** is longitude of ascending node (deg)
-- **_M_** is mean anomaly (deg)
-- **_n_** is mean motion (deg/day)
-- **_Epoch_** is epoch of orbital elements (Julian Ephemeris Date)
-- **_H_** is absolute visual magnitude (i.e., V at 1.0 AU distance and 100% illumination)
-- **_G_** is magnitude phase parameter
-- **_Radius_** is equatorial radius (km)
-- **_Mass_** is moon mass (kg)
-- **_ID_** is JPL NAIF ID
-- **_Name_** is moon name
-
-Empty fields indicate unknown or missing values.
+Columns are identical to Planets.csv, above.
 
 The orbital inclinations, arguments, and nodes are referred to their Laplace Plane (essentially their primary planet's equatorial plane), except for Earth's Moon, whose orbital elements are referred to the J2000 ecliptic.
 
 **Revision History**
 
-Version 1.0 (31 Mar 2020): initial version  
-Version 1.1 (22 Apr 2020): fixed absolute magnitudes (H)
-Version 1.2 (10 Apr 2021): added moon masses
+- Version 1.0 (31 Mar 2020): initial version  
+- Version 1.1 (22 Apr 2020): fixed absolute magnitudes (H)
+- Version 1.2 (10 Apr 2021): added moon masses
+- Version 1.3 (16 May 2021): added rotation periods and albedos
 
 Asteroids.txt
 -------------

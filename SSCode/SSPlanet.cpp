@@ -665,6 +665,8 @@ string SSPlanet::toCSV ( void )
     csv += ::isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
     csv += ::isinf ( _radius ) ? "," : format ( "%.1f,", _radius );
     csv += ::isinf ( _mass ) ? "," : format ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
+    csv += ::isinf ( _rotper ) ? "," : format ( "%.5f,", _rotper );
+    csv += ::isinf ( _albedo ) ? "," : format ( "%.3f,", _albedo );
 
     // Never print identifier for comets, since this is always duplicated in the first name.
     
@@ -683,7 +685,7 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     vector<string> fields = split ( csv, "," );
     
     SSObjectType type = SSObject::codeToType ( fields[0] );
-    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 15 )
+    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 17 )
         return nullptr;
     
     SSOrbit orbit;
@@ -704,15 +706,17 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
     float r = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
     float m = fields[12].empty() ? INFINITY : strtofloat ( fields[12] );
+    float p = fields[13].empty() ? INFINITY : strtofloat ( fields[13] );
+    float a = fields[14].empty() ? INFINITY : strtofloat ( fields[14] );
 
     SSIdentifier ident;
     if ( type == kTypePlanet || type == kTypeMoon )
-        ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[13] ) );
+        ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[15] ) );
     else
-        ident = SSIdentifier::fromString ( fields[13] );
+        ident = SSIdentifier::fromString ( fields[15] );
 
     vector<string> names;
-    for ( int i = 14; i < fields.size(); i++ )
+    for ( int i = 16; i < fields.size(); i++ )
         names.push_back ( trim ( fields[i] ) );
     
 	SSObjectPtr pObject = SSNewObject ( type );
@@ -725,6 +729,8 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     pPlanet->setGMagnitude ( g );
     pPlanet->setRadius ( r );
     pPlanet->setMass ( m / SSCoordinates::kKgPerEarthMass );
+    pPlanet->setRotationPeriod ( p );
+    pPlanet->setAlbedo ( a );
     pPlanet->setIdentifier ( ident );
     pPlanet->setNames ( names );
 
