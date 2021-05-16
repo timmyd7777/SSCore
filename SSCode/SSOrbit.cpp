@@ -424,14 +424,32 @@ void SSOrbit::computePoints ( double nu0, int npoints, vector<SSVector> &points 
     double cosn = cos ( n );
     double sinn = sin ( n );
     
+    // Compute maximum valid true anomaly
+    
+    double numax = M_PI;
+    if ( e < 1.0 )
+        numax = M_PI;
+    else if ( e == 1.0 )
+        numax = M_PI - M_2PI / npoints;
+    else // e > 1.0
+        numax = acos ( -1.0 / e );
+    
     // Loop around the orbit, starting and ending at the object's current position.
     
     for ( int point = 0; point <= npoints; point++ )
     {
         // Compute true anomaly and distance at current point.
         
-        double nu = nu0 + M_2PI * point / npoints;
+        double nu = modpi ( nu0 + M_2PI * point / npoints );
         double r = q * ( 1.0 + e ) / ( 1.0 + e * cos ( nu ) );
+        
+        // Set infinite points in the open part of parabolic/hyperbolic orbits.
+        
+        if ( fabs ( nu ) > numax )
+        {
+            points.push_back ( SSVector ( INFINITY, INFINITY, INFINITY ) );
+            continue;
+        }
         
         // Compute XYZ offset of orbit point from primary.
         
