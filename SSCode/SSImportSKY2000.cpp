@@ -402,12 +402,12 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         SSSpherical position ( ra, dec, INFINITY );
         SSSpherical velocity ( pmRA, pmDec, INFINITY );
         
-        // Get parallax in arcsec and if > 1 mas convert to distance in light years.
+        // Get parallax in arcsec and convert to distance in light years.
         
         double plx = strtofloat ( strPlx );
-        if ( plx > 0.001 )
+        if ( plx > 0.0 )
             position.rad = SSCoordinates::kLYPerParsec / plx;
-        
+
         // Get radial velocity in km/sec and convert to fraction of light speed (light years per year).
         
         if ( ! strRV.empty() )
@@ -424,6 +424,11 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         float bmag = INFINITY;
         if ( ! strBmV.empty() )
             bmag = strtofloat ( strBmV ) + vmag;
+        
+        // If parallax is unknown, compute distance in light years from spectral class and magnitudes
+        
+        if ( isinf ( position.rad ) )
+            position.rad = SSCoordinates::kLYPerParsec * SSStar::spectralDistance ( strSpec, vmag, bmag );
         
         // Set up name and identifier vectors.
 

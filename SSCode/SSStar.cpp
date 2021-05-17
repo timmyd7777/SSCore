@@ -762,7 +762,7 @@ double SSStar::apparentMagnitude ( double absMag, double dist )
 
 double SSStar::distanceFromMagnitude ( double appMag, double absMag )
 {
-    return pow ( 10.0, ( appMag - absMag ) / 5.0 ) + 1.0;
+    return pow ( 10.0, ( appMag - absMag ) / 5.0 + 1.0 );
 }
 
 // Returns the brightness ratio that corresponds to the magnitude difference (magDiff)
@@ -1048,6 +1048,58 @@ SSStar::SpecInfo SSStar::spectralClassInfo ( int spectype, int lumclass )
     }
     
     return info;
+}
+
+// Returns estimate of star distance based on absolute magnitude derived from spectral class,
+// and star's apparent visual and blue magnitudes. Distance estimate is returned in parsecs
+// and will be INFINITY if not determined. Spectral distances estimates are VERY approximate
+// and can easily be wrong by a factor of 2 or more!
+
+float SSStar::spectralDistance ( const string &spectrum, float vmag, float bmag )
+{
+    if ( isinf ( vmag ) && isinf ( bmag ) )
+        return INFINITY;
+
+    int spectype = 0, lumclass = 0;
+    parseSpectrum ( spectrum, spectype, lumclass );
+    if ( spectype == 0 )
+        return INFINITY;
+    
+    // If luminosity class is not present, we'll guess that "early" spectral types are main-sequence,
+    // and "late" types are giants. Late main-sequence stars are intrinsically faint, and (probably)
+    // nearby enough to have their distances already known from trigonometric parallax.
+    
+    if ( lumclass == 0 )
+        lumclass = spectype < SpecType::A0 ? LumClass::V : LumClass::III;
+
+    // Get spectral class info. If visual magnitude is not available,
+    // compute it from blue magnitude and expected color index.
+    
+    SpecInfo info = spectralClassInfo ( spectype, lumclass );
+    if ( info.Mv < INFINITY )
+    {
+        if ( isinf ( vmag ) )
+            vmag = bmag - info.BV;
+        
+        // Compute distance from difference between apparent and absolute visual magnitude.
+        // If farther than 100 parsecs, estimate insterstellar dust absorption and recompute.
+        
+        float d = distanceFromMagnitude ( vmag, info.Mv );
+        if ( d > 100.0 )
+        {
+            // If both visual and blue magnitudes are available, compute B-V color
+            // excess and estimate absoption as 3 x excess. This can never be negative!
+            // Then recompute distance in parsecs, including absorption.
+
+            float a = bmag < INFINITY ? ( bmag - vmag ) - info.BV : 0.0;
+            a = a < 0.0 ? 0.0 : 3.0 * a;
+            d = distanceFromMagnitude ( vmag - a, info.Mv );
+        }
+
+        return d;
+    }
+    
+    return INFINITY;
 }
 
 // Returns star's total luminosity from absolute visual magnitude (mv)

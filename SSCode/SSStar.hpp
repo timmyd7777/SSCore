@@ -153,9 +153,11 @@ public:
     static float bolometricCorrection ( float temp );
     static float colorTemperature ( float bmv, int lumclass );
     static SpecInfo spectralClassInfo ( int spectype, int lumclass );
+    static float spectralDistance ( const string &spectrum, float vmag, float bmag );
     static float luminosity ( float mv, float bc );
     static float radius ( float lum, float temp );
     float radius ( void );
+    float spectralDistance ( void );
 };
 
 // This subclass of SSStar stores data for double stars
