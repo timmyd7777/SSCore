@@ -36,9 +36,9 @@ Empty fields indicate unknown or missing values.
 
 **Revision History**
 
-Version 1.0 (31 Mar 2020): initial version
-Version 1.1 (10 Apr 2021): added planetary masses
-Version 1.2 (16 May 2021): added rotation periods and albedos
+- Version 1.0 (31 Mar 2020): initial version
+- Version 1.1 (10 Apr 2021): added planetary masses
+- Version 1.2 (16 May 2021): added rotation periods and albedos
 
 Moons.csv
 ---------
@@ -63,8 +63,8 @@ This table of asteroid data in MPC Export Format was compiled from the [Minor Pl
 
 **Revision History**
 
-Version 1.0 (2 Apr 2020): initial version
-Version 1.1 (21 Mar 2021): updated with latest data from MPC
+- Version 1.0 (2 Apr 2020): initial version
+- Version 1.1 (21 Mar 2021): updated with latest data from MPC
 
 Comets.txt
 ----------
@@ -85,7 +85,7 @@ There are two files here.  The larger, **1550_2650.438**, is about 103 MB in siz
 
 **Revision History**
 
-Version 1.0 (3 Apr 2020): initial commit.
+- Version 1.0 (3 Apr 2020): initial commit.
 
 Satellites
 ----------
@@ -100,9 +100,9 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 
 **Revision History**
 
-Version 1.0 (4 Apr 2020): initial checkin.  
-Version 1.1 (11 May 2020): added Mineo Wakita JE9PEL satellite radio frequency file.
-Version 1.2 (21 Mar 2021): updated with latest data from all sources; added n2yo "brightest" satellites.
+- Version 1.0 (4 Apr 2020): initial checkin.  
+- Version 1.1 (11 May 2020): added Mineo Wakita JE9PEL satellite radio frequency file.
+- Version 1.2 (21 Mar 2021): updated with latest data from all sources; added n2yo "brightest" satellites.
 
 Cities.csv
 ----------
@@ -127,8 +127,8 @@ Except for the last two columns, the column description is copied from the [GeoN
 
 **Revision History**
 
-Version 1.0 (10 Nov 2020): initial checkin.
-Version 1.1 (24 Nov 2020): added type column.
+- Version 1.0 (10 Nov 2020): initial checkin.
+- Version 1.1 (24 Nov 2020): added type column.
 
 Features.csv
 --------
@@ -147,5 +147,5 @@ This file contains non-Earth planetary surface feature names, from the USGS [Gaz
 
 **Revision History**
 
-Version 1.0 (10 Nov 2020): initial checkin.
-Version 1.1 (24 Nov 2020): added type column.
+- Version 1.0 (10 Nov 2020): initial checkin.
+- Version 1.1 (24 Nov 2020): added type column.
