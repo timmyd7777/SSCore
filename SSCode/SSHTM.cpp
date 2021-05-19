@@ -849,7 +849,7 @@ size_t SSHTM::saveObjectMap ( SSCatalog cat, IdentMapFunc saveFunc, void *userDa
         {
             string name = it->first;
             ObjectLoc loc = it->second;
-            string htmIDstr = SSHTM::ID2name ( loc.region );
+            string htmIDstr = ID2name ( loc.region );
             file << name << "," << htmIDstr << "," << to_string ( loc.offset ) << endl;
             n++;
         }
@@ -862,7 +862,7 @@ size_t SSHTM::saveObjectMap ( SSCatalog cat, IdentMapFunc saveFunc, void *userDa
             SSIdentifier ident = it->first;
             ObjectLoc loc = it->second;
             string identstr = ident.toString();
-            string htmIDstr = SSHTM::ID2name ( loc.region );
+            string htmIDstr = ID2name ( loc.region );
             file << identstr << "," << htmIDstr << "," << to_string ( loc.offset ) << endl;
             n++;
         }
@@ -952,7 +952,7 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userDa
 // Returns number of object locations found, or -1 if there is no object map
 // for the catalog to which the identifier belongs.
 
-int SSHTM::findObjectLocs ( SSIdentifier &ident, vector<SSHTM::ObjectLoc> &results )
+int SSHTM::findObjectLocs ( SSIdentifier ident, vector<SSHTM::ObjectLoc> &results )
 {
     SSCatalog cat = ident.catalog();
     if ( objectMapSize ( cat ) == 0 )
