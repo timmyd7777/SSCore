@@ -78,10 +78,7 @@ int SSHTM::magLevel ( float mag )
 
 vector<uint64_t> SSHTM::subRegionIDs ( uint64_t htmID )
 {
-    int level = 0;
-    if ( htmID > 0 )
-        level = IDlevel ( htmID ) + 1;
-    
+    int level = IDlevel ( htmID );
     if ( level >= _magLevels.size() - 1 )
         return vector<uint64_t> ( 0 );
     
@@ -97,14 +94,11 @@ vector<uint64_t> SSHTM::subRegionIDs ( uint64_t htmID )
 
 bool SSHTM::magLimits ( uint64_t htmID, float &min, float &max )
 {
-    int level = 0;
-    if ( htmID > 0 )
-        level = IDlevel ( htmID ) + 1;
-
+    int level = IDlevel ( htmID );
     if ( level >= _magLevels.size() )
         return false;
     
-    min = level == 0 ? -INFINITY : _magLevels[ level - 1];
+    min = level == 0 ? -INFINITY : _magLevels[level - 1];
     max = _magLevels[ level ];
     return true;
 }
@@ -120,6 +114,8 @@ bool SSHTM::store ( SSStar *pStar )
     
     SSVector pos = pStar->getFundamentalPosition();
 
+    // Store stars closer than 10 parsecs in root region.
+    
     int level = pStar->getParallax() > 0.1 ? 0 : magLevel ( mag );
     if ( level < 0 )
         return false;
@@ -403,10 +399,12 @@ uint64_t SSHTM::name2ID ( const string &name )
 }
 
 // Given an HTM triangle ID, returns the depth level of that triangle.
+// The whole celestrial sphere is level zero; the eight level 1 triangles
+// are N0 - N3 and S0 - S3; level 2 triangles are N00 - N33 and S00 - S33.
 
 int SSHTM::IDlevel ( uint64_t id )
 {
-    return cc_IDlevel ( id );
+    return id == 0 ? 0 : cc_IDlevel ( id ) + 1;
 }
 
 // Given an HTM triangle ID, returns the triangle's HTM name string,
