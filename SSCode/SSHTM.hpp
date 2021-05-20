@@ -106,8 +106,8 @@ public:
     virtual uint64_t name2ID ( const string &name );
     virtual int IDlevel ( uint64_t id );
     virtual string ID2name ( uint64_t id );
-    static bool name2Triangle ( const string &name, SSVector &v0, SSVector &v1, SSVector &v2 );
-    static bool isinside ( const SSVector &p, const SSVector &v0, SSVector &v1, SSVector &v2 );
+    virtual bool name2Triangle ( const string &name, SSVector &v0, SSVector &v1, SSVector &v2 );
+    virtual bool isinside ( const SSVector &p, const SSVector &v0, SSVector &v1, SSVector &v2 );
     
     // Describes the location of particular object inside an HTM
     
