@@ -768,7 +768,8 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat )
     NameMap  nameMap;
     IdentMap identMap;
 
-    makeObjectMap ( cat, 0, nameMap, identMap );
+    for ( auto it = _regions.begin(); it != _regions.end(); it++ )
+        makeObjectMap ( cat, it->first, nameMap, identMap );
     
     if ( cat == kCatUnknown && nameMap.size() > 0 )
         _nameIndex.insert ( { cat, nameMap } );
@@ -779,7 +780,7 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat )
 }
 
 // Adds index entries for objects with identifiers in the specifid catalog (cat)
-// contained in the HTM region (regionID) and, recursively, all of its sub-regions.
+// contained in the HTM region (regionID).
 // Index entries are appended to the provided ObjectIndex (index).
 // The function returns the number of index entries added.
 
@@ -807,10 +808,6 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap
                     identMap.insert ( { ident, { regionID, offset } } );
         }
     }
-    
-    vector<uint64_t> subIDs = subRegionIDs ( regionID );
-    for ( uint64_t subID : subIDs )
-        makeObjectMap ( cat, subID, nameMap, identMap );
     
     return ( cat == kCatUnknown ? nameMap.size() : identMap.size() ) - n;
 }
