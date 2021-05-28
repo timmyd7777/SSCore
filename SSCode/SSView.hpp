@@ -92,7 +92,8 @@ public:
     SSAngle getCenterLatitude ( void ) { return _centerLat; }
     SSAngle getCenterRotation ( void ) { return _centerRot; }
     SSVector getCenterVector ( void );
-    
+    SSAngle getCenterSeparation ( const SSVector &v );
+
     // sets rotation matrix corresponding to field of view center
     
     void setCenterMatrix ( SSMatrix matrix );

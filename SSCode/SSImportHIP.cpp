@@ -303,12 +303,12 @@ int SSImportHIP2 ( const string &filename, SSObjectVec &stars )
             bmag = vmag + bmv;
         }
         
-        // If we have a parallax greater than 1 milliarcec, use it to compute distance in light years
+        // If we have a positive parallax, use it to compute distance in light years
         
         if ( ! strPlx.empty() )
         {
             float plx = strtofloat ( strPlx );
-            if ( plx > 1.0 )
+            if ( plx > 0.0 )
                 position.rad = 1000.0 * SSCoordinates::kLYPerParsec / plx;
         }
         
@@ -428,7 +428,7 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
         float vmag = strMag.empty() ? INFINITY : strtofloat ( strMag );
         float bmag = strBmV.empty() ? INFINITY : strtofloat ( strBmV ) + vmag;
 
-        // If we have a parallax > 1 milliarcsec, use it to compute distance in light years.
+        // If we have a positive parallax, use it to compute distance in light years.
         
         float plx = strPlx.empty() ? 0.0 : strtofloat ( strPlx );
         if ( plx > 0.0 )
@@ -480,6 +480,11 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
             position = pStar->getFundamentalCoords();
             velocity = pStar->getFundamentalMotion();
         }
+
+        // If parallax is unknown, compute distance in light years from spectral class and magnitudes
+        
+        if ( isinf ( position.rad ) )
+            position.rad = SSCoordinates::kLYPerParsec * SSStar::spectralDistance ( strSpec, vmag, bmag );
 
         // If we found a matching Hipparcos Input Catalog star,
         // splice in SAO identifier and radial velocity.

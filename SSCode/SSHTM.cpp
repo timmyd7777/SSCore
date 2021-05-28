@@ -19,14 +19,14 @@ int cc_name2Triangle ( const char *name, double *v0, double *v1, double *v2 );
 
 // If not NULL, this function is called after a region is loaded asynchronously.
 
-static SSHTMRegionLoadCallback _callback = nullptr;
+static SSHTM::RegionLoadCallback _callback = nullptr;
 
-void SSHTMSetRegionLoadCallback ( SSHTMRegionLoadCallback pCallback )
+void SSHTMSetRegionLoadCallback ( SSHTM::RegionLoadCallback pCallback )
 {
     _callback = pCallback;
 }
 
-SSHTMRegionLoadCallback SSHTMGetRegionLoadCallback ( void )
+SSHTM::RegionLoadCallback SSHTMGetRegionLoadCallback ( void )
 {
     return _callback;
 }
@@ -241,7 +241,7 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 
         if ( _loadThreads.count ( htmID ) == 0 )
         {
-            _loadThreads[htmID] = new thread ( &SSHTM::_loadRegion, this, htmID, userData );
+            _loadThreads[htmID] = new thread ( &SSHTM::_loadRegion, this, htmID, _callback, userData );
             _loadThreads[htmID]->detach();
         }
 
@@ -251,14 +251,14 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
     
     // Load region synchronously.
 
-    _loadRegion ( htmID, userData );
+    _loadRegion ( htmID, nullptr, userData );
     return _regions[htmID];
 }
 
 // Private method to load region, possibly from a background thread.
 // Returns pointed to loaded object vector if successful or nullptr on failure.
 
-SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, void *userData )
+SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, RegionLoadCallback callback, void *userData )
 {
     int n = 0;
     SSObjectVec *objects = new SSObjectVec();
@@ -273,8 +273,8 @@ SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, void *userData )
     else
         delete objects;
     
-    if ( _callback != nullptr )
-        _callback ( this, htmID );
+    if ( callback != nullptr )
+        callback ( this, htmID );
 
     return objects;
 }

@@ -39,6 +39,7 @@
 class SSHTM
 {
 public:
+    typedef void (* RegionLoadCallback) ( SSHTM *pHTM, uint64_t htmID );
     typedef int (* DataFileFunc) ( SSHTM *pHTM, uint64_t htmID, SSObjectArray *objects, void *userData );
 
 protected:
@@ -51,7 +52,7 @@ protected:
 #if USE_THREADS
     map<uint64_t,thread *>      _loadThreads;           // background threads currently loading region objects from data files, indexed by HTM region ID
 #endif
-    SSObjectVec *_loadRegion ( uint64_t htmID, void *userData );    // private method to load object data file for a given HTM region ID
+    SSObjectVec *_loadRegion ( uint64_t htmID, RegionLoadCallback callback, void *userData );    // private method to load object data file for a given HTM region ID
     
 public:
     
@@ -149,8 +150,7 @@ public:
 
 // Callback function to notify external HTM user when regions are loaded asynchronously.
 
-typedef void (* SSHTMRegionLoadCallback) ( SSHTM *pHTM, uint64_t htmID );
-void SSHTMSetRegionLoadCallback ( SSHTMRegionLoadCallback pCallback );
-SSHTMRegionLoadCallback SSHTMGetRegionLoadCallback ( void );
+void SSHTMSetRegionLoadCallback ( SSHTM::RegionLoadCallback pCallback );
+SSHTM::RegionLoadCallback SSHTMGetRegionLoadCallback ( void );
 
 #endif /* SSHTM_HPP */

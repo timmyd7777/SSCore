@@ -122,6 +122,14 @@ SSVector SSView::getCenterVector ( void )
     return SSVector ( _matrix.m00, _matrix.m01, _matrix.m02 );
 }
 
+// Returns angular separation in radians from view center point
+// to unit direction vector (v) in same reference frame as view.
+
+SSAngle SSView::getCenterSeparation ( const SSVector &v )
+{
+    return getCenterVector().angularSeparation ( v );
+}
+
 // Returns maximum allowable field-of-view width angle in radians
 // for the current view projection.
 
@@ -243,7 +251,7 @@ SSAngle SSView::getAngularHeight ( void )
 }
 
 // Returns angular value in radians (always positive) corresponding to diagonal
-// across retangular field of view from (top,left) to (bottom,right).
+// across rectangular field of view from (top,left) to (bottom,right).
 
 SSAngle SSView::getAngularDiagonal ( void )
 {
@@ -252,7 +260,7 @@ SSAngle SSView::getAngularDiagonal ( void )
     SSVector cvec = unproject ( SSVector ( _centerX - _width / 2, _centerY + _height / 2, 0.0 ) );
     if ( cvec.magnitude() < INFINITY )
     {
-        angle = 2.0 * cvec.angularSeparation ( SSVector ( _matrix.m00, _matrix.m01, _matrix.m02 ) );
+        angle = 2.0 * getCenterSeparation ( cvec );
         if ( angle > SSAngle::kTwoPi )
             angle = SSAngle::kTwoPi;
     }
