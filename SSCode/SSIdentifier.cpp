@@ -354,6 +354,28 @@ string dm_to_string ( int64_t dm )
         return format ( "%c%02d %d", (int) sign, (int) zone, (int) num );
 }
 
+string tyc_to_string ( int64_t tyc )
+{
+    int64_t r = tyc / 1000000;
+    int64_t n = ( tyc - r * 1000000 ) / 10;
+    int64_t c = ( tyc - r * 1000000 - n * 10 );
+    
+    return format ( "%04d-%04d-%d", (int) r, (int) n, (int) c );
+}
+
+int64_t string_to_tyc ( string str )
+{
+    char sep;
+    int rgn = 0, num = 0, com = 0;
+
+    sscanf ( str.c_str(), "%d%c%d%c%d", &rgn, &sep, &num, &sep, &com );
+
+    if ( rgn >= 1 && rgn <= 9537 && num >= 1 && num <= 12121 && com >= 0 && com <= 4 )
+        return (int64_t) rgn * 1000000 + num * 10 + com;
+    else
+        return 0;
+}
+
 string gj_to_string ( int64_t gj )
 {
     int64_t d = gj / 10;
@@ -500,17 +522,26 @@ SSIdentifier::SSIdentifier ( int64_t id )
 
 SSIdentifier::SSIdentifier ( SSCatalog catalog, int64_t ident )
 {
-    _id = catalog * 10000000000000000LL + ident;
+    if ( catalog == kCatGAIA )
+        _id = -ident;
+    else
+        _id = catalog * 10000000000000000LL + ident;
 }
 
 SSCatalog SSIdentifier::catalog ( void )
 {
-    return static_cast<SSCatalog> ( _id / 10000000000000000LL );
+    if ( _id < 0 )
+        return kCatGAIA;
+    else
+        return static_cast<SSCatalog> ( _id / 10000000000000000LL );
 }
 
 int64_t SSIdentifier::identifier ( void )
 {
-    return _id % 10000000000000000LL;
+    if ( _id < 0 )
+        return -_id;
+    else
+        return _id % 10000000000000000LL;
 }
 
 // Attempts to convert an indentifer in string form ("M 42", "alpha CMa", "HR 7001", "NGC 7992", etc.)
@@ -677,6 +708,24 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
         size_t pos = str.find_first_of ( "0123456789" );
         if ( pos != string::npos )
             return SSIdentifier ( kCatHIP, stoi ( str.substr ( pos, len - pos ) ) );
+    }
+
+    // if string begins with "TYC", attempt to parse a Tycho catalog identifier
+    
+    if ( compare ( str, "TYC", 3, casesens ) == 0 )
+    {
+        size_t pos = str.find_first_of ( "0123456789" );
+        if ( pos != string::npos )
+            return SSIdentifier ( kCatTYC, string_to_tyc ( str.substr ( pos, len - pos ) ) );
+    }
+
+    // if string begins with "GAIA", attempt to parse a GAIA catalog identifier
+    
+    if ( compare ( str, "GAIA", 4, casesens ) == 0 )
+    {
+        size_t pos = str.find_first_of ( "0123456789" );
+        if ( pos != string::npos )
+            return SSIdentifier ( kCatGAIA, stoll ( str.substr ( pos, len - pos ) ) );
     }
 
     // if string begins with "BD" or "SD", attempt to parse a Bonner Durchmusterung catalog identifier
@@ -865,6 +914,14 @@ string SSIdentifier::toString ( void )
     else if ( cat == kCatHIP )
     {
         str = "HIP " + to_string ( id );
+    }
+    else if ( cat == kCatTYC )
+    {
+        str = "TYC " + tyc_to_string ( id );
+    }
+    else if ( cat == kCatGAIA )
+    {
+        str = "GAIA " + to_string ( id );
     }
     else if ( cat == kCatBD )
     {

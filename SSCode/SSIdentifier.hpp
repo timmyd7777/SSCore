@@ -64,8 +64,10 @@ enum SSCatalog
     kCatBD = 17,            // Bonner Durchmusterung star catalog
     kCatCD = 18,            // Cordoba Durchmusterung star catalog
     kCatCP = 19,            // Cape Photographic Durchmusterung star catalog
-    kCatHIP = 20,           // Hipparcos star catalog
-    kCatWDS = 21,           // Washington Double Star catalog
+    kCatWDS = 20,           // Washington Double Star catalog
+    kCatHIP = 21,           // Hipparcos star catalog
+    kCatTYC = 22,           // Tycho and Tycho II star catalogs
+    kCatGAIA = 23,          // GAIA star catalog
     
     kCatMessier = 30,       // Messier deep sky objects
     kCatCaldwell = 31,      // Caldwell deep sky objects
