@@ -12,6 +12,16 @@
 // https://github.com/netguy204/gambit-game-lib/blob/dk94/android_fopen.c
 // https://github.com/netguy204/gambit-game-lib/blob/dk94/android_fopen.h
 
+typedef struct ACookie
+{
+    AAsset *asset;
+    int fd;
+    FILE *file;
+    off_t start;
+    off_t length;
+}
+ACookie;
+
 static AAssetManager *android_asset_manager = NULL; // must be established by someone else...
 
 void android_fopen_set_asset_manager ( AAssetManager* manager )
@@ -21,7 +31,22 @@ void android_fopen_set_asset_manager ( AAssetManager* manager )
 
 static int android_read ( void *cookie, char *buf, int size)
 {
-    return AAsset_read ( (AAsset*) cookie, buf, size );
+    FILE *file = ((ACookie *)cookie)->file;
+    AAsset *asset = ((ACookie *)cookie)->asset;
+
+    if ( file )
+    {
+        off_t start = ((ACookie *) cookie)->start;
+        off_t length = ((ACookie *) cookie)->length;
+
+        if ( ftell ( file ) > start + length )
+            return 0;
+
+        int n = fread ( buf, 1, size, file );
+        return n < 1 ? -1 : n;
+    }
+
+    return AAsset_read ( asset, buf, size );
 }
 
 static int android_write ( void *cookie, const char *buf, int size )
@@ -31,12 +56,42 @@ static int android_write ( void *cookie, const char *buf, int size )
 
 static fpos_t android_seek ( void* cookie, fpos_t offset, int whence )
 {
-    return AAsset_seek ( (AAsset*)cookie, offset, whence );
+    FILE *file = ((ACookie *)cookie)->file;
+    AAsset *asset = ((ACookie *)cookie)->asset;
+
+    if ( file )
+    {
+        off_t start = ((ACookie *)cookie)->start;
+        off_t length = ((ACookie *)cookie)->length;
+
+        int error = -1;
+        if (whence == SEEK_SET)
+            error = fseek(file, offset + start, SEEK_SET);
+        else if (whence == SEEK_CUR)
+            error = fseek(file, offset, SEEK_CUR);
+        else if (whence == SEEK_END)
+            error = fseek(file, start + length - offset, SEEK_SET);
+
+        if (error)
+            return -1;
+
+        return ftell(file) - start;
+    }
+
+    return AAsset_seek ( asset, offset, whence );
 }
 
 static int android_close ( void* cookie )
 {
-    AAsset_close ( (AAsset *) cookie );
+    FILE *file = ((ACookie *)cookie)->file;
+    if ( file )
+        fclose ( file );
+
+    AAsset *asset = ((ACookie *)cookie)->asset;
+    if ( asset )
+        AAsset_close ( asset );
+
+    free ( cookie );
     return 0;
 }
 
@@ -55,11 +110,30 @@ extern "C" FILE *android_fopen ( const char *name, const char *mode )
     if ( mode[0] == 'w' || android_asset_manager == NULL )
         return fopen ( name, mode );
     
-    AAsset *asset = AAssetManager_open ( android_asset_manager, name, 0 );
+    AAsset *asset = AAssetManager_open ( android_asset_manager, name, AASSET_MODE_UNKNOWN );
     if ( ! asset )
-        return fopen(name, mode);
+        return fopen ( name, mode );
 
-    return funopen ( asset, android_read, android_write, android_seek, android_close );
+    ACookie *cookie = (ACookie *) calloc ( 1, sizeof ( ACookie ) );
+    if ( ! cookie )
+    {
+        AAsset_close ( asset );
+        return nullptr;
+    }
+
+    cookie->asset = asset;
+    cookie->fd = AAsset_openFileDescriptor ( asset, &cookie->start, &cookie->length );
+    if ( cookie->fd >= 0 )
+    {
+        cookie->file = fdopen ( cookie->fd, mode );
+        if ( cookie->file && fseek ( cookie->file, cookie->start, SEEK_SET ) != 0 )
+        {
+            fclose ( cookie->file );
+            cookie->file = nullptr;
+        }
+    }
+
+    return funopen ( cookie, android_read, android_write, android_seek, android_close );
 }
 
 // This function implements to the initAssetManager() native method in JSSObjectArray.
