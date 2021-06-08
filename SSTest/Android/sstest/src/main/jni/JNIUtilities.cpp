@@ -12,16 +12,6 @@
 // https://github.com/netguy204/gambit-game-lib/blob/dk94/android_fopen.c
 // https://github.com/netguy204/gambit-game-lib/blob/dk94/android_fopen.h
 
-typedef struct ACookie
-{
-    AAsset *asset;      // pointer to underlying Android asset
-    int fd;             // file descriptor for asset; -1 (invalid) if asset is compressed; >=0 (valid) if asset uncompressed.
-    FILE *file;         // file pointer to asset; NULL if asset is compressed
-    off_t start;        // offset of uncompressed asset from start of APK in bytes; zero if unknown or compressed asset
-    off_t length;       // length of uncompressed asset in bytes; zero if unknown or compressed asset
-}
-ACookie;
-
 static AAssetManager *android_asset_manager = NULL; // must be established by someone else...
 
 void android_fopen_set_asset_manager ( AAssetManager* manager )
@@ -31,28 +21,7 @@ void android_fopen_set_asset_manager ( AAssetManager* manager )
 
 static int android_read ( void *cookie, char *buf, int size)
 {
-    FILE *file = ((ACookie *)cookie)->file;
-    AAsset *asset = ((ACookie *)cookie)->asset;
-
-    // If we have a valid file pointer, use buffered C FILE * I/O to read the asset directly from the APK.
-
-    if ( file )
-    {
-        off_t start = ((ACookie *) cookie)->start;
-        off_t length = ((ACookie *) cookie)->length;
-
-        // Check for reading past the end of the asset
-
-        if ( ftell ( file ) > start + length )
-            return 0;
-
-        int n = fread ( buf, 1, size, file );
-        return n < 1 ? -1 : n;
-    }
-
-    // Otherwise read using Android asset API.
-
-    return AAsset_read ( asset, buf, size );
+    return AAsset_read ( (AAsset*) cookie, buf, size );
 }
 
 static int android_write ( void *cookie, const char *buf, int size )
@@ -62,46 +31,12 @@ static int android_write ( void *cookie, const char *buf, int size )
 
 static fpos_t android_seek ( void* cookie, fpos_t offset, int whence )
 {
-    FILE *file = ((ACookie *)cookie)->file;
-    AAsset *asset = ((ACookie *)cookie)->asset;
-
-    // If we have a valid file pointer, seek using C FILE * I/O.
-
-    if ( file )
-    {
-        off_t start = ((ACookie *)cookie)->start;
-        off_t length = ((ACookie *)cookie)->length;
-
-        int error = -1;
-        if ( whence == SEEK_SET )
-            error = fseek ( file, offset + start, SEEK_SET );
-        else if ( whence == SEEK_CUR )
-            error = fseek ( file, offset, SEEK_CUR );
-        else if ( whence == SEEK_END )
-            error = fseek ( file, start + length - offset, SEEK_SET );
-
-        if ( error )
-            return -1;
-
-        return ftell ( file ) - start;
-    }
-
-    // Otherwise seek using Android asset API.
-
-    return AAsset_seek ( asset, offset, whence );
+    return AAsset_seek ( (AAsset*)cookie, offset, whence );
 }
 
 static int android_close ( void* cookie )
 {
-    FILE *file = ((ACookie *)cookie)->file;
-    if ( file )
-        fclose ( file );
-
-    AAsset *asset = ((ACookie *)cookie)->asset;
-    if ( asset )
-        AAsset_close ( asset );
-
-    free ( cookie );
+    AAsset_close ( (AAsset *) cookie );
     return 0;
 }
 
@@ -120,36 +55,11 @@ extern "C" FILE *android_fopen ( const char *name, const char *mode )
     if ( mode[0] == 'w' || android_asset_manager == NULL )
         return fopen ( name, mode );
     
-    AAsset *asset = AAssetManager_open ( android_asset_manager, name, AASSET_MODE_UNKNOWN );
+    AAsset *asset = AAssetManager_open ( android_asset_manager, name, 0 );
     if ( ! asset )
-        return fopen ( name, mode );
+        return fopen(name, mode);
 
-    // Create a cookie for file I/O functions. Close asset and return nullptr on failure.
-
-    ACookie *cookie = (ACookie *) calloc ( 1, sizeof ( ACookie ) );
-    if ( ! cookie )
-    {
-        AAsset_close ( asset );
-        return nullptr;
-    }
-
-    // Try to get a file descriptor, and then a FILE pointer, to the asset.
-    // This will fail for compressed assets, but android_read(), etc. will
-    // use the native, non-buffered, slow Android asset API instead, in this case.
-
-    cookie->asset = asset;
-    cookie->fd = AAsset_openFileDescriptor ( asset, &cookie->start, &cookie->length );
-    if ( cookie->fd >= 0 )
-    {
-        cookie->file = fdopen ( cookie->fd, mode );
-        if ( cookie->file && fseek ( cookie->file, cookie->start, SEEK_SET ) != 0 )
-        {
-            fclose ( cookie->file );
-            cookie->file = nullptr;
-        }
-    }
-
-    return funopen ( cookie, android_read, android_write, android_seek, android_close );
+    return funopen ( asset, android_read, android_write, android_seek, android_close );
 }
 
 // This function implements to the initAssetManager() native method in JSSObjectArray.
