@@ -64,7 +64,7 @@ SSData
 - **_Solar System Objects:_** the major planets (including Pluto!) and their natural satellites, with orbital and physical characteristics from [JPL Solar System Dynamics.](https://ssd.jpl.nasa.gov). Also current asteroid and comet data from the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html), a selection of satellite TLE files from [CelesTrak](http://www.celestrak.com) and [N2YO](https://www.n2yo.com), and JPL's latest planetary and lunar [ephemeris](https://ssd.jpl.nasa.gov/?planet_eph_export).
 - **_Stars:_** the brightest and nearest stars, compiled from NASA's [SKY2000 Master Star Catalog](https://ui.adsabs.harvard.edu/abs/2015yCat.5145....0M/abstract), Hipparcos, [RECONS](http://www.recons.org/), and other sources; with official IAU [star names](http://www.pas.rochester.edu/~emamajek/WGSN/).
 - **_Deep Sky Objects:_** the Messier and Caldwell objects, with data from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/index_e.htm) catalogs, and enhanced using data from a few other sources.
-- **_Constellations:_** the 88 IAU-sanctioned constellations, including official IAU [boundary](https://watcheroftheskies.net/constellations/boundaries.html) and [shape]( http://mkweb.bcgsc.ca/constellations/) data.
+- **_Constellations:_** the 88 IAU-sanctioned constellations, including official IAU [boundary](https://watcheroftheskies.net/constellations/boundaries.html) and [shape](http://mkweb.bcgsc.ca/constellations/) data.
 
 These files are mostly CSV-formatted text.  They can easily be imported into a spreadsheet or edited manually.  SSCore contains routines for reading and writing them as well.
 
