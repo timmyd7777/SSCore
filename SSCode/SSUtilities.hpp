@@ -62,7 +62,7 @@ void toUpper ( string &str );
 
 bool isNumeric ( const string &str );
 bool endsWith ( const string &str, const string &suffix );
-bool startsWith ( const string& str, const string &prefix );
+bool startsWith ( const string &str, const string &prefix );
 
 int strtoint ( string str );
 int64_t strtoint64 ( string str );
