@@ -83,6 +83,25 @@ SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
     return SSVector ( vx, vy, vz );
 }
 
+// Returns the spherical coordinates at the opposite side of the sphere
+// from this set of spherical coordinates.
+
+SSSpherical SSSpherical::antipode ( void )
+{
+    return SSSpherical ( mod2pi ( lon + SSAngle::kPi ), -lat, rad );
+}
+
+// Transitions this set of spherical coordinates toward another by a factional amount (t)
+// from 0 to 1. Returns transitioned coordinaates; does not modify this set of coordinates!
+
+SSSpherical SSSpherical::transition ( SSSpherical other, double t )
+{
+    double l = mod2pi ( lon + modpi ( other.lon - lon ) * t );
+    double b = lat + ( other.lat - lat ) * t;
+    double r = rad + ( other.rad - rad ) * t;
+    return SSSpherical ( l, b, r );
+}
+
 // Returns angular separation in radians from this point in a spherical coordinate system
 // to another point in the same spherical coordinate system. This hversine formula, from
 // https://en.wikipedia.org/wiki/Haversine_formula

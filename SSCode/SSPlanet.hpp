@@ -185,6 +185,8 @@ public:
     double umbraRadius ( double d, float s = 1.0f );
     double penumbraRadius ( double d, float s = 1.0f );
 
+    // Convenience methods for testing whether a planet is the Sun/Moon/Earth
+
     bool isSun ( void ) { return _type == kTypePlanet && _id.identifier() == kSun; }
     bool isLuna ( void ) { return _type == kTypeMoon && _id.identifier() == kLuna; }
     bool isEarth ( void ) { return _type == kTypePlanet && _id.identifier() == kEarth; }

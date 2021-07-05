@@ -80,6 +80,12 @@ public:
     virtual vector<SSIdentifier> getIdentifiers ( void );       // returns vector of all object identifiers
     SSAngle angularSeparation ( SSObject &other ) { return _direction.angularSeparation ( other._direction ); }
     
+    // Convenience methods for testing whether an object is the Sun/Moon/Earth; overridden by subclass SSPlanet
+    
+    virtual bool isSun ( void ) { return false; }
+    virtual bool isLuna ( void ) { return false; }
+    virtual bool isEarth ( void ) { return false; }
+
     // Default empty implementations of position/velocity/ephemeris/motion computations are overridden by subclasses!
     
     virtual void computeEphemeris ( SSCoordinates &coords ) {};                                         // computes apparent direction, distance, magnitude seen from the given observer coordinates and time.

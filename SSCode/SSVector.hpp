@@ -33,6 +33,9 @@ struct SSSpherical
     SSVector toVectorPosition ( void );
     SSVector toVectorVelocity ( SSSpherical vsph );
 
+    SSSpherical antipode ( void );
+    SSSpherical transition ( SSSpherical other, double t );
+    
     bool operator == ( SSSpherical other ) { return lon == other.lon && lat == other.lat && rad == other.rad; }
     bool operator != ( SSSpherical other ) { return lon != other.lon || lat != other.lat || rad != other.rad; }
 };
