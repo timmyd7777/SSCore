@@ -71,7 +71,9 @@ public:
     static constexpr double kMiPerKm = 0.621371192;                                 // miles per kilometer
     static constexpr double kMiPerAU = kKmPerAU * kMiPerKm;                         // miles per Astronomical Unit = 92955807.237
     static constexpr double kKmPerEarthRadii = 6378.137;                            // kilometers per equatorial Earth radius (WGS84)
+    static constexpr double kAUPerEarthRadii = kKmPerEarthRadii / kKmPerAU;         // Astronomical units per equatorial Earth radius
     static constexpr double kKmPerSolarRadii = 695508.0;                            // kilometers per Solar radius (NASA; see https://solarsystem.nasa.gov/solar-system/sun/by-the-numbers/)
+    static constexpr double kAUPerSolarRadii = kKmPerSolarRadii / kKmPerAU;         // Astronomical units per solar radius
     static constexpr double kKgPerEarthMass = 5.97237e24;                           // kilograms per Earth mass (JPL planet physical characteristics table)
     static constexpr double kEarthFlattening = 1 / 298.257;                         // Earth ellipsoid flattening factor (WGS84)
     static constexpr double kLightKmPerSec = 299792.458;                            // Speed of light in kilometers per second
