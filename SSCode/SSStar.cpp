@@ -317,6 +317,7 @@ void SSStar::sortIdentifiers ( void )
 // reference frame at the Julian Ephemeris Date specified inside the SSCoordinates object.
 // If star's parallax is unknown, returned position will be approximately a unit vector.
 // If parallax is known, position vector magnitude will be > 206265 (i.e., 1 parsec in AU).
+// If star's velocity is unknown, returned velocity will be zero.
 
 void SSStar::computePositionVelocity ( SSCoordinates &coords, SSVector &pos, SSVector &vel )
 {
@@ -324,12 +325,14 @@ void SSStar::computePositionVelocity ( SSCoordinates &coords, SSVector &pos, SSV
     
     pos = _position;
     vel = _velocity;
+    if ( vel.isinf() || vel.isnan() )
+        vel = SSVector ( 0, 0, 0 );
     
     // If applying stellar space motion, and the star's space motion is known, add its space velocity
     // (times years since J2000) to its J2000 position.
 
-    if ( coords.getStarMotion() && ! ::isinf ( _velocity.x ) )
-        pos += _velocity * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
+    if ( coords.getStarMotion() )
+        pos += vel * ( coords.getJED() - SSTime::kJ2000 ) / SSTime::kDaysPerJulianYear;
     
     // If star's parallax is known, scale position and velocity by parallax to AU and AU/day.
     
@@ -485,7 +488,7 @@ SSSpherical SSStar::computeApparentMotion ( SSCoordinates &coords, SSFrame frame
         motion = pos.toSphericalVelocity ( vel );
         motion.rad = _radvel;
     }
-    else if ( ! _velocity.isinf() )
+    else if ( ! _velocity.isinf() && ! _velocity.isnan() )
     {
         SSVector vel = _velocity;
         SSVector pos = _position;
