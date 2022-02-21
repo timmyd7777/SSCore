@@ -449,7 +449,7 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects, SSObj
 {
     // Open file; return on failure.
 
-    FILE *file = fopen ( filename.c_str(), "r" );
+    FILE *file = fopen ( filename.c_str(), "rb" );
     if ( ! file )
         return 0;
 

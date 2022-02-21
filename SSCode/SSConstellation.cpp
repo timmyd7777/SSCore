@@ -127,7 +127,7 @@ int SSImportConstellations ( const string &filename, SSObjectVec &constellations
 {
     // Open file; return on failure.
 
-    FILE *file = fopen ( filename.c_str(), "r" );
+    FILE *file = fopen ( filename.c_str(), "rb" );
     if ( ! file )
         return ( 0 );
 
@@ -201,7 +201,7 @@ int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &const
 {
     // Open file; return on failure.
 
-    FILE *file = fopen ( filename.c_str(), "r" );
+    FILE *file = fopen ( filename.c_str(), "rb" );
     if ( ! file )
         return ( 0 );
 
@@ -307,7 +307,7 @@ int SSImportConstellationShapes ( const string &filename, SSObjectVec &constella
 {
     // Open file; return on failure.
 
-    FILE *file = fopen ( filename.c_str(), "r" );
+    FILE *file = fopen ( filename.c_str(), "rb" );
     if ( ! file )
         return ( 0 );
 

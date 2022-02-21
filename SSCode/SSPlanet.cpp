@@ -876,7 +876,7 @@ int SSImportSatellitesFromTLE ( const string &filename, SSObjectVec &satellites 
 {
     // Open file; return on failure.
 
-    FILE *file = fopen ( filename.c_str(), "r" );
+    FILE *file = fopen ( filename.c_str(), "rb" );
     if ( ! file )
         return 0;
 
@@ -914,7 +914,7 @@ int SSImportMcNames ( const string &filename, McNameMap &mcnames )
 {
     // Open file; return on failure.
 
-    FILE *file = fopen ( filename.c_str(), "r" );
+    FILE *file = fopen ( filename.c_str(), "rb" );
     if ( ! file )
         return 0;
 

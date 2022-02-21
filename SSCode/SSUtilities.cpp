@@ -43,24 +43,32 @@ string getcwd(void)
 
 #endif
 
-// Wrapper for fgets() that reads into a C++ string (line)
-// from a C FILE pointer (file) opened for reading in text mode.
-// Discards any terminating newline to emulate behavior of C++ getline().
-// Returns true if successful or false on failure (end-of-file, etc.)
+// Reads into a C++ string (line) from a C FILE pointer (file) opened for reading in binary mode.
+// Handles lines endings in LF (Unix/Mac), CRLF (Windows), or CR (Classic MacOS). In all cases,
+// dicards line ending characters. Returns true if successful or false on failure (end-of-file, etc.)
 
 bool fgetline ( FILE *file, string &line )
 {
-    char buffer[1024] = { 0 };
+    line = "";
+    char c = 0;
 
-    if ( fgets ( buffer, sizeof ( buffer ), file ) == NULL )
-        return false;
+    while ( true )
+    {
+        if ( fread ( &c, 1, 1, file ) != 1 )
+            return false;
+        
+        if ( c == '\n' )
+            return true;
 
-    size_t len = strlen ( buffer );
-    if ( buffer[ len - 1 ] == '\n' )
-        buffer[ len - 1 ] = 0;
-    
-    line = string ( buffer );
-    return true;
+        if ( c == '\r' )
+        {
+            if ( fread ( &c, 1, 1, file ) == 1 && c != '\n' )
+                fseek ( file, -1, SEEK_CUR );
+            return true;
+        }
+        
+        line += c;
+    }
 }
 
 // Returns a C++ string which has leading and trailing whitespace

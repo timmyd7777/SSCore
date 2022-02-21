@@ -887,7 +887,7 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userDa
 
         string catname = cat == kCatUnknown ? string ( "Name" ) : catalog_to_string ( cat );
         string filepath ( _rootpath + "index/" + catname + ".csv" );
-        FILE *file = fopen ( filepath.c_str(), "r" );
+        FILE *file = fopen ( filepath.c_str(), "rb" );
         if ( ! file )
             return n;
 
