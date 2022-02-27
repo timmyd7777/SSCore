@@ -131,7 +131,7 @@ Except for the last two columns, the column description is copied from the [GeoN
 - Version 1.1 (24 Nov 2020): added type column.
 
 Features.csv
---------
+------------
 
 This file contains non-Earth planetary surface feature names, from the USGS [Gazetteer of Planetary Nomenclature](https://planetarynames.wr.usgs.gov/AdvancedSearch).  The file was downloaded using the following options:
 
@@ -144,6 +144,11 @@ This file contains non-Earth planetary surface feature names, from the USGS [Gaz
 - **_Columns to Include_**:  Feature Name, Clean Feature Name, Target, Diameter, Center Lat/Lon, Feature Type Code, Origin
 - **_Sorted By_**: Feature Name, Ascending
 - **_Output Format_**: CSV
+
+Geonames
+--------
+
+This folder contains the original files from GeoNames and the Gazetteer of Planetary Nomenclature, on which the above two .csv files are based.  It also contains two python scripts (developed by Kam Seto) for converting the original files to the CSV format described above. 
 
 **Revision History**
 
