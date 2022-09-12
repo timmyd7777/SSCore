@@ -485,7 +485,7 @@ int SSSerial::outputBytes ( void )
 // SSSerial::getPortConfig() obtains this serial port's baud rate, parity, data bits, and stop bits.
 // Returns true if successful or false on failure (e.g. if the port is not opened.)
 
-bool SSSerial::getPortConfig ( Baud &baud, Parity &parity, DataBits &dataBits, StopBits &stopBits )
+bool SSSerial::getPortConfig ( int &baud, int &parity, int &dataBits, float &stopBits )
 {
     struct termios options;
     
@@ -498,68 +498,40 @@ bool SSSerial::getPortConfig ( Baud &baud, Parity &parity, DataBits &dataBits, S
     // Get the baud rate from the termios structure. Note that we're only
     // using the input speed here; we'll assume this is the same as the output.
     
-    speed_t speed = cfgetispeed ( &options );
-    if ( speed == B300 )
-        baud = Baud::k300;
-    else if ( speed == B600 )
-        baud = Baud::k600;
-    else if ( speed == B1200 )
-        baud = Baud::k1200;
-    else if ( speed == B2400 )
-        baud = Baud::k2400;
-    else if ( speed == B4800 )
-        baud = Baud::k4800;
-    else if ( speed == B9600 )
-        baud = Baud::k9600;
-    else if ( speed == B14400 )
-        baud = Baud::k14400;
-    else if ( speed == B19200 )
-        baud = Baud::k19200;
-    else if ( speed == B38400 )
-        baud = Baud::k38400;
-    else if ( speed == B57600 )
-        baud = Baud::k57600;
-    else if ( speed == B115200 )
-        baud = Baud::k115200;
-    else if ( speed == B230400 )
-        baud = Baud::k230400;
-    else if ( speed == 460800 )
-        baud = Baud::k460800;
-    else if ( speed == 921600 )
-        baud = Baud::k921600;
+    baud = (int) cfgetispeed ( &options );
 
     // Determine the parity options from the parity bit flags in the termios structure.
     
     if ( options.c_cflag & PARENB )
     {
         if ( options.c_cflag & PARODD )
-            parity = Parity::kOdd;
+            parity = kOddParity;
         else
-            parity = Parity::kEven;
+            parity = kEvenParity;
     }
     else
     {
-        parity = Parity::kNone;
+        parity = kNoParity;
     }
         
     // Same for the data bit flags.
     
     if ( ( options.c_cflag & CSIZE ) == CS5 )
-        dataBits = DataBits::k5;
+        dataBits = k5DataBits;
     else if ( ( options.c_cflag & CSIZE ) == CS6 )
-        dataBits = DataBits::k6;
+        dataBits = k6DataBits;
     else if ( ( options.c_cflag & CSIZE ) == CS7 )
-        dataBits = DataBits::k7;
+        dataBits = k7DataBits;
     else if ( ( options.c_cflag & CSIZE ) == CS8 )
-        dataBits = DataBits::k8;
+        dataBits = k8DataBits;
     
     // Now for the stop bit flags. Note that the 1.5 stop bit combination
     // is not supported under MacOS.
     
     if ( options.c_cflag & CSTOPB )
-        stopBits = StopBits::k2;
+        stopBits = k2StopBits;
     else
-        stopBits = StopBits::k1;
+        stopBits = k1StopBits;
             
     // Return a successful result code.
     
@@ -569,7 +541,7 @@ bool SSSerial::getPortConfig ( Baud &baud, Parity &parity, DataBits &dataBits, S
 // SSSerial::setPortConfig() changes this serial port's baud rate, parity, data bits, and stop bits.
 // Returns true if successful or false on failure (e.g. if the port is not opened.)
 
-bool SSSerial::setPortConfig ( Baud baud, Parity parity, DataBits dataBits, StopBits stopBits )
+bool SSSerial::setPortConfig ( int baud, int parity, int dataBits, float stopBits )
 {
     struct termios options;
     
@@ -586,30 +558,30 @@ bool SSSerial::setPortConfig ( Baud baud, Parity parity, DataBits dataBits, Stop
     // Set the partity bit flags in the termios structure by first turning them
     // all off, then turning on those which match the parity specified.
          
-    if ( parity == Parity::kNone )
+    if ( parity == kNoParity )
         options.c_cflag = ( options.c_cflag & ~( PARENB | PARODD ) );
-    else if ( parity == Parity::kEven )
+    else if ( parity == kEvenParity )
         options.c_cflag = ( options.c_cflag & ~( PARENB | PARODD ) ) | PARENB;
-    else if ( parity == Parity::kOdd )
+    else if ( parity == kOddParity )
         options.c_cflag = ( options.c_cflag & ~( PARENB | PARODD ) ) | PARENB | PARODD;
         
     // Same for the data bit flags.
     
-    if ( dataBits == DataBits::k5 )
+    if ( dataBits == k5DataBits )
         options.c_cflag = ( options.c_cflag & ~CSIZE ) | CS5;
-    else if ( dataBits == DataBits::k6 )
+    else if ( dataBits == k6DataBits )
         options.c_cflag = ( options.c_cflag & ~CSIZE ) | CS6;
-    else if ( dataBits == DataBits::k7 )
+    else if ( dataBits == k7DataBits )
         options.c_cflag = ( options.c_cflag & ~CSIZE ) | CS7;
-    else if ( dataBits == DataBits::k8 )
+    else if ( dataBits == k8DataBits )
         options.c_cflag = ( options.c_cflag & ~CSIZE ) | CS8;
     
     // Same for the stop bit flags. Note that 1.5 stop bits
     // is not supported under MacOS.
     
-    if ( stopBits == StopBits::k1 )
+    if ( stopBits == k1StopBits )
         options.c_cflag = ( options.c_cflag & ~CSTOPB );
-    else if ( stopBits == StopBits::k2  )
+    else if ( stopBits == k2StopBits )
         options.c_cflag = ( options.c_cflag & ~CSTOPB ) | CSTOPB;
 
     // Now pass the changed termios options back to the serial driver.
