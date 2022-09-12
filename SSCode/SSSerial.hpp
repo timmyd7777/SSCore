@@ -34,45 +34,42 @@ protected:
     PortRef _port = kError;
 
 public:
-    enum Baud     // Supported baud rates (bits per second)
-    {
-        k300 = 300,
-        k600 = 600,
-        k1200 = 1200,
-        k2400 = 2400,
-        k4800 = 4800,
-        k9600 = 9600,
-        k14400 = 14400,  // not supported on Linux
-        k19200 = 19200,
-        k38400 = 38400,
-        k57600 = 57600,
-        k115200 = 115200,
-        k230400 = 230400,
-        k460800 = 460800,  // not supported on MacOS
-        k921600 = 921600   // not supported on MacOS
-    };
-    
-    enum Parity     // Supported parity settings
-    {
-        kNone = 0,
-        kOdd = 1,
-        kEven = 2
-    };
-    
-    enum DataBits   // Suppored data bits
-    {
-        k5 = 5,
-        k6 = 6,
-        k7 = 7,
-        k8 = 8
-    };
 
-    enum StopBits  // Suppored stop bits
-    {
-        k1 = 1,
-        k15 = 15, // 1.5 stop bits not supported in MacOS!
-        k2 = 2
-    };
+    // Standard supported baud rates (bits per second)
+
+    static constexpr int k300Baud = 300;
+    static constexpr int k600Baud = 600;
+    static constexpr int k1200Baud = 1200;
+    static constexpr int k2400Baud = 2400;
+    static constexpr int k4800Baud = 4800;
+    static constexpr int k9600Baud = 9600;
+    static constexpr int k14400Baud = 14400;
+    static constexpr int k19200Baud = 19200;
+    static constexpr int k38400Baud = 38400;
+    static constexpr int k57600Baud = 57600;
+    static constexpr int k115200Baud = 115200;
+    static constexpr int k230400Baud = 230400;
+    static constexpr int k460800Baud = 460800;
+    static constexpr int k921600Baud = 921600;
+    
+    // Supported parity settings
+
+    static constexpr int kNoParity = 0;
+    static constexpr int kOddParity = 1;
+    static constexpr int kEvenParity = 2;
+    
+    // Suppored data bits
+
+    static constexpr int k5DataBits = 5;
+    static constexpr int k6DataBits = 6;
+    static constexpr int k7DataBits = 7;
+    static constexpr int k8DataBits = 8;
+
+    // Suppored stop bits
+
+    static constexpr float k1StopBits = 1.0f;
+    static constexpr float k15StopBits = 1.5f; // 1.5 stop bits not supported in MacOS!
+    static constexpr float k2StopBits = 2.0f;
 
     SSSerial ( void ) { _port = kError; }
     virtual ~SSSerial ( void ) { closePort(); }
@@ -85,8 +82,8 @@ public:
     int readPort ( void *data, size_t size );
     int inputBytes ( void );
     int outputBytes ( void );
-    bool getPortConfig ( Baud &baud, Parity &parity, DataBits &data, StopBits &stop );
-    bool setPortConfig ( Baud baud, Parity parity, DataBits data, StopBits stop );
+    bool getPortConfig ( int &baud, int &parity, int &data, float &stop );
+    bool setPortConfig ( int baud, int parity, int data, float stop );
 };
 
 #endif /* SSSerial_hpp */

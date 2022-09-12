@@ -124,29 +124,29 @@ int SSSerial::writePort ( void *lpvBuffer, size_t lNumBytes )
 
 // SSSerial::setPortConfig()
 
-bool SSSerial::setPortConfig ( Baud eBaudRate, Parity eParity, DataBits eDataBits, StopBits eStopBits )
+bool SSSerial::setPortConfig ( int iBaudRate, int iParity, int iDataBits, float fStopBits )
 {
 	DCB		dcb;
 
 	if ( GetCommState ( _port, &dcb ) == FALSE )
 		return false;
 
-	dcb.BaudRate = eBaudRate;
+	dcb.BaudRate = iBaudRate;
 
-	if ( eParity == Parity::kEven )
+	if ( iParity == kEvenParity )
 		dcb.Parity = EVENPARITY;
-	else if ( eParity == Parity::kOdd )
+	else if ( iParity == kOddParity )
 		dcb.Parity = ODDPARITY;
-	else if ( eParity == Parity::kNone )
+	else if ( iParity == kNoParity )
 		dcb.Parity = NOPARITY;
 
-	dcb.ByteSize = eDataBits;
+	dcb.ByteSize = iDataBits;
 
-	if ( eStopBits == StopBits::k1 )
+	if ( fStopBits == k1StopBits )
 		dcb.StopBits = ONESTOPBIT;
-	else if ( eStopBits == StopBits::k15 )
+	else if ( fStopBits == k15StopBits )
 		dcb.StopBits = ONE5STOPBITS;
-	else if ( eStopBits == StopBits::k2 )
+	else if ( fStopBits == k2StopBits )
 		dcb.StopBits = TWOSTOPBITS;
 
 	if ( SetCommState ( _port, &dcb ) == FALSE )
@@ -157,64 +157,30 @@ bool SSSerial::setPortConfig ( Baud eBaudRate, Parity eParity, DataBits eDataBit
 
 // SSSerial::getPortConfig()
 
-bool SSSerial::getPortConfig ( Baud &peBaudRate, Parity &peParity, DataBits &peDataBits, StopBits &peStopBits )
+bool SSSerial::getPortConfig ( int &iBaudRate, int &iParity, int &iDataBits, float &fStopBits )
 {
 	DCB	dcb;
 
     if ( GetCommState ( _port, &dcb ) < 0 )
     	return false;
 
-	if ( dcb.BaudRate == 300 )
-        peBaudRate = Baud::k300;
-	else if ( dcb.BaudRate == 600 )
-        peBaudRate = Baud::k600;
-	else if ( dcb.BaudRate == 1200 )
-        peBaudRate = Baud::k1200;
-	else if ( dcb.BaudRate == 2400 )
-        peBaudRate = Baud::k2400;
-	else if ( dcb.BaudRate == 4800 )
-        peBaudRate = Baud::k4800;
-	else if ( dcb.BaudRate == 9600 )
-        peBaudRate = Baud::k9600;
-	else if ( dcb.BaudRate == 14400 )
-        peBaudRate = Baud::k14400;
-	else if ( dcb.BaudRate == 19200 )
-        peBaudRate = Baud::k19200;
-	else if ( dcb.BaudRate == 38400 )
-        peBaudRate = Baud::k38400;
-	else if ( dcb.BaudRate == 57600 )
-        peBaudRate = Baud::k57600;
-	else if ( dcb.BaudRate == 115200 )
-        peBaudRate = Baud::k115200;
-	else if ( dcb.BaudRate == 230400 )
-        peBaudRate = Baud::k230400;
-	else if ( dcb.BaudRate == 460800 )
-        peBaudRate = Baud::k460800;
-	else if ( dcb.BaudRate == 921600 )
-        peBaudRate = Baud::k921600;
+	iBaudRate = dcb.BaudRate;
 
 	if ( dcb.Parity == EVENPARITY )
-		peParity = Parity::kEven;
+		iParity = kEvenParity;
 	else if ( dcb.Parity == ODDPARITY )
-		peParity = Parity::kOdd;
+		iParity = kOddParity;
 	else if ( dcb.Parity == NOPARITY )
-		peParity = Parity::kNone;
+		iParity = kNoParity;
 
-	if ( dcb.ByteSize == 5 )
-   		peDataBits = DataBits::k5;
-    else if ( dcb.ByteSize == 6 )
-   		peDataBits = DataBits::k6;
-    else if ( dcb.ByteSize == 7 )
-   		peDataBits = DataBits::k7;
-    else if ( dcb.ByteSize == 8 )
-   		peDataBits = DataBits::k8;
+   	iDataBits = dcb.ByteSize;
 
 	if ( dcb.StopBits == ONESTOPBIT )
-		peStopBits = StopBits::k1;
+		fStopBits = k1StopBits;
 	else if (dcb.StopBits == ONE5STOPBITS)
-		peStopBits = StopBits::k15;
+		fStopBits = k15StopBits;
 	else if (dcb.StopBits == TWOSTOPBITS)
-		peStopBits = StopBits::k2;
+		fStopBits = k2StopBits;
 
 	return true;
 }
