@@ -11,6 +11,240 @@
 
 #ifdef _WINDOWS
 
+// SSSerial::listPorts() obtains a list of names of available COM or LPT ports.
+// Vectors of found port name and DOS path strings are returned in (names) and (paths)
+// The function returns the number of ports actually detected.
+// Based on sample code by P.J. Naughter (pjn@indigo.ie).
+
+int SSSerial::listPorts ( vector<string> &names, vector<string> &paths )
+{
+    const char *pszPortType = "COM"; // or "LPT" to list parallel ports
+	int		    nNumPorts = 0;
+
+    // Use the QueryDosDevice API to look for all devices of the form COMx.
+	// This is a better solution as it means that no ports have to be opened at all.
+
+    TCHAR szDevices[65535] = { 0 }, *pszCurrentDevice = NULL;
+	DWORD i, dwChars = QueryDosDevice ( NULL, szDevices, 65535 );
+
+	for ( i = 0; i < dwChars && szDevices[i] != '\0'; i++ )
+	{
+		// Get the current device name.
+
+		pszCurrentDevice = &szDevices[i];
+
+		// If it starts with "COM" or "LPT" then add it to the array which will be returned
+
+		if ( strncmp ( pszCurrentDevice, pszPortType, 3 ) == 0 )
+        {
+			names.push_back ( string ( pszCurrentDevice ) );
+            paths.push_back ( "\\\\.\\" + string ( pszCurrentDevice ) );
+            nNumPorts++;
+        }
+
+		// Go to next NULL character
+
+		while ( szDevices[i] != '\0' )
+			i++;
+	}
+
+	return nNumPorts;
+}
+
+// SSSerial::openPort() opens a serial port with the specified path.
+// Returns true if successful or false on failure.
+
+bool SSSerial::openPort ( const string &path )
+{
+	char	szPort[16] = { 0 };
+	HANDLE	hCom;
+
+	// First try to open the serial port with a name such as "\\.\COM1", etc.
+	// On failure, try to open just "COM1".
+
+	strcpy_s ( szPort, path.c_str() );
+	hCom = CreateFile ( szPort, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL );
+	if ( hCom == INVALID_HANDLE_VALUE )
+	{
+		strcpy_s ( szPort, path.c_str() + 4 );
+		hCom = CreateFile ( szPort, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL );
+	}
+
+	if ( hCom == INVALID_HANDLE_VALUE )
+		return false;
+
+	if ( SetupComm ( hCom, 1024, 1024 ) == FALSE )
+	{
+		CloseHandle ( hCom );
+		return false;
+	}
+
+    _port = hCom;
+	return true;
+}
+
+// SSSerial::portOpen() returns true if this port is currently open,
+// or false if the port is closed (or other error).
+
+bool SSSerial::portOpen ( void )
+{
+    return _port != kError ? true : false;
+}
+
+// SSSerial::closePort()
+
+bool SSSerial::closePort ( void )
+{
+	return ( CloseHandle ( _port ) );
+}
+
+// SSSerial::readPort()
+
+int SSSerial::readPort ( void *lpvBuffer, size_t lNumBytes )
+{
+	unsigned long dwNumBytesRead = 0;
+
+    if ( ReadFile ( _port, lpvBuffer, lNumBytes, &dwNumBytesRead, NULL ) )
+        return dwNumBytesRead;
+    else
+        return -1;
+}
+
+// SSSerial::writePort()
+
+int SSSerial::writePort ( void *lpvBuffer, size_t lNumBytes )
+{
+	unsigned long	dwNumBytesWritten = 0;
+
+    if ( WriteFile ( _port, lpvBuffer, lNumBytes, &dwNumBytesWritten, NULL ) )
+        return dwNumBytesWritten;
+    else
+        return -1;
+}
+
+// SSSerial::setPortConfig()
+
+bool SSSerial::setPortConfig ( Baud eBaudRate, Parity eParity, DataBits eDataBits, StopBits eStopBits )
+{
+	DCB		dcb;
+
+	if ( GetCommState ( _port, &dcb ) == FALSE )
+		return false;
+
+	dcb.BaudRate = eBaudRate;
+
+	if ( eParity == Parity::kEven )
+		dcb.Parity = EVENPARITY;
+	else if ( eParity == Parity::kOdd )
+		dcb.Parity = ODDPARITY;
+	else if ( eParity == Parity::kNone )
+		dcb.Parity = NOPARITY;
+
+	dcb.ByteSize = eDataBits;
+
+	if ( eStopBits == StopBits::k1 )
+		dcb.StopBits = ONESTOPBIT;
+	else if ( eStopBits == StopBits::k15 )
+		dcb.StopBits = ONE5STOPBITS;
+	else if ( eStopBits == StopBits::k2 )
+		dcb.StopBits = TWOSTOPBITS;
+
+	if ( SetCommState ( _port, &dcb ) == FALSE )
+		return false;
+
+	return true;
+}
+
+// SSSerial::getPortConfig()
+
+bool SSSerial::getPortConfig ( Baud &peBaudRate, Parity &peParity, DataBits &peDataBits, StopBits &peStopBits )
+{
+	DCB	dcb;
+
+    if ( GetCommState ( _port, &dcb ) < 0 )
+    	return false;
+
+	if ( dcb.BaudRate == 300 )
+        peBaudRate = Baud::k300;
+	else if ( dcb.BaudRate == 600 )
+        peBaudRate = Baud::k600;
+	else if ( dcb.BaudRate == 1200 )
+        peBaudRate = Baud::k1200;
+	else if ( dcb.BaudRate == 2400 )
+        peBaudRate = Baud::k2400;
+	else if ( dcb.BaudRate == 4800 )
+        peBaudRate = Baud::k4800;
+	else if ( dcb.BaudRate == 9600 )
+        peBaudRate = Baud::k9600;
+	else if ( dcb.BaudRate == 14400 )
+        peBaudRate = Baud::k14400;
+	else if ( dcb.BaudRate == 19200 )
+        peBaudRate = Baud::k19200;
+	else if ( dcb.BaudRate == 38400 )
+        peBaudRate = Baud::k38400;
+	else if ( dcb.BaudRate == 57600 )
+        peBaudRate = Baud::k57600;
+	else if ( dcb.BaudRate == 115200 )
+        peBaudRate = Baud::k115200;
+	else if ( dcb.BaudRate == 230400 )
+        peBaudRate = Baud::k230400;
+	else if ( dcb.BaudRate == 460800 )
+        peBaudRate = Baud::k460800;
+	else if ( dcb.BaudRate == 921600 )
+        peBaudRate = Baud::k921600;
+
+	if ( dcb.Parity == EVENPARITY )
+		peParity = Parity::kEven;
+	else if ( dcb.Parity == ODDPARITY )
+		peParity = Parity::kOdd;
+	else if ( dcb.Parity == NOPARITY )
+		peParity = Parity::kNone;
+
+	if ( dcb.ByteSize == 5 )
+   		peDataBits = DataBits::k5;
+    else if ( dcb.ByteSize == 6 )
+   		peDataBits = DataBits::k6;
+    else if ( dcb.ByteSize == 7 )
+   		peDataBits = DataBits::k7;
+    else if ( dcb.ByteSize == 8 )
+   		peDataBits = DataBits::k8;
+
+	if ( dcb.StopBits == ONESTOPBIT )
+		peStopBits = StopBits::k1;
+	else if (dcb.StopBits == ONE5STOPBITS)
+		peStopBits = StopBits::k15;
+	else if (dcb.StopBits == TWOSTOPBITS)
+		peStopBits = StopBits::k2;
+
+	return true;
+}
+
+// SSSerial::inputBytes
+
+int SSSerial::inputBytes ( void )
+{
+	COMSTAT			comstat;
+	unsigned long	dwError;
+
+	if ( ClearCommError ( _port, &dwError, &comstat ) == FALSE )
+	 	return -1;
+
+	return comstat.cbInQue;
+}
+
+// SSSerial::outputBytes()
+
+int SSSerial::outputBytes ( void )
+{
+	COMSTAT			comstat;
+	unsigned long	dwError;
+
+	if ( ClearCommError ( _port, &dwError, &comstat ) == FALSE )
+	 	return -1;
+
+	return comstat.cbOutQue;
+}
+
 #else
 
 #include <sys/ioctl.h>
