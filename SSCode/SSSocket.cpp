@@ -11,6 +11,7 @@
 #ifdef _WINDOWS
 
 typedef int socklen_t;
+typedef ULONG in_addr_t;
 
 bool SSSocket::initialize ( void )
 {
@@ -57,7 +58,7 @@ bool SSSocket::initialize ( void )
 
 void SSSocket::finalize ( void )
 {
-    return false; // Nothing to do on MacOS/Linux
+    // Nothing to do on MacOS/Linux
 }
 
 #endif
@@ -65,7 +66,7 @@ void SSSocket::finalize ( void )
 vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bool useDNS )
 {
     int               i, nIPs = 0;
-    unsigned long     lIP;
+    in_addr_t         lIP;
     struct hostent    *pHostEnt;
     vector<IPAddress> vIPs;
     
@@ -150,7 +151,7 @@ vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
         if ( pifa->ifa_addr->sa_family != AF_INET )
             continue;
         
-        vIPs.push_back ( ( (sockaddr_in *) pifa->ifa_addr )->sin_addr.s_addr );
+        vIPs.push_back ( ( (sockaddr_in *) pifa->ifa_addr )->sin_addr );
         nIPs++;
     }
     
@@ -252,7 +253,7 @@ int SSSocket::readSocket ( void *data, int size )
 
             if ( data == nullptr )
             {
-                nBytesRead = lBytesToRead;
+                nBytesRead = (int) lBytesToRead;
                 break;
             }
             else

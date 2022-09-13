@@ -30,7 +30,7 @@ protected:
     SOCKET _socket = INVALID_SOCKET;
     
 public:
-    typedef in_addr IPAddress;
+    typedef struct in_addr IPAddress;
 
     // Constructor and destructor
     
