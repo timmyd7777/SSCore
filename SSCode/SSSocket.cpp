@@ -7,6 +7,7 @@
 // This class implements low-level IPv4 network socket communication.
 
 #include "SSSocket.hpp"
+#include <string.h>
 
 #ifdef _WINDOWS
 
