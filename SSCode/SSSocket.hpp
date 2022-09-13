@@ -5,6 +5,7 @@
 // Copyright © 2022 Southern Stars Group, LLC. All rights reserved.
 //
 // This class implements low-level IPv4 network TCP and UDP socket communication.
+// On Windows, make sure to link with WSOCK32.LIB!
 
 #ifndef SSSocket_hpp
 #define SSSocket_hpp
@@ -12,9 +13,8 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 #ifdef _WINDOWS
+    #include <windows.h>
     #include <winsock.h>
 #else
     #include <sys/socket.h>
@@ -22,13 +22,15 @@ using namespace std;
     constexpr int INVALID_SOCKET = -1;
 #endif
 
+using namespace std;
+
 class SSSocket
 {
 protected:
     SOCKET _socket = INVALID_SOCKET;
     
 public:
-    typedef in_addr_t IPAddress;
+    typedef in_addr IPAddress;
 
     // Constructor and destructor
     
@@ -37,14 +39,14 @@ public:
     ~SSSocket ( void ) { closeSocket(); }
     
     static bool initialize ( void );
-    static bool finalize ( void );
+    static void finalize ( void );
     
     static vector<IPAddress> hostNameToIPs ( const string &hostname, bool useDNS );
     static string IPtoHostName ( IPAddress ip, bool useDNS );
     static IPAddress getLocalIP ( void );
     static vector<IPAddress> getLocalIPs ( void );
     
-    IPAddress getRemoteIP ( void );
+    bool getRemoteIP ( IPAddress &peerIP );
     bool openSocket ( IPAddress serverIP, unsigned short port, int timeout );
     bool socketOpen ( void );
     int writeSocket ( void *data, int size );

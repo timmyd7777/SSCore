@@ -10,7 +10,7 @@
 
 #ifdef _WINDOWS
 
-#include <winsock.h>
+typedef int socklen_t;
 
 bool SSSocket::initialize ( void )
 {
@@ -33,7 +33,7 @@ bool SSSocket::initialize ( void )
     return ( true );
 }
 
-bool SSSocket::finalize ( void )
+void SSSocket::finalize ( void )
 {
     WSACleanup();
 }
@@ -55,7 +55,7 @@ bool SSSocket::initialize ( void )
     return true;    // nothing to do on MacOS/Linux!
 }
 
-bool SSSocket::finalize ( void )
+void SSSocket::finalize ( void )
 {
     return false; // Nothing to do on MacOS/Linux
 }
@@ -65,7 +65,7 @@ bool SSSocket::finalize ( void )
 vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bool useDNS )
 {
     int               i, nIPs = 0;
-    IPAddress         ip;
+    unsigned long     lIP;
     struct hostent    *pHostEnt;
     vector<IPAddress> vIPs;
     
@@ -73,10 +73,12 @@ vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bo
     // (e.g. "192.168.1.1").  If we fail, then try to resolve the host name
     // string using DNS, if so requested by the caller. ***/
 
-    ip = inet_addr ( hostName.c_str() );
-    if ( ip != INADDR_NONE )
+    lIP = inet_addr ( hostName.c_str() );
+    if ( lIP != INADDR_NONE )
     {
-        vIPs.push_back ( ip );
+        IPAddress addr;
+        addr.s_addr = lIP;
+        vIPs.push_back ( addr );
         return vIPs;
     }
 
@@ -98,13 +100,11 @@ vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bo
     return vIPs;
 }
 
-string SSSocket::IPtoHostName ( IPAddress ip, bool useDNS )
+string SSSocket::IPtoHostName ( IPAddress address, bool useDNS )
 {
-    struct in_addr address = { ip };
-
     if ( useDNS )
     {
-        struct hostent *pHostEnt = gethostbyaddr ( &address, sizeof ( address ), AF_INET );
+        struct hostent *pHostEnt = gethostbyaddr ( (char *) &address, sizeof ( address ), AF_INET );
         if ( pHostEnt != nullptr )
             return string ( pHostEnt->h_name );
     }
@@ -118,17 +118,19 @@ string SSSocket::IPtoHostName ( IPAddress ip, bool useDNS )
     return string ( "" );
 }
 
-/*
-SSSocket::IPAddress SSSocket::getLocalIP ( void )
+#ifdef _WINDOWS
+
+vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
 {
     char szHost[256] = { 0 };
     
     if ( gethostname ( szHost, sizeof ( szHost ) ) == 0 )
-        return ( GHostNameToIPAddress ( szHost, pIPs, nMaxIPs ) );
+        return hostNameToIPs ( string ( szHost ), true );
     else
-        return ( 0 );
+        return vector<IPAddress> ( 0 );
 }
-*/
+
+#else
 
 vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
 {
@@ -155,22 +157,27 @@ vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
     return vIPs;
 }
 
-SSSocket::IPAddress SSSocket::getRemoteIP ( void )
+#endif
+
+bool SSSocket::getRemoteIP ( IPAddress &peerIP )
 {
     struct sockaddr_in address;
     socklen_t nLength = sizeof ( address );
 
     if ( getpeername ( _socket, (struct sockaddr *) &address, &nLength ) == 0 )
-        return address.sin_addr.s_addr;
-    else
-        return 0;
+    {
+        peerIP = address.sin_addr;
+        return true;
+    }
+    
+    return false;
 }
 
 bool SSSocket::socketOpen ( void )
 {
-    int    nFlag = 0;
     char   cData = 0;
     int    nResult = 0;
+    unsigned long   lFlag = 0;
 
     if ( _socket == INVALID_SOCKET )
         return false;
@@ -179,8 +186,8 @@ bool SSSocket::socketOpen ( void )
     // non-blocking mode and call recv() to see if there's any data waiting to be
     // read, without actually reading it.
 
-    nFlag = true;
-    if ( ioctlsocket ( _socket, FIONBIO, &nFlag ) == 0 )
+    lFlag = true;
+    if ( ioctlsocket ( _socket, FIONBIO, &lFlag ) == 0 )
     {
         nResult = (int) recv ( _socket, &cData, 1, MSG_PEEK );
 
@@ -188,8 +195,8 @@ bool SSSocket::socketOpen ( void )
         // because select() and ioctlsocket() only tell us if there's unread data on the
         // connection, not whether the connection is still closed.
 
-        nFlag = false;
-        ioctlsocket ( _socket, FIONBIO, &nFlag );
+        lFlag = false;
+        ioctlsocket ( _socket, FIONBIO, &lFlag );
     }
 
     // If the connection has been closed and all data received, recv() returns zero.
@@ -223,20 +230,20 @@ int SSSocket::readSocket ( void *data, int size )
 {
     int  nResult;
     int  nBytesRead = 0;
-    int  nBytesToRead;
+    unsigned long  lBytesToRead;
 
     do
     {
         // First, use the ioctlsocket() function to determine how many bytes
         // are available to be read from the socket.
 
-        nResult = ioctlsocket ( _socket, FIONREAD, &nBytesToRead );
+        nResult = ioctlsocket ( _socket, FIONREAD, &lBytesToRead );
         if ( nResult == 0 )
         {
             // If there's nothing to read, stop now.  We do this
             // to prevent a subsequent call to recv() from blocking.
 
-            if ( nBytesToRead == 0 )
+            if ( lBytesToRead == 0 )
                 break;
 
             // If we have bytes available, but we've not been given a buffer
@@ -245,7 +252,7 @@ int SSSocket::readSocket ( void *data, int size )
 
             if ( data == nullptr )
             {
-                nBytesRead = nBytesToRead;
+                nBytesRead = lBytesToRead;
                 break;
             }
             else
@@ -255,10 +262,10 @@ int SSSocket::readSocket ( void *data, int size )
                 // Then read into it, and break if we run into an error
                 // condition or if the remote peer closes the connection.
 
-                if ( nBytesToRead + nBytesRead > size )
-                    nBytesToRead = size - nBytesRead;
+                if ( lBytesToRead + nBytesRead > size )
+                    lBytesToRead = size - nBytesRead;
 
-                nResult = (int) recv ( _socket, (char *) data + nBytesRead, nBytesToRead, 0 );
+                nResult = (int) recv ( _socket, (char *) data + nBytesRead, lBytesToRead, 0 );
                 if ( nResult < 1 )
                     break;
 
@@ -347,24 +354,20 @@ bool SSSocket::openUDPSocket ( IPAddress ipAddress, unsigned short wPort )
 {
     int                 nSocket = 0;
     struct sockaddr_in  address = { 0 };
-    struct in_addr      addr = { ipAddress };
     
     nSocket = socket ( PF_INET, SOCK_DGRAM, 0 );
     if ( nSocket == -1 )
         return false;
     
-    if ( ipAddress && wPort )
-    {
-        address.sin_family = PF_INET;
-        address.sin_port = htons ( wPort );
-        address.sin_addr = addr;
-        memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
+    address.sin_family = PF_INET;
+    address.sin_port = htons ( wPort );
+    address.sin_addr = ipAddress;
+    memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
         
-        if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
-        {
-            closesocket ( nSocket );
-            return false;
-        }
+    if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
+    {
+        closesocket ( nSocket );
+        return false;
     }
     
     _socket = nSocket;
@@ -416,7 +419,7 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, IPAddress &senderIP, l
         tv.tv_usec = 0;
     }
     
-    nResult = setsockopt ( _socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof ( tv ) );
+    nResult = setsockopt ( _socket, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof ( tv ) );
     if ( nResult == -1 )
         return SOCKET_ERROR;
     
@@ -431,6 +434,6 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, IPAddress &senderIP, l
             return SOCKET_ERROR;
     }
     
-    senderIP = address.sin_addr.s_addr;
+    senderIP = address.sin_addr;
     return nResult;
 }
