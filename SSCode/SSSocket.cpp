@@ -4,7 +4,11 @@
 // Created by Tim DeBenedictis on 9/12/22.
 // Copyright © 2022 Southern Stars Group, LLC. All rights reserved.
 //
-// This class implements low-level IPv4 network socket communication.
+// This class implements basic IPv4 network TCP and UDP socket communication.
+// TCP server sockets are supported. IPv6 and SSL and not supported.
+// On Windows, make sure to link with WSOCK32.LIB!
+// Based primarily on example code from Beej's Guide to Network Programming:
+// https://beej.us/guide/bgnet/html/
 
 #include "SSSocket.hpp"
 #include <string.h>
@@ -13,6 +17,10 @@
 
 typedef int socklen_t;
 typedef ULONG in_addr_t;
+
+// Initializes socket communcation module.
+// Returns true if successful or false on failure.
+// Call once at application startup.
 
 bool SSSocket::initialize ( void )
 {
@@ -34,6 +42,9 @@ bool SSSocket::initialize ( void )
 
     return ( true );
 }
+
+// Finalizes socket communcation module.
+// Call once before application shutdown.
 
 void SSSocket::finalize ( void )
 {
@@ -63,6 +74,13 @@ void SSSocket::finalize ( void )
 }
 
 #endif
+
+// Returns vector of IPv4 addresses corresponding to a network host name string.
+// If (useDNS) is false, the function will try to parse the host name string
+// as an IPv4 address in dotted form, like "192.168.1.1".
+// If (useDNS) is true, the function will attempt to resolve the host name as a fully-
+// qualified domain name (like "www.southernstars.com") using DNS, if it cannot be
+// parsed as an IP address in dotted form.
 
 vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bool useDNS )
 {
@@ -102,6 +120,14 @@ vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bo
     return vIPs;
 }
 
+// Determines the host name corresponding to an IPv4 address.
+// If (useDNS) is false, this method will return the numerical value
+// of the IP address specified in dotted form, like "192.168.0.1".
+// If (useDNS) is true, this method will attempt to determine the fully-
+// qualified domain name (like "cnn.com") corresponding to the IP address.
+// If the method fails to find the host's fully-qualified domain name,
+// it will return the dotted form of the IP address (e.g. "192.168.1.1").
+
 string SSSocket::IPtoHostName ( IPAddress address, bool useDNS )
 {
     if ( useDNS )
@@ -122,6 +148,8 @@ string SSSocket::IPtoHostName ( IPAddress address, bool useDNS )
 
 #ifdef _WINDOWS
 
+// Returns the IPv4 address corresponding to the local machine's host name.
+
 vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
 {
     char szHost[256] = { 0 };
@@ -133,6 +161,8 @@ vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
 }
 
 #else
+
+// Returns vector of IPv4 addresses of all network interfaces on the local system.
 
 vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
 {
@@ -160,6 +190,10 @@ vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
 }
 
 #endif
+
+// Obtains the IP address of the remote (i.e. peer) machine to which
+// this TCP socket is connected. Will not work for UDP sockets.
+// Returns true if successful, or false on failure.
 
 bool SSSocket::getRemoteIP ( IPAddress &peerIP )
 {

@@ -4,8 +4,8 @@
 // Created by Tim DeBenedictis on 9/12/22.
 // Copyright © 2022 Southern Stars Group, LLC. All rights reserved.
 //
-// This class implements low-level IPv4 network TCP and UDP socket communication.
-// On Windows, make sure to link with WSOCK32.LIB!
+// This class implements basic IPv4 network TCP and UDP socket communication.
+// TCP server sockets are supported. IPv6 and SSL and not supported.
 
 #ifndef SSSocket_hpp
 #define SSSocket_hpp
