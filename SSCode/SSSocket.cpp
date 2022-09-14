@@ -201,7 +201,7 @@ string SSSocket::IPtoHostName ( SSIP ip, bool useDNS )
 
 // Returns the IPv4 address corresponding to the local machine's host name.
 
-vector<SSSocket::SSIP> SSSocket::getLocalIPs ( void )
+vector<SSIP> SSSocket::getLocalIPs ( void )
 {
     char szHost[256] = { 0 };
     
@@ -273,7 +273,7 @@ bool SSSocket::openSocket ( SSIP serverIP, unsigned short wPort, int nTimeout )
 {
     int                   nResult;
     SOCKET                nSocket;
-    long                  dwValue;
+    unsigned long         dwValue;
     int                   nError;
     socklen_t             nSize;
     struct sockaddr_in    address;
@@ -323,7 +323,7 @@ bool SSSocket::openSocket ( SSIP serverIP, unsigned short wPort, int nTimeout )
         // Check for socket error conditions
         
         nSize = sizeof ( nError );
-        nResult = getsockopt ( nSocket, SOL_SOCKET, SO_ERROR, &nError, &nSize );
+        nResult = getsockopt ( nSocket, SOL_SOCKET, SO_ERROR, (char *) &nError, &nSize );
         if ( nResult == SOCKET_ERROR || nError != 0 )
         {
             closesocket ( nSocket );
@@ -514,11 +514,10 @@ bool SSSocket::serverOpenSocket ( SSIP serverIP, unsigned short wPort, int nMaxC
     int                nResult;
     SOCKET             nSocket;
     struct sockaddr_in address;
-    struct in_addr     addr = { serverIP };
     
     address.sin_family = AF_INET;
     address.sin_port = htons ( wPort );
-    address.sin_addr = addr;
+    address.sin_addr = serverIP.addr;
     memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
 
     nSocket = socket ( AF_INET, SOCK_STREAM, 0 );
@@ -646,11 +645,10 @@ int SSSocket::writeUDPSocket ( void *lpvData, int lLength, SSIP destIP, unsigned
     int        nResult;
     int        nBytesWritten = 0;
     struct sockaddr_in address = { 0 };
-    struct in_addr addr = { destIP };
     
     address.sin_family = PF_INET;
     address.sin_port = htons ( wDestPort );
-    address.sin_addr = addr;
+    address.sin_addr = destIP.addr;
     memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
     
     do
@@ -727,7 +725,7 @@ bool SSSocket::isUDPSocket ( void )
     int nType = 0;
     socklen_t nSize = sizeof ( nType );
     
-    int nResult = getsockopt ( _socket, SOL_SOCKET, SO_TYPE, &nType, &nSize );
+    int nResult = getsockopt ( _socket, SOL_SOCKET, SO_TYPE, (char *) &nType, &nSize );
     if ( nResult != SOCKET_ERROR && nType == SOCK_DGRAM )
         return true;
     
