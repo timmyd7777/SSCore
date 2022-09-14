@@ -175,6 +175,15 @@ bool SSSocket::getRemoteIP ( IPAddress &peerIP )
     return false;
 }
 
+// Opens a TCP socket connection with a remote server with IPv4 address (serverIP)
+// at TCP port number (wPort). Maximum number of milliseconds to wait for server
+// to accept connection (nTimeout).
+// If the remote server accepts the connection, the function returns true.
+// On failure, or if the server refuses to accept the connection within timeout,
+// the function returns false.
+// To wait an indefinite amount of time for the connection to be accepted,
+// pass a value <= 0 for the timeout parameter.
+
 bool SSSocket::openSocket ( IPAddress serverIP, unsigned short wPort, int nTimeout )
 {
     int                   nResult;
@@ -262,6 +271,13 @@ bool SSSocket::openSocket ( IPAddress serverIP, unsigned short wPort, int nTimeo
     return true;
 }
 
+// Determines whether the peer at the remote end of a TCP socket connection
+// has closed the connection.
+// Returns true if the remote peer has not yet closed the socket connection,
+// or if there is any data on the connection which has not yet been received.
+// Returns false if the remote peer has closed the connection and all data
+// on the connection has been received.
+
 bool SSSocket::socketOpen ( void )
 {
     char   cData = 0;
@@ -297,6 +313,13 @@ bool SSSocket::socketOpen ( void )
     return nResult == 0 ? false : true;
 }
 
+// Writes data to this TCP socket connection.
+// Pointer to buffer containing data to write is (data).
+// Number of bytes of data to write is (size).
+// Returns the number of bytes actually written to the socket,
+// if successful, or SOCKET_ERROR (-1) on failure.
+// For UDP sockets, see writeUDPSocket().
+
 int SSSocket::writeSocket ( void *data, int size )
 {
     int nResult;
@@ -314,6 +337,15 @@ int SSSocket::writeSocket ( void *data, int size )
 
     return nResult == SOCKET_ERROR ? SOCKET_ERROR : nBytesWritten;
 }
+
+// Reads data from this TCP socket connection, or determines the number of bytes
+// currently available to read from the connection.
+// Pointer to buffer to receive data is (data).
+// Size of buffer, i.e. maximum number of bytes to read, is (size).
+// The function returns the number of bytes read from the socket connection.
+// If the (data) parameter is NULL, the function determines the number of
+// bytes currently available to read, rather than actually reading the data.
+// For UDP sockets, see readUDPSocket().
 
 int SSSocket::readSocket ( void *data, int size )
 {
@@ -372,12 +404,25 @@ int SSSocket::readSocket ( void *data, int size )
     return nResult == SOCKET_ERROR ? SOCKET_ERROR : nBytesRead;
 }
 
+// Closes a socket connection and frees associated resources, and invalidates
+// this SSSocket object's native socket handle/file descriptor.
+// If ths is a TCP socket, the peer on the remote end of the connection
+// can determine that the connection has been closed by calling socketOpen().
+
 void SSSocket::closeSocket ( void )
 {
     shutdown ( _socket, 2 );
     closesocket ( _socket );
     _socket = INVALID_SOCKET;
 }
+
+// Opens a TCP socket and places it a "listen" state, waiting for incoming connections
+// from other network clients.
+// IPv4 address of local interface on which to open server socket is (serverIP).
+// TCP port number on which to listen for incoming connections is (wPort).
+// Maximum number of incoming connections which will be accepted is (nMaxConnections).
+// Returns a pointer to the open socket, if successful, or false on failure.
+// The (serverIP) parameter must correspond to a valid local network interface; see getLocalIPs().
 
 bool SSSocket::serverOpenSocket ( IPAddress serverIP, unsigned short wPort, int nMaxConnections )
 {
@@ -413,6 +458,12 @@ bool SSSocket::serverOpenSocket ( IPAddress serverIP, unsigned short wPort, int 
     return true;
 }
 
+// Returns true if there are any incoming TCP connections pending
+// on this server socket, or false if no connections are pending.
+// To accept a pending connection, call serverAcceptConnection().
+// Only call this function on a server socket that has been placed in a
+// listening state, i.e. one that has been created with serverOpenSocket().
+
 bool SSSocket::serverConnectionPending ( void )
 {
     int             nResult;
@@ -429,6 +480,24 @@ bool SSSocket::serverConnectionPending ( void )
     return nResult == 1 ? true : false;
 }
 
+// Accepts an incoming connection on a listening TCP server socket.
+// If this TCP server can accept the incoming connection request, the function returns
+// the connected socket.  Otherwise, it returns INVALID_SOCKET.
+// This socket must have been placed in the listening state; see serverOpenSocket().
+//
+// If there are no connections pending on the server socket, this function will
+// block until an incoming connection request is made. To determine if there are
+// any incoming connection requests pending on the socket, call serverConnectionPending()
+// before calling this function.
+//
+// After accepting a connection, this listening server socket may still accept further
+// incoming connection requests; the server is not required to wait until the remote
+// client disconnects.  Once a connection has been established, you can determine the
+// IP address of the machine on the remote end of the connection using getRemoteIP()
+// on the socket returned by serverAcceptConnection(). You can send and receive data
+// from the remote network client using with the returned socket's writeSocket()
+// and readSocket() methods, and close the connectio with its closeSocket() method.
+
 SSSocket SSSocket::serverAcceptConnection ( void )
 {
     SOCKET              nResult;
@@ -438,6 +507,19 @@ SSSocket SSSocket::serverAcceptConnection ( void )
     nResult = accept ( _socket, (struct sockaddr *) &address, &nSize );
     return SSSocket ( nResult );
 }
+
+// Opens a connectionless datagram socket, and optionally binds it to a local IPv4
+// address and UDP port. The local IPv4 address on which to bind the socket is (localIP).
+// The UDP port on which to bind, if nonzero, is (wPort).
+// If successful, the function returns true. On failure, it returns false.
+//
+// Typically, the IP address and port number are only needed to listen for incoming
+// UDP packets from a remote sender. The remote sender would send to the IP address
+// and UDP port specified here. If you are only sending UDP packets, you ordinarily
+// don't need to bind on a specific local IP address or port, because the receiver
+// doesn't ordinarily care what IP address or port the UDP packets comes from.
+//
+// When finished using the socket, dispose of it with closeSocket().
 
 bool SSSocket::openUDPSocket ( IPAddress ipAddress, unsigned short wPort )
 {
@@ -452,16 +534,27 @@ bool SSSocket::openUDPSocket ( IPAddress ipAddress, unsigned short wPort )
     address.sin_port = htons ( wPort );
     address.sin_addr = ipAddress;
     memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
-        
-    if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
+    
+    if ( ipAddress.s_addr && wPort )
     {
-        closesocket ( nSocket );
-        return false;
+        if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
+        {
+            closesocket ( nSocket );
+            return false;
+        }
     }
     
     _socket = nSocket;
     return true;
 }
+
+// Sends data over a connectionless datagram (UDP) socket.
+// Buffer containing data to send over UDP is (lpvData)
+// Number of bytes of data to send is (lLength)
+// IPv4 address of intended destination is (destIP).
+// UDP port number on which to send data on destination is (wDestPort).
+// Returns the number of bytes actually sent over the UDP connection,
+// or SOCKET_ERROR on failure.
 
 int SSSocket::writeUDPSocket ( void *lpvData, int lLength, IPAddress destIP, unsigned short wDestPort )
 {
@@ -488,7 +581,22 @@ int SSSocket::writeUDPSocket ( void *lpvData, int lLength, IPAddress destIP, uns
     return nResult == SOCKET_ERROR ? SOCKET_ERROR : nBytesWritten;
 }
 
-int SSSocket::readUDPSocket ( void *lpvData, int lLength, IPAddress &senderIP, long timeout_ms )
+// Recieves data from a connectionless datagram (UDP) socket.
+// Buffer to receive data from UDP socket is (lpvData).
+// Maximum number of bytes to recieve is (lLength), i.e. size of data buffer in bytes.
+// IP address of remote sender is returned in (senderIP)
+// Timeout value in milliseconds (timeout) is used if nonzero; see below.
+// The function returns the number of bytes actually recieved before timeout,
+// or SOCKET_ERROR on failure.
+// This function will return when the bytes have been recieved from a remote sender;
+// or when the specified number of milliseconds have elapsed (if timeout is non-zero).
+// If a non-zero timeout has been specified, and the function has not recieved any data after
+// timeout has elapsed, the function will return zero.
+// If the timeout is zero or negative, the function will block "forever" waiting for data.
+// If the sender transmits more data than will fit into the recieve buffer,
+// that extra data will be discarded.
+
+int SSSocket::readUDPSocket ( void *lpvData, int lLength, IPAddress &senderIP, int timeout_ms )
 {
     int             nResult;
     struct          sockaddr_in address;
@@ -525,4 +633,18 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, IPAddress &senderIP, l
     
     senderIP = address.sin_addr;
     return nResult;
+}
+
+// Returns true if this socket is a connectionless UDP socket, or false otherwise.
+
+bool SSSocket::isUDPSocket ( void )
+{
+    int nType = 0;
+    socklen_t nSize = sizeof ( nType );
+    
+    int nResult = getsockopt ( _socket, SOL_SOCKET, SO_TYPE, &nType, &nSize );
+    if ( nResult != SOCKET_ERROR && nType == SOCK_DGRAM )
+        return true;
+    
+    return false;
 }
