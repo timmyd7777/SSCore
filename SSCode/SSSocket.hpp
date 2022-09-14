@@ -72,8 +72,8 @@ public:
     
     // Convert host names to IPv4 address and vice-versa; get IPv4 addresses of all local interfaces
     
-    static vector<SSIP> hostNameToIPs ( const string &hostname, bool useDNS );
-    static string IPtoHostName ( SSIP ip, bool useDNS );
+    static vector<SSIP> hostNameToIPs ( const string &hostname );
+    static string IPtoHostName ( const SSIP &ip );
     static vector<SSIP> getLocalIPs ( void );
     
     // TCP (connection-oriented) sockets: open, read, write, close

@@ -128,71 +128,36 @@ SSIP::operator uint32_t() const
     return addr.s_addr;
 }
 
-// Returns vector of IPv4 addresses corresponding to a network host name string.
-// If (useDNS) is false, the function will try to parse the host name string
-// as an IPv4 address in dotted form, like "192.168.1.1".
-// If (useDNS) is true, the function will attempt to resolve the host name as a fully-
-// qualified domain name (like "www.southernstars.com") using DNS, if it cannot be
-// parsed as an IP address in dotted form.
+// Attempts to resolve a fully-qualified domain name (like "www.southernstars.com")
+// using DNS. If successul, returns a vector of IPv4 addresses corresponding to the
+// host name string. Returns an empty vector on failure.
 
-vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName, bool useDNS )
+vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
 {
-    int               i, nIPs = 0;
-    in_addr_t         lIP;
-    struct hostent    *pHostEnt;
     vector<SSIP> vIPs;
     
-    // First, try to parse the host name string as an IPv4 dotted address
-    // (e.g. "192.168.1.1").  If we fail, then try to resolve the host name
-    // string using DNS, if so requested by the caller. ***/
-
-    lIP = inet_addr ( hostName.c_str() );
-    if ( lIP != INADDR_NONE )
-    {
-        vIPs.push_back ( SSIP ( lIP ) );
+    struct hostent  *pHostEnt = gethostbyname ( hostName.c_str() );
+    if ( pHostEnt == NULL )
         return vIPs;
-    }
 
-    // If requested, use DNS to resolve all IP addresses,
-    // up to the maximum number passed in the input array,
-    // from the host name.
-    
-    if ( useDNS )
-    {
-        pHostEnt = gethostbyname ( hostName.c_str() );
-        if ( pHostEnt == NULL )
-            return vIPs;
-
-        nIPs = pHostEnt->h_length / sizeof ( struct in_addr );
-        for ( i = 0; i < nIPs; i++ )
-            vIPs.push_back ( *( (SSIP *) pHostEnt->h_addr_list[i] ) );
-    }
+    int nIPs = pHostEnt->h_length / sizeof ( struct in_addr );
+    for ( int i = 0; i < nIPs; i++ )
+        vIPs.push_back ( SSIP ( *( (struct in_addr *) pHostEnt->h_addr_list[i] ) ) );
 
     return vIPs;
 }
 
-// Determines the host name corresponding to an IPv4 address.
-// If (useDNS) is false, this method will return the numerical value
-// of the IP address specified in dotted form, like "192.168.0.1".
-// If (useDNS) is true, this method will attempt to determine the fully-
-// qualified domain name (like "cnn.com") corresponding to the IP address.
+// Determines the host name corresponding to an IPv4 address using DNS.
+// This method will attempt to determine the fully-qualified domain name
+// (like "cnn.com") corresponding to the IP address.
 // If the method fails to find the host's fully-qualified domain name,
-// it will return the dotted form of the IP address (e.g. "192.168.1.1").
+// it will return an empty string.
 
-string SSSocket::IPtoHostName ( SSIP ip, bool useDNS )
+string SSSocket::IPtoHostName ( const SSIP &ip )
 {
-    if ( useDNS )
-    {
-        struct hostent *pHostEnt = gethostbyaddr ( (char *) &ip.addr, sizeof ( ip.addr ), AF_INET );
-        if ( pHostEnt != nullptr )
-            return string ( pHostEnt->h_name );
-    }
-    else
-    {
-        char *pszSSIP = inet_ntoa ( ip.addr );
-        if ( pszSSIP != nullptr )
-            return string ( pszSSIP );
-    }
+    struct hostent *pHostEnt = gethostbyaddr ( (char *) &ip.addr, sizeof ( ip.addr ), AF_INET );
+    if ( pHostEnt != nullptr )
+        return string ( pHostEnt->h_name );
     
     return string ( "" );
 }
