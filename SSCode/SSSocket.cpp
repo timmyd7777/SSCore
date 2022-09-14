@@ -75,6 +75,59 @@ void SSSocket::finalize ( void )
 
 #endif
 
+// SSIP default constructor sets IPv4 address to 0.0.0.0
+
+SSIP::SSIP ( void )
+{
+    addr.s_addr = 0;
+}
+
+// SSIP constructor from IPv4 address string in dotted notation
+// (like "192.168.0.1"); sets address to 0.0.0.0 if string invalid.
+
+SSIP::SSIP ( const string &str )
+{
+    addr.s_addr = inet_addr ( str.c_str() );
+}
+
+// SSIP constructor from platform-native IPv4 address struct
+
+SSIP::SSIP ( const struct in_addr &add )
+{
+    addr = add;
+}
+
+// SSIP constructor from unsigned 32-bit integer value
+
+SSIP::SSIP ( const uint32_t val )
+{
+    addr.s_addr = val;
+}
+
+// Returns string containing IPv4 address in dotted notation
+// (like "192.168.0.1")
+
+string SSIP::toString ( void )
+{
+    char *str = inet_ntoa ( addr );
+    return string ( str != nullptr ? str : "" );
+}
+
+// Factory method constructs IPv4 address from string in dotted notation.
+// Returned address is 0.0.0.0 if string invalid.
+
+SSIP SSIP::fromString ( const string &str )
+{
+    return SSIP ( str );
+}
+
+// Returns IPv4 address as 32-bit unsigned integer on all platforms
+
+SSIP::operator uint32_t() const
+{
+    return addr.s_addr;
+}
+
 // Returns vector of IPv4 addresses corresponding to a network host name string.
 // If (useDNS) is false, the function will try to parse the host name string
 // as an IPv4 address in dotted form, like "192.168.1.1".
@@ -82,12 +135,12 @@ void SSSocket::finalize ( void )
 // qualified domain name (like "www.southernstars.com") using DNS, if it cannot be
 // parsed as an IP address in dotted form.
 
-vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bool useDNS )
+vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName, bool useDNS )
 {
     int               i, nIPs = 0;
     in_addr_t         lIP;
     struct hostent    *pHostEnt;
-    vector<IPAddress> vIPs;
+    vector<SSIP> vIPs;
     
     // First, try to parse the host name string as an IPv4 dotted address
     // (e.g. "192.168.1.1").  If we fail, then try to resolve the host name
@@ -96,9 +149,7 @@ vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bo
     lIP = inet_addr ( hostName.c_str() );
     if ( lIP != INADDR_NONE )
     {
-        IPAddress addr;
-        addr.s_addr = lIP;
-        vIPs.push_back ( addr );
+        vIPs.push_back ( SSIP ( lIP ) );
         return vIPs;
     }
 
@@ -114,7 +165,7 @@ vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bo
 
         nIPs = pHostEnt->h_length / sizeof ( struct in_addr );
         for ( i = 0; i < nIPs; i++ )
-            vIPs.push_back ( *( (IPAddress *) pHostEnt->h_addr_list[i] ) );
+            vIPs.push_back ( *( (SSIP *) pHostEnt->h_addr_list[i] ) );
     }
 
     return vIPs;
@@ -128,19 +179,19 @@ vector<SSSocket::IPAddress> SSSocket::hostNameToIPs ( const string &hostName, bo
 // If the method fails to find the host's fully-qualified domain name,
 // it will return the dotted form of the IP address (e.g. "192.168.1.1").
 
-string SSSocket::IPtoHostName ( IPAddress address, bool useDNS )
+string SSSocket::IPtoHostName ( SSIP ip, bool useDNS )
 {
     if ( useDNS )
     {
-        struct hostent *pHostEnt = gethostbyaddr ( (char *) &address, sizeof ( address ), AF_INET );
+        struct hostent *pHostEnt = gethostbyaddr ( (char *) &ip.addr, sizeof ( ip.addr ), AF_INET );
         if ( pHostEnt != nullptr )
             return string ( pHostEnt->h_name );
     }
     else
     {
-        char *pszIPAddress = inet_ntoa ( address );
-        if ( pszIPAddress != nullptr )
-            return string ( pszIPAddress );
+        char *pszSSIP = inet_ntoa ( ip.addr );
+        if ( pszSSIP != nullptr )
+            return string ( pszSSIP );
     }
     
     return string ( "" );
@@ -150,23 +201,23 @@ string SSSocket::IPtoHostName ( IPAddress address, bool useDNS )
 
 // Returns the IPv4 address corresponding to the local machine's host name.
 
-vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
+vector<SSSocket::SSIP> SSSocket::getLocalIPs ( void )
 {
     char szHost[256] = { 0 };
     
     if ( gethostname ( szHost, sizeof ( szHost ) ) == 0 )
         return hostNameToIPs ( string ( szHost ), true );
     else
-        return vector<IPAddress> ( 0 );
+        return vector<SSIP> ( 0 );
 }
 
 #else
 
 // Returns vector of IPv4 addresses of all network interfaces on the local system.
 
-vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
+vector<SSIP> SSSocket::getLocalIPs ( void )
 {
-    vector<IPAddress> vIPs;
+    vector<SSIP> vIPs;
     struct ifaddrs *ifa = NULL, *pifa = ifa;
     int nIPs = 0;
     
@@ -195,7 +246,7 @@ vector<SSSocket::IPAddress> SSSocket::getLocalIPs ( void )
 // this TCP socket is connected. Will not work for UDP sockets.
 // Returns true if successful, or false on failure.
 
-bool SSSocket::getRemoteIP ( IPAddress &peerIP )
+bool SSSocket::getRemoteIP ( SSIP &peerIP )
 {
     struct sockaddr_in address;
     socklen_t nLength = sizeof ( address );
@@ -218,7 +269,7 @@ bool SSSocket::getRemoteIP ( IPAddress &peerIP )
 // To wait an indefinite amount of time for the connection to be accepted,
 // pass a value <= 0 for the timeout parameter.
 
-bool SSSocket::openSocket ( IPAddress serverIP, unsigned short wPort, int nTimeout )
+bool SSSocket::openSocket ( SSIP serverIP, unsigned short wPort, int nTimeout )
 {
     int                   nResult;
     SOCKET                nSocket;
@@ -231,7 +282,7 @@ bool SSSocket::openSocket ( IPAddress serverIP, unsigned short wPort, int nTimeo
     
     address.sin_family = AF_INET;
     address.sin_port = htons ( wPort );
-    address.sin_addr = serverIP;
+    address.sin_addr = serverIP.addr;
     memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
 
     nSocket = socket ( AF_INET, SOCK_STREAM, 0 );
@@ -458,7 +509,7 @@ void SSSocket::closeSocket ( void )
 // Returns a pointer to the open socket, if successful, or false on failure.
 // The (serverIP) parameter must correspond to a valid local network interface; see getLocalIPs().
 
-bool SSSocket::serverOpenSocket ( IPAddress serverIP, unsigned short wPort, int nMaxConnections )
+bool SSSocket::serverOpenSocket ( SSIP serverIP, unsigned short wPort, int nMaxConnections )
 {
     int                nResult;
     SOCKET             nSocket;
@@ -555,7 +606,7 @@ SSSocket SSSocket::serverAcceptConnection ( void )
 //
 // When finished using the socket, dispose of it with closeSocket().
 
-bool SSSocket::openUDPSocket ( IPAddress ipAddress, unsigned short wPort )
+bool SSSocket::openUDPSocket ( SSIP SSIP, unsigned short wPort )
 {
     int                 nSocket = 0;
     struct sockaddr_in  address = { 0 };
@@ -566,10 +617,10 @@ bool SSSocket::openUDPSocket ( IPAddress ipAddress, unsigned short wPort )
     
     address.sin_family = PF_INET;
     address.sin_port = htons ( wPort );
-    address.sin_addr = ipAddress;
+    address.sin_addr = SSIP.addr;
     memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
     
-    if ( ipAddress.s_addr && wPort )
+    if ( SSIP && wPort )
     {
         if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
         {
@@ -590,7 +641,7 @@ bool SSSocket::openUDPSocket ( IPAddress ipAddress, unsigned short wPort )
 // Returns the number of bytes actually sent over the UDP connection,
 // or SOCKET_ERROR on failure.
 
-int SSSocket::writeUDPSocket ( void *lpvData, int lLength, IPAddress destIP, unsigned short wDestPort )
+int SSSocket::writeUDPSocket ( void *lpvData, int lLength, SSIP destIP, unsigned short wDestPort )
 {
     int        nResult;
     int        nBytesWritten = 0;
@@ -630,7 +681,7 @@ int SSSocket::writeUDPSocket ( void *lpvData, int lLength, IPAddress destIP, uns
 // If the sender transmits more data than will fit into the recieve buffer,
 // that extra data will be discarded.
 
-int SSSocket::readUDPSocket ( void *lpvData, int lLength, IPAddress &senderIP, int timeout_ms )
+int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int timeout_ms )
 {
     int             nResult;
     struct          sockaddr_in address;

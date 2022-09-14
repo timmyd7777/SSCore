@@ -18,11 +18,36 @@
     #include <winsock.h>
 #else
     #include <sys/socket.h>
+    #include <netinet/in.h>
     typedef int SOCKET;                 // Native socket data type
     constexpr int INVALID_SOCKET = -1;  // Native invalid socket value
 #endif
 
 using namespace std;
+
+// Represents an IPv4 address.
+// Implemented as wrapper around platform-native IPv4 address struct.
+
+struct SSIP
+{
+    struct in_addr addr;   // Native IPv4 address; internals are platform-dependent!
+    
+    // Constructors
+    
+    SSIP ( void );
+    SSIP ( const string &str );
+    SSIP ( const struct in_addr &add );
+    SSIP ( const uint32_t val );
+    
+    // Returns IP address as 32-bit unsigned integer on all platforms
+    
+    operator uint32_t() const;
+
+    // Converts IP address to/from dotted notation (like "192.168.0.1")
+    
+    string toString ( void );
+    static SSIP fromString ( const string &str );
+};
 
 class SSSocket
 {
@@ -30,8 +55,6 @@ protected:
     SOCKET _socket = INVALID_SOCKET;    // Native socket
     
 public:
-    typedef struct in_addr IPAddress;   // 32-bit numerical IPv4 address
-
     // Constructors and destructor
     
     SSSocket ( void ) { _socket = INVALID_SOCKET; }
@@ -49,30 +72,30 @@ public:
     
     // Convert host names to IPv4 address and vice-versa; get IPv4 addresses of all local interfaces
     
-    static vector<IPAddress> hostNameToIPs ( const string &hostname, bool useDNS );
-    static string IPtoHostName ( IPAddress ip, bool useDNS );
-    static vector<IPAddress> getLocalIPs ( void );
+    static vector<SSIP> hostNameToIPs ( const string &hostname, bool useDNS );
+    static string IPtoHostName ( SSIP ip, bool useDNS );
+    static vector<SSIP> getLocalIPs ( void );
     
     // TCP (connection-oriented) sockets: open, read, write, close
     
-    bool openSocket ( IPAddress serverIP, unsigned short port, int timeout_ms );
+    bool openSocket ( SSIP serverIP, unsigned short port, int timeout_ms );
     bool socketOpen ( void );
     int writeSocket ( void *data, int size );
     int readSocket ( void *data, int size );
     void closeSocket ( void );
-    bool getRemoteIP ( IPAddress &peerIP );
+    bool getRemoteIP ( SSIP &peerIP );
 
     // TCP server sockets: open, listen, accept incoming connections
     
-    bool serverOpenSocket ( IPAddress serverIP, unsigned short port, int maxConnectioms );
+    bool serverOpenSocket ( SSIP serverIP, unsigned short port, int maxConnectioms );
     bool serverConnectionPending ( void );
     SSSocket serverAcceptConnection ( void );
     
     // UDP (connectionless) sockets: open, read, write
     
-    bool openUDPSocket ( IPAddress localIP, unsigned short localPort );
-    int writeUDPSocket ( void *data, int size, IPAddress destIP, unsigned short destPort );
-    int readUDPSocket ( void *data, int size, IPAddress &senderIP, int timeout_ms );
+    bool openUDPSocket ( SSIP localIP, unsigned short localPort );
+    int writeUDPSocket ( void *data, int size, SSIP destIP, unsigned short destPort );
+    int readUDPSocket ( void *data, int size, SSIP &senderIP, int timeout_ms );
     bool isUDPSocket ( void );
 };
 
