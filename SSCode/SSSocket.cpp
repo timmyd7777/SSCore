@@ -54,6 +54,7 @@ void SSSocket::finalize ( void )
 #else   // MacOS/Linux implementation
 
 #include <arpa/inet.h>
+#include <errno.h>
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <sys/ioctl.h>
