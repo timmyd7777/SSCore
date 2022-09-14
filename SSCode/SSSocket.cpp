@@ -175,6 +175,93 @@ bool SSSocket::getRemoteIP ( IPAddress &peerIP )
     return false;
 }
 
+bool SSSocket::openSocket ( IPAddress serverIP, unsigned short wPort, int nTimeout )
+{
+    int                   nResult;
+    SOCKET                nSocket;
+    long                  dwValue;
+    int                   nError;
+    socklen_t             nSize;
+    struct sockaddr_in    address;
+    fd_set                writefds;
+    struct timeval        timeout;
+    
+    address.sin_family = AF_INET;
+    address.sin_port = htons ( wPort );
+    address.sin_addr = serverIP;
+    memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
+
+    nSocket = socket ( AF_INET, SOCK_STREAM, 0 );
+    if ( nSocket == SOCKET_ERROR )
+        return false;
+
+    if ( nTimeout > 0 )
+    {
+        // Put socket into non-blocking I/O mode
+        
+        dwValue = 1;
+        nResult = ioctlsocket( nSocket, FIONBIO, &dwValue );
+        if ( nResult == SOCKET_ERROR )
+        {
+            closesocket ( nSocket );
+            return false;
+        }
+        
+        // Now connect - should return SOCKET_ERROR and WSAGetLastError() should return WSAEWOULDBLOCK
+        
+        nResult = connect ( nSocket, (struct sockaddr *) &address, sizeof ( struct sockaddr ) );
+
+        // Wait for timeout for socket to become writable, or for an error
+        
+        FD_ZERO ( &writefds );
+        FD_SET ( nSocket, &writefds );
+        
+        timeout.tv_sec = nTimeout / 1000;
+        timeout.tv_usec = 1000 * ( nTimeout % 1000 );
+        
+        nResult = select ( nSocket + 1, NULL, &writefds, NULL, &timeout );
+        if ( nResult < 1 )
+        {
+            closesocket ( nSocket );
+            return false;
+        }
+        
+        // Check for socket error conditions
+        
+        nSize = sizeof ( nError );
+        nResult = getsockopt ( nSocket, SOL_SOCKET, SO_ERROR, &nError, &nSize );
+        if ( nResult == SOCKET_ERROR || nError != 0 )
+        {
+            closesocket ( nSocket );
+            return false;
+        }
+        
+        // Put the socket back into blocking I/O mode
+        
+        dwValue = 0;
+        nResult = ioctlsocket ( nSocket, FIONBIO, &dwValue );
+        if ( nResult < 0 )
+        {
+            closesocket ( nSocket );
+            return false;
+        }
+    }
+    else
+    {
+        // Connect to socket - will block until remote server accepts
+        
+        nResult = connect ( nSocket, (struct sockaddr *) &address, sizeof ( struct sockaddr ) );
+        if ( nResult < 0 )
+        {
+            closesocket ( nSocket );
+            return false;
+        }
+    }
+    
+    _socket = nSocket;
+    return true;
+}
+
 bool SSSocket::socketOpen ( void )
 {
     char   cData = 0;
