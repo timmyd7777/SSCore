@@ -438,6 +438,17 @@ SSVector SSCoordinates::transform ( SSFrame from, SSFrame to, SSVector vec )
     return vec;
 }
 
+// Transforms longitude (lon) and latitude (lat) from one reference frame to another.
+// Convenience wrapper around the above method.
+
+void SSCoordinates::transform ( SSFrame from, SSFrame to, SSAngle &lon, SSAngle &lat )
+{
+    SSSpherical sph ( lon, lat, 1.0 );
+    sph = SSSpherical ( transform ( kEquatorial, kFundamental, SSVector ( sph ) ) );
+    lon = sph.lon;
+    lat = sph.lat;
+}
+
 // Transforms a rotation matrix from one reference frame to another.
 // Returns transformed matrix; does not modify input matrix.
 

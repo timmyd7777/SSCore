@@ -128,6 +128,7 @@ public:
 
     SSVector    transform ( SSFrame from, SSFrame to, SSVector vec );
     SSMatrix    transform ( SSFrame from, SSFrame to, SSMatrix mat );
+    void        transform ( SSFrame from, SSFrame to, SSAngle &lon, SSAngle &lat );
 
     SSVector applyAberration ( SSVector direction );
     SSVector removeAberration ( SSVector direction );
