@@ -451,7 +451,7 @@ int SSSerial::readPort ( void *data, size_t size )
 // SSSerial::writePort() writes up to (size) bytes from (data) buffer into serial port.
 // Returns number of bytes written to serial port, or -1 on error.
 
-int SSSerial::writePort ( void *data, size_t size )
+int SSSerial::writePort ( const void *data, size_t size )
 {
     return (int) write ( _port, data, size );
 }

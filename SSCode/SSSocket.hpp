@@ -80,7 +80,7 @@ public:
     
     bool openSocket ( SSIP serverIP, unsigned short port, int timeout_ms );
     bool socketOpen ( void );
-    int writeSocket ( void *data, int size );
+    int writeSocket ( const void *data, int size );
     int readSocket ( void *data, int size );
     void closeSocket ( void );
     bool getRemoteIP ( SSIP &peerIP );

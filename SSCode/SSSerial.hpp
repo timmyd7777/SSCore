@@ -74,11 +74,11 @@ public:
     SSSerial ( void ) { _port = kError; }
     virtual ~SSSerial ( void ) { closePort(); }
     
-    int listPorts ( vector<string> &names, vector<string> &paths );
+    static int listPorts ( vector<string> &names, vector<string> &paths );
     bool openPort ( const string &path );
     bool portOpen ( void );
     bool closePort ( void );
-    int writePort ( void *data, size_t size );
+    int writePort ( const void *data, size_t size );
     int readPort ( void *data, size_t size );
     int inputBytes ( void );
     int outputBytes ( void );

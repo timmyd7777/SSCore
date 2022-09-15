@@ -371,7 +371,7 @@ bool SSSocket::socketOpen ( void )
 // if successful, or SOCKET_ERROR (-1) on failure.
 // For UDP sockets, see writeUDPSocket().
 
-int SSSocket::writeSocket ( void *data, int size )
+int SSSocket::writeSocket ( const void *data, int size )
 {
     int nResult;
     int nBytesWritten = 0;
