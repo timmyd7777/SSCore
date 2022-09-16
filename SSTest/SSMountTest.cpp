@@ -101,6 +101,7 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
+    cout << "slew ( kAzmRAAxis, kSlewPositive ) succeded!" << endl;
     sleep ( 3 );
     
     err = mount.slew ( kAzmRAAxis, kSlewOff );
@@ -110,6 +111,7 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
+    cout << "slew ( kAzmRAAxis, kSlewOff ) succeded!" << endl;
     sleep ( 1 );
 
     // Test slewing in Altitude/Dec
@@ -121,6 +123,7 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
+    cout << "slew ( kAltDecAxis, kSlewNegative ) succeded!" << endl;
     sleep ( 3 );
 
     err = mount.slew ( kAltDecAxis, kSlewOff );
@@ -130,6 +133,7 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
+    cout << "slew ( kAltDecAxis, kSlewOff ) succeded!" << endl;
     sleep ( 1 );
     
     // After slewing, test reading RA/Dec again
@@ -154,6 +158,7 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
+    cout << "slew ( ra0, dec0 ) succeded!" << endl;
     sleep ( 1 );
 
     // ... but kill the GoTo after 1 second!
@@ -165,6 +170,7 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
+    cout << "stop() succeded!" << endl;
     sleep ( 1 );
     
     // Finally resume GoTo to original RA/Dec
@@ -175,6 +181,9 @@ int main ( int argc, const char * argv[] )
         cout << "slew ( ra0, dec0 ) returned error " << err << endl;
         return err;
     }
+
+    cout << "slew ( ra0, dec0 ) succeded!" << endl;
+    sleep ( 1 );
 
     // Test slewing() status query
     
@@ -193,6 +202,29 @@ int main ( int argc, const char * argv[] )
     }
     
     // Read final RA/Dec
+    
+    err = mount.read ( ra, dec );
+    if ( err )
+    {
+        cout << "read() returned error " << err << endl;
+        return err;
+    }
+
+    cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
+
+    // Sync on initial RA/Dec
+    
+    err = mount.sync ( ra0, dec0 );
+    if ( err )
+    {
+        cout << "sync() returned error " << err << endl;
+        return err;
+    }
+
+    cout << "sync() succeded!" << endl;
+    sleep ( 1 );
+    
+    // Read RA/Dec after sync
     
     err = mount.read ( ra, dec );
     if ( err )
