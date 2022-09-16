@@ -9,37 +9,71 @@
 #include <cstdio>
 #include <iostream>
 #include <unistd.h>
+#include <algorithm>
 
 #include "SSMount.hpp"
 
 int main ( int argc, const char * argv[] )
 {
-    vector<string> serialPortNames, serialPortPaths;
+    // Display list of supported mount protocols, select one to use for testing
     
+    SSMountProtocolMap protoMap;
+    int numProtos = SSGetMountProtocols ( protoMap );
+    auto iter = protoMap.begin();
+    for ( int i = 0; i < numProtos; i++, iter++ )
+        cout << "Mount Protocol " << i + 1 << ": " << iter->second << endl;
+
+    int testProto = 0;
+    while ( testProto < 1 || testProto > numProtos )
+    {
+        cout << "Test which mount protocol (1 thru " << numProtos << ")? " << endl;
+        cin >> testProto;
+    }
+    
+    iter = protoMap.begin();
+    advance ( iter, testProto - 1 );
+
+    // Obtain list of serial ports, select one to use for testing
+    
+    vector<string> serialPortNames, serialPortPaths;
     int numPorts = SSSerial::listPorts ( serialPortNames, serialPortPaths );
     cout << "Found " << numPorts << " serial ports:" << endl;
+    if ( numPorts < 1 )
+        return 0;
     
     for ( int i = 0; i < numPorts; i++ )
-        cout << "Mame: " << serialPortNames[i] << "  Path: " << serialPortPaths[i] << endl;
-
+        cout << "Port " << i + 1 << ": " << serialPortNames[i] << " at " << serialPortPaths[i] << endl;
+    
+    int testPort = 0;
+    while ( testPort < 1 || testPort > numPorts )
+    {
+        cout << "Use which port for testing (1 thru " << numPorts << ")? " << endl;
+        cin >> testPort;
+    }
+    
+    // Initialize telescope and create SSMount instance
+    
     SSTime now = SSTime::fromSystem();
     SSSpherical here = SSSpherical ( SSAngle::fromDegrees ( -122.0 ), SSAngle::fromDegrees ( 37.0 ) , 0.0 );
     SSCoordinates coords ( now, here );
-    SSCelestronMount mount ( kAltAzimuthGotoMount, kSkyWatcherSynScan, coords );
+    SSMountPtr pMount = SSNewMount ( kAltAzimuthGotoMount, iter->first, coords );
+
+    // Open serial or socket connection to mount
     
-    SSMount::Error err = mount.connect ( serialPortPaths[2], 0 );
+    SSMount::Error err = pMount->connect ( serialPortPaths[ testPort - 1 ], 0 );
     if ( err )
     {
         cout << "connect() returned error " << err << endl;
         return err;
     }
 
-    cout << "Controller version: " << mount.getVersion() << endl;
+    // Display mount controller firmware version
+    cout << "Mount controller version: " << pMount->getVersion() << endl;
     
     // Query whether mount is aligned or not
     
     bool status = false;
-    err = mount.aligned ( status );
+    err = pMount->aligned ( status );
     if ( err )
     {
         cout << "aligned() returned error " << err << endl;
@@ -50,7 +84,7 @@ int main ( int argc, const char * argv[] )
     
     // Test setting date/time
     
-    err = mount.setDateTime ( now );
+    err = pMount->setDateTime();
     if ( err )
     {
         cout << "setDateTime() returned error " << err << endl;
@@ -61,7 +95,7 @@ int main ( int argc, const char * argv[] )
     
     // Test setting location
     
-    err = mount.setLonLat ( here );
+    err = pMount->setLonLat();
     if ( err )
     {
         cout << "setLonLat() returned error " << err << endl;
@@ -73,7 +107,7 @@ int main ( int argc, const char * argv[] )
     // Test reading RA/Dec
     
     SSAngle ra, dec;
-    err = mount.read ( ra, dec );
+    err = pMount->read ( ra, dec );
     if ( err )
     {
         cout << "read() returned error " << err << endl;
@@ -85,7 +119,7 @@ int main ( int argc, const char * argv[] )
     
     // Test setting mount slew rate
     
-    err = mount.rate ( mount.maxSlewRate() );
+    err = pMount->rate ( pMount->maxSlewRate() );
     if ( err )
     {
         cout << "rate() returned error " << err << endl;
@@ -94,7 +128,7 @@ int main ( int argc, const char * argv[] )
     
     // Test slewing in Azimuth/RA
     
-    err = mount.slew ( kAzmRAAxis, kSlewPositive );
+    err = pMount->slew ( kAzmRAAxis, kSlewPositive );
     if ( err )
     {
         cout << "slew ( kAzmRAAxis, kSlewPositive ) returned error " << err << endl;
@@ -104,7 +138,7 @@ int main ( int argc, const char * argv[] )
     cout << "slew ( kAzmRAAxis, kSlewPositive ) succeded!" << endl;
     sleep ( 3 );
     
-    err = mount.slew ( kAzmRAAxis, kSlewOff );
+    err = pMount->slew ( kAzmRAAxis, kSlewOff );
     if ( err )
     {
         cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << err << endl;
@@ -116,7 +150,7 @@ int main ( int argc, const char * argv[] )
 
     // Test slewing in Altitude/Dec
     
-    err = mount.slew ( kAltDecAxis, kSlewNegative );
+    err = pMount->slew ( kAltDecAxis, kSlewNegative );
     if ( err )
     {
         cout << "slew ( kAltDecAxis, kSlewNegative ) returned error " << err << endl;
@@ -126,7 +160,7 @@ int main ( int argc, const char * argv[] )
     cout << "slew ( kAltDecAxis, kSlewNegative ) succeded!" << endl;
     sleep ( 3 );
 
-    err = mount.slew ( kAltDecAxis, kSlewOff );
+    err = pMount->slew ( kAltDecAxis, kSlewOff );
     if ( err )
     {
         cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << err << endl;
@@ -139,7 +173,7 @@ int main ( int argc, const char * argv[] )
     // After slewing, test reading RA/Dec again
     
     SSAngle ra0 = ra, dec0 = dec;
-    err = mount.read ( ra, dec );
+    err = pMount->read ( ra, dec );
     if ( err )
     {
         cout << "read() returned error " << err << endl;
@@ -151,7 +185,7 @@ int main ( int argc, const char * argv[] )
 
     // Test slewing by issuing a GoTo back to the original RA/Dec
     
-    err = mount.slew ( ra0, dec0 );
+    err = pMount->slew ( ra0, dec0 );
     if ( err )
     {
         cout << "slew ( ra0, dec0 ) returned error " << err << endl;
@@ -163,7 +197,7 @@ int main ( int argc, const char * argv[] )
 
     // ... but kill the GoTo after 1 second!
     
-    err = mount.stop();
+    err = pMount->stop();
     if ( err )
     {
         cout << "stop() returned error " << err << endl;
@@ -175,7 +209,7 @@ int main ( int argc, const char * argv[] )
     
     // Finally resume GoTo to original RA/Dec
     
-    err = mount.slew ( ra0, dec0 );
+    err = pMount->slew ( ra0, dec0 );
     if ( err )
     {
         cout << "slew ( ra0, dec0 ) returned error " << err << endl;
@@ -190,7 +224,7 @@ int main ( int argc, const char * argv[] )
     status = true;
     while ( status )
     {
-        err = mount.slewing ( status );
+        err = pMount->slewing ( status );
         if ( err )
         {
             cout << "slewing() returned error " << err << endl;
@@ -203,7 +237,7 @@ int main ( int argc, const char * argv[] )
     
     // Read final RA/Dec
     
-    err = mount.read ( ra, dec );
+    err = pMount->read ( ra, dec );
     if ( err )
     {
         cout << "read() returned error " << err << endl;
@@ -214,7 +248,7 @@ int main ( int argc, const char * argv[] )
 
     // Sync on initial RA/Dec
     
-    err = mount.sync ( ra0, dec0 );
+    err = pMount->sync ( ra0, dec0 );
     if ( err )
     {
         cout << "sync() returned error " << err << endl;
@@ -226,7 +260,7 @@ int main ( int argc, const char * argv[] )
     
     // Read RA/Dec after sync
     
-    err = mount.read ( ra, dec );
+    err = pMount->read ( ra, dec );
     if ( err )
     {
         cout << "read() returned error " << err << endl;
@@ -236,6 +270,6 @@ int main ( int argc, const char * argv[] )
     cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
     cout << "All tests succeeded!" << endl;
     
-    mount.disconnect();
+    pMount->disconnect();
     return err;
 }

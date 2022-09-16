@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <map>
 
 #include "SSSerial.hpp"
 #include "SSSocket.hpp"
@@ -62,12 +63,13 @@ public:
         kSuccess = 0,           // No error - all OK!
         kInvalidInput = 1,      // Input command parameter was not valid
         kInvalidOutput = 2,     // Output data from the mount was not valid (garbage, could not be parsed, etc.)
-        kOpenFail = 3,          // Can't open serial port or socket connection
-        kCloseFail = 3,         // Can't close serial port or socket connection
-        kReadFail = 4,          // Can't read from serial port or socket connection
-        kWriteFail = 5,         // Can't write to serial port or socket connection
-        kNotSupported = 6,      // Functionality is not implemented/not supported
-        kTimedOut = 6,          // Read/write operation timed out before completion
+        kInvalidCoords = 3,     // Slew/sync coordinates sent to mount invalid, below horizon, out of reach of mount, etc.
+        kOpenFail = 4,          // Can't open serial port or socket connection
+        kCloseFail = 5,         // Can't close serial port or socket connection
+        kReadFail = 6,          // Can't read from serial port or socket connection
+        kWriteFail = 7,         // Can't write to serial port or socket connection
+        kNotSupported = 8,      // Functionality is not implemented/not supported
+        kTimedOut = 9,          // Read/write operation timed out before completion
     };
 
 protected:
@@ -83,9 +85,11 @@ protected:
 
     SSSlewSign  _slewSign[2];   // Current slew sign on RA/Azm [0] and Alt/Dec [1] axes
     int         _slewRate;      // Current rate for directional slewing from 0 (off) to maxSlewRate() (fastest)
+    bool        _slewing;       // true if a GoTo is currently in progress; false otherwise.
+    bool        _connected;     // true if serial port or socket connection to mount is currently open.
+    string      _version;       // mount controller firmware version string, read from mount during connect()
 
-    string _version;            // mount controller firmware version string, read from mount during connect()
-
+    virtual Error connect ( const string &path, unsigned short port, int baud, int party, int data, float stop );
     Error serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
     Error socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
 
@@ -105,19 +109,19 @@ public:
     int getSlewRate ( void ) { return _slewRate; }
     SSSlewSign getSlewSign ( SSSlewAxis axis ) { return _slewSign[axis]; }
     string getVersion ( void ) { return _version; }
-    bool connected ( void );                            // returns true if currently connected to mount via serial port or socket
-    bool slewing ( void );                              // returns true if mount is currently slewing to target RA/Dec (i.e. doing a GoTo)
-    bool tracking ( void );                             // returns true if mount is currently tracking sidereal motion, but not slewing
-    
+    bool slewing ( void ) { return _slewing; }
+    bool connected ( void )  { return _connected; }
+
     // Open and close serial or socket connection to mount
     
-    virtual Error connect ( const string &path, unsigned short port, int baud, int party, int data, float stop );   // open serial or socket connection
+    virtual Error connect ( const string &path, unsigned short port );
     virtual Error disconnect ( void );                                   // close connection
     
     // Send commands to mount and recieve replies
     
     Error command ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms = 2000 );
-    Error command ( const string &input, string &output, char term, int timeout_ms = 2000 );
+    Error command ( const string &input, string &output, int outlen, char term, int timeout_ms = 2000 );
+    Error command ( const string &input );
 
     // High-level mount commands
     
@@ -132,6 +136,11 @@ public:
     virtual Error setDateTime ( SSTime time );                   // send local date and time to mount
     virtual Error setLonLat ( SSSpherical loc );                 // send geographic location to mount
 
+    // Send date/time and lon/lat from mount's coordinates object reference
+    
+    Error setDateTime ( void ) { return setDateTime ( _coords.getTime() ); }
+    Error setLonLat ( void ) { return setLonLat ( _coords.getLocation() ); }
+    
     virtual int maxSlewRate ( void ) { return 4; }
 };
 
@@ -139,7 +148,26 @@ public:
 
 class SSMeadeMount : public SSMount
 {
+protected:
     
+    virtual Error setTargetRADec ( SSAngle ra, SSAngle dec );
+    
+public:
+    
+    SSMeadeMount ( SSMountType type, SSMountProtocol variant, SSCoordinates &coords );
+
+    virtual int maxSlewRate ( void ) { return _protocol == kMeadeETX ? 3 : 4; }
+    virtual Error connect ( const string &path, unsigned short port );
+    virtual Error read ( SSAngle &ra, SSAngle &dec );
+    virtual Error slew ( SSAngle ra, SSAngle dec );
+    virtual Error slew ( SSSlewAxis axis, SSSlewSign sign );
+    virtual Error stop ( void );
+    virtual Error rate ( int rate );
+    virtual Error sync ( SSAngle ra, SSAngle dec );
+    virtual Error slewing ( bool &status );
+    virtual Error aligned ( bool &status );
+    virtual Error setDateTime ( SSTime time );
+    virtual Error setLonLat ( SSSpherical loc );
 };
 
 // Overrides for Celestron mounts
@@ -167,7 +195,6 @@ public:
     SSCelestronMount ( SSMountType type, SSMountProtocol variant, SSCoordinates &coords );
 
     virtual int maxSlewRate ( void ) { return 10; }
-    
     virtual Error connect ( const string &path, unsigned short port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec );
@@ -180,11 +207,18 @@ public:
     virtual Error setLonLat ( SSSpherical loc );
 };
 
+// Obtains map of supported mount protocol names, indexed by protocol identifier
+
+typedef map<SSMountProtocol,string> SSMountProtocolMap;
+int SSGetMountProtocols ( SSMountProtocolMap &map );
+
 typedef SSMount *SSMountPtr;
 typedef SSMeadeMount *SSMeadeMountPtr;
 typedef SSCelestronMount *SSCelestronMountPtr;
 
-SSMountPtr SSNewMount ( SSMountType type );
+// Allocates new SSMount (or subclass of SSMount) depending on supplied protocol identifier.
+
+SSMountPtr SSNewMount ( SSMountType type, SSMountProtocol protocol, SSCoordinates &coords );
 
 // Downcasts a pointer from SSMount base class to SSMeadeMount or SSCelestronMount subclass.
 // Returns nullptr if input mount pointer is not actually an SSMeadeMount or SSCelestronMount.
