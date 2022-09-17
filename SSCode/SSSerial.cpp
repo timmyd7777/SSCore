@@ -9,7 +9,7 @@
 
 #include "SSSerial.hpp"
 
-#ifdef _WINDOWS
+#ifdef _MSC_VER
 
 // SSSerial::listPorts() obtains a list of names of available COM or LPT ports.
 // Vectors of found port name and DOS path strings are returned in (names) and (paths)
@@ -112,7 +112,7 @@ int SSSerial::readPort ( void *lpvBuffer, size_t lNumBytes )
 
 // SSSerial::writePort()
 
-int SSSerial::writePort ( void *lpvBuffer, size_t lNumBytes )
+int SSSerial::writePort ( const void *lpvBuffer, size_t lNumBytes )
 {
 	unsigned long	dwNumBytesWritten = 0;
 

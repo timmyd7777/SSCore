@@ -11,8 +11,8 @@
 #include <TargetConditionals.h>
 #endif
 
-#ifdef _WIN32
-#include <Windows.h>
+#ifdef _MSC_VER
+#include <windows.h>
 #endif
 
 #include "SSCoordinates.hpp"
@@ -731,7 +731,7 @@ int main ( int argc, const char *argv[] )
 // This bit of magic makes UTF-8 output with degree characters appear correctly on the Windows console;
 // see https://www.codeproject.com/Articles/34068/Unicode-Output-to-the-Windows-Console
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     UINT oldcp = GetConsoleOutputCP();
     SetConsoleOutputCP ( CP_UTF8 );
 #endif
@@ -760,7 +760,7 @@ int main ( int argc, const char *argv[] )
     TestStars ( inpath, outpath );
     TestDeepSky ( inpath, outpath );
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     SetConsoleOutputCP ( oldcp );
 #endif
 

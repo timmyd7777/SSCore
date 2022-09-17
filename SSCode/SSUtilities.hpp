@@ -86,6 +86,11 @@ double mod180 ( double deg );
 double mod360 ( double deg );
 double mod24h ( double h );
 
+#ifdef _MSC_VER
+unsigned int sleep ( unsigned int secs );
+int usleep ( uint32_t usecs );
+#endif
+
 double unixtime ( void );
 double unixtime_since ( double &start );
 

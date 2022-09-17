@@ -13,7 +13,7 @@
 #include "SSSocket.hpp"
 #include <string.h>
 
-#ifdef _WINDOWS
+#ifdef _MSC_VER
 
 typedef int socklen_t;
 typedef ULONG in_addr_t;
@@ -163,7 +163,7 @@ string SSSocket::IPtoHostName ( const SSIP &ip )
     return string ( "" );
 }
 
-#ifdef _WINDOWS
+#ifdef _MSC_VER
 
 // Returns the IPv4 address corresponding to the local machine's host name.
 
@@ -172,7 +172,7 @@ vector<SSIP> SSSocket::getLocalIPs ( void )
     char szHost[256] = { 0 };
     
     if ( gethostname ( szHost, sizeof ( szHost ) ) == 0 )
-        return hostNameToIPs ( string ( szHost ), true );
+        return hostNameToIPs ( string ( szHost ) );
     else
         return vector<SSIP> ( 0 );
 }

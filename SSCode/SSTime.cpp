@@ -4,7 +4,7 @@
 //  Created by Tim DeBenedictis on 2/23/20.
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #include <sstream>
 #include <iomanip>
@@ -421,7 +421,7 @@ string SSDate::format ( const string &fmt )
     time.tm_sec = sec;
     time.tm_wday = SSTime ( *this ).getWeekday();
     
-#ifndef _WINDOWS
+#ifndef _MSC_VER
     time.tm_gmtoff = zone * 3600.0;
 #endif
     
@@ -521,7 +521,7 @@ SSTime::SSTime ( SSDate date )
 
 SSTime SSTime::fromSystem ( void )
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     TIME_ZONE_INFORMATION tzinfo = { 0 };
     GetTimeZoneInformation ( &tzinfo );
     double zone = -tzinfo.Bias / 60.0;

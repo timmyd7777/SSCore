@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#ifdef _WINDOWS
+#ifdef _WIN32
     #include <windows.h>
     #include <winsock.h>
 #else

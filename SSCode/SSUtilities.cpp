@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <time.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #include <direct.h>
 #else
@@ -23,7 +23,7 @@
 
 // Returns path to current working directory as a string
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 string getcwd ( void )
 {
@@ -463,6 +463,33 @@ double mod24h ( double h )
 {
     return h - 24 * floor ( h / 24 );
 }
+
+// Replacements for POSIX sleep() and usleep() functions in MSVC/Windows
+
+#ifdef _MSC_VER
+
+unsigned int sleep ( unsigned int secs )
+{
+    Sleep ( secs * 1000 );
+    return 0;
+}
+
+// see https://gist.github.com/ngryman/6482577
+int usleep ( uint32_t usec )
+{
+    HANDLE timer;
+	LARGE_INTEGER ft;
+
+	ft.QuadPart = -(10 * (__int64) usec);
+	timer = CreateWaitableTimer(NULL, TRUE, NULL);
+	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+	WaitForSingleObject(timer, INFINITE);
+	CloseHandle(timer);
+
+    return 0;
+}
+
+#endif
 
 // Returns unix time (seconds since 1 January 1970) with microsecond precision.
 // Time may not increate monotonically because of system clock adjustments (leap seconds, etc.) 

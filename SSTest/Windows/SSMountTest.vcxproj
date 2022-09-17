@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -26,24 +26,23 @@
     <ClCompile Include="..\..\SSCode\SSFeature.cpp" />
     <ClCompile Include="..\..\SSCode\SSHTM.cpp" />
     <ClCompile Include="..\..\SSCode\SSIdentifier.cpp" />
-    <ClCompile Include="..\..\SSCode\SSImportGJ.cpp" />
-    <ClCompile Include="..\..\SSCode\SSImportHIP.cpp" />
-    <ClCompile Include="..\..\SSCode\SSImportMPC.cpp" />
-    <ClCompile Include="..\..\SSCode\SSImportNGCIC.cpp" />
-    <ClCompile Include="..\..\SSCode\SSImportSKY2000.cpp" />
     <ClCompile Include="..\..\SSCode\SSJPLDEphemeris.cpp" />
     <ClCompile Include="..\..\SSCode\SSMatrix.cpp" />
     <ClCompile Include="..\..\SSCode\SSMoonEphemeris.cpp" />
+    <ClCompile Include="..\..\SSCode\SSMount.cpp" />
     <ClCompile Include="..\..\SSCode\SSObject.cpp" />
     <ClCompile Include="..\..\SSCode\SSOrbit.cpp" />
     <ClCompile Include="..\..\SSCode\SSPlanet.cpp" />
     <ClCompile Include="..\..\SSCode\SSPSEphemeris.cpp" />
+    <ClCompile Include="..\..\SSCode\SSSerial.cpp" />
+    <ClCompile Include="..\..\SSCode\SSSocket.cpp" />
     <ClCompile Include="..\..\SSCode\SSStar.cpp" />
     <ClCompile Include="..\..\SSCode\SSTime.cpp" />
     <ClCompile Include="..\..\SSCode\SSTLE.cpp" />
     <ClCompile Include="..\..\SSCode\SSUtilities.cpp" />
     <ClCompile Include="..\..\SSCode\SSVector.cpp" />
     <ClCompile Include="..\..\SSCode\SSView.cpp" />
+    <ClCompile Include="..\..\SSCode\SSVPEphemeris.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\ELPMPP02.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p1.cpp" />
@@ -55,7 +54,7 @@
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p7.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p8.cpp" />
     <ClCompile Include="..\..\SSCode\VSOP2013\VSOP2013p9.cpp" />
-    <ClCompile Include="..\SSTest.cpp" />
+    <ClCompile Include="..\SSMountTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp" />
@@ -65,11 +64,15 @@
     <ClInclude Include="..\..\SSCode\SSFeature.hpp" />
     <ClInclude Include="..\..\SSCode\SSHTM.hpp" />
     <ClInclude Include="..\..\SSCode\SSIdentifier.hpp" />
+    <ClInclude Include="..\..\SSCode\SSImportGCVS.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportGJ.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportHIP.hpp" />
+    <ClInclude Include="..\..\SSCode\SSImportJPL.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportMPC.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportNGCIC.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportSKY2000.hpp" />
+    <ClInclude Include="..\..\SSCode\SSImportTYC.hpp" />
+    <ClInclude Include="..\..\SSCode\SSImportWDS.hpp" />
     <ClInclude Include="..\..\SSCode\SSJPLDEphemeris.hpp" />
     <ClInclude Include="..\..\SSCode\SSMatrix.hpp" />
     <ClInclude Include="..\..\SSCode\SSMoonEphemeris.hpp" />
@@ -86,14 +89,15 @@
     <ClInclude Include="..\..\SSCode\SSUtilities.hpp" />
     <ClInclude Include="..\..\SSCode\SSVector.hpp" />
     <ClInclude Include="..\..\SSCode\SSView.hpp" />
+    <ClInclude Include="..\..\SSCode\SSVPEphemeris.hpp" />
     <ClInclude Include="..\..\SSCode\VSOP2013\ELPMPP02.hpp" />
     <ClInclude Include="..\..\SSCode\VSOP2013\VSOP2013.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{81A19F8E-7902-4542-A821-119B5BB8A39C}</ProjectGuid>
+    <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>SSTest</RootNamespace>
+    <ProjectGuid>{ed3f0717-f2c2-4417-a1ad-f8efffb9b244}</ProjectGuid>
+    <RootNamespace>SSMountTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -101,27 +105,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -141,89 +145,72 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level1</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>wsock32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>wsock32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level1</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
+      <LanguageStandard>Default</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>wsock32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\..\SSCode;..\..\SSCode\VSOP2013</AdditionalIncludeDirectories>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>wsock32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

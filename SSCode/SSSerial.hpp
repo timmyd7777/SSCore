@@ -10,7 +10,7 @@
 #ifndef SSSerial_hpp
 #define SSSerial_hpp
 
-#ifdef _WINDOWS
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -22,7 +22,7 @@ using namespace std;
 class SSSerial
 {
 public:
-#ifdef _WINDOWS
+#ifdef _WIN32
     typedef HANDLE PortRef;
     static constexpr HANDLE kError = INVALID_HANDLE_VALUE;
 #else

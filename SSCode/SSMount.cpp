@@ -5,9 +5,12 @@
 // Copyright © 2022 Southern Stars. All rights reserved.
 //
 
-#include "SSMount.hpp"
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
 
-#include <unistd.h>
+#include "SSMount.hpp"
+#include "SSUtilities.hpp"
 
 // Map of supported telescope mount protocols, indexed by protocol identifier.
 
@@ -284,10 +287,10 @@ SSMount::Error SSMount::command ( const char *input, int inlen, char *output, in
 
 SSMount::Error SSMount::command ( const string &instr, string &outstr, int outlen, char term, int timeout_ms )
 {
-    char output[ outlen + 1 ];
-    memset ( output, 0, sizeof ( output ) );
-    Error result = command ( instr.c_str(), (int) instr.length(), output, outlen, term, timeout_ms );
-    outstr = string ( output );
+    vector<char> output ( outlen + 1 );
+    memset ( &output[0], 0, output.size() );
+    Error result = command ( instr.c_str(), (int) instr.length(), &output[0], outlen, term, timeout_ms );
+    outstr = string ( &output[0] );
     return result;
 }
 

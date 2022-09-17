@@ -6,12 +6,18 @@
 //
 // Command-line test program for telescope mount communication classes.
 
+#ifdef _MSC_VER
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <cstdio>
 #include <iostream>
-#include <unistd.h>
 #include <algorithm>
 
 #include "SSMount.hpp"
+#include "SSUtilities.hpp"
 
 int main ( int argc, const char * argv[] )
 {
