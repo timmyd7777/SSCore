@@ -21,6 +21,7 @@ typedef ULONG in_addr_t;
 // Initializes socket communcation module.
 // Returns true if successful or false on failure.
 // Call once at application startup; SSSocket constructor also calls initialize().
+// SSSocket constructor also calls initialize(), if not already initialized.
 
 static bool _initialized = false;
 
@@ -54,23 +55,9 @@ bool SSSocket::initialize ( void )
 
 void SSSocket::finalize ( void )
 {
-    WSACleanup();
-}
-
-// SSSocket constructor calls initialize() on Windows, if not already initialized
-
-SSSocket::SSSocket ( void )
-{
-    _socket = INVALID_SOCKET;
-    if ( ! _initialized )
-        initialize();
-}
-
-SSSocket::SSSocket ( SOCKET s )
-{
-    _socket = s;
-    if ( ! _initialized )
-        initialize();
+    if ( _initialized )
+        WSACleanup();
+    _initialized = false;
 }
 
 #else   // MacOS/Linux implementation
@@ -94,16 +81,6 @@ bool SSSocket::initialize ( void )
 void SSSocket::finalize ( void )
 {
     // Nothing to do on MacOS/Linux
-}
-
-SSSocket::SSSocket ( void )
-{
-    _socket = INVALID_SOCKET;
-}
-
-SSSocket::SSSocket ( SOCKET s )
-{
-    _socket = s;
 }
 
 #endif
