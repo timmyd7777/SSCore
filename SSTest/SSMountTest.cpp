@@ -32,7 +32,7 @@ int main ( int argc, const char * argv[] )
     int testProto = 0;
     while ( testProto < 1 || testProto > numProtos )
     {
-        cout << "Test which mount protocol (1 thru " << numProtos << ")? " << endl;
+        cout << "Test which mount protocol (1 thru " << numProtos << ")? ";
         cin >> testProto;
     }
     
@@ -44,17 +44,29 @@ int main ( int argc, const char * argv[] )
     vector<string> serialPortNames, serialPortPaths;
     int numPorts = SSSerial::listPorts ( serialPortNames, serialPortPaths );
     cout << "Found " << numPorts << " serial ports:" << endl;
-    if ( numPorts < 1 )
-        return 0;
-    
     for ( int i = 0; i < numPorts; i++ )
         cout << "Port " << i + 1 << ": " << serialPortNames[i] << " at " << serialPortPaths[i] << endl;
     
     int testPort = 0;
-    while ( testPort < 1 || testPort > numPorts )
+    do
     {
-        cout << "Use which port for testing (1 thru " << numPorts << ")? " << endl;
+        cout << "Use which port for testing (1 thru " << numPorts << " or 0 for network)? ";
         cin >> testPort;
+    }
+    while ( testPort < 0 || testPort > numPorts );
+    
+    // If no serial port was selected, get network address and TCP port from user
+    
+    string netAddress = "10.0.0.1";
+    unsigned short tcpPort = 4030;
+    
+    if ( testPort == 0 )
+    {
+        cout << "Mount network or IP address: ";
+        cin >> netAddress;
+        
+        cout << "Mount TCP port: ";
+        cin >> tcpPort;
     }
     
     // Initialize telescope and create SSMount instance
@@ -66,7 +78,12 @@ int main ( int argc, const char * argv[] )
 
     // Open serial or socket connection to mount
     
-    SSMount::Error err = pMount->connect ( serialPortPaths[ testPort - 1 ], 0 );
+    SSMount::Error err = SSMount::kSuccess;
+    if ( testPort > 0 )
+        err = pMount->connect ( serialPortPaths[ testPort - 1 ], 0 );
+    else
+        err = pMount->connect ( netAddress, tcpPort );
+
     if ( err )
     {
         cout << "connect() returned error " << err << endl;
