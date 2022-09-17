@@ -53,12 +53,12 @@ class SSSocket
 {
 protected:
     SOCKET _socket = INVALID_SOCKET;    // Native socket
-    
+
 public:
     // Constructors and destructor
-    
-    SSSocket ( void ) { _socket = INVALID_SOCKET; }
-    SSSocket ( SOCKET s ) { _socket = s; }
+
+    SSSocket ( void );
+    SSSocket ( SOCKET s );
     ~SSSocket ( void ) { closeSocket(); }
     
     // Accessor returns native socket
@@ -66,6 +66,7 @@ public:
     SOCKET getSocket ( void ) { return _socket; }
     
     // Socket library initialiation and cleanup - call once at program startup and exit
+    // Windows constructor calls initialize() the first time an SSSocket is instantiated.
     
     static bool initialize ( void );
     static void finalize ( void );

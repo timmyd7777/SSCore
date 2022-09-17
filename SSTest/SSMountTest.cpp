@@ -43,18 +43,21 @@ int main ( int argc, const char * argv[] )
     
     vector<string> serialPortNames, serialPortPaths;
     int numPorts = SSSerial::listPorts ( serialPortNames, serialPortPaths );
-    cout << "Found " << numPorts << " serial ports:" << endl;
+    cout << "Found " << numPorts << " serial ports." << endl;
     for ( int i = 0; i < numPorts; i++ )
         cout << "Port " << i + 1 << ": " << serialPortNames[i] << " at " << serialPortPaths[i] << endl;
     
     int testPort = 0;
-    do
+    if ( numPorts > 0 )
     {
-        cout << "Use which port for testing (1 thru " << numPorts << " or 0 for network)? ";
-        cin >> testPort;
+        do
+        {
+            cout << "Use which port for testing (1 thru " << numPorts << " or 0 for network)? ";
+            cin >> testPort;
+        }
+        while ( testPort < 0 || testPort > numPorts );
     }
-    while ( testPort < 0 || testPort > numPorts );
-    
+
     // If no serial port was selected, get network address and TCP port from user
     
     string netAddress = "10.0.0.1";
@@ -294,5 +297,6 @@ int main ( int argc, const char * argv[] )
     cout << "All tests succeeded!" << endl;
     
     pMount->disconnect();
+    SSSocket::finalize();
     return err;
 }
