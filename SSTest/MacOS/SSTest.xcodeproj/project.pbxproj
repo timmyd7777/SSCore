@@ -316,8 +316,9 @@
 				A34D208028D39EAA0005A5F1 /* CoreFoundation.framework */,
 				A34D208228D39EB70005A5F1 /* IOKit.framework */,
 			);
-			path = Frameworks;
-			sourceTree = "<group>";
+			name = Frameworks;
+			path = /System/Library/Frameworks;
+			sourceTree = "<absolute>";
 		};
 		A3C22CF624574695004CE083 /* VSOP2013 */ = {
 			isa = PBXGroup;

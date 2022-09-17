@@ -7,6 +7,8 @@
 
 #ifdef _MSC_VER
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "SSMount.hpp"
