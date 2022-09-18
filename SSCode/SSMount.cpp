@@ -75,6 +75,9 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     _serial = SSSerial();
     _socket = SSSocket();
     
+    _addr = SSIP();
+    _port = 0;
+    
     _currRA = _currDec = INFINITY;
     _slewRA = _slewDec = INFINITY;
     
@@ -91,7 +94,7 @@ SSMount::~SSMount ( void )
 
 // Default connect() method for mounts with no protocol does nothing
 
-SSMount::Error SSMount::connect ( const string &path, unsigned short port )
+SSMount::Error SSMount::connect ( const string &path, uint16_t port )
 {
     _connected = true;
     return kSuccess;
@@ -100,29 +103,53 @@ SSMount::Error SSMount::connect ( const string &path, unsigned short port )
 // Opens serial or socket connection, and configure serial port settings for communication.
 // Only available to subclasses of SSMount, not a public SSMount method!
 
-SSMount::Error SSMount::connect ( const string &path, unsigned short port, int baud, int parity, int data, float stop )
+SSMount::Error SSMount::connect ( const string &path, uint16_t port, int baud, int parity, int data, float stop, bool udp )
 {
     if ( connected() )
         disconnect();
     
+    // Parse mount IP address from path string, first as dotted form,
+    // then as fully-qualified domain name string using DNS.
+    
+    SSIP addr ( path );
+    vector<SSIP> addrs;
+    if ( addr )
+        addrs.push_back ( addr );
+    else
+        addrs = SSSocket::hostNameToIPs ( path );
+
+    // If we have a valid TCP or UDP port, opem socket connection to mount
+    
     if ( port )
     {
-        SSIP addr ( path );
-        if ( addr )
-            _socket.openSocket ( addr, port, 2000 );
-        
-        if ( ! _socket.socketOpen() )
+        if ( udp )
         {
-            vector<SSIP> addrs = SSSocket::hostNameToIPs ( path );
-            for ( SSIP &addr : addrs )
-                if ( _socket.openSocket ( addr, port, 2000 ) )
+            _socket.openUDPSocket ( SSIP(), port );
+            if ( ! _socket.socketOpen() )
+                return kOpenFail;
+        }
+        else
+        {
+            // For TCP, try connecting to all IP addresses
+            // and save the first that succeeds.
+            
+            for ( int i = 0; i < addrs.size(); i++ )
+                if ( _socket.openSocket ( addrs[i], port, 2000 ) )
+                {
+                    addr = addrs[i];
                     break;
+                }
+            
+            if ( ! _socket.socketOpen() )
+                return kOpenFail;
         }
         
-        if ( ! _socket.socketOpen() )
-            return kOpenFail;
+        // Save mount IP address and TCP/UDP port
+        
+        _addr = addr;
+        _port = port;
     }
-    else
+    else    // open local serial port connection to mount
     {
         _serial.openPort ( path );
         if ( ! _serial.portOpen() )
@@ -149,6 +176,8 @@ SSMount::Error SSMount::disconnect ( void )
     if ( _serial.portOpen() )
         _serial.closePort();
     
+    _addr = SSIP();
+    _port = 0;
     _connected = false;
     return kSuccess;
 }
@@ -161,26 +190,30 @@ SSMount::Error SSMount::disconnect ( void )
 
 SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms )
 {
-    // If any bytes are available in the serial input buffer, read and discard them.
-    
-    int bytes = _serial.inputBytes();
-    if ( bytes > 0 )
-    {
-        vector<char> junk ( bytes );
-        if ( _serial.readPort ( &junk[0], bytes ) )
-            return kReadFail;
-    }
-    
     // If input command length not specified, use input string length.
     
     if ( inlen == 0 && input != nullptr )
         inlen = (int) strlen ( input );
     
-    // If we have valid command input, write it to the serial port
+    // If we are going to send a command.
     
     if ( inlen > 0 && input != nullptr )
+    {
+        // First clear out any bytes remaining in the serial input buffer
+        
+        int bytes = _serial.inputBytes();
+        if ( bytes > 0 )
+        {
+            vector<char> junk ( bytes );
+            if ( _serial.readPort ( &junk[0], bytes ) )
+                return kReadFail;
+        }
+
+        // Then write command input to the serial port.
+        
         if ( _serial.writePort ( input, inlen ) != inlen )
             return kWriteFail;
+    }
     
     // If we don't want a reply, we are done!
     
@@ -200,7 +233,7 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
         }
         else
         {
-            bytes = _serial.readPort ( output + bytesRead, 1 );
+            int bytes = _serial.readPort ( output + bytesRead, 1 );
             if ( bytes < 1 )
                 return kReadFail;
             
@@ -219,24 +252,53 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
 
 SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms )
 {
-    int bytes = _socket.readSocket ( nullptr, 0 );
-    if ( bytes )
-    {
-        vector<char> junk ( bytes );
-        if ( _socket.readSocket ( &junk, bytes ) != bytes )
-            return kReadFail;
-    }
+    bool udp = _socket.isUDPSocket();
     
     // If input command length not specified, use input string length.
     
     if ( inlen == 0 && input != nullptr )
         inlen = (int) strlen ( input );
     
-    // If we have valid command input, write it to the serial port
+    // If we are going to send a command:
     
     if ( inlen > 0 && input != nullptr )
-        if ( _socket.writeSocket ( input, inlen ) != inlen )
+    {
+        // First clear out any bytes currently remaining to be received
+        
+        int bytes = 0;
+        if ( udp )
+        {
+            SSIP sender;
+            char junk = 0;
+            do
+            {
+                bytes = _socket.readUDPSocket ( &junk, 1, sender, 1 );
+                if ( bytes < 0 )
+                    return kReadFail;
+            }
+            while ( bytes > 0 );
+        }
+        else
+        {
+            int bytes = _socket.readSocket ( nullptr, 0 );
+            if ( bytes > 0 )
+            {
+                vector<char> junk ( bytes );
+                if ( _socket.readSocket ( &junk[0], bytes ) != bytes )
+                    return kReadFail;
+            }
+        }
+        
+        // Now write command input to the TCP or UDP socket
+        
+        if ( udp )
+            bytes = _socket.writeUDPSocket ( input, inlen, _addr, _port );
+        else
+            bytes = _socket.writeSocket ( input, inlen );
+        
+        if ( bytes != inlen )
             return kWriteFail;
+    }
     
     // If we don't want a reply, we are done!
     
@@ -250,16 +312,33 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
     double start = clocksec();
     while ( clocksec() - start < timeout_ms / 1000.0 )
     {
-        if ( _socket.readSocket ( nullptr, 0 ) < 1 )
+        int bytes = 0;
+        if ( udp )
         {
-            usleep ( 1000 );
+            SSIP sender;
+            bytes = _socket.readUDPSocket ( output + bytesRead, outlen - bytesRead, sender, timeout_ms );
+            if ( bytes < 0 )
+                return kReadFail;
+
+            bytesRead += bytes;
+            if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
+                return kSuccess;
         }
         else
         {
-            bytes = _socket.readSocket ( output + bytesRead, 1 );
-            if ( bytes < 1 )
+            bytes = _socket.readSocket ( nullptr, 0 );
+            if ( bytes < 0 )
                 return kReadFail;
             
+            if ( bytes < 1 )
+            {
+                usleep ( 1000 );
+                continue;
+            }
+
+            if ( _socket.readSocket ( output + bytesRead, 1 ) < 1 )
+                return kReadFail;
+
             bytesRead++;
             if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
                 return kSuccess;
@@ -401,6 +480,7 @@ SSMount::Error SSMount::setLonLat ( SSSpherical loc )
 }
 
 // Overrides and mount-specific methods for Celestron NexStar and SkyWatcher/Orion SynScan controllers.
+// Based on documentation provided here: https://www.nexstarsite.com/PCControl/ProgrammingNexStar.htm
 
 SSCelestronMount::SSCelestronMount ( SSMountType type, SSMountProtocol protocol, SSCoordinates &coords ) : SSMount ( type, coords )
 {
@@ -442,7 +522,7 @@ SSMount::Error SSCelestronMount::setTrackingMode ( TrackingMode mode )
     return err;
 }
 
-SSMount::Error SSCelestronMount::connect ( const string &path, unsigned short port )
+SSMount::Error SSCelestronMount::connect ( const string &path, uint16_t port )
 {
     Error err = kSuccess;
     
@@ -456,11 +536,12 @@ SSMount::Error SSCelestronMount::connect ( const string &path, unsigned short po
     // SynScan controllers return a 6-character version string terminated by a '#'.
     // NexStar hand controllers return a 3-character version string with no terminator.
 
-    char reply[8] = { 0 };
-    if ( _protocol == kSkyWatcherSynScan )
-        err = command ( "V#", 0, reply, 7, '#' );
+    char output[10] = { 0 };
+    if ( _protocol == kCelestronNexStar )
+        err = command ( "V#", 0, output, 3, 0 );
     else
-        err = command ( "V#", 0, reply, 3, 0 );
+        err = command ( "V#", 0, output, 7, '#' );
+
     if ( err != kSuccess )
         return err;
     
@@ -470,7 +551,7 @@ SSMount::Error SSCelestronMount::connect ( const string &path, unsigned short po
     if ( _protocol == kSkyWatcherSynScan )
     {
         int ver[3] = { 0 };
-        if ( sscanf ( reply, "%2x%2x%2x", &ver[0], &ver[1], &ver[2] ) < 3 )
+        if ( sscanf ( output, "%2x%2x%2x", &ver[0], &ver[1], &ver[2] ) < 3 )
         {
             disconnect();
             return kInvalidOutput;
@@ -482,7 +563,7 @@ SSMount::Error SSCelestronMount::connect ( const string &path, unsigned short po
         // NexStar hand controller firmware version < 4.0 MAY be a StarSense hand controller,
         // or it may not - Celestron started renumbering StarSense HC firmware versions at 1.0!
         
-        _version = format ( "%d.%d", reply[0], reply[1] );
+        _version = format ( "%d.%d", output[0], output[1] );
         if ( _version.compare ( "4.0" ) < 0 )
         {
             // If controller responds to this platform query, it's a StarSense.  We'll
@@ -490,9 +571,9 @@ SSMount::Error SSCelestronMount::connect ( const string &path, unsigned short po
             // becomes our 10.1, StarSense 2.4 becomes our 12.4 etc.  That works for us
             // until StarSense firmware versions reach 10.0 :-)
             
-            err = command ( "v#", 0, reply, 3, '#' );
+            err = command ( "v#", 0, output, 3, '#' );
             if ( err == kSuccess )
-                _version = format ( "1%d.%d", reply[0], reply[1] );
+                _version = format ( "1%d.%d", output[0], output[1] );
         }
     }
     
@@ -760,13 +841,15 @@ SSMount::Error SSCelestronMount::setLonLat ( SSSpherical loc )
 }
 
 // Overrides and mount-specific methods for Meade LX-200 and Autostar/ETX controllers
+// Based on documentation provided here: http://www.weasner.com/etx/autostar/2010/AutostarSerialProtocol2007oct.pdf
+// and here: https://www.astro.louisville.edu/software/xmtel/archive/xmtel-indi-6.0/xmtel-6.0l/support/lx200/CommandSet.html
 
 SSMeadeMount::SSMeadeMount ( SSMountType type, SSMountProtocol protocol, SSCoordinates &coords ) : SSMount ( type, coords )
 {
     _protocol = protocol;
 }
 
-SSMount::Error SSMeadeMount::connect ( const string &path, unsigned short port )
+SSMount::Error SSMeadeMount::connect ( const string &path, uint16_t port )
 {
     // Open serial communication at 9600 baud, no parity, 8 data bits, 1 stop bit
     

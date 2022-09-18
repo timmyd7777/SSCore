@@ -15,9 +15,24 @@
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
+#include <map>
 
 #include "SSMount.hpp"
 #include "SSUtilities.hpp"
+
+map<SSMount::Error,string> SSMountErrors =
+{
+    { SSMount::kSuccess, "kSuccess" },
+    { SSMount::kInvalidInput, "kInvalidInput" },
+    { SSMount::kInvalidOutput, "kInvalidOutput" },
+    { SSMount::kInvalidCoords, "kInvalidCoords" },
+    { SSMount::kOpenFail, "kOpenFail" },
+    { SSMount::kCloseFail, "kCloseFail" },
+    { SSMount::kReadFail, "kReadFail" },
+    { SSMount::kWriteFail, "kWriteFail" },
+    { SSMount::kNotSupported, "kNotSupported" },
+    { SSMount::kTimedOut, "kTimedOut" }
+};
 
 int main ( int argc, const char * argv[] )
 {
@@ -89,7 +104,7 @@ int main ( int argc, const char * argv[] )
 
     if ( err )
     {
-        cout << "connect() returned error " << err << endl;
+        cout << "connect() returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -102,7 +117,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->aligned ( status );
     if ( err )
     {
-        cout << "aligned() returned error " << err << endl;
+        cout << "aligned() returned error " << SSMountErrors[err] << endl;
         return err;
     }
     
@@ -113,7 +128,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->setDateTime();
     if ( err )
     {
-        cout << "setDateTime() returned error " << err << endl;
+        cout << "setDateTime() returned error " << SSMountErrors[err] << endl;
         return err;
     }
     
@@ -124,7 +139,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->setLonLat();
     if ( err )
     {
-        cout << "setLonLat() returned error " << err << endl;
+        cout << "setLonLat() returned error " << SSMountErrors[err] << endl;
         return err;
     }
     
@@ -136,7 +151,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->read ( ra, dec );
     if ( err )
     {
-        cout << "read() returned error " << err << endl;
+        cout << "read() returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -148,7 +163,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->rate ( pMount->maxSlewRate() );
     if ( err )
     {
-        cout << "rate() returned error " << err << endl;
+        cout << "rate() returned error " << SSMountErrors[err] << endl;
         return err;
     }
     
@@ -167,7 +182,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->slew ( kAzmRAAxis, kSlewOff );
     if ( err )
     {
-        cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << err << endl;
+        cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -179,7 +194,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->slew ( kAltDecAxis, kSlewNegative );
     if ( err )
     {
-        cout << "slew ( kAltDecAxis, kSlewNegative ) returned error " << err << endl;
+        cout << "slew ( kAltDecAxis, kSlewNegative ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -189,7 +204,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->slew ( kAltDecAxis, kSlewOff );
     if ( err )
     {
-        cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << err << endl;
+        cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -202,7 +217,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->read ( ra, dec );
     if ( err )
     {
-        cout << "read() returned error " << err << endl;
+        cout << "read() returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -214,7 +229,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->slew ( ra0, dec0 );
     if ( err )
     {
-        cout << "slew ( ra0, dec0 ) returned error " << err << endl;
+        cout << "slew ( ra0, dec0 ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -226,7 +241,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->stop();
     if ( err )
     {
-        cout << "stop() returned error " << err << endl;
+        cout << "stop() returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -238,7 +253,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->slew ( ra0, dec0 );
     if ( err )
     {
-        cout << "slew ( ra0, dec0 ) returned error " << err << endl;
+        cout << "slew ( ra0, dec0 ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -253,7 +268,7 @@ int main ( int argc, const char * argv[] )
         err = pMount->slewing ( status );
         if ( err )
         {
-            cout << "slewing() returned error " << err << endl;
+            cout << "slewing() returned error " << SSMountErrors[err] << endl;
             return err;
         }
         
@@ -266,7 +281,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->read ( ra, dec );
     if ( err )
     {
-        cout << "read() returned error " << err << endl;
+        cout << "read() returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -277,7 +292,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->sync ( ra0, dec0 );
     if ( err )
     {
-        cout << "sync() returned error " << err << endl;
+        cout << "sync() returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -289,7 +304,7 @@ int main ( int argc, const char * argv[] )
     err = pMount->read ( ra, dec );
     if ( err )
     {
-        cout << "read() returned error " << err << endl;
+        cout << "read() returned error " << SSMountErrors[err] << endl;
         return err;
     }
 

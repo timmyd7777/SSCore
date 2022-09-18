@@ -344,8 +344,15 @@ bool SSSocket::socketOpen ( void )
     int    nResult = 0;
     unsigned long   lFlag = 0;
 
+    // If the socket handle or file descriptor is invalid, return false.
+    
     if ( _socket == INVALID_SOCKET )
         return false;
+    
+    // The test below only works for TCP sockets!
+    
+    if ( isUDPSocket() )
+        return true;
     
     // The "right" way to do this is rather obscure.  First put the socket into
     // non-blocking mode and call recv() to see if there's any data waiting to be
@@ -615,7 +622,7 @@ bool SSSocket::openUDPSocket ( SSIP SSIP, unsigned short wPort )
 // Returns the number of bytes actually sent over the UDP connection,
 // or SOCKET_ERROR on failure.
 
-int SSSocket::writeUDPSocket ( void *lpvData, int lLength, SSIP destIP, unsigned short wDestPort )
+int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, unsigned short wDestPort )
 {
     int        nResult;
     int        nBytesWritten = 0;

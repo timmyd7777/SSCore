@@ -94,7 +94,7 @@ public:
     // UDP (connectionless) sockets: open, read, write
     
     bool openUDPSocket ( SSIP localIP, unsigned short localPort );
-    int writeUDPSocket ( void *data, int size, SSIP destIP, unsigned short destPort );
+    int writeUDPSocket ( const void *data, int size, SSIP destIP, unsigned short destPort );
     int readUDPSocket ( void *data, int size, SSIP &senderIP, int timeout_ms );
     bool isUDPSocket ( void );
 };

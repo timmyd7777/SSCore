@@ -77,8 +77,10 @@ protected:
     SSMountProtocol _protocol;  // Mount communication protocol identifier
     SSCoordinates &_coords;     // Reference to SSCoordinates object containing mount's geographic location and current date/time
     
-    SSSerial _serial;           // Serial port used for communication; invalid if not connected
-    SSSocket _socket;           // Socket used for communcation; invalid if not connected
+    SSSerial    _serial;        // Serial port used for communication; invalid if not connected
+    SSSocket    _socket;        // Socket used for communcation; invalid if not connected
+    SSIP        _addr;          // IP address of telescope mount, only valid for socket connections
+    uint16_t    _port;          // TCP or UDP port for socket-based mount communication
     
     SSAngle _currRA, _currDec;  // Most recent coordinates reported from mount
     SSAngle _slewRA, _slewDec;  // Slew target coordinates
@@ -89,7 +91,7 @@ protected:
     bool        _connected;     // true if serial port or socket connection to mount is currently open.
     string      _version;       // mount controller firmware version string, read from mount during connect()
 
-    virtual Error connect ( const string &path, unsigned short port, int baud, int party, int data, float stop );
+    virtual Error connect ( const string &path, uint16_t port, int baud, int party, int data, float stop, bool udp = false );
     Error serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
     Error socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
 
@@ -114,7 +116,7 @@ public:
 
     // Open and close serial or socket connection to mount
     
-    virtual Error connect ( const string &path, unsigned short port );
+    virtual Error connect ( const string &path, uint16_t port );
     virtual Error disconnect ( void );                                   // close connection
     
     // Send commands to mount and recieve replies
@@ -157,7 +159,7 @@ public:
     SSMeadeMount ( SSMountType type, SSMountProtocol variant, SSCoordinates &coords );
 
     virtual int maxSlewRate ( void ) { return _protocol == kMeadeETX ? 3 : 4; }
-    virtual Error connect ( const string &path, unsigned short port );
+    virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec );
     virtual Error slew ( SSSlewAxis axis, SSSlewSign sign );
@@ -195,7 +197,7 @@ public:
     SSCelestronMount ( SSMountType type, SSMountProtocol variant, SSCoordinates &coords );
 
     virtual int maxSlewRate ( void ) { return 10; }
-    virtual Error connect ( const string &path, unsigned short port );
+    virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec );
     virtual Error slew ( SSSlewAxis axis, SSSlewSign sign );
