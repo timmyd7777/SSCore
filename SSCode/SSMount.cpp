@@ -79,6 +79,9 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     _addr = SSIP();
     _port = 0;
     
+    _retries = 1;
+    _timeout = 3000;
+    
     _currRA = _currDec = INFINITY;
     _slewRA = _slewDec = INFINITY;
     
@@ -135,7 +138,7 @@ SSMount::Error SSMount::connect ( const string &path, uint16_t port, int baud, i
             // and save the first that succeeds.
             
             for ( int i = 0; i < addrs.size(); i++ )
-                if ( _socket.openSocket ( addrs[i], port, 2000 ) )
+                if ( _socket.openSocket ( addrs[i], port, _timeout ) )
                 {
                     addr = addrs[i];
                     break;
@@ -257,7 +260,7 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
     
     bool udp = _socket.isUDPSocket();
     if ( ! udp && ! _socket.socketOpen() )
-        if ( ! _socket.openSocket ( _addr, _port, 2000 ) )
+        if ( ! _socket.openSocket ( _addr, _port, _timeout ) )
             return kOpenFail;
     
     // If input command length not specified, use input string length.
@@ -357,12 +360,22 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
 
 SSMount::Error SSMount::command ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms )
 {
-    if ( _serial.portOpen() )
-        return serialCommand ( input, inlen, output, outlen, term, timeout_ms );
-    else if ( _socket.socketOpen() )
-        return socketCommand ( input, inlen, output, outlen, term, timeout_ms );
-    else
-        return kInvalidInput;
+    Error err = kInvalidInput;
+    
+    if ( timeout_ms == 0 )
+        timeout_ms = _timeout;
+    
+    for ( int i = 0; i < _retries && err != kSuccess; i++ )
+    {
+        if ( _serial.portOpen() )
+            err = serialCommand ( input, inlen, output, outlen, term, timeout_ms );
+        else if ( _socket.socketOpen() )
+            err = socketCommand ( input, inlen, output, outlen, term, timeout_ms );
+        else
+            err = kInvalidInput;
+    }
+    
+    return err;
 }
 
 // Sends string (instr) to telescope mount via serial port or TCP socket, and optionally waits for output string.

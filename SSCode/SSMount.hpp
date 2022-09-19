@@ -88,7 +88,9 @@ protected:
     string      _version;       // mount controller firmware version string, read from mount during connect()
 
     mutex       _cmdMtx;        // for preventing resource contention with asynchronous command calls
-    
+    int         _retries;       // maximum number of command attempts before assuming failure
+    int         _timeout;       // default command communication response timeout, milliseconds
+
     virtual Error connect ( const string &path, uint16_t port, int baud, int party, int data, float stop, bool udp = false );
     Error serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
     Error socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
@@ -118,9 +120,15 @@ public:
     
     // Send commands to mount and recieve replies
     
-    Error command ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms = 2000 );
-    Error command ( const string &input, string &output, int outlen, char term, int timeout_ms = 2000 );
+    Error command ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms = 0 );
+    Error command ( const string &input, string &output, int outlen, char term, int timeout_ms = 0 );
     Error command ( const string &input );
+
+    void setRetries ( int attempts ) { _retries = attempts; }
+    int  getRetries ( void ) { return _retries; }
+
+    void setTimeout ( int millisecs ) { _timeout = millisecs; }
+    int  getTimeout ( void ) { return _timeout; }
 
     // High-level mount commands, synchronous versions
     
