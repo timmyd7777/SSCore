@@ -1219,7 +1219,7 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
 {
     // Send time zone in hours west of UTC
     
-    string input = format ( ":SG%+04.1f", -time.zone ), output;
+    string input = format ( ":SG%+04.1f#", -time.zone ), output;
     Error err = command ( input, output, 1, 0 );
     if ( err )
         return err;
