@@ -41,15 +41,6 @@ enum SSSlewAxis
     kAltDecAxis = 1,          // altitude or Dec axis
 };
 
-// Directional slew sign identifiers
-
-enum SSSlewSign
-{
-    kSlewNegative = -1,         // slew in negative direction
-    kSlewOff = 2,               // no directional slewing
-    kSlewPositive = 1           // slew in positive direction
-};
-
 // Represents a telescope mount
 
 class SSMount
@@ -85,8 +76,7 @@ protected:
     SSAngle _currRA, _currDec;  // Most recent coordinates reported from mount
     SSAngle _slewRA, _slewDec;  // Slew target coordinates
 
-    SSSlewSign  _slewSign[2];   // Current slew sign on RA/Azm [0] and Alt/Dec [1] axes
-    int         _slewRate;      // Current rate for directional slewing from 0 (off) to maxSlewRate() (fastest)
+    int         _slewRate[2];   // Current slew rate on RA/Azm [0] and Alt/Dec [1] axes
     bool        _slewing;       // true if a GoTo is currently in progress; false otherwise.
     bool        _connected;     // true if serial port or socket connection to mount is currently open.
     string      _version;       // mount controller firmware version string, read from mount during connect()
@@ -108,8 +98,7 @@ public:
     SSCoordinates &getCoordinates ( void ) { return _coords; }
     SSAngle getRA ( void ) { return _currRA; }
     SSAngle getDec ( void ) { return _currDec; }
-    int getSlewRate ( void ) { return _slewRate; }
-    SSSlewSign getSlewSign ( SSSlewAxis axis ) { return _slewSign[axis]; }
+    int getSlewRate ( SSSlewAxis axis ) { return _slewRate[axis]; }
     string getVersion ( void ) { return _version; }
     bool slewing ( void ) { return _slewing; }
     bool connected ( void )  { return _connected; }
@@ -117,7 +106,7 @@ public:
     // Open and close serial or socket connection to mount
     
     virtual Error connect ( const string &path, uint16_t port );
-    virtual Error disconnect ( void );                                   // close connection
+    virtual Error disconnect ( void );
     
     // Send commands to mount and recieve replies
     
@@ -129,8 +118,7 @@ public:
     
     virtual Error read ( SSAngle &ra, SSAngle &dec );            // get current mount RA/Dec coordinates
     virtual Error slew ( SSAngle ra, SSAngle dec );              // start GoTo slewing to target RA/Dec coordinates at fastest possible rate
-    virtual Error slew ( SSSlewAxis axis, SSSlewSign sign );     // start or stop slewing mount on an axis in positive or negative direction at current slew rate
-    virtual Error rate ( int rate );                             // set rate for directional slewing
+    virtual Error slew ( SSSlewAxis axis, int rate );            // start or stop slewing mount on an axis at a positive or negative rate
     virtual Error stop ( void );                                 // stop slewing, cancel any in-progress GoTo, and resume sidereal tracking
     virtual Error sync ( SSAngle ra, SSAngle dec );              // sync or align mount on the specified coordinates
     virtual Error slewing ( bool &status );                      // queries whether a GoTo slew is currently in progress
@@ -153,6 +141,7 @@ class SSMeadeMount : public SSMount
 protected:
     
     virtual Error setTargetRADec ( SSAngle ra, SSAngle dec );
+    virtual Error setSlewRate ( int rate );
     
 public:
     
@@ -162,9 +151,8 @@ public:
     virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec );
-    virtual Error slew ( SSSlewAxis axis, SSSlewSign sign );
+    virtual Error slew ( SSSlewAxis axis, int rate );
     virtual Error stop ( void );
-    virtual Error rate ( int rate );
     virtual Error sync ( SSAngle ra, SSAngle dec );
     virtual Error slewing ( bool &status );
     virtual Error aligned ( bool &status );
@@ -200,7 +188,7 @@ public:
     virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec );
-    virtual Error slew ( SSSlewAxis axis, SSSlewSign sign );
+    virtual Error slew ( SSSlewAxis axis, int rate );
     virtual Error stop ( void );
     virtual Error sync ( SSAngle ra, SSAngle dec );
     virtual Error slewing ( bool &status );

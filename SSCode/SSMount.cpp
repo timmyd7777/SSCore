@@ -81,8 +81,8 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     _currRA = _currDec = INFINITY;
     _slewRA = _slewDec = INFINITY;
     
-    _slewRate = maxSlewRate();
-    _slewSign[ kAzmRAAxis ] = _slewSign[ kAltDecAxis ] = kSlewOff;
+    _slewRate[ kAzmRAAxis ] = 0;
+    _slewRate[ kAltDecAxis ] = 0;
 }
 
 // Destructor disconnects any open serial or socket connection.
@@ -406,26 +406,15 @@ SSMount::Error SSMount::slew ( SSAngle ra, SSAngle dec )
     return kSuccess;
 }
 
-// Starts or stops slewing mount on am axis in positive or negative direction
-// at current slew rate.
+// Starts or stops slewing mount on an axis at a positive or negative rate,
+// where rate is 1 for slowest ... maxSlewRate() for fastest slewing;
+// and rate = 0 stops slewing on the specified axis.
 // Returns zero if successful or nonzero error code on failure.
 
-SSMount::Error SSMount::slew ( SSSlewAxis axis, SSSlewSign sign )
+SSMount::Error SSMount::slew ( SSSlewAxis axis, int rate )
 {
-    _slewSign[ axis ] = sign;
-    return kSuccess;
-}
-
-// Set motion rate for directional slewing, where rate is
-// 1 for slowest ... maxSlewRate() for fastest slewing.
-// Returns zero if successful or nonzero error code on failure.
-
-SSMount::Error SSMount::rate ( int rate )
-{
-    if ( rate < 0 || rate > maxSlewRate() )
-        return kInvalidInput;
-    
-    _slewRate = rate;
+    if ( abs ( rate ) <= maxSlewRate() )
+        _slewRate[ axis ] = rate;
     return kSuccess;
 }
 
@@ -434,7 +423,7 @@ SSMount::Error SSMount::rate ( int rate )
 
 SSMount::Error SSMount::stop ( void )
 {
-    _slewSign[ kAzmRAAxis ] = _slewSign[ kAltDecAxis ] = kSlewOff;
+    _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
     return kSuccess;
 }
 
@@ -657,14 +646,17 @@ SSMount::Error SSCelestronMount::slew ( SSAngle ra, SSAngle dec )
     return kSuccess;
 }
 
-SSMount::Error SSCelestronMount::slew ( SSSlewAxis axis, SSSlewSign sign )
+SSMount::Error SSCelestronMount::slew ( SSSlewAxis axis, int rate )
 {
     Error err = kSuccess;
     unsigned char input[8] = { 0 } , output[2] = { 0 };
     
+    if ( abs ( rate ) > maxSlewRate() )
+        return kInvalidInput;
+    
     // If we have stopped slewing on both axes, get the current sidereal tracking mode
     
-    if ( _slewSign[kAzmRAAxis] == kSlewOff && _slewSign[kAltDecAxis] == kSlewOff )
+    if ( _slewRate[kAzmRAAxis] == 0 && _slewRate[kAltDecAxis] == 0 )
     {
         err = getTrackingMode ( _trackMode );
         if ( err )
@@ -676,8 +668,8 @@ SSMount::Error SSCelestronMount::slew ( SSSlewAxis axis, SSSlewSign sign )
     input[0] = 'P';
     input[1] = 2;
     input[2] = axis == kAltDecAxis ? 17 : 16;
-    input[3] = sign == kSlewPositive ? 36 : 37;
-    input[4] = sign == kSlewOff ? 0 : _slewRate;
+    input[3] = rate > 0 ? 36 : 37;
+    input[4] = abs ( rate );
     input[5] = 0;
     input[6] = 0;
     input[7] = 0;
@@ -695,8 +687,8 @@ SSMount::Error SSCelestronMount::slew ( SSSlewAxis axis, SSSlewSign sign )
     
     // If we have stopped slewing on both axes, restore the original tracking mode
     
-    _slewSign[ axis ] = sign;
-    if ( _slewSign[kAzmRAAxis] == kSlewOff && _slewSign[kAltDecAxis] == kSlewOff )
+    _slewRate[ axis ] = rate;
+    if ( _slewRate[kAzmRAAxis] == 0 && _slewRate[kAltDecAxis] == 0 )
         setTrackingMode ( _trackMode );
     
     return kSuccess;
@@ -715,10 +707,11 @@ SSMount::Error SSCelestronMount::stop ( void )
     
     if ( _protocol == kSkyWatcherSynScan && strtofloat ( _version ) < 3.355 )
     {
-        slew ( kAzmRAAxis, kSlewOff );
-        slew ( kAltDecAxis, kSlewOff );
+        slew ( kAzmRAAxis, 0 );
+        slew ( kAltDecAxis, 0 );
     }
     
+    _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
     return kSuccess;
 }
 
@@ -999,45 +992,54 @@ SSMount::Error SSMeadeMount::sync ( SSAngle ra, SSAngle dec )
     return err;
 }
 
-SSMount::Error SSMeadeMount::slew ( SSSlewAxis axis, SSSlewSign sign )
+SSMount::Error SSMeadeMount::slew ( SSSlewAxis axis, int rate )
 {
     Error err = kSuccess;
     bool swapEW = false;
+    
+    // Set motion rate for subsequent move commands
+    
+    err = setSlewRate ( rate );
+    if ( err != kSuccess )
+        return err;
     
     // LX-200 GPS and LX-600 scopes have a firmware bug which causes their east-west motion
     // to be reversed when they are on Alt-Azimuth mounts
 
     if ( axis == kAzmRAAxis )
     {
-        if ( sign == kSlewPositive )
+        if ( rate > 0 )
             err = command ( swapEW ? ":Mw#" : ":Me#" );
-        else if ( sign == kSlewNegative )
+        else if ( rate < 0 )
             err = command ( swapEW ? ":Me#" : ":Mw#" );
-        else if ( sign == kSlewOff )
-            err = command ( _slewSign[axis] > 0 ? ":Qe#" : ":Qw#" );
+        else if ( rate == 0 )
+            err = command ( _slewRate[axis] > 0 ? ":Qe#" : ":Qw#" );
     }
     else if ( axis == kAltDecAxis )
     {
-        if ( sign == kSlewPositive )
+        if ( rate > 0 )
             err = command ( ":Mn#", 0, nullptr, 0, 0 );
-        else if ( sign == kSlewNegative )
+        else if ( rate < 0 )
             err = command ( ":Ms#", 0, nullptr, 0, 0 );
-        else if ( sign == kSlewOff )
-            err = command ( _slewSign[axis] > 0 ? ":Qn#" : ":Qs#" );
+        else if ( rate == 0 )
+            err = command ( _slewRate[axis] > 0 ? ":Qn#" : ":Qs#" );
     }
     
     if ( err )
         return err;
     
-    _slewSign[ axis ] = sign;
+    _slewRate[ axis ] = rate;
     return kSuccess;
 }
 
-SSMount::Error SSMeadeMount::rate ( int rate )
+// This Meade-specific command sets rate for directional slewing.
+// Note setting rate to zero does nothing!
+
+SSMount::Error SSMeadeMount::setSlewRate ( int rate )
 {
     Error err = kSuccess;
     
-    if ( rate < 1 || rate > maxSlewRate() )
+    if ( abs ( rate ) > maxSlewRate() )
         return kInvalidInput;
     
     if ( _protocol == kMeadeETX )
@@ -1072,9 +1074,6 @@ SSMount::Error SSMeadeMount::rate ( int rate )
         else
             err = kInvalidInput;
     }
-    
-    if ( err == kSuccess )
-        _slewRate = rate;
     
     return err;
 }

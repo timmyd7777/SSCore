@@ -158,18 +158,10 @@ int main ( int argc, const char * argv[] )
     cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
     sleep ( 1 );
     
-    // Test setting mount slew rate
-    
-    err = pMount->rate ( pMount->maxSlewRate() );
-    if ( err )
-    {
-        cout << "rate() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-    
     // Test slewing in Azimuth/RA
     
-    err = pMount->slew ( kAzmRAAxis, kSlewPositive );
+    int rate = pMount->maxSlewRate();
+    err = pMount->slew ( kAzmRAAxis, rate );
     if ( err )
     {
         cout << "slew ( kAzmRAAxis, kSlewPositive ) returned error " << err << endl;
@@ -179,7 +171,7 @@ int main ( int argc, const char * argv[] )
     cout << "slew ( kAzmRAAxis, kSlewPositive ) succeded!" << endl;
     sleep ( 3 );
     
-    err = pMount->slew ( kAzmRAAxis, kSlewOff );
+    err = pMount->slew ( kAzmRAAxis, 0 );
     if ( err )
     {
         cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << SSMountErrors[err] << endl;
@@ -191,7 +183,7 @@ int main ( int argc, const char * argv[] )
 
     // Test slewing in Altitude/Dec
     
-    err = pMount->slew ( kAltDecAxis, kSlewNegative );
+    err = pMount->slew ( kAltDecAxis, -rate );
     if ( err )
     {
         cout << "slew ( kAltDecAxis, kSlewNegative ) returned error " << SSMountErrors[err] << endl;
@@ -201,7 +193,7 @@ int main ( int argc, const char * argv[] )
     cout << "slew ( kAltDecAxis, kSlewNegative ) succeded!" << endl;
     sleep ( 3 );
 
-    err = pMount->slew ( kAltDecAxis, kSlewOff );
+    err = pMount->slew ( kAltDecAxis, 0 );
     if ( err )
     {
         cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << SSMountErrors[err] << endl;
