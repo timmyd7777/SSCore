@@ -209,7 +209,7 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
         if ( bytes > 0 )
         {
             vector<char> junk ( bytes );
-            if ( _serial.readPort ( &junk[0], bytes ) )
+            if ( _serial.readPort ( &junk[0], bytes ) < bytes )
                 return kReadFail;
         }
 
