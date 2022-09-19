@@ -341,7 +341,7 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
                 continue;
             }
 
-            bytes = min ( bytes, outlen - bytesRead );
+            bytes = 1; // min ( bytes, outlen - bytesRead );
             if ( _socket.readSocket ( output + bytesRead, bytes ) < bytes )
                 return kReadFail;
         }
@@ -1243,13 +1243,12 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
     // The string outputs follow almost immediately from the ETX, but after a long pause on the LX-200.
     
     input = format ( ":SC%02hd/%02.0f/%02d#", date.month, floor ( date.day ), date.year % 100 );
-    err = command ( input, output, 1, 0 );
+    err = command ( input, output, 33, '#', 10000 );
     if ( err )
         return err;
     
-    char junk[32] = { 0 };
-    command ( nullptr, 0, junk, 32, '#', 10000 );
-    command ( nullptr, 0, junk, 32, '#', 10000 );
+    char junk[33] = { 0 };
+    command ( nullptr, 0, junk, 33, '#', 10000 );
 
     if ( output.length() < 1 || output[0] != '1' )
         return kInvalidOutput;
