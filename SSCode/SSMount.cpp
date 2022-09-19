@@ -1161,8 +1161,6 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
             err = command ( ":Sw3#", output, 1, 0 );
         else if ( rate == 3 )
             err = command ( ":Sw4#", output, 1, 0 );
-        else
-            err = kInvalidInput;
         
         if ( err )
             return err;
@@ -1180,8 +1178,6 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
             err = command ( ":RM#" );
         else if ( rate == 4 )
             err = command ( ":RS#" );
-        else
-            err = kInvalidInput;
     }
     
     return err;

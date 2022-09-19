@@ -129,11 +129,11 @@ int main ( int argc, const char * argv[] )
     err = pMount->setTime();
     if ( err )
     {
-        cout << "setDateTime() returned error " << SSMountErrors[err] << endl;
+        cout << "setTime() returned error " << SSMountErrors[err] << endl;
         return err;
     }
     
-    cout << "setDateTime() succeded!" << endl;
+    cout << "setTime() succeded!" << endl;
     
     // Test setting longitude/latitude
     
