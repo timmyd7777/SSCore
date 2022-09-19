@@ -10,6 +10,7 @@
 #else
 #include <unistd.h>
 #endif
+#include <thread>
 
 #include "SSMount.hpp"
 #include "SSUtilities.hpp"
@@ -454,20 +455,115 @@ SSMount::Error SSMount::aligned ( bool &status )
     return kSuccess;
 }
 
-// Send local date and time to mount. Implemented by SSMount subclasses.
+// Send local date, time, and time zone to mount. Implemented by SSMount subclasses.
 // Returns zero if successful or nonzero error code on failure.
 
-SSMount::Error SSMount::setDateTime ( SSTime time )
+SSMount::Error SSMount::setTime ( SSTime time )
 {
     return kSuccess;
 }
 
-// Send geographic location to mount. Implemented by SSMount subclasses.
+// Send site longitude and latitude to mount. Implemented by SSMount subclasses.
 // Returns zero if successful or nonzero error code on failure.
 
-SSMount::Error SSMount::setLonLat ( SSSpherical loc )
+SSMount::Error SSMount::setSite ( SSSpherical site )
 {
     return kSuccess;
+}
+
+// Aynchronous read command. Launches read() in a background thread,
+// calls callback with error code and userData when command returns.
+// Obtain updated mount RA/Dec with getRA and getDec() accessors.
+
+void SSMount::readAsync ( AsyncCmdCallback callback, void *userData )
+{
+    auto func = [=] ( SSMountPtr pMount )
+    {
+        SSAngle ra, dec;
+        pMount->lockMutex ( true );
+        Error err = pMount->read ( ra, dec );
+        pMount->lockMutex ( false );
+        if ( callback )
+            callback ( pMount, err, userData );
+    };
+    
+    thread t = thread ( func, this );
+    t.detach();
+}
+
+// Aynchronous GoTo command. Launches slew() in a background thread,
+// calls callback with error code and userData when command returns.
+// GoTo target ra and dec are identical to synchronous slew() inputs.
+
+void SSMount::slewAsync ( SSAngle ra, SSAngle dec, AsyncCmdCallback callback, void *userData )
+{
+    auto func = [=] ( SSMountPtr pMount )
+    {
+        pMount->lockMutex ( true );
+        Error err = pMount->slew ( ra, dec );
+        pMount->lockMutex ( false );
+        if ( callback )
+            callback ( pMount, err, userData );
+    };
+
+    thread t = thread ( func, this );
+    t.detach();
+}
+
+// Aynchronous slew command. Launches slew() in a background thread,
+// calls callback with error code and userData when command returns.
+// Slew axis and rate are identical to synchronous slew() inputs.
+
+void SSMount::slewAsync ( SSSlewAxis axis, int rate, AsyncCmdCallback callback, void *userData )
+{
+    auto func = [=] ( SSMountPtr pMount )
+    {
+        pMount->lockMutex ( true );
+        Error err = pMount->slew ( axis, rate );
+        pMount->lockMutex ( false );
+        if ( callback )
+            callback ( pMount, err, userData );
+    };
+
+    thread t = thread ( func, this );
+    t.detach();
+}
+
+// Aynchronous stop command. Launches stop() in a background thread,
+// calls callback with error code and userData when command returns.
+
+void SSMount::stopAsync ( AsyncCmdCallback callback, void *userData )
+{
+    auto func = [=] ( SSMountPtr pMount )
+    {
+        pMount->lockMutex ( true );
+        Error err = pMount->stop();
+        pMount->lockMutex ( false );
+        if ( callback )
+            callback ( pMount, err, userData );
+    };
+
+    thread t = thread ( func, this );
+    t.detach();
+}
+
+// Aynchronous sync command. Launches sync() in a background thread,
+// calls callback with error code and userData when command returns.
+// Sync target ra and dec are identical to synchronous sync() inputs.
+
+void SSMount::syncAsync ( SSAngle ra, SSAngle dec, AsyncCmdCallback callback, void *userData )
+{
+    auto func = [=] ( SSMountPtr pMount )
+    {
+        pMount->lockMutex ( true );
+        Error err = pMount->sync ( ra, dec );
+        pMount->lockMutex ( false );
+        if ( callback )
+            callback ( pMount, err, userData );
+    };
+
+    thread t = thread ( func, this );
+    t.detach();
 }
 
 // Overrides and mount-specific methods for Celestron NexStar and SkyWatcher/Orion SynScan controllers.
@@ -774,7 +870,7 @@ SSMount::Error SSCelestronMount::sync ( SSAngle ra, SSAngle dec )
     return err;
 }
 
-SSMount::Error SSCelestronMount::setDateTime ( SSTime time )
+SSMount::Error SSCelestronMount::setTime ( SSTime time )
 {
     SSDate date ( time );
     
@@ -804,12 +900,12 @@ SSMount::Error SSCelestronMount::setDateTime ( SSTime time )
     return err;
 }
 
-SSMount::Error SSCelestronMount::setLonLat ( SSSpherical loc )
+SSMount::Error SSCelestronMount::setSite ( SSSpherical site )
 {
     // Compute latitude, longitude degrees/minutes/seconds
 
-    SSDegMinSec lat ( loc.lat );
-    SSDegMinSec lon ( loc.lon );
+    SSDegMinSec lat ( site.lat );
+    SSDegMinSec lon ( site.lon );
     
     // format command input string
     
@@ -1078,11 +1174,11 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
     return err;
 }
 
-SSMount::Error SSMeadeMount::setLonLat ( SSSpherical loc )
+SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
 {
     // Send latitude.
 
-    SSDegMinSec lat ( loc.lat );
+    SSDegMinSec lat ( site.lat );
     string output, input = format ( ":St%c%02hd*%02hd#", lat.sign, lat.deg, lat.min );
     Error err = command ( input, output, 1, 0 );
     if ( err )
@@ -1094,11 +1190,11 @@ SSMount::Error SSMeadeMount::setLonLat ( SSSpherical loc )
     // Meade considers east longitude to be negative, and does not accept a sign.
     // So, send longitude from 0 - 360 degrees and force positive.
 
-    loc.lon = -loc.lon;
-    if ( loc.lon < 0 )
-        loc.lon += SSAngle::kTwoPi;
+    site.lon = -site.lon;
+    if ( site.lon < 0 )
+        site.lon += SSAngle::kTwoPi;
     
-    SSDegMinSec lon ( loc.lon );
+    SSDegMinSec lon ( site.lon );
     input = format ( ":Sg%03hd*%02hd#", lat.sign, lat.deg, lat.min );
     err = command ( input, output, 1, 0 );
     if ( err )
@@ -1110,7 +1206,7 @@ SSMount::Error SSMeadeMount::setLonLat ( SSSpherical loc )
     return kSuccess;
 }
 
-SSMount::Error SSMeadeMount::setDateTime ( SSTime time )
+SSMount::Error SSMeadeMount::setTime ( SSTime time )
 {
     // Send time zone in hours west of UTC
     

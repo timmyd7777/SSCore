@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include <mutex>
 
 #include "SSSerial.hpp"
 #include "SSSocket.hpp"
@@ -63,7 +64,12 @@ public:
         kTimedOut = 9,          // Read/write operation timed out before completion
     };
 
+    // Pointer to completion callback for asynchronouos command methods
+    
+    typedef void (* AsyncCmdCallback) ( SSMount *pMount, Error error, void *pUserData );
+
 protected:
+    
     SSMountType     _type;      // Physical mount type
     SSMountProtocol _protocol;  // Mount communication protocol identifier
     SSCoordinates &_coords;     // Reference to SSCoordinates object containing mount's geographic location and current date/time
@@ -81,6 +87,8 @@ protected:
     bool        _connected;     // true if serial port or socket connection to mount is currently open.
     string      _version;       // mount controller firmware version string, read from mount during connect()
 
+    mutex       _cmdMtx;        // for preventing resource contention with asynchronous command calls
+    
     virtual Error connect ( const string &path, uint16_t port, int baud, int party, int data, float stop, bool udp = false );
     Error serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
     Error socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
@@ -114,7 +122,7 @@ public:
     Error command ( const string &input, string &output, int outlen, char term, int timeout_ms = 2000 );
     Error command ( const string &input );
 
-    // High-level mount commands
+    // High-level mount commands, synchronous versions
     
     virtual Error read ( SSAngle &ra, SSAngle &dec );            // get current mount RA/Dec coordinates
     virtual Error slew ( SSAngle ra, SSAngle dec );              // start GoTo slewing to target RA/Dec coordinates at fastest possible rate
@@ -123,13 +131,22 @@ public:
     virtual Error sync ( SSAngle ra, SSAngle dec );              // sync or align mount on the specified coordinates
     virtual Error slewing ( bool &status );                      // queries whether a GoTo slew is currently in progress
     virtual Error aligned ( bool &status );                      // queries whether mount is currently aligned or not
-    virtual Error setDateTime ( SSTime time );                   // send local date and time to mount
-    virtual Error setLonLat ( SSSpherical loc );                 // send geographic location to mount
+    virtual Error setTime ( SSTime time );                       // send local date, time, and time zone to mount
+    virtual Error setSite ( SSSpherical site );                  // send local site longitude and latitude to mount
 
+    // High-level mount commands, asynchronous versions
+    
+    void readAsync ( AsyncCmdCallback callback = nullptr, void *userData = nullptr );
+    void slewAsync ( SSAngle ra, SSAngle dec, AsyncCmdCallback callback = nullptr, void *userData = nullptr );
+    void slewAsync ( SSSlewAxis axis, int rate, AsyncCmdCallback callback = nullptr, void *userData = nullptr );
+    void stopAsync ( AsyncCmdCallback callback = nullptr, void *userData = nullptr );
+    void syncAsync ( SSAngle ra, SSAngle dec, AsyncCmdCallback callback = nullptr, void *userData = nullptr );
+    void lockMutex ( bool state ) { if ( state ) _cmdMtx.lock(); else _cmdMtx.unlock(); }
+    
     // Send date/time and lon/lat from mount's coordinates object reference
     
-    Error setDateTime ( void ) { return setDateTime ( _coords.getTime() ); }
-    Error setLonLat ( void ) { return setLonLat ( _coords.getLocation() ); }
+    Error setTime ( void ) { return setTime ( _coords.getTime() ); }
+    Error setSite ( void ) { return setSite ( _coords.getLocation() ); }
     
     virtual int maxSlewRate ( void ) { return 4; }
 };
@@ -156,8 +173,8 @@ public:
     virtual Error sync ( SSAngle ra, SSAngle dec );
     virtual Error slewing ( bool &status );
     virtual Error aligned ( bool &status );
-    virtual Error setDateTime ( SSTime time );
-    virtual Error setLonLat ( SSSpherical loc );
+    virtual Error setTime ( SSTime time );
+    virtual Error setSite ( SSSpherical site );
 };
 
 // Overrides for Celestron mounts
@@ -193,8 +210,8 @@ public:
     virtual Error sync ( SSAngle ra, SSAngle dec );
     virtual Error slewing ( bool &status );
     virtual Error aligned ( bool &status );
-    virtual Error setDateTime ( SSTime time );
-    virtual Error setLonLat ( SSSpherical loc );
+    virtual Error setTime ( SSTime time );
+    virtual Error setSite ( SSSpherical site );
 };
 
 // Obtains map of supported mount protocol names, indexed by protocol identifier

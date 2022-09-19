@@ -16,6 +16,7 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include <thread>
 
 #include "SSMount.hpp"
 #include "SSUtilities.hpp"
@@ -125,7 +126,7 @@ int main ( int argc, const char * argv[] )
     
     // Test setting date/time
     
-    err = pMount->setDateTime();
+    err = pMount->setTime();
     if ( err )
     {
         cout << "setDateTime() returned error " << SSMountErrors[err] << endl;
@@ -134,9 +135,9 @@ int main ( int argc, const char * argv[] )
     
     cout << "setDateTime() succeded!" << endl;
     
-    // Test setting location
+    // Test setting longitude/latitude
     
-    err = pMount->setLonLat();
+    err = pMount->setSite();
     if ( err )
     {
         cout << "setLonLat() returned error " << SSMountErrors[err] << endl;
