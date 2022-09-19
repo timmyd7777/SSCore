@@ -244,7 +244,7 @@ bool SSSocket::getRemoteIP ( SSIP &peerIP )
 // To wait an indefinite amount of time for the connection to be accepted,
 // pass a value <= 0 for the timeout parameter.
 
-bool SSSocket::openSocket ( SSIP serverIP, unsigned short wPort, int nTimeout )
+bool SSSocket::openSocket ( SSIP serverIP, uint16_t wPort, int nTimeout )
 {
     int                   nResult;
     SOCKET                nSocket;
@@ -491,7 +491,7 @@ void SSSocket::closeSocket ( void )
 // Returns a pointer to the open socket, if successful, or false on failure.
 // The (serverIP) parameter must correspond to a valid local network interface; see getLocalIPs().
 
-bool SSSocket::serverOpenSocket ( SSIP serverIP, unsigned short wPort, int nMaxConnections )
+bool SSSocket::serverOpenSocket ( SSIP serverIP, uint16_t wPort, int nMaxConnections )
 {
     int                nResult;
     SOCKET             nSocket;
@@ -587,7 +587,7 @@ SSSocket SSSocket::serverAcceptConnection ( void )
 //
 // When finished using the socket, dispose of it with closeSocket().
 
-bool SSSocket::openUDPSocket ( SSIP SSIP, unsigned short wPort )
+bool SSSocket::openUDPSocket ( SSIP SSIP, uint16_t wPort )
 {
     int                 nSocket = 0;
     struct sockaddr_in  address = { 0 };
@@ -622,7 +622,7 @@ bool SSSocket::openUDPSocket ( SSIP SSIP, unsigned short wPort )
 // Returns the number of bytes actually sent over the UDP connection,
 // or SOCKET_ERROR on failure.
 
-int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, unsigned short wDestPort )
+int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, uint16_t wDestPort )
 {
     int        nResult;
     int        nBytesWritten = 0;

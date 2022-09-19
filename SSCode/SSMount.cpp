@@ -215,12 +215,12 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
             return kWriteFail;
     }
     
-    // If we don't want a reply, we are done!
+    // If we don't want output, we are done!
     
     if ( outlen < 1 || output == nullptr )
         return kSuccess;
 
-    // Otherwise read a reply from the serial port, one byte at a time,
+    // Otherwise read output data from the serial port, one byte at a time,
     // until we receieve a terminator character, fill the output buffer, or time out.
     
     int bytesRead = 0;
@@ -252,7 +252,12 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
 
 SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms )
 {
+    // If this a TCP connection, reopen if it's been closed; return error on failure.
+    
     bool udp = _socket.isUDPSocket();
+    if ( ! udp && ! _socket.socketOpen() )
+        if ( ! _socket.openSocket ( _addr, _port, 2000 ) )
+            return kOpenFail;
     
     // If input command length not specified, use input string length.
     
@@ -300,12 +305,12 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             return kWriteFail;
     }
     
-    // If we don't want a reply, we are done!
+    // If we don't want output, we are done!
     
     if ( outlen < 1 || output == nullptr )
         return kSuccess;
 
-    // Otherwise read a reply from the socket, one byte at a time,
+    // Otherwise read output data from the socket,
     // until we receieve a terminator character, fill the output buffer, or time out.
     
     int bytesRead = 0;
@@ -319,11 +324,7 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             bytes = _socket.readUDPSocket ( output + bytesRead, outlen - bytesRead, sender, timeout_ms );
             if ( bytes < 0 )
                 return kReadFail;
-
-            bytesRead += bytes;
-            if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
-                return kSuccess;
-        }
+         }
         else
         {
             bytes = _socket.readSocket ( nullptr, 0 );
@@ -336,13 +337,14 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
                 continue;
             }
 
-            if ( _socket.readSocket ( output + bytesRead, 1 ) < 1 )
+            bytes = min ( bytes, outlen - bytesRead );
+            if ( _socket.readSocket ( output + bytesRead, bytes ) < bytes )
                 return kReadFail;
-
-            bytesRead++;
-            if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
-                return kSuccess;
         }
+
+        bytesRead += bytes;
+        if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
+            return kSuccess;
     }
 
     return kTimedOut;   // we timed out
@@ -551,12 +553,8 @@ SSMount::Error SSCelestronMount::connect ( const string &path, uint16_t port )
     if ( _protocol == kSkyWatcherSynScan )
     {
         int ver[3] = { 0 };
-        if ( sscanf ( output, "%2x%2x%2x", &ver[0], &ver[1], &ver[2] ) < 3 )
-        {
-            disconnect();
-            return kInvalidOutput;
-        }
-        _version = format ( "%d.%d.%d", ver[0], ver[1], ver[2] );
+        if ( sscanf ( output, "%2x%2x%2x", &ver[0], &ver[1], &ver[2] ) == 3 )
+            _version = format ( "%d.%d.%d", ver[0], ver[1], ver[2] );
     }
     else
     {
