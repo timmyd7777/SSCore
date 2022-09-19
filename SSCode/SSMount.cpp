@@ -841,6 +841,8 @@ SSMount::Error SSCelestronMount::setLonLat ( SSSpherical loc )
 // Overrides and mount-specific methods for Meade LX-200 and Autostar/ETX controllers
 // Based on documentation provided here: http://www.weasner.com/etx/autostar/2010/AutostarSerialProtocol2007oct.pdf
 // and here: https://www.astro.louisville.edu/software/xmtel/archive/xmtel-indi-6.0/xmtel-6.0l/support/lx200/CommandSet.html
+// and here: https://astro-physics.info/tech_support/mounts/protocol-cp3-cp4.pdf
+// and here: https://www.ioptron.com/v/ASCOM/RS-232_Command_Language2014V310.pdf
 
 SSMeadeMount::SSMeadeMount ( SSMountType type, SSMountProtocol protocol, SSCoordinates &coords ) : SSMount ( type, coords )
 {
