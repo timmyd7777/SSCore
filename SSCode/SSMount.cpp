@@ -350,42 +350,6 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
     // Otherwise read output data from the socket, one byte at a time,
     // until we receieve a terminator character, fill the output buffer, or time out.
     
-#if 0
-    int bytesRead = 0;
-    double start = clocksec();
-    while
-    {
-        int bytes = 0;
-        if ( udp )
-        {
-            SSIP sender;
-            bytes = _socket.readUDPSocket ( output + bytesRead, outlen - bytesRead, sender, timeout_ms );
-            if ( bytes < 0 )
-                err = kReadFail;
-        }
-        else
-        {
-            bytes = _socket.readSocket ( nullptr, 0 );
-            if ( bytes < 0 )
-                return kReadFail;
-            
-            if ( bytes < 1 )
-            {
-                usleep ( 1000 );
-                if ( ( clocksec() - start < timeout_ms / 1000.0 ) )
-                continue;
-            }
-
-            bytes = 1; // min ( bytes, outlen - bytesRead );
-            if ( _socket.readSocket ( output + bytesRead, bytes ) < bytes )
-                return kReadFail;
-        }
-
-        bytesRead += bytes;
-        if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
-            return kSuccess;
-    }
-#else
     int bytesRead = 0;
     if ( udp )
     {
@@ -424,7 +388,6 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
                 break;
         }
     }
-#endif
         
     // Log what we received, return any error code
     
@@ -511,20 +474,23 @@ SSMount::Error SSMount::writeLog ( bool input, const char *data, int len, Error 
     {
         // If we have data, write in decimal format
         
-        for ( int i = 0; i < len; i++ )
+        int i;
+        for ( i = 0; i < len; i++ )
             fprintf ( _logFile, "%03d ", (unsigned char) data[i] );
 
-        // Are all data ASCII characters?
+        // Convert data buffer to ASCII zero-terminated string
 
-        bool ascii = true;
-        for ( int i = 0; i < len; i++ )
-            if ( data[i] < 32 && data[i] != '\r' && data[i] != '\n' && data[i] != '\t' )
-                ascii = false;
+        vector<char> ascii ( len + 1 );
+        for ( i = 0; i < len; i++ )
+            if ( data[i] >= 32 && data[i] <= 127 )
+                ascii[i] = data[i];
+            else
+                ascii[i] = ' '; // replace non-ASCII characters with whitespace
+        ascii[i] = 0;
         
-        // If so write ASCII string in quotes
+        // Write ASCII string in quotes..
 
-        if ( ascii )
-            fprintf ( _logFile, "\"%s\" ", data );
+        fprintf ( _logFile, "\"%s\" ", &ascii[0] );
      }
     
     // Write error code

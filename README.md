@@ -35,7 +35,7 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSOrbit:_** This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.
 - **_SSPlanet:_** This subclass of SSObject represents all solar system objects (not just planets, but also moons, asteroids, comets, satellites, etc.)  Includes methods for computing solar system object positions, velocities, magnitudes, sizes, and rotational parameters.
 - **_SSSerial:_** This class contains routines for low-level serial (RS-232) communication on MacOS, Windows, and Linux. Currently not supported on iOS or Android. 
-- **_SSSocket:_** // This class implements basic IPv4 network TCP and UDP socket communication. TCP server sockets are supported. IPv6 and SSL and not supported. 
+- **_SSSocket:_** This class implements basic IPv4 network TCP and UDP socket communication. TCP server sockets are supported. IPv6 and SSL and not supported. 
 - **_SSStar:_** This subclass of SSObject represents all objects outside the solar system, including stars, star clusters, nebulae, and galaxies. SSStar has special subclasses for double and variable stars, and for deep sky objects.  Includes utility methods for stellar magnitude computations (absolute <-> apparent magnitude, etc.), Moffat-function stellar image profiles, and spectral type properties. 
 - **_SSTime:_** Classes for converting between Julian Dates and calendar dates/times; and between civil (UTC) and dynamic time (TDT).
 - **_SSTLE:_** Routines for reading satellite orbital elements from TLE (Two/Three-Line Element) files, and computing satellite position/velocity from them using the SGP, SGP4, and SDP4 orbit models; and vice-versa.
