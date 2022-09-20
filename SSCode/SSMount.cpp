@@ -2,8 +2,11 @@
 // SSCore
 //
 // Created by Tim DeBenedictis on 9/14/22.
-// Copyright © 2022 Southern Stars. All rights reserved.
+// Copyright © 2022 Southern Stars Group, LLC. All rights reserved.
 //
+// This class implements communication with common amateur telescope mount
+// controllers over serial port and TCP/IP sockets. Supported protocols include
+// Meade LX-200/Autostar, Celestron NexStar, and SkyWatcher/Orion SynScan.
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -87,12 +90,16 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     
     _slewRate[ kAzmRAAxis ] = 0;
     _slewRate[ kAltDecAxis ] = 0;
+    
+    _logFile = NULL;
+    _logStart = 0;
 }
 
 // Destructor disconnects any open serial or socket connection.
 
 SSMount::~SSMount ( void )
 {
+    closeLog();
     disconnect();
 }
 
@@ -194,6 +201,8 @@ SSMount::Error SSMount::disconnect ( void )
 
 SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms )
 {
+    Error err = kSuccess;
+    
     // If input command length not specified, use input string length.
     
     if ( inlen == 0 && input != nullptr )
@@ -213,10 +222,16 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
                 return kReadFail;
         }
 
-        // Then write command input to the serial port.
+        // Then send command input to the serial port.
         
         if ( _serial.writePort ( input, inlen ) != inlen )
-            return kWriteFail;
+            err = kWriteFail;
+        
+        // Log what we sent, return if we failed.
+        
+        writeLog ( true, input, inlen, err );
+        if ( err )
+            return err;
     }
     
     // If we don't want output, we are done!
@@ -229,25 +244,35 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
     
     int bytesRead = 0;
     double start = clocksec();
-    while ( clocksec() - start < timeout_ms / 1000.0 )
+    while ( err == kSuccess )
     {
-        if ( _serial.inputBytes() < 1 )
+        int bytes = _serial.inputBytes();
+        if ( bytes < 0 )
+        {
+            err = kReadFail;
+            break;
+        }
+        else if ( bytes < 1 )
         {
             usleep ( 1000 );
+            if ( clocksec() - start > timeout_ms / 1000.0 )
+                err = kTimedOut;
+            continue;
         }
+
+        bytes = _serial.readPort ( output + bytesRead, 1 );
+        if ( bytes < 1 )
+            err = kReadFail;
         else
-        {
-            int bytes = _serial.readPort ( output + bytesRead, 1 );
-            if ( bytes < 1 )
-                return kReadFail;
-            
-            bytesRead++;
-            if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
-                return kSuccess;
-        }
+            bytesRead += bytes;
+        if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
+            break;
     }
     
-    return kTimedOut;   // we timed out
+    // Log what we received, return any error code
+    
+    writeLog ( false, output, bytesRead, err );
+    return err;
 }
 
 // Sends data (input) to telescope mount via TCP socket and optionally waits for output.
@@ -256,6 +281,8 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
 
 SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms )
 {
+    Error err = kSuccess;
+    
     // If this a TCP connection, reopen if it's been closed; return error on failure.
     
     bool udp = _socket.isUDPSocket();
@@ -298,7 +325,7 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             }
         }
         
-        // Now write command input to the TCP or UDP socket
+        // Now send command input to the TCP or UDP socket
         
         if ( udp )
             bytes = _socket.writeUDPSocket ( input, inlen, _addr, _port );
@@ -306,7 +333,13 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             bytes = _socket.writeSocket ( input, inlen );
         
         if ( bytes != inlen )
-            return kWriteFail;
+            err = kWriteFail;
+
+        // Log what we sent, return if we failed.
+        
+        writeLog ( true, input, inlen, err );
+        if ( err )
+            return err;
     }
     
     // If we don't want output, we are done!
@@ -314,12 +347,13 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
     if ( outlen < 1 || output == nullptr )
         return kSuccess;
 
-    // Otherwise read output data from the socket,
+    // Otherwise read output data from the socket, one byte at a time,
     // until we receieve a terminator character, fill the output buffer, or time out.
     
+#if 0
     int bytesRead = 0;
     double start = clocksec();
-    while ( clocksec() - start < timeout_ms / 1000.0 )
+    while
     {
         int bytes = 0;
         if ( udp )
@@ -327,8 +361,8 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             SSIP sender;
             bytes = _socket.readUDPSocket ( output + bytesRead, outlen - bytesRead, sender, timeout_ms );
             if ( bytes < 0 )
-                return kReadFail;
-         }
+                err = kReadFail;
+        }
         else
         {
             bytes = _socket.readSocket ( nullptr, 0 );
@@ -338,6 +372,7 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             if ( bytes < 1 )
             {
                 usleep ( 1000 );
+                if ( ( clocksec() - start < timeout_ms / 1000.0 ) )
                 continue;
             }
 
@@ -350,8 +385,51 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
         if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
             return kSuccess;
     }
-
-    return kTimedOut;   // we timed out
+#else
+    int bytesRead = 0;
+    if ( udp )
+    {
+        SSIP sender;
+        bytesRead = _socket.readUDPSocket ( output, outlen, sender, timeout_ms );
+        if ( bytesRead < 0 )
+            err = kReadFail;
+        else if ( bytesRead < 1 )
+            err = kTimedOut;
+    }
+    else
+    {
+        double start = clocksec();
+        while ( err == kSuccess )
+        {
+            int bytes = _socket.readSocket ( nullptr, 0 );
+            if ( bytes < 0 )
+            {
+                err = kReadFail;
+                break;
+            }
+            else if ( bytes < 1 )
+            {
+                usleep ( 1000 );
+                if ( clocksec() - start > timeout_ms / 1000.0 )
+                    err = kTimedOut;
+                continue;
+            }
+            
+            bytes = _socket.readSocket ( output + bytesRead, 1 );
+            if ( bytes < 1 )
+                err = kReadFail;
+            else
+                bytesRead += bytes;
+            if ( ( term && output[ bytesRead - 1 ] == term ) || bytesRead == outlen )
+                break;
+        }
+    }
+#endif
+        
+    // Log what we received, return any error code
+    
+    writeLog ( false, output, bytesRead, err );
+    return err;
 }
 
 // Sends data (input) to telescope mount via serial port or TCP socket, and optionally waits for output.
@@ -397,6 +475,74 @@ SSMount::Error SSMount::command ( const string &instr, string &outstr, int outle
 SSMount::Error SSMount::command ( const string &instr )
 {
     return command ( instr.c_str(), (int) instr.length(), nullptr, 0, 0 );
+}
+
+// Opens communication log file at the specified path; overwrites any existing log there.
+// Closes any current log before openeing new one. Returns zero if successful or error code.
+
+SSMount::Error SSMount::openLog ( const string &path )
+{
+    closeLog();
+    
+    _logFile = fopen ( path.c_str(), "w" );
+    if ( _logFile == NULL )
+        return kOpenFail;
+
+    _logStart = clocksec();
+    return kSuccess;
+}
+
+// Writes data to command log file; len is number of bytes of data to write.
+// If input is true, the data is command input; if false, it's output.
+// The error code associated with the communication is err.
+// Returns an error code or zero if successfully able to write to log file.
+
+SSMount::Error SSMount::writeLog ( bool input, const char *data, int len, Error err )
+{
+    if ( _logFile == NULL )
+        return kWriteFail;
+    
+    // write timestamp, input/output flag
+    
+    double timestamp = clocksec() - _logStart;
+    fprintf ( _logFile, "%10.6fs: %s ", timestamp, input ? "send" : "recv" );
+
+    if ( len > 0 )
+    {
+        // If we have data, write in decimal format
+        
+        for ( int i = 0; i < len; i++ )
+            fprintf ( _logFile, "%03d ", (unsigned char) data[i] );
+
+        // Are all data ASCII characters?
+
+        bool ascii = true;
+        for ( int i = 0; i < len; i++ )
+            if ( data[i] < 32 && data[i] != '\r' && data[i] != '\n' && data[i] != '\t' )
+                ascii = false;
+        
+        // If so write ASCII string in quotes
+
+        if ( ascii )
+            fprintf ( _logFile, "\"%s\" ", data );
+     }
+    
+    // Write error code
+    
+    fprintf ( _logFile, err ? "error %d\n" : "success\n", err );
+    return kSuccess;
+}
+
+// Closes communication log file.
+
+void SSMount::closeLog ( void )
+{
+    if ( _logFile != NULL )
+    {
+        fclose ( _logFile );
+        _logFile = NULL;
+        _logStart = 0.0;
+    }
 }
 
 // Obtains current RA/Dec coordinates from mount in J2000 equatorial (fundamental) frame.
@@ -581,12 +727,16 @@ void SSMount::syncAsync ( SSAngle ra, SSAngle dec, AsyncCmdCallback callback, vo
 
 // Overrides and mount-specific methods for Celestron NexStar and SkyWatcher/Orion SynScan controllers.
 // Based on documentation provided here: https://www.nexstarsite.com/PCControl/ProgrammingNexStar.htm
+// SSCelestronMount constructor:
 
 SSCelestronMount::SSCelestronMount ( SSMountType type, SSMountProtocol protocol, SSCoordinates &coords ) : SSMount ( type, coords )
 {
     _protocol = protocol;
     _trackMode = kUnknownTracking;
 }
+
+// Queries current tracking mode from NexStar/SynScan controller.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSCelestronMount::getTrackingMode ( TrackingMode &mode )
 {
@@ -611,6 +761,9 @@ SSMount::Error SSCelestronMount::getTrackingMode ( TrackingMode &mode )
     return kSuccess;
 }
 
+// Changes current tracking mode for NexStar/SynScan controller.
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSCelestronMount::setTrackingMode ( TrackingMode mode )
 {
     char input[4] = { 0 }, output[2] = { 0 };
@@ -621,6 +774,11 @@ SSMount::Error SSCelestronMount::setTrackingMode ( TrackingMode mode )
     Error err = command ( input, 2, output, 1, '#' );
     return err;
 }
+
+// Opens serial or socket connection to NexStar/SynScan controller and reads controller firmware version string.
+// If port is zero, path is a serial device file (like "/dev/ttyUSBserial0" on Linux or "\\.\COM3" on Windows)
+// If port is nonzero, path is mount IP address or fully-qualified domain name (like "10.0.0.1" or "mount.meade.com")
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSCelestronMount::connect ( const string &path, uint16_t port )
 {
@@ -676,6 +834,9 @@ SSMount::Error SSCelestronMount::connect ( const string &path, uint16_t port )
     return kSuccess;
 }
 
+// Gets mount RA/Dec in J2000 mean equatorial (fundamental) frame from NexStar/SynScan controller.
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSCelestronMount::read ( SSAngle &ra, SSAngle &dec )
 {
     Error err = kSuccess;
@@ -727,6 +888,9 @@ SSMount::Error SSCelestronMount::read ( SSAngle &ra, SSAngle &dec )
     return kSuccess;
 }
 
+// Starts GoTo target RA/Dec coordinates in J2000 mean equatorial (fundamental) frame.
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSCelestronMount::slew ( SSAngle ra, SSAngle dec )
 {
     // NexStar HC firmware versions >= 4.18 (and StarSense HC versions > 10) accept RA/Dec
@@ -748,12 +912,17 @@ SSMount::Error SSCelestronMount::slew ( SSAngle ra, SSAngle dec )
     if ( err )
         return err;
     
-    // If successful, save slew target RA/Dec.
+    // If successful, save slew target RA/Dec and set slewing state flag
     
     _slewRA = ra;
     _slewDec = dec;
+    _slewing = true;
     return kSuccess;
 }
+
+// Starts or stops slewing mount on an axis at a positive or negative rate
+// from zero ... maxSlewRate(). If rate is zero, stops slewing on the specified axis.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSCelestronMount::slew ( SSSlewAxis axis, int rate )
 {
@@ -803,6 +972,9 @@ SSMount::Error SSCelestronMount::slew ( SSSlewAxis axis, int rate )
     return kSuccess;
 }
 
+// Stops any in-progress GoTo or slew, and resumes sidereal tracking.
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSCelestronMount::stop ( void )
 {
     char output[2] = { 0 };
@@ -824,6 +996,9 @@ SSMount::Error SSCelestronMount::stop ( void )
     return kSuccess;
 }
 
+// Queries status of a GoTo: true = in progress, false = not slewing.
+// Returns error code or zero if successful.
+
 SSMount::Error SSCelestronMount::slewing ( bool &status )
 {
     char output[2] = { 0 };
@@ -831,9 +1006,12 @@ SSMount::Error SSCelestronMount::slewing ( bool &status )
     if ( err )
         return err;
     
-    status = output[0] == '1';  // response is ASCII '1' or '0'
+    _slewing = status = output[0] == '1';  // response is ASCII '1' or '0'
     return kSuccess;
 }
+
+// Queries mount alignment status: true = aligned, false = not aligned.
+// Returns error code or zero if successful.
 
 SSMount::Error SSCelestronMount::aligned ( bool &status )
 {
@@ -845,6 +1023,9 @@ SSMount::Error SSCelestronMount::aligned ( bool &status )
     status = output[0] == 1;    // response is binary 1 or 0
     return kSuccess;
 }
+
+// Syncs mount on the specified RA/Dec in J2000 mean equatorial (fundamental) coordinates.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSCelestronMount::sync ( SSAngle ra, SSAngle dec )
 {
@@ -883,6 +1064,9 @@ SSMount::Error SSCelestronMount::sync ( SSAngle ra, SSAngle dec )
     return err;
 }
 
+// Sends date, time, and time zone from SSTime object to NexStar/SynScan controller.
+// Returns zero if successful or error code on failure.
+
 SSMount::Error SSCelestronMount::setTime ( SSTime time )
 {
     SSDate date ( time );
@@ -912,6 +1096,9 @@ SSMount::Error SSCelestronMount::setTime ( SSTime time )
     Error err = command ( input, 9, output, 1, '#' );
     return err;
 }
+
+// Send site longitude and latitude from SSSpherical object to NexStar/SynScan controller.
+// Returns zero if successful or error code on failure.
 
 SSMount::Error SSCelestronMount::setSite ( SSSpherical site )
 {
@@ -951,6 +1138,11 @@ SSMeadeMount::SSMeadeMount ( SSMountType type, SSMountProtocol protocol, SSCoord
     _protocol = protocol;
 }
 
+// Opens serial or socket connection to Meade mount and reads mount controller firmware version string.
+// If port is zero, path is a serial device file (like "/dev/ttyUSBserial0" on Linux or "\\.\COM3" on Windows)
+// If port is nonzero, path is mount IP address or fully-qualified domain name (like "10.0.0.1" or "mount.meade.com")
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSMeadeMount::connect ( const string &path, uint16_t port )
 {
     // Open serial communication at 9600 baud, no parity, 8 data bits, 1 stop bit
@@ -986,6 +1178,9 @@ SSMount::Error SSMeadeMount::connect ( const string &path, uint16_t port )
     
     return kSuccess;
 }
+
+// Gets mount RA/Dec in J2000 mean equatorial (fundamental) frame from NexStar/SynScan controller.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMeadeMount::read ( SSAngle &ra, SSAngle &dec )
 {
@@ -1056,6 +1251,9 @@ SSMount::Error SSMeadeMount::setTargetRADec ( SSAngle ra, SSAngle dec )
     return kSuccess;
 }
 
+// Starts GoTo target RA/Dec coordinates in J2000 mean equatorial (fundamental) frame.
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSMeadeMount::slew ( SSAngle ra, SSAngle dec )
 {
     // Send slew target coordinates to mount
@@ -1074,17 +1272,24 @@ SSMount::Error SSMeadeMount::slew ( SSAngle ra, SSAngle dec )
     if ( output[0] != '0' )
         return kInvalidCoords;
     
-    // If successful, save slew target RA/Dec.
+    // If successful, save goto target RA/Dec and set slewing state flag.
     
     _slewRA = ra;
     _slewDec = dec;
+    _slewing = true;
     return kSuccess;
 }
+
+// Stops any in-progress GoTo or slew, and resumes sidereal tracking.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMeadeMount::stop ( void )
 {
     return command ( ":Q#", 0, nullptr, 0, 0 );
 }
+
+// Syncs mount on the specified RA/Dec in J2000 mean equatorial (fundamental) coordinates.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMeadeMount::sync ( SSAngle ra, SSAngle dec )
 {
@@ -1100,6 +1305,10 @@ SSMount::Error SSMeadeMount::sync ( SSAngle ra, SSAngle dec )
     err = command ( ":CM#", output, 255, '#' );
     return err;
 }
+
+// Starts or stops slewing mount on an axis at a positive or negative rate
+// from zero ... maxSlewRate(). If rate is zero, stops slewing on the specified axis.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMeadeMount::slew ( SSSlewAxis axis, int rate )
 {
@@ -1183,6 +1392,9 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
     return err;
 }
 
+// Send site longitude and latitude from SSSpherical object to Meade mount.
+// Returns zero if successful or error code on failure.
+
 SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
 {
     // Send latitude.
@@ -1214,6 +1426,9 @@ SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
 
     return kSuccess;
 }
+
+// Sends date, time, and time zone from SSTime object to Meade mount.
+// Returns zero if successful or error code on failure.
 
 SSMount::Error SSMeadeMount::setTime ( SSTime time )
 {
@@ -1256,12 +1471,16 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
     return kSuccess;
 }
 
+// Queries status of a GoTo: true = in progress, false = not slewing.
+// Returns error code or zero if successful.
+
 SSMount::Error SSMeadeMount::slewing ( bool &status )
 {
-    Error err;
-    
+    Error err = kSuccess;
+
+#if 0
     // Request a string of bars indicating the distance to the current target object.
-    
+
     string output;
     err = command ( ":D#", output, 255, '#' );
     if ( err )
@@ -1269,11 +1488,32 @@ SSMount::Error SSMeadeMount::slewing ( bool &status )
     
     // Autostar returns a single bar if continuing to slew and an empty string otherwise.
     
-    status = output.length() > 1 && output[0] == '|';
+    _slewing = status = output.length() > 1 && output[0] == '|';
     return kSuccess;
+
+#else
+    // The ":D#" commmand is not supported on many Meade clones (Losmany Gemini, AstroPhysics GTO)
+    // so test whether a GoTo is in progress by comparing mount's current RA/Dec to target RA/Dec.
+    
+    if ( _slewing )
+    {
+        SSAngle ra, dec;
+        err = read ( ra, dec );
+        if ( err )
+            return err;
+        
+        SSAngle sep = SSSpherical ( ra, dec ).angularSeparation ( SSSpherical ( _slewRA, _slewDec ) );
+        if ( sep < SSAngle::fromArcmin ( 10 ) )
+            _slewing = false;
+    }
+    
+    status = _slewing;
+    return err;
+#endif
 }
 
-// This probably does not work as intended!
+// Queries mount alignment status: true = aligned, false = not aligned.
+// Returns error code or zero if successful. This probably does not work as intended!
 
 SSMount::Error SSMeadeMount::aligned ( bool &status )
 {

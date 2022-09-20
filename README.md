@@ -1,7 +1,7 @@
 SSCore
 ======
 
-**SSCore** is Southern Stars' astronomical core code and data library. It contains routines for astronomical calculations like time conversion, coordinate transformation, orbital mechanics, lunar and planetary position computation. It also contains functions for importing, storing, and combining data from a variety of astronomical catalogs.
+**SSCore** is Southern Stars' astronomical core code, data, and telescope control library. It contains routines for astronomical calculations like time conversion, coordinate transformation, orbital mechanics, lunar and planetary position computation. It also contains functions for importing, storing, and combining data from a variety of astronomical catalogs. SSCore now includes code for controlling common amateur astronomical telescope mounts from Meade, Celestron, SkyWatcher, and Orion!
 
 SSCore is written in highly portable, modern C++.  It has been tested on MacOS, iOS, Android, Linux, Windows, and web browsers, via [Emscripten](https://emscripten.org).  It uses common STL types and language features (string, vector, map; operator overloading) and stack-based memory management wherever possible to produce compact, highly efficient, optimized code.
 
@@ -17,7 +17,7 @@ If you wish to include any part of the SSCore code in a commercial product, plea
 SSCode
 ------
 
-This directory contains the source code.  Here's an overview of the C++ classes inside the source files:
+This directory contains the source code.  Here's an overview of the C++ classes inside the SSCode directory:
 
 - **_SSAngle:_** Classes for converting angular values from radians to degress/hours, minutes, seconds; and vice-versa.
 - **_SSConstellation:_** This subclass of SSObject stores information for constellations and asterisms, including the official IAU constellation names, abbreviations, boundaries; and shape/figure data.
@@ -30,9 +30,12 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSPSEphemeris:_** Implements Paul Schlyter's planetary and lunar ephemeris, described [here](http://stjarnhimlen.se/comp/ppcomp.html). This is the simplest way to compute planetary/lunar positions with an accuracy of 1-2 arc minutes; SSCore can use it as a fallback when the JPL DE ephemeris is not available. See note on VSOP2013 below.
 - **_SSMatrix:_** Represents a 3x3 matrix, with routines for performing matrix and vector-matrix arithmetic.
 - **_SSMoonEphemeris:_** Computes positions for the major moons of Mars, Jupiter, Saturn, Uranus, Neptune, and Pluto. For Earth's Moon, use SSJPLDEphemeris or SSPSEphemeris.
+- **_SSMount:_** This class implements communication with common amateur telescope mount controllers over serial port and TCP/IP sockets. Supported protocols include Meade LX-200/Autostar, Celestron NexStar, and SkyWatcher/Orion SynScan. 
 - **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations, etc.) Also includes SSObjectArray, a class for storing a collection of objects and saving/loading them from CSV files, with built-in memory management.
 - **_SSOrbit:_** This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.
 - **_SSPlanet:_** This subclass of SSObject represents all solar system objects (not just planets, but also moons, asteroids, comets, satellites, etc.)  Includes methods for computing solar system object positions, velocities, magnitudes, sizes, and rotational parameters.
+- **_SSSerial:_** This class contains routines for low-level serial (RS-232) communication on MacOS, Windows, and Linux. Currently not supported on iOS or Android. 
+- **_SSSocket:_** // This class implements basic IPv4 network TCP and UDP socket communication. TCP server sockets are supported. IPv6 and SSL and not supported. 
 - **_SSStar:_** This subclass of SSObject represents all objects outside the solar system, including stars, star clusters, nebulae, and galaxies. SSStar has special subclasses for double and variable stars, and for deep sky objects.  Includes utility methods for stellar magnitude computations (absolute <-> apparent magnitude, etc.), Moffat-function stellar image profiles, and spectral type properties. 
 - **_SSTime:_** Classes for converting between Julian Dates and calendar dates/times; and between civil (UTC) and dynamic time (TDT).
 - **_SSTLE:_** Routines for reading satellite orbital elements from TLE (Two/Three-Line Element) files, and computing satellite position/velocity from them using the SGP, SGP4, and SDP4 orbit models; and vice-versa.
@@ -80,6 +83,8 @@ This directory contains a test program (SSTest.cpp), which hopefully serves as a
 - **_Windows:_** open **SSTest.sln** in Visual Studio 2017 or later. From Visual Studio's **Build** menu, select **Build Solution**.  Then from the **Debug** menu, select **Start Debugging** (or **Start Without Debugging** if you have selected a Release configuration.)  The Visual Studio project supports both x86 and x64 builds.
 - **_Emscripten:_** cd to the `Emscripten` directory; then type `make run`. You will need to install the [Emscripten build tools](https://emscripten.org/docs/getting_started/downloads.html) version 2.0.8 or later beforehand!  Note, output files from the test run will not be persisted after the test executable quits.
 
+**SSMountTest** is a simple test program for the SSMount telescope mount communication class, and its underlying SSSerial/SSSocket classes. SSMountTest can be compiled for MacOS, Windows, and Linux using the SSTest project (or Makefile) in the respective SSTeast directories for those platforms. SSMountTest.cpp does not build on iOS or Android, but the SSMount class works with socket communication on those mobile platforms.
+
 Version History
 ---------------
 
@@ -90,3 +95,4 @@ Version History
 - **Version 1.5** - 21 Mar 2021: Added Jewish, Moslem, Indian calendars. Handle time zones with IANA names and daylight saving time. More robust angle and time parsing. Handle orbit computations over unlimited date ranges. Fix multi-threading issues; other misc. bug fixes.  
 - **Version 1.6** - 25 Apr 2021: Added star spectral properties API. Add indexing and extensible file formats to SSHTM. Add filters to SKY2000, NGCIC, CSV import/export. Add geocentric velocity calculation, star and planet apparent motion calculations. Updated solar system and nearby star data. Misc. bug fixes. 
 - **Version 1.7** - 05 Jun 2021: Added color index, rotation period, albedo, taxonomy to SSPlanet; added JPL DASTCOM file import; added Tycho and Tycho-2 star catalog import. Compute binary star separation and position. Import General Catalog of Variable Stars, Washington Double Star catalog. SSHTM can now be sublcassed. Misc. bug fixes. 
+- **Version 1.8** - 21 Sep 2022: Added SSSerial, SSSocket, and SSMount for serial and socket-based communication with common amateur telescope mount controllers from Meade, Celestron, SkyWatcher, and Orion. 

@@ -4,6 +4,9 @@
 // Created by Tim DeBenedictis on 9/14/22.
 // Copyright © 2022 Southern Stars. All rights reserved.
 //
+// This class implements communication with common amateur telescope mount
+// controllers over serial port and TCP/IP sockets. Supported protocols include
+// Meade LX-200/Autostar, Celestron NexStar, and SkyWatcher/Orion SynScan.
 
 #ifndef SSMount_hpp
 #define SSMount_hpp
@@ -17,6 +20,8 @@
 #include "SSSocket.hpp"
 #include "SSCoordinates.hpp"
 
+// Mechanical mount families
+
 enum SSMountType
 {
     kAltAzimuthPushMount = 0,   // Dobsonians, manual alt-az forks
@@ -25,13 +30,15 @@ enum SSMountType
     kEquatorialGotoMount = 3    // Computer-driven equatorial mounts
 };
 
+// Mount controller protocol identifiers
+
 enum SSMountProtocol
 {
-    kNoProtocol = 0,
-    kMeadeLX200 = 1000,
-    kMeadeETX = 1001,
-    kCelestronNexStar = 2000,
-    kSkyWatcherSynScan = 2001
+    kNoProtocol = 0,            // No real mount communication - SSMount API works as a mount emulator with this "protocol"
+    kMeadeLX200 = 1000,         // Meade LX-200 classic and LX-200GPS mounts
+    kMeadeETX = 1001,           // Meade Autostar and Audiostar controllers
+    kCelestronNexStar = 2000,   // Celestron NexStar and StarSense controllers
+    kSkyWatcherSynScan = 2001   // SkyWatcher and Orion SynScan controllers
 };
 
 // Directional slew axis identifiers
@@ -42,7 +49,7 @@ enum SSSlewAxis
     kAltDecAxis = 1,          // altitude or Dec axis
 };
 
-// Represents a telescope mount
+// Represents a telescope mount and implements communication with the mount.
 
 class SSMount
 {
@@ -79,8 +86,8 @@ protected:
     SSIP        _addr;          // IP address of telescope mount, only valid for socket connections
     uint16_t    _port;          // TCP or UDP port for socket-based mount communication
     
-    SSAngle _currRA, _currDec;  // Most recent coordinates reported from mount
-    SSAngle _slewRA, _slewDec;  // Slew target coordinates
+    SSAngle _slewRA, _slewDec;  // GoTo target coordinates, in J2000 mean equatorial (fundamental) frame
+    SSAngle _currRA, _currDec;  // Most recent coordinates reported from mount, in fundamental frame
 
     int         _slewRate[2];   // Current slew rate on RA/Azm [0] and Alt/Dec [1] axes
     bool        _slewing;       // true if a GoTo is currently in progress; false otherwise.
@@ -91,6 +98,9 @@ protected:
     int         _retries;       // maximum number of command attempts before assuming failure
     int         _timeout;       // default command communication response timeout, milliseconds
 
+    FILE        *_logFile;      // pointer to open log file; NULL if none
+    double      _logStart;      // log file start time, seconds
+    
     virtual Error connect ( const string &path, uint16_t port, int baud, int party, int data, float stop, bool udp = false );
     Error serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
     Error socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
@@ -129,6 +139,12 @@ public:
 
     void setTimeout ( int millisecs ) { _timeout = millisecs; }
     int  getTimeout ( void ) { return _timeout; }
+
+    // Communication logging to file (for debugging purposes)
+    
+    Error openLog ( const string &path );
+    Error writeLog ( bool input, const char *data, int len, Error err );
+    void closeLog ( void );
 
     // High-level mount commands, synchronous versions
     

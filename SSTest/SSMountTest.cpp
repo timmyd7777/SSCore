@@ -88,6 +88,14 @@ int main ( int argc, const char * argv[] )
         cin >> tcpPort;
     }
     
+    // Get log file path
+    
+    string logPath;
+    cout << "Log file path (0 = no logging): ";
+    cin >> logPath;
+    if ( logPath.back() == '\n' )
+        logPath.pop_back();
+    
     // Initialize telescope and create SSMount instance
     
     SSTime now = SSTime::fromSystem();
@@ -109,6 +117,15 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
+    if ( logPath.length() > 1 )
+    {
+        err = pMount->openLog ( logPath );
+        if ( err )
+            cout << "openLog() returned error "  << SSMountErrors[err] << endl;
+        else
+            cout << "openLog() succeeded!" << endl;
+    }
+    
     // Display mount controller firmware version
     cout << "Mount controller version: " << pMount->getVersion() << endl;
     
