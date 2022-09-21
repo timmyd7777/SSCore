@@ -99,7 +99,7 @@ int main ( int argc, const char * argv[] )
     // Initialize telescope and create SSMount instance
     
     SSTime now = SSTime::fromSystem();
-    SSSpherical here = SSSpherical ( SSAngle::fromDegrees ( -122.0 ), SSAngle::fromDegrees ( 37.0 ) , 0.0 );
+    SSSpherical here = SSSpherical ( SSAngle::fromDegrees ( -122.4194 ), SSAngle::fromDegrees ( 37.7749 ) , 0.0 );
     SSCoordinates coords ( now, here );
     SSMountPtr pMount = SSNewMount ( kAltAzimuthGotoMount, iter->first, coords );
 
@@ -157,11 +157,11 @@ int main ( int argc, const char * argv[] )
     err = pMount->setSite();
     if ( err )
     {
-        cout << "setLonLat() returned error " << SSMountErrors[err] << endl;
+        cout << "setSite() returned error " << SSMountErrors[err] << endl;
         return err;
     }
     
-    cout << "setLonLat() succeded!" << endl;
+    cout << "setSite() succeded!" << endl;
     
     // Test reading RA/Dec
     
@@ -182,17 +182,17 @@ int main ( int argc, const char * argv[] )
     err = pMount->slew ( kAzmRAAxis, rate );
     if ( err )
     {
-        cout << "slew ( kAzmRAAxis, kSlewPositive ) returned error " << err << endl;
+        cout << "slew ( kAzmRAAxis, rate ) returned error " << err << endl;
         return err;
     }
 
-    cout << "slew ( kAzmRAAxis, kSlewPositive ) succeded!" << endl;
+    cout << "slew ( kAzmRAAxis, rate ) succeded!" << endl;
     sleep ( 3 );
     
     err = pMount->slew ( kAzmRAAxis, 0 );
     if ( err )
     {
-        cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << SSMountErrors[err] << endl;
+        cout << "slew ( kAzmRAAxis, 0 ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
@@ -204,21 +204,21 @@ int main ( int argc, const char * argv[] )
     err = pMount->slew ( kAltDecAxis, -rate );
     if ( err )
     {
-        cout << "slew ( kAltDecAxis, kSlewNegative ) returned error " << SSMountErrors[err] << endl;
+        cout << "slew ( kAltDecAxis, -rate ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
-    cout << "slew ( kAltDecAxis, kSlewNegative ) succeded!" << endl;
+    cout << "slew ( kAltDecAxis, -rate ) succeded!" << endl;
     sleep ( 3 );
 
     err = pMount->slew ( kAltDecAxis, 0 );
     if ( err )
     {
-        cout << "slew ( kAzmRAAxis, kSlewOff ) returned error " << SSMountErrors[err] << endl;
+        cout << "slew ( kAzmRAAxis, 0 ) returned error " << SSMountErrors[err] << endl;
         return err;
     }
 
-    cout << "slew ( kAltDecAxis, kSlewOff ) succeded!" << endl;
+    cout << "slew ( kAltDecAxis, 0 ) succeded!" << endl;
     sleep ( 1 );
     
     // After slewing, test reading RA/Dec again

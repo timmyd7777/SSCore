@@ -1283,9 +1283,12 @@ SSMount::Error SSMeadeMount::slew ( SSSlewAxis axis, int rate )
     
     // Set motion rate for subsequent move commands
     
-    err = setSlewRate ( rate );
-    if ( err != kSuccess )
-        return err;
+    if ( rate != 0 )
+    {
+        err = setSlewRate ( abs ( rate ) );
+        if ( err != kSuccess )
+            return err;
+    }
     
     // LX-200 GPS and LX-600 scopes have a firmware bug which causes their east-west motion
     // to be reversed when they are on Alt-Azimuth mounts
@@ -1302,9 +1305,9 @@ SSMount::Error SSMeadeMount::slew ( SSSlewAxis axis, int rate )
     else if ( axis == kAltDecAxis )
     {
         if ( rate > 0 )
-            err = command ( ":Mn#", 0, nullptr, 0, 0 );
+            err = command ( ":Mn#" );
         else if ( rate < 0 )
-            err = command ( ":Ms#", 0, nullptr, 0, 0 );
+            err = command ( ":Ms#" );
         else if ( rate == 0 )
             err = command ( _slewRate[axis] > 0 ? ":Qn#" : ":Qs#" );
     }
@@ -1323,7 +1326,7 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
 {
     Error err = kSuccess;
     
-    if ( abs ( rate ) > maxSlewRate() )
+    if ( rate > maxSlewRate() )
         return kInvalidInput;
     
     if ( _protocol == kMeadeETX )
@@ -1337,10 +1340,7 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
         else if ( rate == 3 )
             err = command ( ":Sw4#", output, 1, 0 );
         
-        if ( err )
-            return err;
-        
-        if ( output.length() < 1 || output[0] != '1' )
+        if ( err == kSuccess && ( output.length() < 1 || output[0] != '1' ) )
             err = kInvalidOutput;
     }
     else
@@ -1363,10 +1363,11 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
 
 SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
 {
-    // Send latitude.
+    // Meade considers east longitude to be negative, and does not accept a sign.
+    // So, send longitude from 0 - 360 degrees and force positive.
 
-    SSDegMinSec lat ( site.lat );
-    string output, input = format ( ":St%c%02hd*%02hd#", lat.sign, lat.deg, lat.min );
+    SSDegMinSec lon ( SSAngle ( mod2pi ( -site.lon ) ) );
+    string input = format ( ":Sg%03hd*%02hd#", lon.deg, lon.min ), output;
     Error err = command ( input, output, 1, 0 );
     if ( err )
         return err;
@@ -1374,21 +1375,17 @@ SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
     if ( output.length() < 1 || output[0] != '1' )
         return kInvalidOutput;
 
-    // Meade considers east longitude to be negative, and does not accept a sign.
-    // So, send longitude from 0 - 360 degrees and force positive.
+    // Send latitude.
 
-    site.lon = -site.lon;
-    if ( site.lon < 0 )
-        site.lon += SSAngle::kTwoPi;
-    
-    SSDegMinSec lon ( site.lon );
-    input = format ( ":Sg%03hd*%02hd#", lat.sign, lat.deg, lat.min );
+    SSDegMinSec lat ( site.lat );
+    input = format ( ":St%c%02hd*%02hd#", lat.sign, lat.deg, lat.min );
     err = command ( input, output, 1, 0 );
     if ( err )
         return err;
     
-    if ( output.length() < 1 || output[0] != '1' )
-        return kInvalidOutput;
+    if ( _protocol != kMeadeETX )
+        if ( output.length() < 1 || output[0] != '1' )
+            return kInvalidOutput;
 
     return kSuccess;
 }
@@ -1400,7 +1397,7 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
 {
     // Send time zone in hours west of UTC
     
-    string input = format ( ":SG%+04.1f#", -time.zone ), output;
+    string input = format ( ":SG%+03.0f#", -time.zone ), output;
     Error err = command ( input, output, 1, 0 );
     if ( err )
         return err;
@@ -1445,16 +1442,16 @@ SSMount::Error SSMeadeMount::slewing ( bool &status )
     Error err = kSuccess;
 
 #if 0
-    // Request a string of bars indicating the distance to the current target object.
+    // Request a string of "bar" chars (0x7f) indicating the distance to the current target object.
 
     string output;
     err = command ( ":D#", output, 255, '#' );
     if ( err )
         return err;
     
-    // Autostar returns a single bar if continuing to slew and an empty string otherwise.
+    // Autostar returns a single 0x7f if continuing to slew and an empty string otherwise.
     
-    _slewing = status = output.length() > 1 && output[0] == '|';
+    _slewing = status = output.length() > 1 && output[0] == 0x7f;
     return kSuccess;
 
 #else
@@ -1469,7 +1466,7 @@ SSMount::Error SSMeadeMount::slewing ( bool &status )
             return err;
         
         SSAngle sep = SSSpherical ( ra, dec ).angularSeparation ( SSSpherical ( _slewRA, _slewDec ) );
-        if ( sep < SSAngle::fromArcmin ( 10 ) )
+        if ( sep < SSAngle::fromDegrees ( 1.0 ) )
             _slewing = false;
     }
     
