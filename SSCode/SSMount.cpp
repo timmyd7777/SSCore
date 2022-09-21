@@ -24,7 +24,7 @@ static SSMountProtocolMap _protocols =
 {
     { kNoProtocol,        "No Protocol" },
     { kMeadeLX200,        "Meade LX200" },
-    { kMeadeETX,          "Meade Autostar" },
+    { kMeadeAutostar,     "Meade Autostar" },
     { kCelestronNexStar,  "Celestron NexStar" },
     { kSkyWatcherSynScan, "Skywatcher SynScan" }
 };
@@ -43,7 +43,7 @@ int SSGetMountProtocols ( SSMountProtocolMap &map )
 
 SSMountPtr SSNewMount ( SSMountType type, SSMountProtocol protocol, SSCoordinates &coords )
 {
-    if ( protocol == kMeadeLX200 || protocol == kMeadeETX )
+    if ( protocol == kMeadeLX200 || protocol == kMeadeAutostar )
         return new SSMeadeMount ( type, protocol, coords );
     
     if ( protocol == kCelestronNexStar || protocol == kSkyWatcherSynScan )
@@ -1330,7 +1330,7 @@ SSMount::Error SSMeadeMount::setSlewRate ( int rate )
     if ( rate > maxSlewRate() )
         return kInvalidInput;
     
-    if ( _protocol == kMeadeETX )
+    if ( _protocol == kMeadeAutostar )
     {
         string output;
         
@@ -1384,7 +1384,7 @@ SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
     if ( err )
         return err;
     
-    if ( _protocol != kMeadeETX )
+    if ( _protocol != kMeadeAutostar )
         if ( output.length() < 1 || output[0] != '1' )
             return kInvalidOutput;
 
@@ -1442,38 +1442,39 @@ SSMount::Error SSMeadeMount::slewing ( bool &status )
 {
     Error err = kSuccess;
 
-#if 0
-    // Request a string of "bar" chars (0x7f) indicating the distance to the current target object.
-
-    string output;
-    err = command ( ":D#", output, 255, '#' );
-    if ( err )
-        return err;
-    
-    // Autostar returns a single 0x7f if continuing to slew and an empty string otherwise.
-    
-    _slewing = status = output.length() > 1 && output[0] == 0x7f;
-    return kSuccess;
-
-#else
-    // The ":D#" commmand is not supported on many Meade clones (Losmany Gemini, AstroPhysics GTO)
-    // so test whether a GoTo is in progress by comparing mount's current RA/Dec to target RA/Dec.
-    
-    if ( _slewing )
+    if ( _protocol == kMeadeAutostar )
     {
-        SSAngle ra, dec;
-        err = read ( ra, dec );
+        // Request a string of "bar" chars (0x7f) indicating the distance to the current target object.
+
+        string output;
+        err = command ( ":D#", output, 255, '#' );
         if ( err )
             return err;
         
-        SSAngle sep = SSSpherical ( ra, dec ).angularSeparation ( SSSpherical ( _slewRA, _slewDec ) );
-        if ( sep < SSAngle::fromDegrees ( 1.0 ) )
-            _slewing = false;
+        // Autostar returns a single 0x7f if continuing to slew and an empty string otherwise.
+        
+        _slewing = status = output.length() > 1 && output[0] == 0x7f;
+    }
+    else
+    {
+        // The ":D#" commmand is not supported on many LX-200 clones (Losmany Gemini, AstroPhysics GTO)
+        // so test whether a GoTo is in progress by comparing mount's current RA/Dec to target RA/Dec.
+        
+        if ( _slewing )
+        {
+            SSAngle ra, dec;
+            err = read ( ra, dec );
+            if ( err )
+                return err;
+            
+            SSAngle sep = SSSpherical ( ra, dec ).angularSeparation ( SSSpherical ( _slewRA, _slewDec ) );
+            if ( sep < SSAngle::fromDegrees ( 1.0 ) )
+                _slewing = false;
+        }
     }
     
     status = _slewing;
     return err;
-#endif
 }
 
 // Queries mount alignment status: true = aligned, false = not aligned.

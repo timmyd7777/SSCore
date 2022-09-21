@@ -36,7 +36,7 @@ enum SSMountProtocol
 {
     kNoProtocol = 0,            // No real mount communication - SSMount API works as a mount emulator with this "protocol"
     kMeadeLX200 = 1000,         // Meade LX-200 classic and LX-200GPS mounts
-    kMeadeETX = 1001,           // Meade Autostar and Audiostar controllers
+    kMeadeAutostar = 1001,      // Meade Autostar and Audiostar controllers
     kCelestronNexStar = 2000,   // Celestron NexStar and StarSense controllers
     kSkyWatcherSynScan = 2001   // SkyWatcher and Orion SynScan controllers
 };
@@ -188,7 +188,7 @@ public:
     
     SSMeadeMount ( SSMountType type, SSMountProtocol variant, SSCoordinates &coords );
 
-    virtual int maxSlewRate ( void ) { return _protocol == kMeadeETX ? 3 : 4; }
+    virtual int maxSlewRate ( void ) { return _protocol == kMeadeAutostar ? 3 : 4; }
     virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec );
