@@ -102,10 +102,26 @@ int main ( int argc, const char * argv[] )
     SSSpherical here = SSSpherical ( SSAngle::fromDegrees ( -122.4194 ), SSAngle::fromDegrees ( 37.7749 ) , 0.0 );
     SSCoordinates coords ( now, here );
     SSMountPtr pMount = SSNewMount ( kAltAzimuthGotoMount, iter->first, coords );
+    if ( pMount == nullptr )
+    {
+        cout << "SSNewMount() failed to create mount; exiting!" << endl;
+        return -1;
+    }
 
+    // If we have a valid log file path, open log first.
+
+    SSMount::Error err = SSMount::kSuccess;
+    if ( logPath.length() > 1 )
+    {
+        err = pMount->openLog ( logPath );
+        if ( err )
+            cout << "openLog() returned error "  << SSMountErrors[err] << endl;
+        else
+            cout << "openLog() succeeded!" << endl;
+    }
+    
     // Open serial or socket connection to mount
     
-    SSMount::Error err = SSMount::kSuccess;
     if ( testPort > 0 )
         err = pMount->connect ( serialPortPaths[ testPort - 1 ], 0 );
     else
@@ -117,15 +133,6 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
-    if ( logPath.length() > 1 )
-    {
-        err = pMount->openLog ( logPath );
-        if ( err )
-            cout << "openLog() returned error "  << SSMountErrors[err] << endl;
-        else
-            cout << "openLog() succeeded!" << endl;
-    }
-    
     // Display mount controller firmware version
     cout << "Mount controller version: " << pMount->getVersion() << endl;
     
@@ -196,7 +203,7 @@ int main ( int argc, const char * argv[] )
         return err;
     }
 
-    cout << "slew ( kAzmRAAxis, kSlewOff ) succeded!" << endl;
+    cout << "slew ( kAzmRAAxis, 0 ) succeded!" << endl;
     sleep ( 1 );
 
     // Test slewing in Altitude/Dec
@@ -321,7 +328,9 @@ int main ( int argc, const char * argv[] )
     cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
     cout << "All tests succeeded!" << endl;
     
-    pMount->disconnect();
+    // SSMount destructor closes log and disconnects
+
+    delete pMount;
     SSSocket::finalize();
     return err;
 }

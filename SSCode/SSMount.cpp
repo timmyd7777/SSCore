@@ -496,6 +496,7 @@ SSMount::Error SSMount::writeLog ( bool input, const char *data, int len, Error 
     // Write error code
     
     fprintf ( _logFile, err ? "error %d\n" : "success\n", err );
+    fflush ( _logFile );
     return kSuccess;
 }
 
