@@ -597,6 +597,22 @@ SSMount::Error SSMount::setSite ( SSSpherical site )
     return kSuccess;
 }
 
+// Reads local date, time, and time zone from mount. Implemented by SSMount subclasses.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSMount::getTime ( SSTime &time )
+{
+    return kSuccess;
+}
+
+// Reads local site longitude and latitude from mount. Implemented by SSMount subclasses.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSMount::getSite ( SSSpherical &site )
+{
+    return kSuccess;
+}
+
 // Aynchronous read command. Launches read() in a background thread,
 // calls callback with error code and userData when command returns.
 // Obtain updated mount RA/Dec with getRA and getDec() accessors.
@@ -1064,7 +1080,7 @@ SSMount::Error SSCelestronMount::setTime ( SSTime time )
     return err;
 }
 
-// Send site longitude and latitude from SSSpherical object to NexStar/SynScan controller.
+// Send site longitude and latitude from SSSpherical object to .
 // Returns zero if successful or error code on failure.
 
 SSMount::Error SSCelestronMount::setSite ( SSSpherical site )
@@ -1092,6 +1108,38 @@ SSMount::Error SSCelestronMount::setSite ( SSSpherical site )
 
     Error err = command ( input, 9, output, 1, '#' );
     return err;
+}
+
+// Reads local date, time, and time zone from NexStar/SynScan controller to SSTime object.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSCelestronMount::getTime ( SSTime &time )
+{
+    char output[10] = { 0 };
+    Error err = command ( "h", 0, output, 10, '#' );
+    if ( err )
+        return err;
+
+    SSDate date ( kGregorian, output[6] + output[7], output[5] + 2000, output[3], output[4], output[0], output[1], output[2] );
+    time = SSTime ( date );
+    return kSuccess;
+}
+
+// Reads local site longitude and latitude from NexStar/SynScan controller to SSpherical object.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSCelestronMount::getSite ( SSSpherical &site )
+{
+    char output[10] = { 0 };
+    Error err = command ( "w", 0, output, 10, '#' );
+    if ( err )
+        return err;
+
+    SSDegMinSec lon ( output[7] ? '-' : '+', output[4], output[5], output[6] );
+    SSDegMinSec lat ( output[3] ? '-' : '+', output[0], output[1], output[2] );
+    
+    site = SSSpherical ( SSAngle ( lon ), SSAngle ( lat ) );
+    return kSuccess;
 }
 
 // Overrides and mount-specific methods for Meade LX-200 and Autostar/ETX controllers
@@ -1435,6 +1483,76 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
     if ( output.length() < 1 || output[0] != '1' )
         return kInvalidOutput;
 
+    return kSuccess;
+}
+
+// Reads local date, time, and time zone from LX-200/Autostar controller to SSpherical object.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSMeadeMount::getTime ( SSTime &time )
+{
+    SSDate date;
+
+    // Read time zone.
+    
+    string output;
+    Error err = command ( ":GG#", output, 7, '#' );
+    if ( err )
+        return err;
+
+    date.zone = -strtofloat64 ( output );
+    
+    // Read local time
+    
+    err = command ( ":GL#", output, 10, '#' );
+    if ( err )
+        return err;
+    
+    if ( sscanf ( output.c_str(), "%hd:%hd:%lf", &date.hour, &date.min, &date.sec ) < 3 )
+        return kInvalidOutput;
+    
+    // Read current local calendar date
+    
+    err = command ( ":GC#", output, 10, '#' );
+    if ( err )
+        return err;
+    
+    if ( sscanf ( output.c_str(), "%hd/%hd/%d", &date.month, &date.day, &date.year ) < 3 )
+        return kInvalidOutput;
+
+    // Convert to SSTime and return successful result code
+    
+    time = SSTime ( date );
+    return kSuccess;
+}
+
+// Reads local site longitude and latitude from LX-200/Autostar controller to SSpherical object.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSMeadeMount::getSite ( SSSpherical &site )
+{
+    // Read latitude
+    
+    string output;
+    Error err = command ( ":Gt#", output, 9, '#' );
+    if ( err )
+        return err;
+    
+    output[3] = ' ';
+    SSDegMinSec lat ( output );
+    
+    // Read longitude. Note Meade considers east positive!
+    
+    err = command ( ":Gg#", output, 10, '#' );
+    if ( err )
+        return err;
+    
+    output[4] = ' ';
+    SSDegMinSec lon ( output );
+    
+    // Convert to SSSpherical and return successful result code
+
+    site = SSSpherical ( -SSAngle ( lon ), SSAngle ( lat ) );
     return kSuccess;
 }
 

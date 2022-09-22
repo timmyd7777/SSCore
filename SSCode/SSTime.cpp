@@ -382,11 +382,17 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
 // Constructs date from string using the same format argument(s) as strptime().
 // Date will be filled with zeros if string not parsed sucessfully.
 
-SSDate::SSDate ( const string &fmt, const string &str )
+SSDate::SSDate ( const string &fmt, const string &str ) : SSDate()
+{
+    parse ( fmt, str );
+}
+
+// Default constructor sets all members to zero.
+
+SSDate::SSDate ( void )
 {
     year = month = day = sec = hour = min = sec = zone = 0;
     calendar = kGregorian;
-    parse ( fmt, str );
 }
 
 // Returns an SSDate object representing the calendar date that corresponds

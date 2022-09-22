@@ -141,46 +141,61 @@ int main ( int argc, const char * argv[] )
     bool status = false;
     err = pMount->aligned ( status );
     if ( err )
-    {
         cout << "aligned() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
+    else
+        cout << "Mount is " << ( status ? "aligned!" : "NOT aligned!" ) << endl;
     
-    cout << "Mount is " << ( status ? "aligned!" : "NOT aligned!" ) << endl;
+    // Test getting date/time
+    
+    SSTime mountTime;
+    err = pMount->getTime ( mountTime );
+    if ( err )
+        cout << "getTime() returned error " << SSMountErrors[err] << endl;
+    else
+        cout << "getTime() returned " << SSDate ( mountTime ).format ( "%Y/%m/%d %H:%M:%S UTC%z" ) << endl;
     
     // Test setting date/time
     
     err = pMount->setTime();
     if ( err )
-    {
         cout << "setTime() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
+    else
+        cout << "setTime() succeded!" << endl;
     
-    cout << "setTime() succeded!" << endl;
+    // Test getting date/time again, after setting
     
+    err = pMount->getTime ( mountTime );
+    if ( err )
+        cout << "getTime() returned error " << SSMountErrors[err] << endl;
+    else
+        cout << "getTime() returned " << SSDate ( mountTime ).format ( "%Y/%m/%d %H:%M:%S UTC%z" ) << endl;
+    
+    // Test getting longitude/latitude
+    
+    SSSpherical mountSite;
+    err = pMount->getSite ( mountSite );
+    if ( err )
+        cout << "getSite() returned error " << SSMountErrors[err] << endl;
+    else
+        cout << "getSite() returned longitude " << SSDegMinSec ( mountSite.lon ).toString()
+                                << " latitude " << SSDegMinSec ( mountSite.lat ).toString() << endl;
+
     // Test setting longitude/latitude
     
     err = pMount->setSite();
     if ( err )
-    {
         cout << "setSite() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-    
-    cout << "setSite() succeded!" << endl;
+    else
+        cout << "setSite() succeded!" << endl;
     
     // Test reading RA/Dec
     
     SSAngle ra, dec;
     err = pMount->read ( ra, dec );
     if ( err )
-    {
         cout << "read() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
+    else
+        cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
     sleep ( 1 );
     
     // Test slewing in Azimuth/RA
@@ -188,44 +203,36 @@ int main ( int argc, const char * argv[] )
     int rate = pMount->maxSlewRate();
     err = pMount->slew ( kAzmRAAxis, rate );
     if ( err )
-    {
         cout << "slew ( kAzmRAAxis, rate ) returned error " << err << endl;
-        return err;
-    }
-
-    cout << "slew ( kAzmRAAxis, rate ) succeded!" << endl;
+    else
+        cout << "slew ( kAzmRAAxis, rate ) succeded!" << endl;
     sleep ( 3 );
+    
+    // Stop slewing in azimuth/RA
     
     err = pMount->slew ( kAzmRAAxis, 0 );
     if ( err )
-    {
         cout << "slew ( kAzmRAAxis, 0 ) returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "slew ( kAzmRAAxis, 0 ) succeded!" << endl;
+    else
+        cout << "slew ( kAzmRAAxis, 0 ) succeded!" << endl;
     sleep ( 1 );
 
     // Test slewing in Altitude/Dec
     
     err = pMount->slew ( kAltDecAxis, -rate );
     if ( err )
-    {
         cout << "slew ( kAltDecAxis, -rate ) returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "slew ( kAltDecAxis, -rate ) succeded!" << endl;
+    else
+        cout << "slew ( kAltDecAxis, -rate ) succeded!" << endl;
     sleep ( 3 );
 
+    // Stop slewing in Altitude/Dec
+    
     err = pMount->slew ( kAltDecAxis, 0 );
     if ( err )
-    {
         cout << "slew ( kAzmRAAxis, 0 ) returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "slew ( kAltDecAxis, 0 ) succeded!" << endl;
+    else
+        cout << "slew ( kAltDecAxis, 0 ) succeded!" << endl;
     sleep ( 1 );
     
     // After slewing, test reading RA/Dec again
@@ -233,48 +240,36 @@ int main ( int argc, const char * argv[] )
     SSAngle ra0 = ra, dec0 = dec;
     err = pMount->read ( ra, dec );
     if ( err )
-    {
         cout << "read() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
+    else
+        cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
     sleep ( 1 );
 
     // Test slewing by issuing a GoTo back to the original RA/Dec
     
     err = pMount->slew ( ra0, dec0 );
     if ( err )
-    {
         cout << "slew ( ra0, dec0 ) returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "slew ( ra0, dec0 ) succeded!" << endl;
+    else
+        cout << "slew ( ra0, dec0 ) succeded!" << endl;
     sleep ( 1 );
 
-    // ... but kill the GoTo after 1 second!
+    // ... but stop the GoTo after 1 second!
     
     err = pMount->stop();
     if ( err )
-    {
         cout << "stop() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "stop() succeded!" << endl;
+    else
+        cout << "stop() succeded!" << endl;
     sleep ( 1 );
     
     // Finally resume GoTo to original RA/Dec
     
     err = pMount->slew ( ra0, dec0 );
     if ( err )
-    {
         cout << "slew ( ra0, dec0 ) returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "slew ( ra0, dec0 ) succeded!" << endl;
+    else
+        cout << "slew ( ra0, dec0 ) succeded!" << endl;
     sleep ( 1 );
 
     // Test slewing() status query
@@ -284,12 +279,9 @@ int main ( int argc, const char * argv[] )
     {
         err = pMount->slewing ( status );
         if ( err )
-        {
             cout << "slewing() returned error " << SSMountErrors[err] << endl;
-            return err;
-        }
-        
-        cout << "Still slewing..." << endl;
+        else
+            cout << "Still slewing..." << endl;
         sleep ( 1 );
     }
     
@@ -297,36 +289,26 @@ int main ( int argc, const char * argv[] )
     
     err = pMount->read ( ra, dec );
     if ( err )
-    {
         cout << "read() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
+    else
+        cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
 
     // Sync on initial RA/Dec
     
     err = pMount->sync ( ra0, dec0 );
     if ( err )
-    {
         cout << "sync() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "sync() succeded!" << endl;
+    else
+        cout << "sync() succeded!" << endl;
     sleep ( 1 );
     
     // Read RA/Dec after sync
     
     err = pMount->read ( ra, dec );
     if ( err )
-    {
         cout << "read() returned error " << SSMountErrors[err] << endl;
-        return err;
-    }
-
-    cout << "RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
-    cout << "All tests succeeded!" << endl;
+    else
+        cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
     
     // SSMount destructor closes log and disconnects
 

@@ -49,6 +49,7 @@ struct SSDate
     SSDate ( SSCalendar calendar, double zone, int year, short month, double dayf );
     SSDate ( SSTime time, SSCalendar calendar = kGregorianJulian );
     SSDate ( const string &fmt, const string &str );
+    SSDate ( void );
     
     static SSDate fromJulianDate ( SSTime time, SSCalendar cal );
     SSTime toJulianDate ( void );

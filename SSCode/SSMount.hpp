@@ -157,6 +157,8 @@ public:
     virtual Error aligned ( bool &status );                      // queries whether mount is currently aligned or not
     virtual Error setTime ( SSTime time );                       // send local date, time, and time zone to mount
     virtual Error setSite ( SSSpherical site );                  // send local site longitude and latitude to mount
+    virtual Error getTime ( SSTime &time );                      // read local date, time, and time zone from mount
+    virtual Error getSite ( SSSpherical &site );                 // read local site longitude and latitude from mount
 
     // High-level mount commands, asynchronous versions
     
@@ -171,7 +173,7 @@ public:
     
     Error setTime ( void ) { return setTime ( _coords.getTime() ); }
     Error setSite ( void ) { return setSite ( _coords.getLocation() ); }
-    
+
     virtual int maxSlewRate ( void ) { return 4; }
 };
 
@@ -199,6 +201,8 @@ public:
     virtual Error aligned ( bool &status );
     virtual Error setTime ( SSTime time );
     virtual Error setSite ( SSSpherical site );
+    virtual Error getTime ( SSTime &time );
+    virtual Error getSite ( SSSpherical &site );
 };
 
 // Overrides for Celestron mounts
@@ -236,6 +240,8 @@ public:
     virtual Error aligned ( bool &status );
     virtual Error setTime ( SSTime time );
     virtual Error setSite ( SSSpherical site );
+    virtual Error getTime ( SSTime &time );
+    virtual Error getSite ( SSSpherical &site );
 };
 
 // Obtains map of supported mount protocol names, indexed by protocol identifier
