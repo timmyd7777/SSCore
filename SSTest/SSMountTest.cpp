@@ -188,7 +188,14 @@ int main ( int argc, const char * argv[] )
     else
         cout << "setSite() succeded!" << endl;
     
-    // Test reading RA/Dec
+    // Test getting longitude/latitude after changing site
+    
+    err = pMount->getSite ( mountSite );
+    if ( err )
+        cout << "getSite() returned error " << SSMountErrors[err] << endl;
+    else
+        cout << "getSite() returned longitude " << SSDegMinSec ( mountSite.lon ).toString()
+                                << " latitude " << SSDegMinSec ( mountSite.lat ).toString() << endl;
     
     SSAngle ra, dec;
     err = pMount->read ( ra, dec );

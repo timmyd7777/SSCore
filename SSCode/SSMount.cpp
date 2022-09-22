@@ -1522,6 +1522,7 @@ SSMount::Error SSMeadeMount::getTime ( SSTime &time )
 
     // Convert to SSTime and return successful result code
     
+    date.year += 2000;
     time = SSTime ( date );
     return kSuccess;
 }
