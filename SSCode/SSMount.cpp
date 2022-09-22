@@ -1384,6 +1384,9 @@ SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
     if ( err )
         return err;
     
+    // Autostar #497 controllers always return '0', so ignore output.
+    // Otherwise '0' indicates failure and '1' indicates success.
+    
     if ( _protocol != kMeadeAutostar )
         if ( output.length() < 1 || output[0] != '1' )
             return kInvalidOutput;
