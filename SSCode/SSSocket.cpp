@@ -10,8 +10,10 @@
 // Based primarily on example code from Beej's Guide to Network Programming:
 // https://beej.us/guide/bgnet/html/
 
-#include "SSSocket.hpp"
 #include <string.h>
+
+#include "SSSocket.hpp"
+#include "SSUtilities.hpp"
 
 #ifdef _MSC_VER
 
@@ -713,3 +715,263 @@ bool SSSocket::isUDPSocket ( void )
     
     return false;
 }
+
+// SSHTTP constructor parses URL strings like "http://www.southernstars.com:8080/updates/asteroids.txt".
+// Communication timeout is milliseconds. All other class members are set to default values.
+
+SSHTTP::SSHTTP ( const string &url, uint32_t timeout )
+{
+    setURL ( url );
+    _timeout = timeout;
+    _respCode = 0;
+    _contLen = 0;
+}
+
+// Destructor closes socket, if open.
+
+SSHTTP::~SSHTTP ( void )
+{
+    if ( _socket.socketOpen() )
+        _socket.closeSocket();
+}
+
+// Sets and parses URL for future requests.
+
+void SSHTTP::setURL ( const string &url )
+{
+    // extract resource type
+    
+    size_t s = url.find ( "://" );
+    _type = s == string::npos ? "" : url.substr ( 0, s );
+    
+    // extract hostname and/or resource path
+    
+    _url = url.substr ( s + 3, string::npos );
+    size_t t = _url.find ( "/" );
+    if ( t == string::npos )
+    {
+        _host = _url;
+        _port = 80;
+        _path = "/";
+    }
+    else    // extract host and port if present
+    {
+        size_t p = _url.find ( ":" );
+        if ( p == string::npos )
+        {
+            _port = 80;   // Just default port for http
+            _host = _url.substr ( 0, t );
+        }
+        else
+        {
+            _port = strtoint ( _url.substr ( p + 1, t ) );
+            _host = _url.substr ( 0, p );
+        }
+
+        // extract resource path
+        
+        _path = _url.substr ( t, string::npos );
+    }
+    
+    // save original URL
+    
+    _url = url;
+}
+
+// Opens socket to remote server at the specified URL and writes HTTP request header to that socket.
+// If postSize == 0, writes a GET request; otherwise, writes a POST request.
+// Leaves socket open. Returns number of bytes of header data sent to server.
+
+int SSHTTP::sendRequestHeader ( size_t postSize )
+{
+    if ( ! _socket.socketOpen() )
+    {
+        // Parse server IP address from path string, first as dotted form,
+        // then as fully-qualified domain name string using DNS.
+        
+        SSIP addr ( _host );
+        vector<SSIP> addrs;
+        if ( addr )
+            addrs.push_back ( addr );
+        else
+            addrs = SSSocket::hostNameToIPs ( _host );
+        
+        // Try connecting to all IP addresses and save the first that succeeds.
+        
+        for ( int i = 0; i < addrs.size(); i++ )
+            if ( _socket.openSocket ( addrs[i], _port, _timeout ) )
+                break;
+    }
+
+    if ( ! _socket.socketOpen() )
+        return 0;
+    
+    // format HTTP POST or GET command.
+    // TODO: add content type to POST command?
+    
+    string header;
+    if ( postSize > 0 )
+        header = format ( "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Length: %ld\r\n\r\n", _path.c_str(), _host.c_str(), postSize );
+    else
+        header = format ( "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", _path.c_str(), _host.c_str() );
+
+    // Sender header to the server via socket
+
+    return _socket.writeSocket( &header[0], (int) header.length() );
+}
+
+// Returns value string corresponding to specified keyword in HTTP response header.
+// If keyword is not found, returns empty string.
+
+static string headerValue ( const string &header, const string &key )
+{
+    size_t keylen = key.length();
+    size_t start = header.find ( key );
+    if ( start == string::npos )
+        return "";
+    
+    start += keylen;
+    size_t end = header.find ( "\r\n", start );
+    if ( end == string::npos )
+        return "";
+    
+    return header.substr ( start, end - start );
+}
+
+// Reads HTTP response headers from server socket into _respHead, until double newline is received,
+// or timeout occurs. If complete header is received, the method parses response code, content length,
+// content type, etc. from the header. Returns number of bytes read from server.
+
+int SSHTTP::readResponseHeader ( void )
+{
+    int     n = 0;
+    double  timeout = clocksec() + _timeout / 1000.0;
+    string  header;
+    
+    while ( clocksec() < timeout )
+    {
+        char c;
+        int bytes = _socket.readSocket ( &c, 1 );
+        if ( bytes < 1 )
+        {
+            usleep ( 1000 );
+            continue;
+        }
+
+        header += c;
+        n += bytes;
+        timeout = clocksec() + _timeout / 1000.0;
+        if ( endsWith ( header, "\n\n" ) || endsWith ( header, "\r\n\r\n" ) )
+            break;
+    }
+    
+    _respHead = header;
+    if ( clocksec() < timeout )
+    {
+        _respCode = strtoint ( headerValue ( header, "HTTP/1.1 " ) );
+        _contLen = strtoint ( headerValue ( header, "Content-Length: " ) );
+        _contType = headerValue ( header, "Content-Type: " );
+    }
+    else
+    {
+        _respCode = 0;
+        _contLen = 0;
+        _contType = "";
+    }
+    
+    _content = vector<char> ( 0 );
+    return n;
+}
+
+// Reads content from server into internal content buffer.
+// Returns number of bytes read from server.
+// TODO: what if _contentLength is not specified?
+
+int SSHTTP::readContent ( void )
+{
+    // Make sure socket is open and content length is valid
+    
+    if ( ! _socket.socketOpen() || _contLen < 1 )
+        return 0;
+    
+    // read content until timeout, error, or content buffer filled.
+    
+    int pos = 0;
+    double timeout = clocksec() + _timeout / 1000.0;
+    while ( clocksec() < timeout )
+    {
+        _content = vector<char> ( _contLen );
+        memset ( &_content[0], 0, _contLen );
+        int bytes = _socket.readSocket ( &_content[pos], (int) _contLen - pos );
+        if ( bytes < 0 )
+            break;
+        
+        if ( bytes < 1 )
+        {
+            usleep ( 1000 );
+            continue;
+        }
+        
+        timeout = clocksec() + _timeout / 1000.0;
+
+        pos += bytes;
+        if ( pos == _contLen )
+            break;
+    }
+
+    // Return number of bytes actually read
+    
+    return pos;
+}
+
+// Writes content up to len bytes in size to server.
+// Returns number of bytes written to server.
+
+int SSHTTP::sendContent ( const void *content, size_t len )
+{
+    if ( ! _socket.socketOpen() || len < 1 )
+        return 0;
+    
+    int bytes = _socket.writeSocket ( content, (int) len );
+    if ( bytes == len && _socket.socketOpen() )
+        bytes += _socket.writeSocket ( "\r\n", 2 );
+    
+    return bytes;
+}
+
+// GETs content from server to internal _content buffer.
+// Returns HTTP response code or 0 on failure.
+
+int SSHTTP::get ( void )
+{
+    sendRequestHeader();
+    readResponseHeader();
+    readContent();
+    return _respCode;
+}
+
+// POSTs content in postData buffer of postSize length in bytes.
+// Returns HTTP response code or 0 on failure.
+
+int SSHTTP::post ( const void *postData, size_t postSize )
+{
+    sendRequestHeader ( postSize );
+    sendContent ( postData, postSize );
+    readResponseHeader();
+    readContent();
+    return _respCode;
+}
+
+// POSTs content that has previously been set with setContent().
+
+int SSHTTP::post ( void )
+{
+    return post ( &_content[0], _content.size() );
+}
+
+void SSHTTP::setContent ( const void *content, size_t size )
+{
+    _content = vector<char> ( size );
+    memcpy ( &_content[0], content, size );
+}
+

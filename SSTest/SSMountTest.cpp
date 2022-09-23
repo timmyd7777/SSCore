@@ -19,6 +19,7 @@
 #include <thread>
 
 #include "SSMount.hpp"
+#include "SSSocket.hpp"
 #include "SSUtilities.hpp"
 
 map<SSMount::Error,string> SSMountErrors =
@@ -35,8 +36,32 @@ map<SSMount::Error,string> SSMountErrors =
     { SSMount::kTimedOut, "kTimedOut" }
 };
 
+void testHTTP ( void )
+{
+    string raw = "Fünky $triñg!";
+    string enc = urlEncode ( raw );
+    string dec = urlDecode ( enc );
+    
+    cout << raw << endl;
+    cout << enc << endl;
+    cout << dec << endl;
+
+//    SSHTTP request ( "http://10.0.0.1/updates/asteroids.txt" );
+    SSHTTP request ( "http://www.southernstars.com/updates/asteroids.txt" );
+
+    cout << request.getURL() << endl;
+    cout << request.getHost() << endl;
+    cout << request.getPort() << endl;
+    cout << request.getPath() << endl;
+
+    request.get();
+    request.post( "This is some content", 20 );
+}
+
 int main ( int argc, const char * argv[] )
 {
+    testHTTP();
+    
     // Display list of supported mount protocols, select one to use for testing
     
     SSMountProtocolMap protoMap;

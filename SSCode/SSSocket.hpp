@@ -64,7 +64,7 @@ public:
     // Accessor returns native socket
     
     SOCKET getSocket ( void ) { return _socket; }
-    
+
     // Socket library initialiation and cleanup - call once at program startup and exit
     
     static bool initialize ( void );
@@ -97,6 +97,66 @@ public:
     int writeUDPSocket ( const void *data, int size, SSIP destIP, unsigned short destPort );
     int readUDPSocket ( void *data, int size, SSIP &senderIP, int timeout_ms );
     bool isUDPSocket ( void );
+};
+
+// Implements basic HTTP 1.1 requests and responses using SSSocket class.
+// All communication is synchronous on the current thread.
+
+class SSHTTP
+{
+protected:
+    string      _url;           // Uniform Resource Locator for this request
+    string      _type;          // resource type ("http", "https", "file", etc.)
+    string      _host;          // hostname of server
+    uint16_t    _port;          // TCP port for server
+    string      _path;          // path of desired resource on server
+    uint32_t    _timeout;       // communication timeout [milliseconds]
+    
+    SSSocket    _socket;        // TCP socket connection to server
+    
+    string      _respHead;      // response header string; empty until request is sent
+    int         _respCode;      // response code: 200 = OK, 404 = Not Found, etc.
+    size_t      _contLen;       // response content length, bytes
+    string      _contType;      // response content MIME type string
+    vector<char> _content;      // buffer containing received content
+
+    int sendRequestHeader ( size_t postSize = 0 );
+    int readResponseHeader ( void );
+    int readContent ( void );
+    int sendContent ( const void *content, size_t len );
+    
+public:
+    
+    // constructor, destructor
+    
+    SSHTTP ( const string &url, uint32_t timeout = 60000 );
+    virtual ~SSHTTP ( void );
+    
+    // accessors and modifiers
+
+    string getURL ( void ) { return _url; }
+    uint32_t getTimeout ( void ) { return _timeout; }
+    string getHost ( void ) { return _host; }
+    uint16_t getPort ( void ) { return _port; }
+    string getPath ( void ) { return _path; }
+    string getResponseHeaders ( void ) { return _respHead; }
+    int getResponseCode ( void ) { return _respCode; }
+    size_t getContentLength ( void ) { return _contLen; }
+    string getContentType ( void ) { return _contType; }
+    const void *getContent ( void ) { return &_content[0]; }
+    size_t getContentSize ( void ) { return _content.size(); }
+    
+    void setURL ( const string &url );
+    void setTimeout ( uint32_t timeout ) { _timeout = timeout; }
+    void setContentLength ( size_t len ) { _contLen = len; }
+    void setContentType ( string type ) { _contType = type; }
+    void setContent ( const void *content, size_t size );
+    
+    // high-level requests
+    
+    int get ( void );
+    int post ( void );
+    int post ( const void *postData, size_t postSize );
 };
 
 #endif /* SSSocket_hpp */

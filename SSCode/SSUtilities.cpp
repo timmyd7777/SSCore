@@ -627,3 +627,50 @@ time_t filetime ( const string &path )
     else
         return 0;
 }
+
+// Returns a string which is the URL-encoded form of the source string (src).
+// See https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+
+string urlEncode ( const string &src )
+{
+    string dst;
+    
+    for ( char c : src )
+    {
+        if ( isalnum ( c ) || c == '-' || c == '_' || c == '.' || c == '~' )
+            dst += c;
+        else if ( c == ' ' )
+            dst += '+';
+        else
+            dst += format ( "%%%02X", (unsigned char) c );
+    }
+        
+    return dst;
+}
+
+// Returns a string which is the URL-decoded form of the source string (src).
+// See https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+
+string urlDecode ( const string &src )
+{
+    string dst;
+    size_t len = src.length();
+    
+    for ( int i = 0; i < len; i++ )
+    {
+        char c = src[i];
+        if ( c == '%' && i + 2 < len )
+        {
+            int ii = 0;
+            if ( sscanf ( src.substr ( i + 1, 2 ).c_str(), "%x", &ii ) )
+                dst += ii;
+            i += 2;
+        }
+        else if ( c == '+' )
+            dst += ' ';
+        else
+            dst += c;
+    }
+    
+    return dst;
+}

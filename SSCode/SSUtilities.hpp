@@ -106,4 +106,7 @@ void set_timezonename ( string zonename );
 size_t filesize ( const string &path );
 time_t filetime ( const string &path );
 
+string urlEncode ( const string &src );
+string urlDecode ( const string &src );
+
 #endif /* SSUtilities_hpp */
