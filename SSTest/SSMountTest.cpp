@@ -46,8 +46,8 @@ void testHTTP ( void )
     cout << enc << endl;
     cout << dec << endl;
 
-//    SSHTTP request ( "http://10.0.0.1/updates/asteroids.txt" );
-    SSHTTP request ( "http://www.southernstars.com/updates/asteroids.txt" );
+    SSHTTP request ( "http://10.0.0.1/updates/asteroids.txt" );
+//    SSHTTP request ( "http://www.southernstars.com/updates/asteroids.txt" );
 
     cout << request.getURL() << endl;
     cout << request.getHost() << endl;
@@ -55,6 +55,12 @@ void testHTTP ( void )
     cout << request.getPath() << endl;
 
     request.get();
+
+    cout << "Response code: " << request.getResponseCode() << endl;
+    cout << "Content length: " << request.getContentLength() << endl;
+    cout << "Content type: " << request.getContentType() << endl;
+    cout << request.getContentString() << endl;
+
     request.post( "This is some content", 20 );
 }
 

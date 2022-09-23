@@ -145,13 +145,15 @@ public:
     string getContentType ( void ) { return _contType; }
     const void *getContent ( void ) { return &_content[0]; }
     size_t getContentSize ( void ) { return _content.size(); }
-    
+    string getContentString ( void );
+
     void setURL ( const string &url );
     void setTimeout ( uint32_t timeout ) { _timeout = timeout; }
     void setContentLength ( size_t len ) { _contLen = len; }
     void setContentType ( string type ) { _contType = type; }
     void setContent ( const void *content, size_t size );
-    
+    void setContentString ( const string &str );
+
     // high-level requests
     
     int get ( void );

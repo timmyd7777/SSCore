@@ -969,9 +969,27 @@ int SSHTTP::post ( void )
     return post ( &_content[0], _content.size() );
 }
 
+// Copies content of size bytes into internal _content vector
+
 void SSHTTP::setContent ( const void *content, size_t size )
 {
     _content = vector<char> ( size );
     memcpy ( &_content[0], content, size );
 }
 
+// Returns string copied from internal _content buffer
+
+string SSHTTP::getContentString ( void )
+{
+    _content.push_back ( '\0' );
+    string s ( &_content[0] );
+    _content.pop_back();
+    return s;
+}
+
+// Copies string into internal _content buffer
+
+void SSHTTP::setContentString ( const string &s )
+{
+    setContent ( &s[0], s.length() );
+}

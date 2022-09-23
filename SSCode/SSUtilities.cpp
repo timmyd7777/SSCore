@@ -635,14 +635,14 @@ string urlEncode ( const string &src )
 {
     string dst;
     
-    for ( char c : src )
+    for ( unsigned char c : src )
     {
-        if ( isalnum ( c ) || c == '-' || c == '_' || c == '.' || c == '~' )
+        if ( ::isalnum ( c ) || c == '-' || c == '_' || c == '.' || c == '~' )
             dst += c;
         else if ( c == ' ' )
             dst += '+';
         else
-            dst += format ( "%%%02X", (unsigned char) c );
+            dst += format ( "%%%02X", c );
     }
         
     return dst;
