@@ -99,8 +99,14 @@ SSIP::SSIP ( void )
 
 SSIP::SSIP ( const string &str )
 {
-    if ( inet_aton ( str.c_str(), &addr ) == 0 )
+#ifdef _MSC_VER
+    addr.s_addr = inet_addr ( str.c_str() );
+    if ( addr.s_addr == INADDR_NONE )
         addr.s_addr = 0;
+#else
+    if ( inet_pton ( AF_INET, str.c_str(), &addr ) == 0 )
+        addr.s_addr = 0;
+#endif
 }
 
 // SSIP constructor from platform-native IPv4 address struct
