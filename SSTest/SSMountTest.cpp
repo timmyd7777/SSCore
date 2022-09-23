@@ -38,8 +38,16 @@ map<SSMount::Error,string> SSMountErrors =
 
 int main ( int argc, const char * argv[] )
 {
-    SSHTTPtest();
+    // Get current location from IP address - this tests SSHTTP API!
     
+    SSSpherical here;
+    if ( SSLocationFromIP ( here ) )
+        cout << "SSLocationFromIP() returned"
+             << " lon " << SSDegMinSec ( here.lon ).toString()
+             << " lat " << SSDegMinSec ( here.lat ).toString() << endl;
+    else
+        cout << "SSLocationFromIP() failed!\n" << endl;
+
     // Display list of supported mount protocols, select one to use for testing
     
     SSMountProtocolMap protoMap;
@@ -102,7 +110,6 @@ int main ( int argc, const char * argv[] )
     // Initialize telescope and create SSMount instance
     
     SSTime now = SSTime::fromSystem();
-    SSSpherical here = SSSpherical ( SSAngle::fromDegrees ( -122.4194 ), SSAngle::fromDegrees ( 37.7749 ) , 0.0 );
     SSCoordinates coords ( now, here );
     SSMountPtr pMount = SSNewMount ( kAltAzimuthGotoMount, iter->first, coords );
     if ( pMount == nullptr )

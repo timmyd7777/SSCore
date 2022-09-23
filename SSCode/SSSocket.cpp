@@ -1005,44 +1005,7 @@ void SSHTTP::setContentString ( const string &s )
     setContent ( &s[0], s.length() );
 }
 
-#include <iostream>
-
-// SSHTTP API test function
-
-void SSHTTPtest ( void )
-{
-    string raw = "Fünky $triñg!";
-    string enc = urlEncode ( raw );
-    string dec = urlDecode ( enc );
-    
-    cout << raw << endl;
-    cout << enc << endl;
-    cout << dec << endl;
-
-    SSHTTP request ( "http://10.0.0.1/updates/asteroids.txt" );
-    
-    cout << request.getURL() << endl;
-    cout << request.getHost() << endl;
-    cout << request.getPort() << endl;
-    cout << request.getPath() << endl;
-
-    request.get();
-    cout << "Response code: " << request.getResponseCode() << endl;
-    cout << "Content length: " << request.getContentLength() << endl;
-    cout << "Content type: " << request.getContentType() << endl;
-    cout << "Date: " << request.getDate().format ( "%Y/%m/%d %H:%M:%S" ) << endl;
-    cout << "Location: " << request.getLocation() << endl;
-    cout << request.getContentString() << endl;
-
-    SSSpherical loc;
-    if ( SSLocationFromIP ( loc ) )
-        cout << "SSLocationFromIP() succeeded, longitude " << SSDegMinSec ( loc.lon ).toString()
-             << " latitude " << SSDegMinSec ( loc.lat ).toString() << endl;
-    else
-        cout << "SSLocationFromIP() failed!\n" << endl;
-}
-
-// Obtains geographic location from local IP address using SSHTTP request
+// Obtains geographic location from local IP address using SSHTTP API request
 // to free ip-api.com service. Returns true if successful or false on failure.
 
 bool SSLocationFromIP ( SSSpherical &loc )

@@ -196,7 +196,9 @@ public:
     int post ( const void *postData, size_t postSize );
 };
 
-void SSHTTPtest ( void );
+// Obtains geographic location from local IP address.
+// Returns true if successful or false on failure.
+
 bool SSLocationFromIP ( SSSpherical &loc );
 
 #endif /* SSSocket_hpp */
