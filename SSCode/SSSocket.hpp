@@ -25,6 +25,9 @@
 
 using namespace std;
 
+#include "SSTime.hpp"
+#include "SSVector.hpp"
+
 // Represents an IPv4 address.
 // Implemented as wrapper around platform-native IPv4 address struct.
 
@@ -116,9 +119,11 @@ protected:
     
     string      _respHead;      // response header string; empty until request is sent
     int         _respCode;      // response code: 200 = OK, 404 = Not Found, etc.
-    size_t      _contLen;       // response content length, bytes
-    string      _contType;      // response content MIME type string
-    vector<char> _content;      // buffer containing received content
+    SSDate      _date;          // response date
+    string      _location;      // response location (for redirects)
+    size_t      _contLen;       // request or response content length, bytes
+    string      _contType;      // reqeust or response content MIME type string
+    vector<char> _content;      // buffer containing sent or received content
 
     int sendRequestHeader ( size_t postSize = 0 );
     int readResponseHeader ( void );
@@ -126,6 +131,33 @@ protected:
     int sendContent ( const void *content, size_t len );
     
 public:
+    
+    // common HTTP response codes; see https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+    
+    static constexpr int kOK = 200;
+    static constexpr int kCreated = 201;
+    static constexpr int kAccepted = 202;
+    static constexpr int kNonAuthoritative = 203;
+    static constexpr int kNoContent = 204;
+    static constexpr int kResetContent = 205;
+    static constexpr int kMultipleChoices = 300;
+    static constexpr int kMovedPermanently = 301;
+    static constexpr int kFound = 302;
+    static constexpr int kSeeOther = 303;
+    static constexpr int kNotModified = 304;
+    static constexpr int kBadRequest = 400;
+    static constexpr int kUnauthorized = 401;
+    static constexpr int kPaymentRequired = 402;
+    static constexpr int kForbidden = 403;
+    static constexpr int kNotFound = 404;
+    static constexpr int kMethodNotAllowed = 405;
+    static constexpr int kRequestTimeout = 408;
+    static constexpr int kServerError = 500;
+    static constexpr int kNotImplemented = 501;
+    static constexpr int kBadGateway = 502;
+    static constexpr int kServiceUnavailable = 503;
+    static constexpr int kGatewayTimeout = 504;
+    static constexpr int kNotSupported = 505;
     
     // constructor, destructor
     
@@ -140,7 +172,10 @@ public:
     uint16_t getPort ( void ) { return _port; }
     string getPath ( void ) { return _path; }
     string getResponseHeaders ( void ) { return _respHead; }
+    string getHeaderValue ( const string &key );
     int getResponseCode ( void ) { return _respCode; }
+    SSDate getDate ( void ) { return _date; }
+    string getLocation ( void ) { return _location; }
     size_t getContentLength ( void ) { return _contLen; }
     string getContentType ( void ) { return _contType; }
     const void *getContent ( void ) { return &_content[0]; }
@@ -160,5 +195,8 @@ public:
     int post ( void );
     int post ( const void *postData, size_t postSize );
 };
+
+void SSHTTPtest ( void );
+bool SSLocationFromIP ( SSSpherical &loc );
 
 #endif /* SSSocket_hpp */

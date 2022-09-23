@@ -99,7 +99,8 @@ SSIP::SSIP ( void )
 
 SSIP::SSIP ( const string &str )
 {
-    addr.s_addr = inet_addr ( str.c_str() );
+    if ( inet_aton ( str.c_str(), &addr ) == 0 )
+        addr.s_addr = 0;
 }
 
 // SSIP constructor from platform-native IPv4 address struct
@@ -823,19 +824,19 @@ int SSHTTP::sendRequestHeader ( size_t postSize )
 // Returns value string corresponding to specified keyword in HTTP response header.
 // If keyword is not found, returns empty string.
 
-static string headerValue ( const string &header, const string &key )
+string SSHTTP::getHeaderValue ( const string &key )
 {
     size_t keylen = key.length();
-    size_t start = header.find ( key );
+    size_t start = _respHead.find ( key );
     if ( start == string::npos )
         return "";
     
     start += keylen;
-    size_t end = header.find ( "\r\n", start );
+    size_t end = _respHead.find ( "\r\n", start );
     if ( end == string::npos )
         return "";
     
-    return header.substr ( start, end - start );
+    return trim ( _respHead.substr ( start, end - start ) );
 }
 
 // Reads HTTP response headers from server socket into _respHead, until double newline is received,
@@ -868,15 +869,19 @@ int SSHTTP::readResponseHeader ( void )
     _respHead = header;
     if ( clocksec() < timeout )
     {
-        _respCode = strtoint ( headerValue ( header, "HTTP/1.1 " ) );
-        _contLen = strtoint ( headerValue ( header, "Content-Length: " ) );
-        _contType = headerValue ( header, "Content-Type: " );
+        _respCode = strtoint ( getHeaderValue ( "HTTP/1.1" ) );
+        _contLen = strtoint ( getHeaderValue ( "Content-Length:" ) );
+        _contType = getHeaderValue ( "Content-Type:" );
+        _location = getHeaderValue ( "Location:" );
+        _date = SSDate ( "%a, %d %b %Y %H:%M:%S", getHeaderValue ( "Date:" ) );
     }
     else
     {
         _respCode = 0;
         _contLen = 0;
         _contType = "";
+        _location = "";
+        _date = SSDate();
     }
     
     _content = vector<char> ( 0 );
@@ -992,4 +997,61 @@ string SSHTTP::getContentString ( void )
 void SSHTTP::setContentString ( const string &s )
 {
     setContent ( &s[0], s.length() );
+}
+
+#include <iostream>
+
+// SSHTTP API test function
+
+void SSHTTPtest ( void )
+{
+    string raw = "Fünky $triñg!";
+    string enc = urlEncode ( raw );
+    string dec = urlDecode ( enc );
+    
+    cout << raw << endl;
+    cout << enc << endl;
+    cout << dec << endl;
+
+    SSHTTP request ( "http://10.0.0.1/updates/asteroids.txt" );
+    
+    cout << request.getURL() << endl;
+    cout << request.getHost() << endl;
+    cout << request.getPort() << endl;
+    cout << request.getPath() << endl;
+
+    request.get();
+    cout << "Response code: " << request.getResponseCode() << endl;
+    cout << "Content length: " << request.getContentLength() << endl;
+    cout << "Content type: " << request.getContentType() << endl;
+    cout << "Date: " << request.getDate().format ( "%Y/%m/%d %H:%M:%S" ) << endl;
+    cout << "Location: " << request.getLocation() << endl;
+    cout << request.getContentString() << endl;
+
+    SSSpherical loc;
+    if ( SSLocationFromIP ( loc ) )
+        cout << "SSLocationFromIP() succeeded, longitude " << SSDegMinSec ( loc.lon ).toString()
+             << " latitude " << SSDegMinSec ( loc.lat ).toString() << endl;
+    else
+        cout << "SSLocationFromIP() failed!\n" << endl;
+}
+
+// Obtains geographic location from local IP address using SSHTTP request
+// to free ip-api.com service. Returns true if successful or false on failure.
+
+bool SSLocationFromIP ( SSSpherical &loc )
+{
+    SSHTTP request ( "http://ip-api.com/csv/?fields=lat,lon", 1000 );
+    request.get();
+    if ( request.getResponseCode() == SSHTTP::kOK )
+    {
+        double lat = 0.0, lon = 0.0;
+        if ( sscanf ( request.getContentString().c_str(), "%lf,%lf", &lat, &lon ) == 2 )
+        {
+            loc = SSSpherical ( SSAngle::fromDegrees ( lon ), SSAngle::fromDegrees ( lat ) );
+            return true;
+        }
+    }
+    
+    return false;
 }
