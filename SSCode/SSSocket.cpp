@@ -955,9 +955,12 @@ int SSHTTP::sendContent ( const void *content, size_t len )
 
 int SSHTTP::get ( void )
 {
-    sendRequestHeader();
-    readResponseHeader();
-    readContent();
+    _respCode = 0;
+    
+    if ( sendRequestHeader() > 1 )
+        if ( readResponseHeader() > 1 )
+            readContent();
+    
     return _respCode;
 }
 
@@ -966,10 +969,13 @@ int SSHTTP::get ( void )
 
 int SSHTTP::post ( const void *postData, size_t postSize )
 {
-    sendRequestHeader ( postSize );
-    sendContent ( postData, postSize );
-    readResponseHeader();
-    readContent();
+    _respCode = 0;
+    
+    if ( sendRequestHeader ( postSize ) > 1 )
+        if ( sendContent ( postData, postSize ) > 1 )
+            if ( readResponseHeader() > 1 )
+                readContent();
+    
     return _respCode;
 }
 
@@ -1006,7 +1012,9 @@ void SSHTTP::setContentString ( const string &s )
 }
 
 // Obtains geographic location from local IP address using SSHTTP API request
-// to free ip-api.com service. Returns true if successful or false on failure.
+// to free ip-api.com service. Runs synchronously on current thread; may block
+// for several seconds if no internet connection.
+// Returns true if successful or false on failure.
 
 bool SSLocationFromIP ( SSSpherical &loc )
 {
