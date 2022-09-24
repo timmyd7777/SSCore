@@ -1620,12 +1620,62 @@ SSMount::Error SSMeadeMount::aligned ( bool &status )
 }
 
 // Overrides and mount-specific methods for Synta (SkyWatcher/Orion) direct motor controllers.
-// Based on documentation provided here: https://www.nexstarsite.com/PCControl/ProgrammingNexStar.htm
-// SSCelestronMount constructor:
+// See https://inter-static.skywatcher.com/downloads/skywatcher_motor_controller_command_set.pdf
+// SSSyntaMount constructor:
 
 SSSyntaMount::SSSyntaMount ( SSMountType type, SSCoordinates &coords ) : SSMount ( type, coords )
 {
     _protocol = kSyntaDirect;
+    _countsPerRev[kAzmRAAxis] = _countsPerRev[kAltDecAxis] = 0;
+}
+
+// Sends 1-byte Synta motor command and listens for response.
+// For RA/Azm motor, axis = 1. For Dec/Alt motor, axis = 2.
+// Payload data associated with command may be zero-length.
+// Returns error code or zero if successful.
+
+SSMount::Error SSSyntaMount::motorCommand ( char cmd, int axis, string indata, string &outdata )
+{
+    // If we have input data, swap byte order
+    
+    if ( indata.length() == 6 )
+    {
+        swap ( indata[0], indata[4] );
+        swap ( indata[1], indata[5] );
+    }
+    else if ( indata.length() == 4 )
+    {
+        swap ( indata[0], indata[2] );
+        swap ( indata[1], indata[3] );
+    }
+
+    // format and send command, listen for response, return if error
+    
+    string output, input = format ( ":%c%d%s\r", cmd, axis, indata.c_str() );
+    Error err = command ( input, output, 9, '\r' );
+    if ( err != kSuccess )
+        return err;
+
+    // Ensure response indicates success
+    
+    if ( output.length() < 2 || output[0] != '=' || output.back() != '\r' )
+        return kInvalidOutput;
+    
+    // Extact paylod data from output string and byte-swap.
+    
+    outdata = output.substr ( 1, output.length() - 2 );
+    if ( outdata.length() == 6 )
+    {
+        swap ( outdata[0], outdata[4] );
+        swap ( outdata[1], outdata[5] );
+    }
+    else if ( outdata.length() == 4 )
+    {
+        swap ( outdata[0], outdata[2] );
+        swap ( outdata[1], outdata[3] );
+    }
+    
+    return kSuccess;
 }
 
 // Opens serial or socket connection to Synta direct motor controller and reads controller firmware version string.
@@ -1647,31 +1697,48 @@ SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
     // Get motor controller firmware version on both axes
     
     string v1, v2;
-    err = getVersion ( 1, v1 ) ;
+    err = motorCommand ( 'e', 1, "", v1 ) ;
     if ( err == kSuccess )
-        err = getVersion ( 2, v2 );
+        err = motorCommand ( 'e', 2, "", v2 );
     
     if ( err )
         return err;
         
     _version = v1 + "," + v2;
+
+    // Get counts per revolution on both axes.
+    
+    string a1, a2;
+    err = motorCommand ( 'a', 1, "", a1 );
+    if ( err == kSuccess )
+        err = motorCommand ( 'a', 2, "", a2 );
+
+    if ( err )
+        return err;
+
+    if ( sscanf ( a1.c_str(), "%x", &_countsPerRev[kAzmRAAxis] ) < 1
+      || sscanf ( a2.c_str(), "%x", &_countsPerRev[kAltDecAxis] ) < 1 )
+        return kInvalidOutput;
+    
     return kSuccess;
 }
 
-// Queries Synta motor board version.
-// For RA/Azm motor, axis = 1. For Dec/Alt motor, axis = 2.
-// Returns error code or zero if successful.
-
-SSMount::Error SSSyntaMount::getVersion ( int axis, string &version )
+SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
 {
-    string output, input = format ( ":e%d\r", axis );
-    Error err = command ( input, output, 9, '\r' );
-    if ( err != kSuccess )
-        return err;
+    string r1, r2;
+    Error err = motorCommand ( 'j', 1, "", r1 ) ;
+    if ( err == kSuccess )
+        err = motorCommand ( 'j', 2, "", r2 );
 
-    if ( output.length() < 2 || output[0] != '=' || output.back() != '\r' )
+    if ( err )
+        return err;
+    
+    int i1 = 0, i2 = 0;
+    if ( sscanf ( r1.c_str(), "%x", &i1 ) < 1 || sscanf ( r2.c_str(), "%x", &i2 ) < 1 )
         return kInvalidOutput;
     
-    version = output.substr ( 1, output.length() - 2 );
+    i1 &= 0x007fffff;
+    i2 &= 0x007fffff;
+
     return kSuccess;
 }

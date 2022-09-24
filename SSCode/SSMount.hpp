@@ -251,14 +251,16 @@ class SSSyntaMount : public SSMount
 {
 protected:
     
-    Error getVersion ( int axis, string &version );
+    int _countsPerRev[2];       // counts per revolution on Azm/RA axis [0] and Alt/Dec axis [1]
     
+    Error motorCommand ( char cmd, int axis, string input, string &output );
+
 public:
     SSSyntaMount ( SSMountType type, SSCoordinates &coords );
 
     virtual int maxSlewRate ( void ) { return 10; }
     virtual Error connect ( const string &path, uint16_t port );
-    virtual Error read ( SSAngle &ra, SSAngle &dec ) { return kNotSupported; }
+    virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec ) { return kNotSupported; }
     virtual Error slew ( SSSlewAxis axis, int rate ) { return kNotSupported; }
     virtual Error stop ( void ) { return kNotSupported; }
