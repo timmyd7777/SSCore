@@ -26,7 +26,8 @@ static SSMountProtocolMap _protocols =
     { kMeadeLX200,        "Meade LX200" },
     { kMeadeAutostar,     "Meade Autostar" },
     { kCelestronNexStar,  "Celestron NexStar" },
-    { kSkyWatcherSynScan, "Skywatcher SynScan" }
+    { kSkyWatcherSynScan, "Skywatcher SynScan" },
+    { kSyntaDirect,       "Synta Direct" }
 };
 
 // Obtains map of supported mount protocol names, indexed by protocol identifier.
@@ -48,6 +49,9 @@ SSMountPtr SSNewMount ( SSMountType type, SSMountProtocol protocol, SSCoordinate
     
     if ( protocol == kCelestronNexStar || protocol == kSkyWatcherSynScan )
         return new SSCelestronMount ( type, protocol, coords );
+
+    if ( protocol == kSyntaDirect )
+        return new SSSyntaMount ( type, coords );
 
     return new SSMount ( type, coords );
 };
@@ -1612,5 +1616,62 @@ SSMount::Error SSMeadeMount::aligned ( bool &status )
         return err;
     
     status = output == 'A' || output == 'G' || output == 'L' || output == 'P';
+    return kSuccess;
+}
+
+// Overrides and mount-specific methods for Synta (SkyWatcher/Orion) direct motor controllers.
+// Based on documentation provided here: https://www.nexstarsite.com/PCControl/ProgrammingNexStar.htm
+// SSCelestronMount constructor:
+
+SSSyntaMount::SSSyntaMount ( SSMountType type, SSCoordinates &coords ) : SSMount ( type, coords )
+{
+    _protocol = kSyntaDirect;
+}
+
+// Opens serial or socket connection to Synta direct motor controller and reads controller firmware version string.
+// If port is zero, path is a serial device file (like "/dev/ttyUSBserial0" on Linux or "\\.\COM3" on Windows)
+// If port is nonzero, path is mount IP address or fully-qualified domain name (like "192.168.4.1")
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
+{
+    Error err = kSuccess;
+    
+    // Open serial communication at 9600 baud, no parity, 8 data bits, 1 stop bit
+    // Socket communication on port 11880 is assumed to be UDP (SynScan Wi-Fi)
+    
+    err = SSMount::connect ( path, port, 9600, SSSerial::kNoParity, SSSerial::k8DataBits, SSSerial::k1StopBits, port == 11880 );
+    if ( err != kSuccess )
+        return err;
+
+    // Get motor controller firmware version on both axes
+    
+    string v1, v2;
+    err = getVersion ( 1, v1 ) ;
+    if ( err == kSuccess )
+        err = getVersion ( 2, v2 );
+    
+    if ( err )
+        return err;
+        
+    _version = v1 + "," + v2;
+    return kSuccess;
+}
+
+// Queries Synta motor board version.
+// For RA/Azm motor, axis = 1. For Dec/Alt motor, axis = 2.
+// Returns error code or zero if successful.
+
+SSMount::Error SSSyntaMount::getVersion ( int axis, string &version )
+{
+    string output, input = format ( ":e%d\r", axis );
+    Error err = command ( input, output, 9, '\r' );
+    if ( err != kSuccess )
+        return err;
+
+    if ( output.length() < 2 || output[0] != '=' || output.back() != '\r' )
+        return kInvalidOutput;
+    
+    version = output.substr ( 1, output.length() - 2 );
     return kSuccess;
 }

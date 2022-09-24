@@ -38,7 +38,8 @@ enum SSMountProtocol
     kMeadeLX200 = 1000,         // Meade LX-200 classic and LX-200GPS mounts
     kMeadeAutostar = 1001,      // Meade Autostar and Audiostar controllers
     kCelestronNexStar = 2000,   // Celestron NexStar and StarSense controllers
-    kSkyWatcherSynScan = 2001   // SkyWatcher and Orion SynScan controllers
+    kSkyWatcherSynScan = 2001,  // SkyWatcher and Orion SynScan controllers
+    kSyntaDirect = 3000         // Direct interface to Synta motor controllers (e.g. SynScan Wi-Fi, EQMOD, EQDIR)
 };
 
 // Directional slew axis identifiers
@@ -244,6 +245,32 @@ public:
     virtual Error getSite ( SSSpherical &site );
 };
 
+// Overrides for Synta Direct mounts
+
+class SSSyntaMount : public SSMount
+{
+protected:
+    
+    Error getVersion ( int axis, string &version );
+    
+public:
+    SSSyntaMount ( SSMountType type, SSCoordinates &coords );
+
+    virtual int maxSlewRate ( void ) { return 10; }
+    virtual Error connect ( const string &path, uint16_t port );
+    virtual Error read ( SSAngle &ra, SSAngle &dec ) { return kNotSupported; }
+    virtual Error slew ( SSAngle ra, SSAngle dec ) { return kNotSupported; }
+    virtual Error slew ( SSSlewAxis axis, int rate ) { return kNotSupported; }
+    virtual Error stop ( void ) { return kNotSupported; }
+    virtual Error sync ( SSAngle ra, SSAngle dec ) { return kNotSupported; }
+    virtual Error slewing ( bool &status ) { return kNotSupported; }
+    virtual Error aligned ( bool &status ) { return kNotSupported; }
+    virtual Error setTime ( SSTime time ) { return kNotSupported; }
+    virtual Error setSite ( SSSpherical site ) { return kNotSupported; }
+    virtual Error getTime ( SSTime &time ) { return kNotSupported; }
+    virtual Error getSite ( SSSpherical &site ) { return kNotSupported; }
+};
+
 // Obtains map of supported mount protocol names, indexed by protocol identifier
 
 typedef map<SSMountProtocol,string> SSMountProtocolMap;
@@ -252,6 +279,7 @@ int SSGetMountProtocols ( SSMountProtocolMap &map );
 typedef SSMount *SSMountPtr;
 typedef SSMeadeMount *SSMeadeMountPtr;
 typedef SSCelestronMount *SSCelestronMountPtr;
+typedef SSSyntaMount *SSSyntaMountPtr;
 
 // Allocates new SSMount (or subclass of SSMount) depending on supplied protocol identifier.
 
