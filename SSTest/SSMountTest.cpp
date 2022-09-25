@@ -208,12 +208,15 @@ int main ( int argc, const char * argv[] )
                                 << " latitude " << SSDegMinSec ( mountSite.lat ).toString() << endl;
     
     SSAngle ra, dec;
-    err = pMount->read ( ra, dec );
-    if ( err )
-        cout << "read() returned error " << SSMountErrors[err] << endl;
-    else
-        cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
-    sleep ( 1 );
+    //while ( true )
+    {
+        err = pMount->read ( ra, dec );
+        if ( err )
+            cout << "read() returned error " << SSMountErrors[err] << endl;
+        else
+            cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
+        sleep ( 1 );
+    }
     
     // Test slewing in Azimuth/RA
     

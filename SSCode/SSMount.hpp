@@ -252,9 +252,17 @@ class SSSyntaMount : public SSMount
 protected:
     
     int _countsPerRev[2];       // counts per revolution on Azm/RA axis [0] and Alt/Dec axis [1]
+    int _mcVersion[2];          // motor controller version (as integer) on both axes
+    int _highSpeedRatio[2];     // high vs low motor speed motor ratio on both axes
+    int _stepTimerFreq[2];      // frequency of stepping timer interrupt.
+    
+    // For these methods, axis 1 = Azm/RA and axis 2 = Alt/Dec
+    // TODO: this is confusing.  Use SSSlewAxis constants everywhere?
     
     Error motorCommand ( char cmd, int axis, string input, string &output );
-
+    Error mcAxisStop ( int axis, bool instant );
+    Error mcAxisSlew ( int axis, double speed );    // speed in radians/sec
+    
 public:
     SSSyntaMount ( SSMountType type, SSCoordinates &coords );
 
@@ -262,7 +270,7 @@ public:
     virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec ) { return kNotSupported; }
-    virtual Error slew ( SSSlewAxis axis, int rate ) { return kNotSupported; }
+    virtual Error slew ( SSSlewAxis axis, int rate );
     virtual Error stop ( void ) { return kNotSupported; }
     virtual Error sync ( SSAngle ra, SSAngle dec ) { return kNotSupported; }
     virtual Error slewing ( bool &status ) { return kNotSupported; }

@@ -1621,6 +1621,8 @@ SSMount::Error SSMeadeMount::aligned ( bool &status )
 
 // Overrides and mount-specific methods for Synta (SkyWatcher/Orion) direct motor controllers.
 // See https://inter-static.skywatcher.com/downloads/skywatcher_motor_controller_command_set.pdf
+// and sample code here: https://github.com/skywatcher-pacific/skywatcher_open
+// and here: https://github.com/liwn/Skywatcher
 // SSSyntaMount constructor:
 
 SSSyntaMount::SSSyntaMount ( SSMountType type, SSCoordinates &coords ) : SSMount ( type, coords )
@@ -1694,31 +1696,53 @@ SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
     if ( err != kSuccess )
         return err;
 
-    // Get motor controller firmware version on both axes
+    // Get motor board version on both axes
     
-    string v1, v2;
-    err = motorCommand ( 'e', 1, "", v1 ) ;
-    if ( err == kSuccess )
-        err = motorCommand ( 'e', 2, "", v2 );
-    
-    if ( err )
-        return err;
-        
-    _version = v1 + "," + v2;
+    string data;
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( 'e', axis + 1, "", data );
+        if ( err != kSuccess )
+            return err;
+        int tmpMCVersion = 0;
+        if ( sscanf ( data.c_str(), "%x", &tmpMCVersion ) < 1 )
+            return kInvalidOutput;
+        _mcVersion[axis] = ( ( tmpMCVersion & 0xFF ) << 16 ) | ( ( tmpMCVersion & 0xFF00 ) ) | ( ( tmpMCVersion & 0xFF0000) >> 16 );
+        _version += data;
+    }
 
     // Get counts per revolution on both axes.
-    
-    string a1, a2;
-    err = motorCommand ( 'a', 1, "", a1 );
-    if ( err == kSuccess )
-        err = motorCommand ( 'a', 2, "", a2 );
 
-    if ( err )
-        return err;
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( 'a', axis + 1, "", data );
+        if ( err != kSuccess )
+            return err;
+        if ( sscanf ( data.c_str(), "%x", &_countsPerRev[axis] ) < 1 )
+            return kInvalidOutput;
+    }
 
-    if ( sscanf ( a1.c_str(), "%x", &_countsPerRev[kAzmRAAxis] ) < 1
-      || sscanf ( a2.c_str(), "%x", &_countsPerRev[kAltDecAxis] ) < 1 )
-        return kInvalidOutput;
+    // Inquire high speed ratio on both axes.
+
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( 'g', axis + 1, "", data );
+        if ( err != kSuccess )
+            return err;
+        if ( sscanf ( data.c_str(), "%x", &_highSpeedRatio[axis] ) < 1 )
+            return kInvalidOutput;
+    }
+
+    // Inquire stepper timer interrupt frequency on both axes.
+
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( 'b', axis + 1, "", data );
+        if ( err != kSuccess )
+            return err;
+        if ( sscanf ( data.c_str(), "%x", &_stepTimerFreq[axis] ) < 1 )
+            return kInvalidOutput;
+    }
     
     return kSuccess;
 }
@@ -1737,8 +1761,74 @@ SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
     if ( sscanf ( r1.c_str(), "%x", &i1 ) < 1 || sscanf ( r2.c_str(), "%x", &i2 ) < 1 )
         return kInvalidOutput;
     
-    i1 &= 0x007fffff;
-    i2 &= 0x007fffff;
-
+    ra  = SSAngle::kTwoPi * ( i1 - 0x00800000 ) / _countsPerRev[kAzmRAAxis];
+    dec = SSAngle::kTwoPi * ( i2 - 0x00800000 ) / _countsPerRev[kAltDecAxis];
     return kSuccess;
+}
+
+SSMount::Error SSSyntaMount::mcAxisStop ( int axis, bool instant )
+{
+    string data;
+    Error err = motorCommand ( instant ? 'L' : 'K', axis, "", data );
+    return err;
+}
+
+static double MAX_SPEED = degtorad ( 3.4 );
+static double SIDEREALRATE = SSAngle::kTwoPi / SSTime::kSecondsPerDay / SSTime::kSiderealPerSolarDays;
+static double LOW_SPEED_MARGIN = 128.0 * SIDEREALRATE;
+
+SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
+{
+    // 3.4 degrees/sec, 800X sidereal rate, is the highest speed.
+
+    speed = clamp ( speed, -MAX_SPEED, MAX_SPEED );
+    double internalSpeed = speed;
+
+    // InternalSpeed lower than 1/1000 of sidereal rate?
+    
+    if ( fabs ( internalSpeed ) <= SIDEREALRATE / 1000.0 )
+        return mcAxisStop ( axis, false );
+
+    // Stop motor and set motion mode if necessary.
+    
+    // PrepareForSlewing ( Axis, InternalSpeed );
+    
+    bool forward = internalSpeed > 0.0;
+    internalSpeed = fabs ( internalSpeed );
+
+    // High speed adjustment
+    
+    bool highspeed = internalSpeed > LOW_SPEED_MARGIN;
+    if ( highspeed )
+        internalSpeed = internalSpeed / (double) _highSpeedRatio[axis - 1];
+
+    // Calculate and set step period.
+    
+    double radToStep = _countsPerRev[axis - 1] / SSAngle::kTwoPi;
+    double radRateToSpeed = _stepTimerFreq[axis - 1] / radToStep;
+    int speedInt = ( 1.0 / internalSpeed ) * radRateToSpeed;
+    
+    int version = _mcVersion[axis - 1];
+    if ( version == 0x010600 || version == 0x010601 ) // For special MC version.
+        speedInt -= 3;
+    
+    if ( speedInt < 6 )
+        speedInt = 6;
+
+    // TODO: we are not using "forward". How to set negative motion?
+    
+    string data = format ( "%06X", speedInt );
+    Error err = motorCommand ( 'I', axis, data, data );
+    if ( err )
+        return err;
+    
+    // Start motion
+    
+    err = motorCommand ( 'J', axis, "", data );
+    return err;
+}
+
+SSMount::Error SSSyntaMount::slew ( SSSlewAxis axis, int rate )
+{
+    return mcAxisSlew ( axis + 1, 1.0 );
 }
