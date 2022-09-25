@@ -1809,10 +1809,38 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     if ( highspeed )
         internalSpeed = internalSpeed / (double) _highSpeedRatio[axis - 1];
 
-    // extracted from PrepareForSlewing ( Axis, InternalSpeed );
+    // prepare for slewing
+    
+    AxisStatus status;
+    Error err = mcGetAxisStatus ( axis, status );
+    if ( err )
+        return err;
+    
+    if ( ! status.fullStop )
+    {
+        // We need to stop the motor first if...
+        
+        if ( status.slewingTo || status.highSpeed || highspeed  // GOTO in action, currently high speed slewing, or will be high speed slewing
+        || ( status.slewingForward != forward ) )               // Different direction
+            mcAxisStop ( axis, false );
+
+        while ( true )  // Wait until the axis stop
+        {
+            err = mcGetAxisStatus ( axis, status );
+            if ( err != kSuccess )
+                return err;
+
+            if ( status.fullStop )
+                break;
+
+            usleep ( 100000 );
+        }
+    }
+    
+    // Set motion mode
     
     string outdata;
-    Error err = motorCommand ( 'G', axis, format ( "%d%d", highspeed ? 3 : 1, forward ? 0 : 1 ), outdata );
+    err = motorCommand ( 'G', axis, format ( "%d%d", highspeed ? 3 : 1, forward ? 0 : 1 ), outdata );
     if ( err )
         return err;
     
@@ -1864,7 +1892,6 @@ SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
         status.slewingForward = true;   // Angle increase = 1
     else
         status.slewingForward = false;
-
     
     if ( ( response[1] & 0x04 ) != 0 )
         status.highSpeed = true;        // HighSpeed running mode = 1
