@@ -1875,10 +1875,13 @@ SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
     if ( err != kSuccess )
         return err;
     
-    if ( ( response[2] & 0x01 ) != 0 )
+    if ( response.length() < 3 )
+        return kInvalidOutput;
+    
+    if ( ( response[1] & 0x01 ) != 0 )
     {
         status.fullStop = false;        // Axis is running
-        if ( ( response[1] & 0x01) != 0 )
+        if ( ( response[0] & 0x01) != 0 )
             status.slewing = true;      // Axis in slewing (constant speed) mode.
         else
             status.slewingTo = true;    // Axis in SlewingTo mode.
@@ -1888,17 +1891,17 @@ SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
         status.fullStop = true;         // Axis is fully stop.
     }
 
-    if ( ( response[1] & 0x02 ) == 0)
+    if ( ( response[0] & 0x02 ) == 0 )
         status.slewingForward = true;   // Angle increase = 1
     else
         status.slewingForward = false;
     
-    if ( ( response[1] & 0x04 ) != 0 )
+    if ( ( response[0] & 0x04 ) != 0 )
         status.highSpeed = true;        // HighSpeed running mode = 1
     else
         status.highSpeed = false;
 
-    if ( ( response[3] & 1 ) == 0 )
+    if ( ( response[2] & 1 ) == 0 )
         status.notInitialized = true;    // MC is not initialized.
     else
         status.notInitialized = false;
@@ -1908,5 +1911,35 @@ SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
 
 SSMount::Error SSSyntaMount::slew ( SSSlewAxis axis, int rate )
 {
-    return mcAxisSlew ( axis + 1, rate );
+    double speed = 0.0;
+    
+    // We support four rates, emulating Meade LX-200 protocol
+    
+    int absrate = abs ( rate );
+    if ( absrate > maxSlewRate() )
+        return kInvalidInput;
+    
+    // Convert rate to speed in radians per second
+    
+    if ( absrate == 4 )
+        speed = MAX_SPEED;
+    else if ( absrate == 3 )
+        speed = MAX_SPEED / 3;
+    else if ( absrate == 2 )
+        speed = 32 * SIDEREALRATE;
+    else if ( absrate == 1 )
+        speed = 2 * SIDEREALRATE;
+    
+    if ( rate < 0 )
+        speed = -speed;
+    
+    return mcAxisSlew ( axis + 1, speed );
+}
+
+SSMount::Error SSSyntaMount::stop ( void )
+{
+    Error err = mcAxisStop ( 1, true );
+    if ( err == kSuccess )
+        err = mcAxisStop ( 2, true );
+    return err;
 }
