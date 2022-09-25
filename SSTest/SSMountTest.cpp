@@ -223,7 +223,7 @@ int main ( int argc, const char * argv[] )
     int rate = pMount->maxSlewRate();
     err = pMount->slew ( kAzmRAAxis, rate );
     if ( err )
-        cout << "slew ( kAzmRAAxis, rate ) returned error " << err << endl;
+        cout << "slew ( kAzmRAAxis, rate ) returned error " << SSMountErrors[err] << endl;
     else
         cout << "slew ( kAzmRAAxis, rate ) succeded!" << endl;
     sleep ( 3 );

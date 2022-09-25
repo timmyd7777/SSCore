@@ -1791,8 +1791,6 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
 
     // Stop motor and set motion mode if necessary.
     
-    // PrepareForSlewing ( Axis, InternalSpeed );
-    
     bool forward = internalSpeed > 0.0;
     internalSpeed = fabs ( internalSpeed );
 
@@ -1802,6 +1800,13 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     if ( highspeed )
         internalSpeed = internalSpeed / (double) _highSpeedRatio[axis - 1];
 
+    // extracted from PrepareForSlewing ( Axis, InternalSpeed );
+    
+    string outdata;
+    Error err = motorCommand ( 'G', axis, format ( "%d%d", highspeed ? 3 : 1, forward ? 0 : 1 ), outdata );
+    if ( err )
+        return err;
+    
     // Calculate and set step period.
     
     double radToStep = _countsPerRev[axis - 1] / SSAngle::kTwoPi;
@@ -1818,7 +1823,7 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     // TODO: we are not using "forward". How to set negative motion?
     
     string data = format ( "%06X", speedInt );
-    Error err = motorCommand ( 'I', axis, data, data );
+    err = motorCommand ( 'I', axis, data, outdata );
     if ( err )
         return err;
     
@@ -1830,5 +1835,5 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
 
 SSMount::Error SSSyntaMount::slew ( SSSlewAxis axis, int rate )
 {
-    return mcAxisSlew ( axis + 1, 1.0 );
+    return mcAxisSlew ( axis + 1, rate );
 }
