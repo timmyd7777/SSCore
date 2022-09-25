@@ -256,13 +256,26 @@ protected:
     int _highSpeedRatio[2];     // high vs low motor speed motor ratio on both axes
     int _stepTimerFreq[2];      // frequency of stepping timer interrupt.
     
+    // axis status bit codes for mcGetAxisStatus()
+    
+    struct AxisStatus
+    {
+        bool fullStop;
+        bool slewing;
+        bool slewingTo;
+        bool slewingForward;
+        bool highSpeed;
+        bool notInitialized;
+    };
+    
     // For these methods, axis 1 = Azm/RA and axis 2 = Alt/Dec
     // TODO: this is confusing.  Use SSSlewAxis constants everywhere?
     
     Error motorCommand ( char cmd, int axis, string input, string &output );
     Error mcAxisStop ( int axis, bool instant );
     Error mcAxisSlew ( int axis, double speed );    // speed in radians/sec
-    
+    Error mcGetAxisStatus ( int axis, AxisStatus &status );
+
 public:
     SSSyntaMount ( SSMountType type, SSCoordinates &coords );
 

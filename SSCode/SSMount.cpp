@@ -1744,6 +1744,15 @@ SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
             return kInvalidOutput;
     }
     
+    // Finish initialization.
+
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( 'F', axis + 1, "", data );
+        if ( err != kSuccess )
+            return err;
+    }
+
     return kSuccess;
 }
 
@@ -1820,8 +1829,6 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     if ( speedInt < 6 )
         speedInt = 6;
 
-    // TODO: we are not using "forward". How to set negative motion?
-    
     string data = format ( "%06X", speedInt );
     err = motorCommand ( 'I', axis, data, outdata );
     if ( err )
@@ -1831,6 +1838,45 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     
     err = motorCommand ( 'J', axis, "", data );
     return err;
+}
+
+SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
+{
+    string response;
+    Error err = motorCommand ( 'f', axis, "", response );
+    if ( err != kSuccess )
+        return err;
+    
+    if ( ( response[2] & 0x01 ) != 0 )
+    {
+        status.fullStop = false;        // Axis is running
+        if ( ( response[1] & 0x01) != 0 )
+            status.slewing = true;      // Axis in slewing (constant speed) mode.
+        else
+            status.slewingTo = true;    // Axis in SlewingTo mode.
+    }
+    else
+    {
+        status.fullStop = true;         // Axis is fully stop.
+    }
+
+    if ( ( response[1] & 0x02 ) == 0)
+        status.slewingForward = true;   // Angle increase = 1
+    else
+        status.slewingForward = false;
+
+    
+    if ( ( response[1] & 0x04 ) != 0 )
+        status.highSpeed = true;        // HighSpeed running mode = 1
+    else
+        status.highSpeed = false;
+
+    if ( ( response[3] & 1 ) == 0 )
+        status.notInitialized = true;    // MC is not initialized.
+    else
+        status.notInitialized = false;
+    
+    return kSuccess;
 }
 
 SSMount::Error SSSyntaMount::slew ( SSSlewAxis axis, int rate )
