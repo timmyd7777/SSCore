@@ -139,6 +139,8 @@ SSMount::Error SSMount::connect ( const string &path, uint16_t port, int baud, i
     {
         if ( udp )
         {
+            // vector<SSIP> localIPs = SSSocket::getLocalIPs();
+            // _socket.openUDPSocket ( localIPs[0], port );
             _socket.openUDPSocket ( SSIP(), port );
             if ( ! _socket.socketOpen() )
                 return kOpenFail;
@@ -1922,16 +1924,12 @@ SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
     if ( response.length() < 3 )
         return kInvalidOutput;
     
-    status.fullStop = ( response[1] & 0x01 ) != 0 ? false : true;
-    if ( ! status.fullStop )
-    {
-        status.slewing = ( response[0] & 0x01 ) != 0 ? true : false;
-        status.slewingTo = ! status.slewing;
-    }
-
-    status.slewingForward = ( response[0] & 0x02 ) == 0 ? true : false;
-    status.highSpeed = ( response[0] & 0x04 ) != 0 ? true : false;
-    status.notInitialized = ( response[2] & 1 ) == 0 ? true : false;
+    status.fullStop = response[1] & 0x01 ? false : true;
+    status.slewing = ! status.fullStop && ( response[0] & 0x01 ? true : false );
+    status.slewingTo = ! status.fullStop && ! status.slewing;
+    status.slewingForward = response[0] & 0x02 ? false : true;
+    status.highSpeed = response[0] & 0x04 ? true : false;
+    status.notInitialized = response[2] & 1 ? false : true;
     
     return kSuccess;
 }

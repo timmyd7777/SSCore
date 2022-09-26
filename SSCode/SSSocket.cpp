@@ -596,7 +596,7 @@ SSSocket SSSocket::serverAcceptConnection ( void )
 //
 // When finished using the socket, dispose of it with closeSocket().
 
-bool SSSocket::openUDPSocket ( SSIP SSIP, uint16_t wPort )
+bool SSSocket::openUDPSocket ( SSIP localIP, uint16_t wPort )
 {
     int                 nSocket = 0;
     struct sockaddr_in  address = { 0 };
@@ -607,10 +607,10 @@ bool SSSocket::openUDPSocket ( SSIP SSIP, uint16_t wPort )
     
     address.sin_family = PF_INET;
     address.sin_port = htons ( wPort );
-    address.sin_addr = SSIP.addr;
+    address.sin_addr = localIP.addr;
     memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
     
-    if ( SSIP && wPort )
+    if ( localIP && wPort )
     {
         if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
         {
@@ -699,6 +699,7 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
     nResult = (int) recvfrom ( _socket, (char *) lpvData, lLength, 0, (sockaddr *) &address, &addrlen );
     if ( nResult == -1 )
     {
+        // int winerr = WSAGetLastError();
         if ( errno == EAGAIN || errno == EWOULDBLOCK )
             return 0;
         else
