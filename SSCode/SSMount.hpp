@@ -269,10 +269,7 @@ protected:
         bool notInitialized;    // MC is not initialized
     };
     
-    // For these methods, axis 1 = Azm/RA and axis 2 = Alt/Dec
-    // TODO: this is confusing.  Use SSSlewAxis constants everywhere?
-    
-    Error motorCommand ( char cmd, int axis, string input, string &output );
+    Error motorCommand ( int axis, char cmd, string input, string &output );
     Error mcAxisStop ( int axis, bool instant );
     Error mcAxisSlew ( int axis, double speed );    // speed in radians/sec
     Error mcAxisSlewTo ( int axis, double radians );
@@ -280,9 +277,9 @@ protected:
     Error mcGetAxisPosition ( int axis, double &radians );
     Error mcSetAxisPosition ( int axis, double radians );
 
-    int angleToStep ( int axis, double rad ) { return _countsPerRev[axis - 1] * rad / SSAngle::kTwoPi; }
-    double stepToAngle ( int axis, int step ) { return SSAngle::kTwoPi * step / _countsPerRev[axis - 1]; }
-    int radSpeedToInt ( int axis, double rad ) { return _stepTimerFreq[axis - 1] / angleToStep ( axis, rad ); }
+    int angleToStep ( int axis, double rad ) { return _countsPerRev[axis] * rad / SSAngle::kTwoPi; }
+    double stepToAngle ( int axis, int step ) { return SSAngle::kTwoPi * step / _countsPerRev[axis]; }
+    int radSpeedToInt ( int axis, double rad ) { return _stepTimerFreq[axis] / angleToStep ( axis, rad ); }
     
 public:
     
