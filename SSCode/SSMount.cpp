@@ -1652,11 +1652,16 @@ SSMount::Error SSSyntaMount::motorCommand ( int axis, char cmd, string indata, s
         swap ( indata[1], indata[3] );
     }
 
-    // format and send command, listen for response, return if error
+    // format and send command, listen for response, return if error.
     // Note mount expects RA/Azm axis = 1 and Alt/Dec axis = 2!
+    // On most Alt/Az mounts, serial TX and RX lines are connected together
+    // so the command will be echoed before the response.
+    // If we see this, keep reading to get the real response.
     
     string output, input = format ( ":%c%d%s\r", cmd, axis + 1, indata.c_str() );
-    Error err = command ( input, output, 9, '\r' );
+    Error err = command ( input, output, 10, '\r' );
+    if ( err == kSuccess && output.compare ( input ) == 0 )
+        err = command ( "", output, 10, '\r' );
     if ( err != kSuccess )
         return err;
 
