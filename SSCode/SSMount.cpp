@@ -1857,9 +1857,10 @@ SSMount::Error SSSyntaMount::mcAxisSlewTo ( int axis, double targetPosition )
     if ( err )
         return err;
     
-    // Calculate slewing distance.
+    // Calculate slewing distance. Reduce to range [-pi ... +pi].
     // TODO: For EQ mount, Positions[AXIS1] is offset( -PI/2 ) adjusted in UpdateAxisPosition().
-    double angle = targetPosition - curPosition;
+    
+    double angle = modpi ( targetPosition - curPosition );
     
     // Convert distance in radian into steps.
     // if there is no increment, return directly.
