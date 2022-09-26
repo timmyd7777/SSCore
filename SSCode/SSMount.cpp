@@ -1629,6 +1629,7 @@ SSSyntaMount::SSSyntaMount ( SSMountType type, SSCoordinates &coords ) : SSMount
 {
     _protocol = kSyntaDirect;
     _countsPerRev[kAzmRAAxis] = _countsPerRev[kAltDecAxis] = 0;
+    _breakSteps[kAzmRAAxis] = _breakSteps[kAltDecAxis] = 3500;
 }
 
 // Sends 1-byte Synta motor command and listens for response.
@@ -1756,25 +1757,6 @@ SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
     return kSuccess;
 }
 
-SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
-{
-    string r1, r2;
-    Error err = motorCommand ( 'j', 1, "", r1 ) ;
-    if ( err == kSuccess )
-        err = motorCommand ( 'j', 2, "", r2 );
-
-    if ( err )
-        return err;
-    
-    int i1 = 0, i2 = 0;
-    if ( sscanf ( r1.c_str(), "%x", &i1 ) < 1 || sscanf ( r2.c_str(), "%x", &i2 ) < 1 )
-        return kInvalidOutput;
-    
-    ra  = SSAngle::kTwoPi * ( i1 - 0x00800000 ) / _countsPerRev[kAzmRAAxis];
-    dec = SSAngle::kTwoPi * ( i2 - 0x00800000 ) / _countsPerRev[kAltDecAxis];
-    return kSuccess;
-}
-
 SSMount::Error SSSyntaMount::mcAxisStop ( int axis, bool instant )
 {
     string data;
@@ -1846,10 +1828,7 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     
     // Calculate and set step period.
     
-    double radToStep = _countsPerRev[axis - 1] / SSAngle::kTwoPi;
-    double radRateToSpeed = _stepTimerFreq[axis - 1] / radToStep;
-    int speedInt = ( 1.0 / internalSpeed ) * radRateToSpeed;
-    
+    int speedInt = radSpeedToInt ( axis, internalSpeed );
     int version = _mcVersion[axis - 1];
     if ( version == 0x010600 || version == 0x010601 ) // For special MC version.
         speedInt -= 3;
@@ -1868,6 +1847,62 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     return err;
 }
 
+SSMount::Error SSSyntaMount::mcAxisSlewTo ( int axis, double targetPosition )
+{
+    // Get current position of the axis.
+    
+    double curPosition = 0.0;
+    Error err = mcGetAxisPosition ( axis, curPosition );
+    if ( err )
+        return err;
+    
+    // Calculate slewing distance.
+    // TODO: For EQ mount, Positions[AXIS1] is offset( -PI/2 ) adjusted in UpdateAxisPosition().
+    double movingAngle = targetPosition - curPosition;
+    
+    // Convert distance in radian into steps.
+    // if there is no increment, return directly.
+    
+    int movingSteps = angleToStep ( axis, movingAngle );
+    if ( movingSteps == 0 )
+        return kSuccess;
+
+    // Set moving direction
+    bool forward = movingSteps > 0;
+    movingSteps = abs ( movingSteps );
+    
+    // TODO: Might need to check whether motor has stopped.
+
+    // Check if the distance is long enough to trigger a high speed GOTO.
+    // LowSpeedGotoMargin is calculated from slewing for 5 seconds at 128x sidereal rate
+    int lowSpeedGotoMargin = angleToStep ( axis, 640 * SIDEREALRATE );
+    bool highspeed = movingSteps > lowSpeedGotoMargin;
+    
+    // Set motion mode
+    
+    string outdata;
+    err = motorCommand ( 'G', axis, format ( "%d%d", highspeed ? 0 : 2, forward ? 0 : 1 ), outdata );
+    if ( err )
+        return err;
+
+    // Set GoTo target increment
+    
+    err = motorCommand ( 'H', axis, format ( "%06X", movingSteps ), outdata );
+    if ( err )
+        return err;
+    
+    // Set break point increment
+    
+    err = motorCommand ( 'M', axis, format ( "%06X", _breakSteps[axis - 1] ), outdata );
+    if ( err )
+        return err;
+    
+    // Start motion
+    
+    err = motorCommand ( 'J', axis, "", outdata );
+    return err;
+}
+
 SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
 {
     string response;
@@ -1878,34 +1913,56 @@ SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
     if ( response.length() < 3 )
         return kInvalidOutput;
     
-    if ( ( response[1] & 0x01 ) != 0 )
+    status.fullStop = ( response[1] & 0x01 ) != 0 ? false : true;
+    if ( ! status.fullStop )
     {
-        status.fullStop = false;        // Axis is running
-        if ( ( response[0] & 0x01) != 0 )
-            status.slewing = true;      // Axis in slewing (constant speed) mode.
-        else
-            status.slewingTo = true;    // Axis in SlewingTo mode.
-    }
-    else
-    {
-        status.fullStop = true;         // Axis is fully stop.
+        status.slewing = ( response[0] & 0x01 ) != 0 ? true : false;
+        status.slewingTo = ! status.slewing;
     }
 
-    if ( ( response[0] & 0x02 ) == 0 )
-        status.slewingForward = true;   // Angle increase = 1
-    else
-        status.slewingForward = false;
+    status.slewingForward = ( response[0] & 0x02 ) == 0 ? true : false;
+    status.highSpeed = ( response[0] & 0x04 ) != 0 ? true : false;
+    status.notInitialized = ( response[2] & 1 ) == 0 ? true : false;
     
-    if ( ( response[0] & 0x04 ) != 0 )
-        status.highSpeed = true;        // HighSpeed running mode = 1
-    else
-        status.highSpeed = false;
+    return kSuccess;
+}
 
-    if ( ( response[2] & 1 ) == 0 )
-        status.notInitialized = true;    // MC is not initialized.
-    else
-        status.notInitialized = false;
+SSMount::Error SSSyntaMount::mcGetAxisPosition ( int axis, double &rad )
+{
+    string response;
+    Error err = motorCommand ( 'j', axis, "", response ) ;
+    if ( err != kSuccess)
+        return err;
     
+    int iPosition = 0;
+    if ( sscanf ( response.c_str(), "%x", &iPosition ) < 1 )
+        return kInvalidOutput;
+    
+    iPosition -= 0x00800000;
+    rad = SSAngle::kTwoPi * iPosition / _countsPerRev[axis - 1];
+    return kSuccess;
+}
+
+SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, double rad )
+{
+    string response;
+    int iPosition = angleToStep ( axis, rad ) + 0x00800000;
+    Error err = motorCommand ( 'E', axis, format ( "%06X", iPosition ), response );
+    return err;
+}
+
+SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
+{
+    double rarad = 0.0, decrad = 0.0;
+    
+    Error err = mcGetAxisPosition ( 1, rarad );
+    if ( err == kSuccess )
+        err = mcGetAxisPosition ( 2, decrad );
+    if ( err )
+        return err;
+    
+    ra  = rarad;
+    dec = decrad;
     return kSuccess;
 }
 
@@ -1941,5 +1998,44 @@ SSMount::Error SSSyntaMount::stop ( void )
     Error err = mcAxisStop ( 1, true );
     if ( err == kSuccess )
         err = mcAxisStop ( 2, true );
+    if ( err == kSuccess )
+        _slewing = false;
+    return err;
+}
+
+SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
+{
+    Error err = mcAxisSlewTo ( 1, ra );
+    if ( err == kSuccess )
+        err = mcAxisSlewTo ( 2, dec );
+
+    if ( err == kSuccess )
+    {
+        _slewing = true;
+        _slewRA = ra;
+        _slewDec = dec;
+    }
+    
+    return err;
+}
+
+SSMount::Error SSSyntaMount::sync ( SSAngle ra, SSAngle dec )
+{
+    Error err = mcSetAxisPosition ( 1, ra );
+    if ( err == kSuccess )
+        err = mcSetAxisPosition ( 2, dec );
+    return err;
+}
+
+SSMount::Error SSSyntaMount::slewing ( bool &status )
+{
+    AxisStatus axstat1, axstat2;
+    Error err = mcGetAxisStatus ( 1, axstat1 );
+    if ( err == kSuccess )
+        err = mcGetAxisStatus ( 2, axstat2 );
+    if ( err )
+        return err;
+    
+    status = axstat1.slewingTo || axstat2.slewingTo;
     return err;
 }

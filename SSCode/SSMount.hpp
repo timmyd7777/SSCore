@@ -254,18 +254,19 @@ protected:
     int _countsPerRev[2];       // counts per revolution on Azm/RA axis [0] and Alt/Dec axis [1]
     int _mcVersion[2];          // motor controller version (as integer) on both axes
     int _highSpeedRatio[2];     // high vs low motor speed motor ratio on both axes
-    int _stepTimerFreq[2];      // frequency of stepping timer interrupt.
+    int _stepTimerFreq[2];      // frequency of stepping timer interrupt on both axes
+    int _breakSteps[2];         // Break steps from slewing to stop on both axes
     
-    // axis status bit codes for mcGetAxisStatus()
+    // axis status returned by mcGetAxisStatus()
     
     struct AxisStatus
     {
-        bool fullStop;
-        bool slewing;
-        bool slewingTo;
-        bool slewingForward;
-        bool highSpeed;
-        bool notInitialized;
+        bool fullStop;          // Axis is fully stopped
+        bool slewing;           // Axis is running
+        bool slewingTo;         // Axis in slewing (constant speed) mode
+        bool slewingForward;    // Angle increases; otherwise angle decreases
+        bool highSpeed;         // HighSpeed running mode
+        bool notInitialized;    // MC is not initialized
     };
     
     // For these methods, axis 1 = Azm/RA and axis 2 = Alt/Dec
@@ -274,19 +275,27 @@ protected:
     Error motorCommand ( char cmd, int axis, string input, string &output );
     Error mcAxisStop ( int axis, bool instant );
     Error mcAxisSlew ( int axis, double speed );    // speed in radians/sec
+    Error mcAxisSlewTo ( int axis, double radians );
     Error mcGetAxisStatus ( int axis, AxisStatus &status );
+    Error mcGetAxisPosition ( int axis, double &radians );
+    Error mcSetAxisPosition ( int axis, double radians );
 
+    int angleToStep ( int axis, double rad ) { return _countsPerRev[axis - 1] * rad / SSAngle::kTwoPi; }
+    double stepToAngle ( int axis, int step ) { return SSAngle::kTwoPi * step / _countsPerRev[axis - 1]; }
+    int radSpeedToInt ( int axis, double rad ) { return _stepTimerFreq[axis - 1] / angleToStep ( axis, rad ); }
+    
 public:
+    
     SSSyntaMount ( SSMountType type, SSCoordinates &coords );
 
     virtual int maxSlewRate ( void ) { return 4; }
     virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
-    virtual Error slew ( SSAngle ra, SSAngle dec ) { return kNotSupported; }
+    virtual Error slew ( SSAngle ra, SSAngle dec );
     virtual Error slew ( SSSlewAxis axis, int rate );
     virtual Error stop ( void );
-    virtual Error sync ( SSAngle ra, SSAngle dec ) { return kNotSupported; }
-    virtual Error slewing ( bool &status ) { return kNotSupported; }
+    virtual Error sync ( SSAngle ra, SSAngle dec );
+    virtual Error slewing ( bool &status );
     virtual Error aligned ( bool &status ) { return kNotSupported; }
     virtual Error setTime ( SSTime time ) { return kNotSupported; }
     virtual Error setSite ( SSSpherical site ) { return kNotSupported; }
