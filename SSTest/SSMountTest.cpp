@@ -41,7 +41,7 @@ int main ( int argc, const char * argv[] )
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;
-    if ( SSLocationFromIP ( here ) )
+    if ( false ) // SSLocationFromIP ( here ) )
         cout << "SSLocationFromIP() returned"
              << " lon " << SSDegMinSec ( here.lon ).toString()
              << " lat " << SSDegMinSec ( here.lat ).toString() << endl;
@@ -208,19 +208,22 @@ int main ( int argc, const char * argv[] )
                                 << " latitude " << SSDegMinSec ( mountSite.lat ).toString() << endl;
     
     SSAngle ra, dec;
-    err = pMount->read ( ra, dec );
-    if ( err )
-        cout << "read() returned error " << SSMountErrors[err] << endl;
-    else
-        cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
-    sleep ( 1 );
+    //while ( true )
+    {
+        err = pMount->read ( ra, dec );
+        if ( err )
+            cout << "read() returned error " << SSMountErrors[err] << endl;
+        else
+            cout << "read() returned RA: " << SSHourMinSec ( ra ).toString() << "  Dec: " << SSDegMinSec ( dec ).toString() << endl;
+        sleep ( 1 );
+    }
     
     // Test slewing in Azimuth/RA
     
     int rate = pMount->maxSlewRate();
     err = pMount->slew ( kAzmRAAxis, rate );
     if ( err )
-        cout << "slew ( kAzmRAAxis, rate ) returned error " << err << endl;
+        cout << "slew ( kAzmRAAxis, rate ) returned error " << SSMountErrors[err] << endl;
     else
         cout << "slew ( kAzmRAAxis, rate ) succeded!" << endl;
     sleep ( 3 );

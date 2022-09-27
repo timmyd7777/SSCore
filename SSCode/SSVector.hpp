@@ -33,6 +33,7 @@ struct SSSpherical
     SSVector toVectorPosition ( void );
     SSVector toVectorVelocity ( SSSpherical vsph );
 
+    SSSpherical normalize ( void );
     SSSpherical antipode ( void );
     SSSpherical transition ( SSSpherical other, double t );
     

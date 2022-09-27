@@ -596,7 +596,7 @@ SSSocket SSSocket::serverAcceptConnection ( void )
 //
 // When finished using the socket, dispose of it with closeSocket().
 
-bool SSSocket::openUDPSocket ( SSIP SSIP, uint16_t wPort )
+bool SSSocket::openUDPSocket ( SSIP localIP, uint16_t wPort )
 {
     int                 nSocket = 0;
     struct sockaddr_in  address = { 0 };
@@ -607,10 +607,10 @@ bool SSSocket::openUDPSocket ( SSIP SSIP, uint16_t wPort )
     
     address.sin_family = PF_INET;
     address.sin_port = htons ( wPort );
-    address.sin_addr = SSIP.addr;
+    address.sin_addr = localIP.addr;
     memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
     
-    if ( SSIP && wPort )
+    if ( localIP && wPort )
     {
         if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
         {
@@ -676,9 +676,13 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
     struct          sockaddr_in address;
     socklen_t       addrlen = sizeof ( address );
     struct timeval  tv;
-    
+
     // Set recieve timeout to the specified number of milliseconds
-    
+
+#ifdef _MSC_VER
+    DWORD dwTimeout = timeout_ms;
+    nResult = setsockopt ( _socket, SOL_SOCKET, SO_RCVTIMEO, (char *) &dwTimeout, sizeof ( dwTimeout ) );
+#else
     if ( timeout_ms > 0 )
     {
         tv.tv_sec = timeout_ms / 1000;
@@ -691,11 +695,12 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
     }
     
     nResult = setsockopt ( _socket, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof ( tv ) );
+#endif
     if ( nResult == -1 )
         return SOCKET_ERROR;
     
     // Wait to recieve UDP message, until timeout
-    
+
     nResult = (int) recvfrom ( _socket, (char *) lpvData, lLength, 0, (sockaddr *) &address, &addrlen );
     if ( nResult == -1 )
     {

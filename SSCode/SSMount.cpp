@@ -26,7 +26,8 @@ static SSMountProtocolMap _protocols =
     { kMeadeLX200,        "Meade LX200" },
     { kMeadeAutostar,     "Meade Autostar" },
     { kCelestronNexStar,  "Celestron NexStar" },
-    { kSkyWatcherSynScan, "Skywatcher SynScan" }
+    { kSkyWatcherSynScan, "Skywatcher SynScan" },
+    { kSyntaDirect,       "Synta Direct" }
 };
 
 // Obtains map of supported mount protocol names, indexed by protocol identifier.
@@ -48,6 +49,9 @@ SSMountPtr SSNewMount ( SSMountType type, SSMountProtocol protocol, SSCoordinate
     
     if ( protocol == kCelestronNexStar || protocol == kSkyWatcherSynScan )
         return new SSCelestronMount ( type, protocol, coords );
+
+    if ( protocol == kSyntaDirect )
+        return new SSSyntaMount ( type, coords );
 
     return new SSMount ( type, coords );
 };
@@ -135,6 +139,8 @@ SSMount::Error SSMount::connect ( const string &path, uint16_t port, int baud, i
     {
         if ( udp )
         {
+            // vector<SSIP> localIPs = SSSocket::getLocalIPs();
+            // _socket.openUDPSocket ( localIPs[0], port );
             _socket.openUDPSocket ( SSIP(), port );
             if ( ! _socket.socketOpen() )
                 return kOpenFail;
@@ -309,8 +315,10 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             do
             {
                 bytes = _socket.readUDPSocket ( &junk, 1, sender, 1 );
+#ifndef _MSC_VER    // This is an expected failure on Windows; calling recvfrom() before sendto() will not implicitly bind the socket.
                 if ( bytes < 0 )
                     return kReadFail;
+#endif
             }
             while ( bytes > 0 );
         }
@@ -1612,5 +1620,506 @@ SSMount::Error SSMeadeMount::aligned ( bool &status )
         return err;
     
     status = output == 'A' || output == 'G' || output == 'L' || output == 'P';
+    return kSuccess;
+}
+
+// Overrides and mount-specific methods for Synta (SkyWatcher/Orion) direct motor controllers.
+// See https://inter-static.skywatcher.com/downloads/skywatcher_motor_controller_command_set.pdf
+// and sample code here: https://github.com/skywatcher-pacific/skywatcher_open
+// and here: https://github.com/liwn/Skywatcher
+// SSSyntaMount constructor:
+
+SSSyntaMount::SSSyntaMount ( SSMountType type, SSCoordinates &coords ) : SSMount ( type, coords )
+{
+    _protocol = kSyntaDirect;
+    _countsPerRev[kAzmRAAxis] = _countsPerRev[kAltDecAxis] = 0;
+    _breakSteps[kAzmRAAxis] = _breakSteps[kAltDecAxis] = 3500;
+    _aligned = false;
+}
+
+// Sends 1-byte Synta motor command and listens for response.
+// For RA/Azm motor, axis = 0. For Dec/Alt motor, axis = 1.
+// Payload data associated with command may be zero-length.
+// Returns error code or zero if successful.
+
+SSMount::Error SSSyntaMount::motorCommand ( int axis, char cmd, string indata, string &outdata )
+{
+    // If we have input data, swap byte order
+    
+    if ( indata.length() == 6 )
+    {
+        swap ( indata[0], indata[4] );
+        swap ( indata[1], indata[5] );
+    }
+    else if ( indata.length() == 4 )
+    {
+        swap ( indata[0], indata[2] );
+        swap ( indata[1], indata[3] );
+    }
+
+    // format and send command, listen for response, return if error.
+    // Note mount expects RA/Azm axis = 1 and Alt/Dec axis = 2!
+    // On most Alt/Az mounts, serial TX and RX lines are connected together
+    // so the command will be echoed before the response.
+    // If we see this, keep reading to get the real response.
+    
+    string output, input = format ( ":%c%d%s\r", cmd, axis + 1, indata.c_str() );
+    Error err = command ( input, output, 10, '\r' );
+    if ( err == kSuccess && output.compare ( input ) == 0 )
+        err = command ( "", output, 10, '\r' );
+    if ( err != kSuccess )
+        return err;
+
+    // Ensure response indicates success
+    
+    if ( output.length() < 2 || output[0] != '=' || output.back() != '\r' )
+        return kInvalidOutput;
+    
+    // Extact paylod data from output string and byte-swap.
+    
+    outdata = output.substr ( 1, output.length() - 2 );
+    if ( outdata.length() == 6 )
+    {
+        swap ( outdata[0], outdata[4] );
+        swap ( outdata[1], outdata[5] );
+    }
+    else if ( outdata.length() == 4 )
+    {
+        swap ( outdata[0], outdata[2] );
+        swap ( outdata[1], outdata[3] );
+    }
+    
+    return kSuccess;
+}
+
+// Opens serial or socket connection to Synta direct motor controller and reads controller firmware version string.
+// If port is zero, path is a serial device file (like "/dev/ttyUSBserial0" on Linux or "\\.\COM3" on Windows)
+// If port is nonzero, path is mount IP address or fully-qualified domain name (like "192.168.4.1")
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
+{
+    Error err = kSuccess;
+    
+    // Open serial communication at 9600 baud, no parity, 8 data bits, 1 stop bit
+    // Socket communication on port 11880 is assumed to be UDP (SynScan Wi-Fi)
+    
+    err = SSMount::connect ( path, port, 9600, SSSerial::kNoParity, SSSerial::k8DataBits, SSSerial::k1StopBits, port == 11880 );
+    if ( err != kSuccess )
+        return err;
+
+    // Get motor board version on both axes
+    
+    string data;
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( axis, 'e', "", data );
+        if ( err != kSuccess )
+            return err;
+        int tmpMCVersion = 0;
+        if ( sscanf ( data.c_str(), "%x", &tmpMCVersion ) < 1 )
+            return kInvalidOutput;
+        _mcVersion[axis] = ( ( tmpMCVersion & 0xFF ) << 16 ) | ( ( tmpMCVersion & 0xFF00 ) ) | ( ( tmpMCVersion & 0xFF0000) >> 16 );
+        _version += data;
+    }
+
+    // Get counts per revolution on both axes.
+
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( axis, 'a', "", data );
+        if ( err != kSuccess )
+            return err;
+        if ( sscanf ( data.c_str(), "%x", &_countsPerRev[axis] ) < 1 )
+            return kInvalidOutput;
+    }
+
+    // Inquire high speed ratio on both axes.
+
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( axis, 'g', "", data );
+        if ( err != kSuccess )
+            return err;
+        if ( sscanf ( data.c_str(), "%x", &_highSpeedRatio[axis] ) < 1 )
+            return kInvalidOutput;
+    }
+
+    // Inquire stepper timer interrupt frequency on both axes.
+
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( axis, 'b', "", data );
+        if ( err != kSuccess )
+            return err;
+        if ( sscanf ( data.c_str(), "%x", &_stepTimerFreq[axis] ) < 1 )
+            return kInvalidOutput;
+    }
+    
+    // Finish initialization.
+
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = motorCommand ( axis, 'F', "", data );
+        if ( err != kSuccess )
+            return err;
+    }
+
+    return kSuccess;
+}
+
+SSMount::Error SSSyntaMount::mcAxisStop ( int axis, bool instant )
+{
+    string data;
+    Error err = motorCommand ( axis, instant ? 'L' : 'K', "", data );
+    return err;
+}
+
+static double MAX_SPEED = degtorad ( 3.4 );
+static double SIDEREALRATE = SSAngle::kTwoPi / SSTime::kSecondsPerDay / SSTime::kSiderealPerSolarDays;
+static double LOW_SPEED_MARGIN = 128.0 * SIDEREALRATE;
+
+SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
+{
+    // 3.4 degrees/sec, 800X sidereal rate, is the highest speed.
+
+    speed = clamp ( speed, -MAX_SPEED, MAX_SPEED );
+    double internalSpeed = speed;
+
+    // InternalSpeed lower than 1/1000 of sidereal rate?
+    
+    if ( fabs ( internalSpeed ) <= SIDEREALRATE / 1000.0 )
+        return mcAxisStop ( axis, false );
+
+    // Stop motor and set motion mode if necessary.
+    
+    bool forward = internalSpeed > 0.0;
+    internalSpeed = fabs ( internalSpeed );
+
+    // High speed adjustment
+    
+    bool highspeed = internalSpeed > LOW_SPEED_MARGIN;
+    if ( highspeed )
+        internalSpeed = internalSpeed / (double) _highSpeedRatio[axis];
+
+    // prepare for slewing
+    
+    AxisStatus status;
+    Error err = mcGetAxisStatus ( axis, status );
+    if ( err )
+        return err;
+    
+    if ( ! status.fullStop )
+    {
+        // We need to stop the motor first if...
+        
+        if ( status.slewingTo || status.highSpeed || highspeed  // GOTO in action, currently high speed slewing, or will be high speed slewing
+        || ( status.slewingForward != forward ) )               // Different direction
+            mcAxisStop ( axis, false );
+
+        while ( true )  // Wait until the axis stop
+        {
+            err = mcGetAxisStatus ( axis, status );
+            if ( err != kSuccess )
+                return err;
+
+            if ( status.fullStop )
+                break;
+
+            usleep ( 100000 );
+        }
+    }
+    
+    // Set motion mode
+    
+    string outdata;
+    err = motorCommand ( axis, 'G', format ( "%d%d", highspeed ? 3 : 1, forward ? 0 : 1 ), outdata );
+    if ( err )
+        return err;
+    
+    // Calculate and set step period.
+    
+    int speedInt = radSpeedToInt ( axis, internalSpeed );
+    int version = _mcVersion[axis];
+    if ( version == 0x010600 || version == 0x010601 ) // For special MC version.
+        speedInt -= 3;
+    
+    if ( speedInt < 6 )
+        speedInt = 6;
+
+    string data = format ( "%06X", speedInt );
+    err = motorCommand ( axis, 'I', data, outdata );
+    if ( err )
+        return err;
+    
+    // Start motion
+    
+    err = motorCommand ( axis, 'J', "", data );
+    return err;
+}
+
+SSMount::Error SSSyntaMount::mcAxisSlewTo ( int axis, double targetPosition )
+{
+    // Get current position of the axis.
+    
+    double curPosition = 0.0;
+    Error err = mcGetAxisPosition ( axis, curPosition );
+    if ( err )
+        return err;
+    
+    // Calculate slewing distance. Reduce to range [-pi ... +pi].
+    // TODO: For EQ mount, Positions[AXIS1] is offset( -PI/2 ) adjusted in UpdateAxisPosition().
+    
+    double angle = modpi ( targetPosition - curPosition );
+    
+    // Convert distance in radian into steps.
+    // if there is no increment, return directly.
+    
+    int steps = angleToStep ( axis, angle );
+    if ( steps == 0 )
+        return kSuccess;
+
+    // Set moving direction
+    
+    bool forward = steps > 0;
+    steps = abs ( steps );
+    
+    // TODO: Might need to check whether motor has stopped.
+
+    // Check if the distance is long enough to trigger a high speed GOTO.
+    // LowSpeedGotoMargin is calculated from slewing for 5 seconds at 128x sidereal rate
+    
+    int lowSpeedGotoMargin = angleToStep ( axis, 640 * SIDEREALRATE );
+    bool highspeed = steps > lowSpeedGotoMargin;
+    
+    // Set motion mode
+    
+    string outdata;
+    err = motorCommand ( axis, 'G', format ( "%d%d", highspeed ? 0 : 2, forward ? 0 : 1 ), outdata );
+    if ( err )
+        return err;
+
+    // Set GoTo target increment
+    
+    err = motorCommand ( axis, 'H', format ( "%06X", steps ), outdata );
+    if ( err )
+        return err;
+    
+    // Set break point increment
+    
+    err = motorCommand ( axis, 'M', format ( "%06X", _breakSteps[axis] ), outdata );
+    if ( err )
+        return err;
+    
+    // Start motion
+    
+    err = motorCommand ( axis, 'J', "", outdata );
+    return err;
+}
+
+SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
+{
+    string response;
+    Error err = motorCommand ( axis, 'f', "", response );
+    if ( err != kSuccess )
+        return err;
+    
+    if ( response.length() < 3 )
+        return kInvalidOutput;
+    
+    status.fullStop = response[1] & 0x01 ? false : true;
+    status.slewing = ! status.fullStop && ( response[0] & 0x01 ? true : false );
+    status.slewingTo = ! status.fullStop && ! status.slewing;
+    status.slewingForward = response[0] & 0x02 ? false : true;
+    status.highSpeed = response[0] & 0x04 ? true : false;
+    status.notInitialized = response[2] & 1 ? false : true;
+    
+    return kSuccess;
+}
+
+SSMount::Error SSSyntaMount::mcGetAxisPosition ( int axis, double &rad )
+{
+    string response;
+    Error err = motorCommand ( axis, 'j', "", response ) ;
+    if ( err != kSuccess)
+        return err;
+    
+    int iPosition = 0;
+    if ( sscanf ( response.c_str(), "%x", &iPosition ) < 1 )
+        return kInvalidOutput;
+    
+    iPosition -= 0x00800000;
+    rad = stepToAngle ( axis, iPosition ); // SSAngle::kTwoPi * iPosition / _countsPerRev[axis];
+    return kSuccess;
+}
+
+SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, double rad )
+{
+    string response;
+    int iPosition = angleToStep ( axis, rad ) + 0x00800000;
+    Error err = motorCommand ( axis, 'E', format ( "%06X", iPosition ), response );
+    return err;
+}
+
+// Gets mount RA/Dec in J2000 mean equatorial (fundamental) frame from Synta motor controller.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
+{
+    double lon = 0.0, lat = 0.0;
+    
+    Error err = mcGetAxisPosition ( kAzmRAAxis, lon );
+    if ( err == kSuccess )
+        err = mcGetAxisPosition ( kAltDecAxis, lat );
+    if ( err )
+        return err;
+    
+    // Convert from mount frame of reference to fundamental RA/Dec.
+    // Really we should use a mount model. TBD.
+    // This will also fix declinations > 90!
+    // For equatorial mounts, lon is really hour angle; convert to RA.
+    // HA = LST - RA so RA = LST - HA
+    
+    ra  = isEquatorial() ? _coords.getLST() - lon : lon;
+    dec = lat;
+    
+    if ( isEquatorial() )
+        _coords.transform ( kEquatorial, kFundamental, ra, dec );
+    else
+        _coords.transform ( kHorizon, kFundamental, ra, dec );
+
+    return kSuccess;
+}
+
+// Starts or stops slewing mount on an axis at a positive or negative rate
+// from zero ... maxSlewRate(). If rate is zero, stops slewing on the specified axis.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSSyntaMount::slew ( SSSlewAxis axis, int rate )
+{
+    double speed = 0.0;
+    
+    // We support four rates, emulating Meade LX-200 protocol
+    
+    int absrate = abs ( rate );
+    if ( absrate > maxSlewRate() )
+        return kInvalidInput;
+    
+    // Convert rate to speed in radians per second
+    
+    if ( absrate == 4 )
+        speed = MAX_SPEED;
+    else if ( absrate == 3 )
+        speed = MAX_SPEED / 3;
+    else if ( absrate == 2 )
+        speed = 32 * SIDEREALRATE;
+    else if ( absrate == 1 )
+        speed = 2 * SIDEREALRATE;
+    
+    if ( rate < 0 )
+        speed = -speed;
+    
+    return mcAxisSlew ( axis, speed );
+}
+
+// Stops any in-progress GoTo or slew, and resumes sidereal tracking.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSSyntaMount::stop ( void )
+{
+    Error err = mcAxisStop ( kAzmRAAxis, true );
+    if ( err == kSuccess )
+        err = mcAxisStop ( kAltDecAxis, true );
+    if ( err == kSuccess )
+        _slewing = false;
+    return err;
+}
+
+// Starts SlewTo target RA/Dec coordinates in J2000 mean equatorial (fundamental) frame.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
+{
+    // Convert from fundamental RA/Dec to mount frame of reference.
+    // For equatorial mounts, convert RA to hour angle.
+    // Really we should use a mount model. TBD.
+
+    SSAngle lon = ra, lat = dec;
+    if ( isEquatorial() )
+        _coords.transform ( kFundamental, kEquatorial, lon, lat );
+    else
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
+
+    if ( isEquatorial() )
+        lon = mod2pi ( _coords.getLST() - lon );
+    
+    Error err = mcAxisSlewTo ( kAzmRAAxis, lon );
+    if ( err == kSuccess )
+        err = mcAxisSlewTo ( kAltDecAxis, lat );
+
+    if ( err == kSuccess )
+    {
+        _slewing = true;
+        _slewRA = ra;
+        _slewDec = dec;
+    }
+    
+    return err;
+}
+
+// Syncs mount on the specified RA/Dec in J2000 mean equatorial (fundamental) coordinates.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSSyntaMount::sync ( SSAngle ra, SSAngle dec )
+{
+    // Convert from fundamental RA/Dec to mount frame of reference.
+    // For equatorial mounts, convert RA to hour angle.
+    // Really we should use a mount model. TBD.
+
+    SSAngle lon ( ra ), lat ( dec );
+    if ( isEquatorial() )
+        _coords.transform ( kFundamental, kEquatorial, lon, lat );
+    else
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
+
+    if ( isEquatorial() )
+        lon = mod2pi ( _coords.getLST() - lon );
+
+    Error err = mcSetAxisPosition ( kAzmRAAxis, lon );
+    if ( err == kSuccess )
+        err = mcSetAxisPosition ( kAltDecAxis, lat );
+
+    if ( err == kSuccess )
+        _aligned = true;
+
+    return err;
+}
+
+// Queries status of a GoTo: true = in progress, false = not slewing.
+// Returns error code or zero if successful.
+
+SSMount::Error SSSyntaMount::slewing ( bool &status )
+{
+    AxisStatus axstat1, axstat2;
+    
+    Error err = mcGetAxisStatus ( kAzmRAAxis, axstat1 );
+    if ( err == kSuccess )
+        err = mcGetAxisStatus ( kAltDecAxis, axstat2 );
+    if ( err )
+        return err;
+    
+    status = axstat1.slewingTo || axstat2.slewingTo;
+    return err;
+}
+
+// Queries mount alignment status: true = aligned, false = not aligned.
+// Returns error code or zero if successful.
+
+SSMount::Error SSSyntaMount::aligned ( bool &status )
+{
+    status = _aligned;
     return kSuccess;
 }

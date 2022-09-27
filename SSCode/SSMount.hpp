@@ -38,7 +38,8 @@ enum SSMountProtocol
     kMeadeLX200 = 1000,         // Meade LX-200 classic and LX-200GPS mounts
     kMeadeAutostar = 1001,      // Meade Autostar and Audiostar controllers
     kCelestronNexStar = 2000,   // Celestron NexStar and StarSense controllers
-    kSkyWatcherSynScan = 2001   // SkyWatcher and Orion SynScan controllers
+    kSkyWatcherSynScan = 2001,  // SkyWatcher and Orion SynScan controllers
+    kSyntaDirect = 3000         // Direct interface to Synta motor controllers (e.g. SynScan Wi-Fi, EQMOD, EQDIR)
 };
 
 // Directional slew axis identifiers
@@ -122,6 +123,8 @@ public:
     string getVersion ( void ) { return _version; }
     bool slewing ( void ) { return _slewing; }
     bool connected ( void )  { return _connected; }
+    bool isEquatorial ( void ) { return _type == kEquatorialPushMount || _type == kEquatorialGotoMount; }
+    bool isGoTo ( void ) { return _type == kAltAzimuthGotoMount || _type == kEquatorialGotoMount; }
 
     // Open and close serial or socket connection to mount
     
@@ -244,6 +247,69 @@ public:
     virtual Error getSite ( SSSpherical &site );
 };
 
+// Overrides for Synta Direct mounts.
+// Implements direct communication with Synta (i.e. SkyWatcher/Orion)
+// mount motors, bypassing the SynScan hand controller, via serial connection
+// (like EQMOD or EQDIR) or SynScan Wi-Fi adapter.
+// This class is still somewhat experimental; it should work if the mount is
+// perfectly polar aligned (equatorial mounts) or perfectly level (alt-azimuth).
+// Really we should use a mount pointing model and mult-star alignment. TBD!
+
+class SSSyntaMount : public SSMount
+{
+protected:
+    
+    int _countsPerRev[2];       // counts per revolution on Azm/RA axis [0] and Alt/Dec axis [1]
+    int _mcVersion[2];          // motor controller version (as integer) on both axes
+    int _highSpeedRatio[2];     // high vs low motor speed motor ratio on both axes
+    int _stepTimerFreq[2];      // frequency of stepping timer interrupt on both axes
+    int _breakSteps[2];         // Break steps from slewing to stop on both axes
+    
+    bool _aligned;              // true if sync() has succeeded; false otherwise
+
+    // axis status returned by mcGetAxisStatus()
+    
+    struct AxisStatus
+    {
+        bool fullStop;          // Axis is fully stopped
+        bool slewing;           // Axis is running
+        bool slewingTo;         // Axis in slewing (constant speed) mode
+        bool slewingForward;    // Angle increases; otherwise angle decreases
+        bool highSpeed;         // HighSpeed running mode
+        bool notInitialized;    // MC is not initialized
+    };
+    
+    Error motorCommand ( int axis, char cmd, string input, string &output );
+    Error mcAxisStop ( int axis, bool instant );
+    Error mcAxisSlew ( int axis, double speed );    // speed in radians/sec
+    Error mcAxisSlewTo ( int axis, double radians );
+    Error mcGetAxisStatus ( int axis, AxisStatus &status );
+    Error mcGetAxisPosition ( int axis, double &radians );
+    Error mcSetAxisPosition ( int axis, double radians );
+
+    int angleToStep ( int axis, double rad ) { return _countsPerRev[axis] * rad / SSAngle::kTwoPi; }
+    double stepToAngle ( int axis, int step ) { return SSAngle::kTwoPi * step / _countsPerRev[axis]; }
+    int radSpeedToInt ( int axis, double rad ) { return _stepTimerFreq[axis] / angleToStep ( axis, rad ); }
+    
+public:
+    
+    SSSyntaMount ( SSMountType type, SSCoordinates &coords );
+
+    virtual int maxSlewRate ( void ) { return 4; }
+    virtual Error connect ( const string &path, uint16_t port );
+    virtual Error read ( SSAngle &ra, SSAngle &dec );
+    virtual Error slew ( SSAngle ra, SSAngle dec );
+    virtual Error slew ( SSSlewAxis axis, int rate );
+    virtual Error stop ( void );
+    virtual Error sync ( SSAngle ra, SSAngle dec );
+    virtual Error slewing ( bool &status );
+    virtual Error aligned ( bool &status );
+    virtual Error setTime ( SSTime time ) { return kNotSupported; }
+    virtual Error setSite ( SSSpherical site ) { return kNotSupported; }
+    virtual Error getTime ( SSTime &time ) { return kNotSupported; }
+    virtual Error getSite ( SSSpherical &site ) { return kNotSupported; }
+};
+
 // Obtains map of supported mount protocol names, indexed by protocol identifier
 
 typedef map<SSMountProtocol,string> SSMountProtocolMap;
@@ -252,6 +318,7 @@ int SSGetMountProtocols ( SSMountProtocolMap &map );
 typedef SSMount *SSMountPtr;
 typedef SSMeadeMount *SSMeadeMountPtr;
 typedef SSCelestronMount *SSCelestronMountPtr;
+typedef SSSyntaMount *SSSyntaMountPtr;
 
 // Allocates new SSMount (or subclass of SSMount) depending on supplied protocol identifier.
 

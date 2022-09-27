@@ -83,6 +83,15 @@ SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
     return SSVector ( vx, vy, vz );
 }
 
+// Returns a copy of this spherical coordinate normalized to the following range:
+// -kHalfPi ... +kHalfPi for latitude; 0 ... kTwoPi for longitude
+// Does not modify this spherical coordinate!
+
+SSSpherical SSSpherical::normalize ( void )
+{
+    return this->toVectorPosition().toSpherical();
+}
+
 // Returns the spherical coordinates at the opposite side of the sphere
 // from this set of spherical coordinates.
 

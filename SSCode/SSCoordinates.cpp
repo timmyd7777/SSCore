@@ -444,7 +444,7 @@ SSVector SSCoordinates::transform ( SSFrame from, SSFrame to, SSVector vec )
 void SSCoordinates::transform ( SSFrame from, SSFrame to, SSAngle &lon, SSAngle &lat )
 {
     SSSpherical sph ( lon, lat, 1.0 );
-    sph = SSSpherical ( transform ( kEquatorial, kFundamental, SSVector ( sph ) ) );
+    sph = SSSpherical ( transform ( from, to, SSVector ( sph ) ) );
     lon = sph.lon;
     lat = sph.lat;
 }
