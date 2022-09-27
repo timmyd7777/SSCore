@@ -257,6 +257,8 @@ protected:
     int _stepTimerFreq[2];      // frequency of stepping timer interrupt on both axes
     int _breakSteps[2];         // Break steps from slewing to stop on both axes
     
+    bool _aligned;              // true if sync() has succeeded; false otherwise
+
     // axis status returned by mcGetAxisStatus()
     
     struct AxisStatus
@@ -293,7 +295,7 @@ public:
     virtual Error stop ( void );
     virtual Error sync ( SSAngle ra, SSAngle dec );
     virtual Error slewing ( bool &status );
-    virtual Error aligned ( bool &status ) { return kNotSupported; }
+    virtual Error aligned ( bool &status );
     virtual Error setTime ( SSTime time ) { return kNotSupported; }
     virtual Error setSite ( SSSpherical site ) { return kNotSupported; }
     virtual Error getTime ( SSTime &time ) { return kNotSupported; }

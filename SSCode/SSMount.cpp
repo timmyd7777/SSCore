@@ -315,8 +315,10 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             do
             {
                 bytes = _socket.readUDPSocket ( &junk, 1, sender, 1 );
+#ifndef _MSC_VER    // This is an expected failure on Windows; calling recvfrom() before sendto() will not implicitly bind the socket.
                 if ( bytes < 0 )
                     return kReadFail;
+#endif
             }
             while ( bytes > 0 );
         }
@@ -1632,6 +1634,7 @@ SSSyntaMount::SSSyntaMount ( SSMountType type, SSCoordinates &coords ) : SSMount
     _protocol = kSyntaDirect;
     _countsPerRev[kAzmRAAxis] = _countsPerRev[kAltDecAxis] = 0;
     _breakSteps[kAzmRAAxis] = _breakSteps[kAltDecAxis] = 3500;
+    _aligned = false;
 }
 
 // Sends 1-byte Synta motor command and listens for response.
@@ -1958,21 +1961,29 @@ SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, double rad )
     return err;
 }
 
+// This assumes the mount is perfectly polar-aligned if equatoril,
+// or perfectly level if altazimuth!
+
 SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
 {
-    double rarad = 0.0, decrad = 0.0;
+    double lon = 0.0, lat = 0.0;
     
-    Error err = mcGetAxisPosition ( kAzmRAAxis, rarad );
+    Error err = mcGetAxisPosition ( kAzmRAAxis, lon );
     if ( err == kSuccess )
-        err = mcGetAxisPosition ( kAltDecAxis, decrad );
+        err = mcGetAxisPosition ( kAltDecAxis, lat );
     if ( err )
         return err;
     
-    // correct for declinations > 90 degrees
-    
-    SSSpherical coords = SSSpherical ( rarad, decrad ).normalize();
-    ra  = coords.lon;
-    dec = coords.lat;
+    // Convert from mount frame of refernce to fundamental RA/Dec.
+    // Really we should use a mount model. TBD.
+    // This will also fix declinations > 90!
+
+    ra = lon; dec = lat;
+    if ( _type == kAltAzimuthGotoMount )
+        _coords.transform ( kHorizon, kFundamental, ra, dec );
+    else
+        _coords.transform ( kEquatorial, kFundamental, ra, dec );
+
     return kSuccess;
 }
 
@@ -2015,9 +2026,18 @@ SSMount::Error SSSyntaMount::stop ( void )
 
 SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
 {
-    Error err = mcAxisSlewTo ( kAzmRAAxis, ra );
+    // Convert from fundamental RA/Dec to mount frame of reference.
+    // Really we should use a mount model. TBD.
+
+    SSAngle lon ( ra ), lat ( dec );
+    if ( _type == kAltAzimuthGotoMount )
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
+    else
+        _coords.transform ( kFundamental, kEquatorial, lon, lat );
+
+    Error err = mcAxisSlewTo ( kAzmRAAxis, lon );
     if ( err == kSuccess )
-        err = mcAxisSlewTo ( kAltDecAxis, dec );
+        err = mcAxisSlewTo ( kAltDecAxis, lat );
 
     if ( err == kSuccess )
     {
@@ -2031,9 +2051,22 @@ SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
 
 SSMount::Error SSSyntaMount::sync ( SSAngle ra, SSAngle dec )
 {
+    // Convert from fundamental RA/Dec to mount frame of reference.
+    // Really we should use a mount model. TBD.
+
+    SSAngle lon ( ra ), lat ( dec );
+    if ( _type == kAltAzimuthGotoMount )
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
+    else
+        _coords.transform ( kFundamental, kEquatorial, lon, lat );
+
     Error err = mcSetAxisPosition ( kAzmRAAxis, ra );
     if ( err == kSuccess )
         err = mcSetAxisPosition ( kAltDecAxis, dec );
+
+    if ( err == kSuccess )
+        _aligned = true;
+
     return err;
 }
 
@@ -2049,4 +2082,10 @@ SSMount::Error SSSyntaMount::slewing ( bool &status )
     
     status = axstat1.slewingTo || axstat2.slewingTo;
     return err;
+}
+
+SSMount::Error SSSyntaMount::aligned ( bool &status )
+{
+    status = _aligned;
+    return kSuccess;
 }

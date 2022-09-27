@@ -676,9 +676,13 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
     struct          sockaddr_in address;
     socklen_t       addrlen = sizeof ( address );
     struct timeval  tv;
-    
+
     // Set recieve timeout to the specified number of milliseconds
-    
+
+#ifdef _MSC_VER
+    DWORD dwTimeout = timeout_ms;
+    nResult = setsockopt ( _socket, SOL_SOCKET, SO_RCVTIMEO, (char *) &dwTimeout, sizeof ( dwTimeout ) );
+#else
     if ( timeout_ms > 0 )
     {
         tv.tv_sec = timeout_ms / 1000;
@@ -691,15 +695,15 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
     }
     
     nResult = setsockopt ( _socket, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof ( tv ) );
+#endif
     if ( nResult == -1 )
         return SOCKET_ERROR;
     
     // Wait to recieve UDP message, until timeout
-    
+
     nResult = (int) recvfrom ( _socket, (char *) lpvData, lLength, 0, (sockaddr *) &address, &addrlen );
     if ( nResult == -1 )
     {
-        // int winerr = WSAGetLastError();
         if ( errno == EAGAIN || errno == EWOULDBLOCK )
             return 0;
         else
