@@ -123,6 +123,8 @@ public:
     string getVersion ( void ) { return _version; }
     bool slewing ( void ) { return _slewing; }
     bool connected ( void )  { return _connected; }
+    bool isEquatorial ( void ) { return _type == kEquatorialPushMount || _type == kEquatorialGotoMount; }
+    bool isGoTo ( void ) { return _type == kAltAzimuthGotoMount || _type == kEquatorialGotoMount; }
 
     // Open and close serial or socket connection to mount
     
@@ -245,7 +247,13 @@ public:
     virtual Error getSite ( SSSpherical &site );
 };
 
-// Overrides for Synta Direct mounts
+// Overrides for Synta Direct mounts.
+// Implements direct communication with Synta (i.e. SkyWatcher/Orion)
+// mount motors, bypassing the SynScan hand controller, via serial connection
+// (like EQMOD or EQDIR) or SynScan Wi-Fi adapter.
+// This class is still somewhat experimental; it should work if the mount is
+// perfectly polar aligned (equatorial mounts) or perfectly level (alt-azimuth).
+// Really we should use a mount pointing model and mult-star alignment. TBD!
 
 class SSSyntaMount : public SSMount
 {

@@ -1961,8 +1961,9 @@ SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, double rad )
     return err;
 }
 
-// This assumes the mount is perfectly polar-aligned if equatoril,
-// or perfectly level if altazimuth!
+// Gets mount RA/Dec in J2000 mean equatorial (fundamental) frame from Synta motor controller.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
 {
@@ -1974,18 +1975,26 @@ SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
     if ( err )
         return err;
     
-    // Convert from mount frame of refernce to fundamental RA/Dec.
+    // Convert from mount frame of reference to fundamental RA/Dec.
     // Really we should use a mount model. TBD.
     // This will also fix declinations > 90!
-
-    ra = lon; dec = lat;
-    if ( _type == kAltAzimuthGotoMount )
-        _coords.transform ( kHorizon, kFundamental, ra, dec );
-    else
+    // For equatorial mounts, lon is really hour angle; convert to RA.
+    // HA = LST - RA so RA = LST - HA
+    
+    ra  = isEquatorial() ? _coords.getLST() - lon : lon;
+    dec = lat;
+    
+    if ( isEquatorial() )
         _coords.transform ( kEquatorial, kFundamental, ra, dec );
+    else
+        _coords.transform ( kHorizon, kFundamental, ra, dec );
 
     return kSuccess;
 }
+
+// Starts or stops slewing mount on an axis at a positive or negative rate
+// from zero ... maxSlewRate(). If rate is zero, stops slewing on the specified axis.
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSSyntaMount::slew ( SSSlewAxis axis, int rate )
 {
@@ -2014,6 +2023,9 @@ SSMount::Error SSSyntaMount::slew ( SSSlewAxis axis, int rate )
     return mcAxisSlew ( axis, speed );
 }
 
+// Stops any in-progress GoTo or slew, and resumes sidereal tracking.
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSSyntaMount::stop ( void )
 {
     Error err = mcAxisStop ( kAzmRAAxis, true );
@@ -2024,17 +2036,25 @@ SSMount::Error SSSyntaMount::stop ( void )
     return err;
 }
 
+// Starts SlewTo target RA/Dec coordinates in J2000 mean equatorial (fundamental) frame.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
 {
     // Convert from fundamental RA/Dec to mount frame of reference.
+    // For equatorial mounts, convert RA to hour angle.
     // Really we should use a mount model. TBD.
 
-    SSAngle lon ( ra ), lat ( dec );
-    if ( _type == kAltAzimuthGotoMount )
-        _coords.transform ( kFundamental, kHorizon, lon, lat );
-    else
+    SSAngle lon = ra, lat = dec;
+    if ( isEquatorial() )
         _coords.transform ( kFundamental, kEquatorial, lon, lat );
+    else
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
 
+    if ( isEquatorial() )
+        lon = mod2pi ( _coords.getLST() - lon );
+    
     Error err = mcAxisSlewTo ( kAzmRAAxis, lon );
     if ( err == kSuccess )
         err = mcAxisSlewTo ( kAltDecAxis, lat );
@@ -2049,26 +2069,37 @@ SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
     return err;
 }
 
+// Syncs mount on the specified RA/Dec in J2000 mean equatorial (fundamental) coordinates.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
+
 SSMount::Error SSSyntaMount::sync ( SSAngle ra, SSAngle dec )
 {
     // Convert from fundamental RA/Dec to mount frame of reference.
+    // For equatorial mounts, convert RA to hour angle.
     // Really we should use a mount model. TBD.
 
     SSAngle lon ( ra ), lat ( dec );
-    if ( _type == kAltAzimuthGotoMount )
-        _coords.transform ( kFundamental, kHorizon, lon, lat );
-    else
+    if ( isEquatorial() )
         _coords.transform ( kFundamental, kEquatorial, lon, lat );
+    else
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
 
-    Error err = mcSetAxisPosition ( kAzmRAAxis, ra );
+    if ( isEquatorial() )
+        lon = mod2pi ( _coords.getLST() - lon );
+
+    Error err = mcSetAxisPosition ( kAzmRAAxis, lon );
     if ( err == kSuccess )
-        err = mcSetAxisPosition ( kAltDecAxis, dec );
+        err = mcSetAxisPosition ( kAltDecAxis, lat );
 
     if ( err == kSuccess )
         _aligned = true;
 
     return err;
 }
+
+// Queries status of a GoTo: true = in progress, false = not slewing.
+// Returns error code or zero if successful.
 
 SSMount::Error SSSyntaMount::slewing ( bool &status )
 {
@@ -2083,6 +2114,9 @@ SSMount::Error SSSyntaMount::slewing ( bool &status )
     status = axstat1.slewingTo || axstat2.slewingTo;
     return err;
 }
+
+// Queries mount alignment status: true = aligned, false = not aligned.
+// Returns error code or zero if successful.
 
 SSMount::Error SSSyntaMount::aligned ( bool &status )
 {
