@@ -824,20 +824,13 @@ int SSHTTP::sendRequestHeader ( size_t postSize )
 
     if ( ! _socket.socketOpen() )
         return 0;
-    
-    SSIP remote;
-    bool result = _socket.getRemoteIP ( remote );
-    string str = remote.toString();
-    printf ( "Socket remote IP is %s\n", str.c_str() );
-
-    string hostname = SSSocket::IPtoHostName ( remote );
-    printf ( "Remote host name is %s\n", hostname.c_str() );
 
     // format HTTP POST or GET command.
-    // TODO: add content type to POST command?
     
     string header;
-    if ( postSize > 0 )
+    if ( postSize > 0 && ! _contType.empty() )
+        header = format ( "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n", _path.c_str(), _host.c_str(), postSize, _contType.c_str() );
+    else if ( postSize > 0 )
         header = format ( "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Length: %ld\r\n\r\n", _path.c_str(), _host.c_str(), postSize );
     else
         header = format ( "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", _path.c_str(), _host.c_str() );
