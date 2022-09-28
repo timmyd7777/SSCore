@@ -12,7 +12,6 @@
 
 #include <string.h>
 
-//#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "SSSocket.hpp"
 #include "SSUtilities.hpp"
 
@@ -149,25 +148,6 @@ SSIP::operator uint32_t() const
 // using DNS. If successul, returns a vector of IPv4 addresses corresponding to the
 // host name string. Returns an empty vector on failure.
 
-#if 0
-
-vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
-{
-    vector<SSIP> vIPs;
-    
-    struct hostent  *pHostEnt = gethostbyname ( hostName.c_str() );
-    if ( pHostEnt == NULL )
-        return vIPs;
-
-    int nIPs = pHostEnt->h_length / sizeof ( struct in_addr );
-    for ( int i = 0; i < nIPs; i++ )
-        vIPs.push_back ( SSIP ( *( (struct in_addr *) pHostEnt->h_addr_list[i] ) ) );
-
-    return vIPs;
-}
-
-#else
-
 vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
 {
     vector<SSIP> vIPs;
@@ -188,26 +168,11 @@ vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
     return vIPs;
 }
 
-#endif
-
 // Determines the host name corresponding to an IPv4 address using DNS.
 // This method will attempt to determine the fully-qualified domain name
 // (like "cnn.com") corresponding to the IP address.
 // If the method fails to find the host's fully-qualified domain name,
 // it will return an empty string.
-
-#if 0
-
-string SSSocket::IPtoHostName ( const SSIP &ip )
-{
-    struct hostent *pHostEnt = gethostbyaddr ( (char *) &ip.addr, sizeof ( ip.addr ), AF_INET );
-    if ( pHostEnt != nullptr )
-        return string ( pHostEnt->h_name );
-    
-    return string ( "" );
-}
-
-#else
 
 string SSSocket::IPtoHostName ( const SSIP &ip )
 {
@@ -222,8 +187,6 @@ string SSSocket::IPtoHostName ( const SSIP &ip )
     else    
         return string ( "" );
 }
-
-#endif
 
 #ifdef _MSC_VER
 
