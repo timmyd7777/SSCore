@@ -867,7 +867,7 @@ int SSHTTP::readResponseHeader ( void )
         int bytes = _socket.readSocket ( &c, 1 );
         if ( bytes < 1 )
         {
-            usleep ( 1000 );
+            msleep ( 1 );
             continue;
         }
 
@@ -925,7 +925,7 @@ int SSHTTP::readContent ( void )
         
         if ( bytes < 1 )
         {
-            usleep ( 1000 );
+            msleep ( 1 );
             continue;
         }
         

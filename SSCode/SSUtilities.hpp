@@ -86,6 +86,9 @@ double mod180 ( double deg );
 double mod360 ( double deg );
 double mod24h ( double h );
 
+// These POSIX sleep() functions are declared in <unistd.h>
+// on MacOS/Linux; these are replacements for Windows.
+
 #ifdef _MSC_VER
 unsigned int sleep ( unsigned int secs );
 int usleep ( uint32_t usecs );
