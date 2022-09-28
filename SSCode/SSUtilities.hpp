@@ -91,6 +91,8 @@ unsigned int sleep ( unsigned int secs );
 int usleep ( uint32_t usecs );
 #endif
 
+void msleep ( uint32_t ms );
+
 double unixtime ( void );
 double unixtime_since ( double &start );
 

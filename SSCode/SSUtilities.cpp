@@ -491,6 +491,17 @@ int usleep ( uint32_t usec )
 
 #endif
 
+// Sleep the current thread for the specified number of milliseconds.
+
+void msleep ( uint32_t ms )
+{
+#ifdef _MSC_VER
+    Sleep ( ms );
+#else
+    usleep ( (useconds_t) ms * 1000 );
+#endif
+}
+
 // Returns unix time (seconds since 1 January 1970) with microsecond precision.
 // Time may not increate monotonically because of system clock adjustments (leap seconds, etc.) 
 // From https://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows

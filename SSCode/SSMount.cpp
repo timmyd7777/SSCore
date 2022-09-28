@@ -255,7 +255,7 @@ SSMount::Error SSMount::serialCommand ( const char *input, int inlen, char *outp
         }
         else if ( bytes < 1 )
         {
-            usleep ( 1000 );
+            msleep ( 1 );
             if ( clocksec() - start > timeout_ms / 1000.0 )
                 err = kTimedOut;
             continue;
@@ -376,7 +376,7 @@ SSMount::Error SSMount::socketCommand ( const char *input, int inlen, char *outp
             }
             else if ( bytes < 1 )
             {
-                usleep ( 1000 );
+                msleep ( 1 );
                 if ( clocksec() - start > timeout_ms / 1000.0 )
                     err = kTimedOut;
                 continue;
@@ -1821,7 +1821,7 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
             if ( status.fullStop )
                 break;
 
-            usleep ( 100000 );
+            msleep ( 100 );
         }
     }
     
