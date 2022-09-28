@@ -6,6 +6,7 @@
 //
 // This class implements basic IPv4 network TCP and UDP socket communication.
 // TCP server sockets are supported. IPv6 and SSL and not supported.
+// On Windows, make sure to link with WS2_32.LIB!
 
 #ifndef SSSocket_hpp
 #define SSSocket_hpp
@@ -14,6 +15,7 @@
 
 #ifdef _MSC_VER
     #include <winsock2.h>
+    #include <WS2tcpip.h>
     #include <windows.h>
 #else
     #include <unistd.h>

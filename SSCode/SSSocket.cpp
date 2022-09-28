@@ -6,13 +6,13 @@
 //
 // This class implements basic IPv4 network TCP and UDP socket communication.
 // TCP server sockets are supported. IPv6 and SSL and not supported.
-// On Windows, make sure to link with WSOCK32.LIB!
+// On Windows, make sure to link with WS2_32.LIB!
 // Based primarily on example code from Beej's Guide to Network Programming:
 // https://beej.us/guide/bgnet/html/
 
 #include <string.h>
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
+//#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "SSSocket.hpp"
 #include "SSUtilities.hpp"
 
@@ -100,14 +100,8 @@ SSIP::SSIP ( void )
 
 SSIP::SSIP ( const string &str )
 {
-#ifdef _MSC_VER
-    addr.s_addr = inet_addr ( str.c_str() );
-    if ( addr.s_addr == INADDR_NONE )
-        addr.s_addr = 0;
-#else
     if ( inet_pton ( AF_INET, str.c_str(), &addr ) == 0 )
         addr.s_addr = 0;
-#endif
 }
 
 // SSIP constructor from platform-native IPv4 address struct
@@ -129,8 +123,11 @@ SSIP::SSIP ( const uint32_t val )
 
 string SSIP::toString ( void )
 {
-    char *str = inet_ntoa ( addr );
-    return string ( str != nullptr ? str : "" );
+    char str[256] = { 0 };
+    if ( inet_ntop ( AF_INET, &addr, str, sizeof ( str ) ) != nullptr )
+        return string ( str );
+    else
+        return "";
 }
 
 // Factory method constructs IPv4 address from string in dotted notation.
@@ -152,6 +149,8 @@ SSIP::operator uint32_t() const
 // using DNS. If successul, returns a vector of IPv4 addresses corresponding to the
 // host name string. Returns an empty vector on failure.
 
+#if 0
+
 vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
 {
     vector<SSIP> vIPs;
@@ -167,11 +166,37 @@ vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
     return vIPs;
 }
 
+#else
+
+vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
+{
+    vector<SSIP> vIPs;
+    addrinfo hint = { 0 }, *results = nullptr;
+
+    hint.ai_family = AF_INET;
+
+    if ( getaddrinfo ( hostName.c_str(), nullptr, &hint, &results ) == 0 )
+    {
+        for ( addrinfo *pinfo = results; pinfo != nullptr; pinfo = pinfo->ai_next )
+        {
+            sockaddr_in *addr = (sockaddr_in *) pinfo->ai_addr;
+            vIPs.push_back ( SSIP ( addr->sin_addr ) );
+        }
+        freeaddrinfo ( results );
+    }
+
+    return vIPs;
+}
+
+#endif
+
 // Determines the host name corresponding to an IPv4 address using DNS.
 // This method will attempt to determine the fully-qualified domain name
 // (like "cnn.com") corresponding to the IP address.
 // If the method fails to find the host's fully-qualified domain name,
 // it will return an empty string.
+
+#if 0
 
 string SSSocket::IPtoHostName ( const SSIP &ip )
 {
@@ -181,6 +206,24 @@ string SSSocket::IPtoHostName ( const SSIP &ip )
     
     return string ( "" );
 }
+
+#else
+
+string SSSocket::IPtoHostName ( const SSIP &ip )
+{
+    sockaddr_in addr = { 0 };
+    char hostname[1024] = { 0 };
+
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = ip;
+
+    if ( getnameinfo ( (sockaddr *) &addr, sizeof ( addr ), hostname, sizeof ( hostname ), nullptr, 0, NI_NAMEREQD ) == 0 )
+        return string ( hostname );
+    else    
+        return string ( "" );
+}
+
+#endif
 
 #ifdef _MSC_VER
 
@@ -819,6 +862,14 @@ int SSHTTP::sendRequestHeader ( size_t postSize )
     if ( ! _socket.socketOpen() )
         return 0;
     
+    SSIP remote;
+    bool result = _socket.getRemoteIP ( remote );
+    string str = remote.toString();
+    printf ( "Socket remote IP is %s\n", str.c_str() );
+
+    string hostname = SSSocket::IPtoHostName ( remote );
+    printf ( "Remote host name is %s\n", hostname.c_str() );
+
     // format HTTP POST or GET command.
     // TODO: add content type to POST command?
     
