@@ -12,6 +12,7 @@
 
 #include <string.h>
 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "SSSocket.hpp"
 #include "SSUtilities.hpp"
 

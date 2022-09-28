@@ -6,12 +6,6 @@
 //
 // Command-line test program for telescope mount communication classes.
 
-#ifdef _MSC_VER
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
-
 #include <cstdio>
 #include <iostream>
 #include <algorithm>
@@ -19,7 +13,6 @@
 #include <thread>
 
 #include "SSMount.hpp"
-#include "SSSocket.hpp"
 #include "SSUtilities.hpp"
 
 map<SSMount::Error,string> SSMountErrors =
@@ -41,7 +34,7 @@ int main ( int argc, const char * argv[] )
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;
-    if ( false ) // SSLocationFromIP ( here ) )
+    if ( SSLocationFromIP ( here ) )
         cout << "SSLocationFromIP() returned"
              << " lon " << SSDegMinSec ( here.lon ).toString()
              << " lat " << SSDegMinSec ( here.lat ).toString() << endl;

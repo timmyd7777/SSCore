@@ -10,18 +10,20 @@
 #ifndef SSSocket_hpp
 #define SSSocket_hpp
 
-#include <string>
-#include <vector>
+// Important - must #include <winsock2.h> before <windows.h> !
 
 #ifdef _MSC_VER
+    #include <winsock2.h>
     #include <windows.h>
-    #include <winsock.h>
 #else
     #include <sys/socket.h>
     #include <netinet/in.h>
     typedef int SOCKET;                 // Native socket data type
     constexpr int INVALID_SOCKET = -1;  // Native invalid socket value
 #endif
+
+#include <string>
+#include <vector>
 
 using namespace std;
 

@@ -16,8 +16,10 @@
 #include <map>
 #include <mutex>
 
-#include "SSSerial.hpp"
+// Important for Windows - must #include "SSSocket.hpp" before "SSSerial.hpp"
+
 #include "SSSocket.hpp"
+#include "SSSerial.hpp"
 #include "SSCoordinates.hpp"
 
 // Mechanical mount families

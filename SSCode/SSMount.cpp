@@ -8,11 +8,6 @@
 // controllers over serial port and TCP/IP sockets. Supported protocols include
 // Meade LX-200/Autostar, Celestron NexStar, and SkyWatcher/Orion SynScan.
 
-#ifdef _MSC_VER
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 #include <thread>
 
 #include "SSMount.hpp"
