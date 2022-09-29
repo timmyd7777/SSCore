@@ -63,22 +63,33 @@ int main ( int argc, const char * argv[] )
         cout << ip.toString() << endl;
 
     SSSocket sock;
-    vector<SSIP> server = SSSocket::hostNameToIPs ( "www.southernstars.com", true );
-    if ( server.size() > 0 && sock.openSocket ( server[0], 80, 1000 ) )
-        cout << "sock.openSocket ( server, 80, 1000 ) succeeded!" << endl;
-    else
-        cout << "sock.openSocket ( server, 80, 1000 ) failed!" << endl;
+    vector<SSIP> server = SSSocket::hostNameToIPs ( "www.southernstars.com", false );
+    if ( server.size() > 0 )
+	{
+		cout << "www.southernstars.com is ";
+		v6 = server[0].toIPv6();
+		cout << v6.toString() << endl;
+	
+		if ( server.size() > 0 && sock.openSocket ( server[0], 80, 1000 ) )
+			cout << "sock.openSocket ( server, 80, 1000 ) succeeded!" << endl;
+		else
+			cout << "sock.openSocket ( server, 80, 1000 ) failed!" << endl;
     
-    SSIP peer;
-    peer.ipv6 = true;
-    if ( sock.getRemoteIP ( peer ) )
-        cout << "sock.getPeerIP ( peer ) succeeded!" << endl;
-    else
-        cout << "sock.getPeerIP ( peer ) failed!" << endl;
-    
-    cout << peer.toString() << endl;
-    sock.closeSocket();
+		SSIP peer;
+		peer.ipv6 = true;
+		if ( sock.getRemoteIP ( peer ) )
+			cout << "sock.getPeerIP ( peer ) succeeded!" << endl;
+		else
+			cout << "sock.getPeerIP ( peer ) failed!" << endl;
 
+		cout << peer.toString() << endl;
+		sock.closeSocket();
+	}
+	else
+	{
+		cout << "SSSocket::hostNameToIPs ( \"www.southernstars.com\", false ) failed!" << endl;
+	}
+	
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;

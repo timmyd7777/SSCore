@@ -171,6 +171,40 @@ bool SSIP::specified ( void )
         return addr.s_addr != 0;
 }
 
+// Converts IPv4 address to IPv4-mapped IPv6 address. Returns IPv6 addresses unchanged.
+
+SSIP SSIP::toIPv6 ( void )
+{
+	if ( ipv6 )
+		return *this;
+	
+	SSIP v6;
+	
+	v6.add6.s6_addr32[3] = addr.s_addr;
+	v6.add6.s6_addr32[2] = 0xffff0000;
+	v6.add6.s6_addr32[1] = 0;
+	v6.add6.s6_addr32[0] = 0;
+	v6.ipv6 = true;
+	
+	return v6;
+}
+
+// Converts IPv4-mapped IPv6 addresses to IPv4. Returns IPv4 addresses unchanged.
+// Also returns IPv6 addresses that are not IPv4-mapped unchanged.
+
+SSIP SSIP::toIPv4 ( void )
+{
+	if ( ! ipv6 )
+		return *this;
+	
+	if ( add6.s6_addr32[0] != 0
+	  || add6.s6_addr32[1] != 0
+	  || add6.s6_addr32[2] != 0xffff0000 )
+		return *this;
+		
+	return SSIP ( add6.s6_addr32[3] );
+}
+
 // Populates sockaddr_in (addr) or sockaddr_in6 (add6) struct with contents of IP address and port.
 // Returns pointer the provided addr or add6 struct, depending on whether the provided SSIP is a v4 or v6 address.
 // Returns length of the filled-in addr or addd6 struct as the final parameter, len.

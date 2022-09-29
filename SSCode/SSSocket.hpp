@@ -60,6 +60,9 @@ struct SSIP
     
     string toString ( void );
     static SSIP fromString ( const string &str );
+    
+    SSIP toIPv6 ( void );   // Converts IPv4 address to IPv4-mapped IPv6 address. Returns IPv6 addresses unchanged.
+    SSIP toIPv4 ( void );   // Converts IPv4-mapped IPv6 addresses to IPv4. Returns IPv4 addresses unchanged.
 };
 
 class SSSocket
