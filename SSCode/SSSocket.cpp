@@ -205,8 +205,8 @@ vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName, bool ipv6 )
     vector<SSIP> vIPs;
     addrinfo hint = { 0 }, *results = nullptr;
 
+    initialize();
     hint.ai_family = ipv6 ? AF_INET6 : AF_INET;
-
     if ( getaddrinfo ( hostName.c_str(), nullptr, &hint, &results ) == 0 )
     {
         for ( addrinfo *pinfo = results; pinfo != nullptr; pinfo = pinfo->ai_next )
@@ -225,6 +225,7 @@ vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName, bool ipv6 )
         freeaddrinfo ( results );
     }
 
+    //int winerr = WSAGetLastError();
     return vIPs;
 }
 
@@ -242,6 +243,7 @@ string SSSocket::IPtoHostName ( const SSIP &ip )
     socklen_t len = 0;
     sockaddr *add = fill_sockaddr ( ip, 0, &addr, &add6, &len );
 
+    initialize();
     if ( getnameinfo ( add, len, hostname, sizeof ( hostname ), nullptr, 0, NI_NAMEREQD ) == 0 )
         return string ( hostname );
     else    

@@ -31,6 +31,8 @@ map<SSMount::Error,string> SSMountErrors =
 
 int main ( int argc, const char * argv[] )
 {
+//    SSSocket::initialize();
+
     SSIP v4 ( "192.168.0.2" );
     SSIP v6 ( "2345:0425:2CA1:0000:0000:0567:5673:23b5" );
     SSIP v8 ( "This is a dummy string" );
@@ -61,8 +63,8 @@ int main ( int argc, const char * argv[] )
         cout << ip.toString() << endl;
 
     SSSocket sock;
-    SSIP server = SSSocket::hostNameToIPs ( "www.southernstars.com", true )[0];
-    if ( sock.openSocket ( server, 80, 1000 ) )
+    vector<SSIP> server = SSSocket::hostNameToIPs ( "www.southernstars.com", true );
+    if ( server.size() > 0 && sock.openSocket ( server[0], 80, 1000 ) )
         cout << "sock.openSocket ( server, 80, 1000 ) succeeded!" << endl;
     else
         cout << "sock.openSocket ( server, 80, 1000 ) failed!" << endl;
