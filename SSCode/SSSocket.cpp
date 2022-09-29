@@ -181,19 +181,19 @@ SSIP SSIP::toIPv6 ( void )
     SSIP v6;
 
 #ifdef __APPLE__
-    uint32_t *s6_addr32 = (uint32_t *) v6.add6.s6_addr;
+    uint32_t *addr32 = (uint32_t *) v6.add6.s6_addr;
 #elif defined ( _MSC_VER )
-    uint32_t *s6_addr32 = (uint32_t *) v6.add6.u.Byte;
+    uint32_t *addr32 = (uint32_t *) v6.add6.u.Byte;
 #else   // Linux, Android
-    uint32_t *s6_addr32 = v6.add6.s6_addr32;
+    uint32_t *addr32 = v6.add6.s6_addr32;
 #endif
     
-    s6_addr32[3] = addr.s_addr;
-    s6_addr32[2] = 0xffff0000;
-    s6_addr32[1] = 0;
-    s6_addr32[0] = 0;
-    v6.ipv6 = true;
+    addr32[3] = addr.s_addr;
+    addr32[2] = 0xffff0000;
+    addr32[1] = 0;
+    addr32[0] = 0;
     
+    v6.ipv6 = true;
     return v6;
 }
 
@@ -206,19 +206,19 @@ SSIP SSIP::toIPv4 ( void )
         return *this;
 
 #ifdef __APPLE__
-    uint32_t *s6_addr32 = (uint32_t *) add6.s6_addr;
+    uint32_t *addr32 = (uint32_t *) add6.s6_addr;
 #elif defined ( _MSC_VER )
-    uint32_t *s6_addr32 = (uint32_t *) add6.u.Byte;
+    uint32_t *addr32 = (uint32_t *) add6.u.Byte;
 #else   // Linux, Android
-    uint32_t *s6_addr32 = add6.s6_addr32;
+    uint32_t *addr32 = add6.s6_addr32;
 #endif
 
-    if ( s6_addr32[0] != 0
-      || s6_addr32[1] != 0
-      || s6_addr32[2] != 0xffff0000 )
+    if ( addr32[0] != 0
+      || addr32[1] != 0
+      || addr32[2] != 0xffff0000 )
         return *this;
     
-    return SSIP ( s6_addr32[3] );
+    return SSIP ( addr32[3] );
 }
 
 // Populates sockaddr_in (addr) or sockaddr_in6 (add6) struct with contents of IP address and port.
