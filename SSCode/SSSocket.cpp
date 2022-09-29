@@ -153,11 +153,22 @@ SSIP SSIP::fromString ( const string &str )
 }
 
 // Returns IPv4 address as 32-bit unsigned integer on all platforms
-// If this is an IPv6 address, returns zero.
+// If this is an IPv6 address, returns zero. Recommend specified() instead!
 
 SSIP::operator uint32_t() const
 {
     return ipv6 ? 0 : addr.s_addr;
+}
+
+// Returns true if any part of this IP address is nonzero, or false if entirely zero.
+// Works for both IPv4 and IPv6 addresses.
+
+bool SSIP::specified ( void )
+{
+    if ( ipv6 )
+        return ! IN6_IS_ADDR_UNSPECIFIED ( &add6 );
+    else
+        return addr.s_addr != 0;
 }
 
 // Populates sockaddr_in (addr) or sockaddr_in6 (add6) struct with contents of IP address and port.
@@ -288,9 +299,8 @@ vector<SSIP> SSSocket::getLocalIPs ( bool ipv6 )
 
 // Obtains the IPv4 or IPv6 address of the remote (i.e. peer) machine to which
 // this TCP socket is connected. Will not work for UDP sockets.
-// To return IPv6 address, set peer.ipv6 true before calling.
+// To return IPv6 address, set peer.ipv6 to true before calling.
 // Returns true if successful, or false on failure.
-// TODO: needs testing!
 
 bool SSSocket::getRemoteIP ( SSIP &peer )
 {
@@ -646,10 +656,10 @@ SSSocket SSSocket::serverAcceptConnection ( void )
     return SSSocket ( nResult );
 }
 
-// Opens a connectionless datagram socket, and optionally binds it to a local IPv4
-// address and UDP port. The local IPv4 address on which to bind the socket is (localIP).
-// The UDP port on which to bind, if nonzero, is (wPort).
-// If successful, the function returns true. On failure, it returns false.
+// Opens a connectionless datagram socket, and optionally binds it to a local IPv4/v6
+// address and UDP port. The local IPv4 or v6 address on which to bind the socket is (localIP).
+// The UDP port on which to bind, if nonzero, is (port).
+// Returns true If successful, or false on failure.
 //
 // Typically, the IP address and port number are only needed to listen for incoming
 // UDP packets from a remote sender. The remote sender would send to the IP address
@@ -671,9 +681,7 @@ bool SSSocket::openUDPSocket ( SSIP localIP, uint16_t port )
     if ( sock == -1 )
         return false;
     
-    // TODO: this will break on IPv6; need a better test to determine if IPv6 address is valid!
-    
-    if ( localIP && port )
+    if ( localIP.specified() && port != 0 )
     {
         if ( ::bind ( sock, add, len ) == -1 )
         {
@@ -689,7 +697,7 @@ bool SSSocket::openUDPSocket ( SSIP localIP, uint16_t port )
 // Sends data over a connectionless datagram (UDP) socket.
 // Buffer containing data to send over UDP is (lpvData)
 // Number of bytes of data to send is (lLength)
-// IPv4 address of intended destination is (destIP).
+// IPv4 or IPv6 address of intended destination is (destIP).
 // UDP port number on which to send data on destination is (wDestPort).
 // Returns the number of bytes actually sent over the UDP connection,
 // or SOCKET_ERROR on failure.
@@ -719,7 +727,8 @@ int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, ui
 // Recieves data from a connectionless datagram (UDP) socket.
 // Buffer to receive data from UDP socket is (lpvData).
 // Maximum number of bytes to recieve is (lLength), i.e. size of data buffer in bytes.
-// IP address of remote sender is returned in (senderIP)
+// IPv4 or v6 address of remote sender is returned in (senderIP).
+// To return sender's IPv6 address, set senderIP.ipv6 to true before calling.
 // Timeout value in milliseconds (timeout) is used if nonzero; see below.
 // The function returns the number of bytes actually recieved before timeout,
 // or SOCKET_ERROR on failure.
@@ -734,9 +743,11 @@ int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, ui
 int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int timeout_ms )
 {
     int             nResult;
-    struct          sockaddr_in address;
-    socklen_t       addrlen = sizeof ( address );
-    struct timeval  tv;
+    timeval         tv = { 0 };
+    sockaddr_in     addr = { 0 };
+    sockaddr_in6    add6 = { 0 };
+    socklen_t       len = 0;
+    sockaddr        *add = fill_sockaddr ( senderIP, 0, &addr, &add6, &len );
 
     // Set recieve timeout to the specified number of milliseconds
 
@@ -762,9 +773,7 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
     
     // Wait to recieve UDP message, until timeout
 
-    // TODO: add ability to return IPv6 address?
-    
-    nResult = (int) recvfrom ( _socket, (char *) lpvData, lLength, 0, (sockaddr *) &address, &addrlen );
+    nResult = (int) recvfrom ( _socket, (char *) lpvData, lLength, 0, add, &len );
     if ( nResult == -1 )
     {
         if ( errno == EAGAIN || errno == EWOULDBLOCK )
@@ -773,7 +782,11 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
             return SOCKET_ERROR;
     }
     
-    senderIP = address.sin_addr;
+    if ( senderIP.ipv6 )
+        senderIP = add6.sin6_addr;
+    else
+        senderIP = addr.sin_addr;
+    
     return nResult;
 }
 

@@ -53,10 +53,9 @@ struct SSIP
     SSIP ( const struct in6_addr &add );
     SSIP ( const uint32_t val );
     
-    // Returns IPv4 address as 32-bit unsigned integer on all platforms; returns zero if IPv6.
+    operator uint32_t() const;  // returns IPv4 address as 32-bit unsigned integer on all platforms; returns zero if IPv6.
+    bool specified ( void );    // return true if address is nonzero; works for both IPv4 amd v6
     
-    operator uint32_t() const;
-
     // Converts IP address to/from dotted notation (like "192.168.0.1" or "2345:425:2ca1::567:5673:23b5")
     
     string toString ( void );

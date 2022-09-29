@@ -60,6 +60,23 @@ int main ( int argc, const char * argv[] )
     for ( SSIP &ip : ips )
         cout << ip.toString() << endl;
 
+    SSSocket sock;
+    SSIP server = SSSocket::hostNameToIPs ( "www.southernstars.com", true )[0];
+    if ( sock.openSocket ( server, 80, 1000 ) )
+        cout << "sock.openSocket ( server, 80, 1000 ) succeeded!" << endl;
+    else
+        cout << "sock.openSocket ( server, 80, 1000 ) failed!" << endl;
+    
+    SSIP peer;
+    peer.ipv6 = true;
+    if ( sock.getRemoteIP ( peer ) )
+        cout << "sock.getPeerIP ( peer ) succeeded!" << endl;
+    else
+        cout << "sock.getPeerIP ( peer ) failed!" << endl;
+    
+    cout << peer.toString() << endl;
+    sock.closeSocket();
+
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;
