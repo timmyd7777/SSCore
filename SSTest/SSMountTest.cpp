@@ -31,6 +31,35 @@ map<SSMount::Error,string> SSMountErrors =
 
 int main ( int argc, const char * argv[] )
 {
+    SSIP v4 ( "192.168.0.2" );
+    SSIP v6 ( "2345:0425:2CA1:0000:0000:0567:5673:23b5" );
+    SSIP v8 ( "This is a dummy string" );
+    
+    cout << v4.toString() << endl;
+    cout << v6.toString() << endl;
+    cout << v8.toString() << endl;
+    cout << SSSocket::IPtoHostName ( v6 ) << endl;
+    
+    cout << "Testing SSSocket::hostNameToIPs( \"ip-api.com\", false )" << endl;
+    vector<SSIP> ips = SSSocket::hostNameToIPs( "ip-api.com", false );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() <<  ", " << SSSocket::IPtoHostName ( ip ) << endl;
+    
+    cout << "Testing SSSocket::hostNameToIPs( \"www.southernstars.com\", true )" << endl;
+    ips = SSSocket::hostNameToIPs( "www.southernstars.com", true );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() << ", " << SSSocket::IPtoHostName ( ip ) << endl;
+
+    cout << "Testing SSSocket::getLocalIPs ( false )" << endl;
+    ips = SSSocket::getLocalIPs ( false );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() << endl;
+
+    cout << "Testing SSSocket::getLocalIPs ( true )" << endl;
+    ips = SSSocket::getLocalIPs ( true );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() << endl;
+
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;

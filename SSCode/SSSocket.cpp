@@ -91,16 +91,20 @@ void SSSocket::finalize ( void )
 
 SSIP::SSIP ( void )
 {
-    addr.s_addr = 0;
+    ipv6 = false;
+    memset ( &add6, 0, sizeof ( add6 ) );
 }
 
-// SSIP constructor from IPv4 address string in dotted notation
-// (like "192.168.0.1"); sets address to 0.0.0.0 if string invalid.
+// SSIP constructor from IPv4 or APv6 address string in dotted notation
+// (like "192.168.0.1" or "2001:0db8:c9d2:aee5:73e3:934a:a5ae:9551").
+// Sets address to 0.0.0.0 if string invalid.
 
-SSIP::SSIP ( const string &str )
+SSIP::SSIP ( const string &str ) : SSIP()
 {
-    if ( inet_pton ( AF_INET, str.c_str(), &addr ) == 0 )
-        addr.s_addr = 0;
+    if ( inet_pton ( AF_INET, str.c_str(), &addr ) )
+        ipv6 = false;
+    else if ( inet_pton ( AF_INET6, str.c_str(), &add6 ) )
+        ipv6 = true;
 }
 
 // SSIP constructor from platform-native IPv4 address struct
@@ -108,28 +112,39 @@ SSIP::SSIP ( const string &str )
 SSIP::SSIP ( const struct in_addr &add )
 {
     addr = add;
+    ipv6 = false;
 }
 
-// SSIP constructor from unsigned 32-bit integer value
+// SSIP constructor from platform-native IPv6 address struct
+
+SSIP::SSIP ( const struct in6_addr &add )
+{
+    add6 = add;
+    ipv6 = true;
+}
+
+// SSIP constructor from unsigned 32-bit integer value;
+// generates IPv4 address.
 
 SSIP::SSIP ( const uint32_t val )
 {
     addr.s_addr = val;
+    ipv6 = false;
 }
 
-// Returns string containing IPv4 address in dotted notation
-// (like "192.168.0.1")
+// Returns string containing IPv4 or IPv6 address in dotted notation
+// (like "192.168.0.1" or "2001:0db8:c9d2:aee5:73e3:934a:a5ae:9551")
 
 string SSIP::toString ( void )
 {
     char str[256] = { 0 };
-    if ( inet_ntop ( AF_INET, &addr, str, sizeof ( str ) ) != nullptr )
+    if ( inet_ntop ( ipv6 ? AF_INET6 : AF_INET, &addr, str, sizeof ( str ) ) != nullptr )
         return string ( str );
     else
         return "";
 }
 
-// Factory method constructs IPv4 address from string in dotted notation.
+// Factory method constructs IPv4 or IPv6 address from string in dotted notation.
 // Returned address is 0.0.0.0 if string invalid.
 
 SSIP SSIP::fromString ( const string &str )
@@ -138,29 +153,63 @@ SSIP SSIP::fromString ( const string &str )
 }
 
 // Returns IPv4 address as 32-bit unsigned integer on all platforms
+// If this is an IPv6 address, returns zero.
 
 SSIP::operator uint32_t() const
 {
-    return addr.s_addr;
+    return ipv6 ? 0 : addr.s_addr;
 }
 
-// Attempts to resolve a fully-qualified domain name (like "www.southernstars.com")
-// using DNS. If successul, returns a vector of IPv4 addresses corresponding to the
-// host name string. Returns an empty vector on failure.
+// Populates sockaddr_in (addr) or sockaddr_in6 (add6) struct with contents of IP address and port.
+// Returns pointer the provided addr or add6 struct, depending on whether the provided SSIP is a v4 or v6 address.
+// Returns length of the filled-in addr or addd6 struct as the final parameter, len.
+// Yes, we know about struct sockaddr_storage, but this routine solves the same problem more cleanly.
 
-vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
+static sockaddr *fill_sockaddr ( const SSIP &ip, uint16_t port, sockaddr_in *addr, sockaddr_in6 *add6, socklen_t *len )
+{
+    if ( ip.ipv6 )
+    {
+        add6->sin6_family = AF_INET6;
+        add6->sin6_port = htons ( port );
+        add6->sin6_addr = ip.add6;
+    }
+    else
+    {
+        addr->sin_family = AF_INET;
+        addr->sin_port = htons ( port );
+        addr->sin_addr = ip.addr;
+    }
+
+    *len = ip.ipv6 ? sizeof ( sockaddr_in6 ) : sizeof ( sockaddr_in );
+    return ip.ipv6 ? (sockaddr *) add6 : (sockaddr *) addr;
+}
+
+// Attempts to resolve a fully-qualified domain name (like "www.southernstars.com") using DNS.
+// If successul, returns a vector of IPv4 or IPv6 addresses (if argument ipv6 is true)
+// corresponding to the host name string. Returns an empty vector on failure.
+// TODO: we are returning the same address twice. Why?
+
+vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName, bool ipv6 )
 {
     vector<SSIP> vIPs;
     addrinfo hint = { 0 }, *results = nullptr;
 
-    hint.ai_family = AF_INET;
+    hint.ai_family = ipv6 ? AF_INET6 : AF_INET;
 
     if ( getaddrinfo ( hostName.c_str(), nullptr, &hint, &results ) == 0 )
     {
         for ( addrinfo *pinfo = results; pinfo != nullptr; pinfo = pinfo->ai_next )
         {
-            sockaddr_in *addr = (sockaddr_in *) pinfo->ai_addr;
-            vIPs.push_back ( SSIP ( addr->sin_addr ) );
+            if ( ipv6 )
+            {
+                sockaddr_in6 *addr = (sockaddr_in6 *) pinfo->ai_addr;
+                vIPs.push_back ( SSIP ( addr->sin6_addr ) );
+            }
+            else
+            {
+                sockaddr_in *addr = (sockaddr_in *) pinfo->ai_addr;
+                vIPs.push_back ( SSIP ( addr->sin_addr ) );
+            }
         }
         freeaddrinfo ( results );
     }
@@ -168,7 +217,7 @@ vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
     return vIPs;
 }
 
-// Determines the host name corresponding to an IPv4 address using DNS.
+// Determines the host name corresponding to an IPv4 or IPv6 address using DNS.
 // This method will attempt to determine the fully-qualified domain name
 // (like "cnn.com") corresponding to the IP address.
 // If the method fails to find the host's fully-qualified domain name,
@@ -176,13 +225,13 @@ vector<SSIP> SSSocket::hostNameToIPs ( const string &hostName )
 
 string SSSocket::IPtoHostName ( const SSIP &ip )
 {
-    sockaddr_in addr = { 0 };
     char hostname[1024] = { 0 };
+    sockaddr_in addr = { 0 };
+    sockaddr_in6 add6 = { 0 };
+    socklen_t len = 0;
+    sockaddr *add = fill_sockaddr ( ip, 0, &addr, &add6, &len );
 
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = ip;
-
-    if ( getnameinfo ( (sockaddr *) &addr, sizeof ( addr ), hostname, sizeof ( hostname ), nullptr, 0, NI_NAMEREQD ) == 0 )
+    if ( getnameinfo ( add, len, hostname, sizeof ( hostname ), nullptr, 0, NI_NAMEREQD ) == 0 )
         return string ( hostname );
     else    
         return string ( "" );
@@ -190,23 +239,23 @@ string SSSocket::IPtoHostName ( const SSIP &ip )
 
 #ifdef _MSC_VER
 
-// Returns the IPv4 address corresponding to the local machine's host name.
+// Returns the IPv4 or IPv6 address corresponding to the local machine's host name.
 
-vector<SSIP> SSSocket::getLocalIPs ( void )
+vector<SSIP> SSSocket::getLocalIPs ( bool ipv6 )
 {
     char szHost[256] = { 0 };
     
     if ( gethostname ( szHost, sizeof ( szHost ) ) == 0 )
-        return hostNameToIPs ( string ( szHost ) );
+        return hostNameToIPs ( string ( szHost ), ipv6 );
     else
         return vector<SSIP> ( 0 );
 }
 
 #else
 
-// Returns vector of IPv4 addresses of all network interfaces on the local system.
+// Returns vector of IPv4 or IPv6 addresses of all network interfaces on the local system.
 
-vector<SSIP> SSSocket::getLocalIPs ( void )
+vector<SSIP> SSSocket::getLocalIPs ( bool ipv6 )
 {
     vector<SSIP> vIPs;
     struct ifaddrs *ifa = NULL, *pifa = ifa;
@@ -221,10 +270,14 @@ vector<SSIP> SSSocket::getLocalIPs ( void )
 
     for ( pifa = ifa; pifa != NULL; pifa = pifa->ifa_next )
     {
-        if ( pifa->ifa_addr->sa_family != AF_INET )
+        if ( pifa->ifa_addr->sa_family != ( ipv6 ? AF_INET6 : AF_INET ) )
             continue;
         
-        vIPs.push_back ( ( (sockaddr_in *) pifa->ifa_addr )->sin_addr );
+        if ( ipv6 )
+            vIPs.push_back ( ( (sockaddr_in6 *) pifa->ifa_addr )->sin6_addr );
+        else
+            vIPs.push_back ( ( (sockaddr_in *) pifa->ifa_addr )->sin_addr );
+
         nIPs++;
     }
     
@@ -233,18 +286,25 @@ vector<SSIP> SSSocket::getLocalIPs ( void )
 
 #endif
 
-// Obtains the IP address of the remote (i.e. peer) machine to which
+// Obtains the IPv4 or IPv6 address of the remote (i.e. peer) machine to which
 // this TCP socket is connected. Will not work for UDP sockets.
+// To return IPv6 address, set peer.ipv6 true before calling.
 // Returns true if successful, or false on failure.
+// TODO: needs testing!
 
-bool SSSocket::getRemoteIP ( SSIP &peerIP )
+bool SSSocket::getRemoteIP ( SSIP &peer )
 {
-    struct sockaddr_in address;
-    socklen_t nLength = sizeof ( address );
+    sockaddr_in addr = { 0 };
+    sockaddr_in6 add6 = { 0 };
+    socklen_t len = 0;
+    sockaddr *add = fill_sockaddr ( peer, 0, &addr, &add6, &len );
 
-    if ( getpeername ( _socket, (struct sockaddr *) &address, &nLength ) == 0 )
+    if ( getpeername ( _socket, add, &len ) == 0 )
     {
-        peerIP = address.sin_addr;
+        if ( peer.ipv6 )
+            peer.add6 = add6.sin6_addr;
+        else
+            peer.addr = addr.sin_addr;
         return true;
     }
     
@@ -260,23 +320,21 @@ bool SSSocket::getRemoteIP ( SSIP &peerIP )
 // To wait an indefinite amount of time for the connection to be accepted,
 // pass a value <= 0 for the timeout parameter.
 
-bool SSSocket::openSocket ( SSIP serverIP, uint16_t wPort, int nTimeout )
+bool SSSocket::openSocket ( SSIP serverIP, uint16_t port, int nTimeout )
 {
     int                   nResult;
     SOCKET                nSocket;
     unsigned long         dwValue;
     int                   nError;
     socklen_t             nSize;
-    struct sockaddr_in    address;
     fd_set                writefds;
     struct timeval        timeout;
-    
-    address.sin_family = AF_INET;
-    address.sin_port = htons ( wPort );
-    address.sin_addr = serverIP.addr;
-    memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
+    sockaddr_in           addr = { 0 };
+    sockaddr_in6          add6 = { 0 };
+    socklen_t             len = 0;
+    sockaddr             *add = fill_sockaddr ( serverIP, port, &addr, &add6, &len );
 
-    nSocket = socket ( AF_INET, SOCK_STREAM, 0 );
+    nSocket = socket ( serverIP.ipv6 ? AF_INET6 : AF_INET, SOCK_STREAM, 0 );
     if ( nSocket == SOCKET_ERROR )
         return false;
 
@@ -294,7 +352,7 @@ bool SSSocket::openSocket ( SSIP serverIP, uint16_t wPort, int nTimeout )
         
         // Now connect - should return SOCKET_ERROR and WSAGetLastError() should return WSAEWOULDBLOCK
         
-        nResult = connect ( nSocket, (struct sockaddr *) &address, sizeof ( struct sockaddr ) );
+        nResult = connect ( nSocket, add, len );
 
         // Wait for timeout for socket to become writable, or for an error
         
@@ -335,7 +393,7 @@ bool SSSocket::openSocket ( SSIP serverIP, uint16_t wPort, int nTimeout )
     {
         // Connect to socket - will block until remote server accepts
         
-        nResult = connect ( nSocket, (struct sockaddr *) &address, sizeof ( struct sockaddr ) );
+        nResult = connect ( nSocket, add, len );
         if ( nResult < 0 )
         {
             closesocket ( nSocket );
@@ -507,36 +565,34 @@ void SSSocket::closeSocket ( void )
 // Returns a pointer to the open socket, if successful, or false on failure.
 // The (serverIP) parameter must correspond to a valid local network interface; see getLocalIPs().
 
-bool SSSocket::serverOpenSocket ( SSIP serverIP, uint16_t wPort, int nMaxConnections )
+bool SSSocket::serverOpenSocket ( SSIP serverIP, uint16_t port, int nMaxConnections )
 {
-    int                nResult;
-    SOCKET             nSocket;
-    struct sockaddr_in address;
-    
-    address.sin_family = AF_INET;
-    address.sin_port = htons ( wPort );
-    address.sin_addr = serverIP.addr;
-    memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
+    int                res;
+    SOCKET             sock;
+    sockaddr_in        addr = { 0 };
+    sockaddr_in6       add6 = { 0 };
+    socklen_t          len = 0;
+    sockaddr           *add = fill_sockaddr ( serverIP, port, &addr, &add6, &len );
 
-    nSocket = socket ( AF_INET, SOCK_STREAM, 0 );
-    if ( nSocket == -1 )
+    sock = socket ( AF_INET, SOCK_STREAM, 0 );
+    if ( sock == INVALID_SOCKET )
         return false;
 
-    nResult = ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) );
-    if ( nResult == -1 )
+    res = ::bind ( sock, add, len );
+    if ( res == -1 )
     {
-        closesocket ( nSocket );
+        closesocket ( sock );
         return false;
     }
 
-    nResult = listen ( nSocket, nMaxConnections );
-    if ( nResult == -1 )
+    res = listen ( sock, nMaxConnections );
+    if ( res == -1 )
     {
-        closesocket ( nSocket );
+        closesocket ( sock );
         return false;
     }
 
-    _socket = nSocket;
+    _socket = sock;
     return true;
 }
 
@@ -603,30 +659,30 @@ SSSocket SSSocket::serverAcceptConnection ( void )
 //
 // When finished using the socket, dispose of it with closeSocket().
 
-bool SSSocket::openUDPSocket ( SSIP localIP, uint16_t wPort )
+bool SSSocket::openUDPSocket ( SSIP localIP, uint16_t port )
 {
-    int                 nSocket = 0;
-    struct sockaddr_in  address = { 0 };
-    
-    nSocket = socket ( PF_INET, SOCK_DGRAM, 0 );
-    if ( nSocket == -1 )
+    int                sock = 0;
+    sockaddr_in        addr = { 0 };
+    sockaddr_in6       add6 = { 0 };
+    socklen_t          len = 0;
+    sockaddr           *add = fill_sockaddr ( localIP, port, &addr, &add6, &len );
+
+    sock = socket ( localIP.ipv6 ? PF_INET6 : PF_INET, SOCK_DGRAM, 0 );
+    if ( sock == -1 )
         return false;
     
-    address.sin_family = PF_INET;
-    address.sin_port = htons ( wPort );
-    address.sin_addr = localIP.addr;
-    memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
+    // TODO: this will break on IPv6; need a better test to determine if IPv6 address is valid!
     
-    if ( localIP && wPort )
+    if ( localIP && port )
     {
-        if ( ::bind ( nSocket, (struct sockaddr *) &address, (socklen_t) sizeof ( address ) ) == -1 )
+        if ( ::bind ( sock, add, len ) == -1 )
         {
-            closesocket ( nSocket );
+            closesocket ( sock );
             return false;
         }
     }
     
-    _socket = nSocket;
+    _socket = sock;
     return true;
 }
 
@@ -638,20 +694,18 @@ bool SSSocket::openUDPSocket ( SSIP localIP, uint16_t wPort )
 // Returns the number of bytes actually sent over the UDP connection,
 // or SOCKET_ERROR on failure.
 
-int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, uint16_t wDestPort )
+int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, uint16_t destPort )
 {
-    int        nResult;
-    int        nBytesWritten = 0;
-    struct sockaddr_in address = { 0 };
-    
-    address.sin_family = PF_INET;
-    address.sin_port = htons ( wDestPort );
-    address.sin_addr = destIP.addr;
-    memset(&(address.sin_zero), 0, sizeof ( address.sin_zero ) );
-    
+    int             nResult;
+    int             nBytesWritten = 0;
+    sockaddr_in     addr = { 0 };
+    sockaddr_in6    add6 = { 0 };
+    socklen_t       len = 0;
+    sockaddr        *add = fill_sockaddr ( destIP, destPort, &addr, &add6, &len );
+
     do
     {
-        nResult = (int) sendto ( _socket, (char *) lpvData + nBytesWritten, lLength - nBytesWritten, 0, (sockaddr *) &address, sizeof ( address ) );
+        nResult = (int) sendto ( _socket, (char *) lpvData + nBytesWritten, lLength - nBytesWritten, 0, add, len );
         if ( nResult == -1 )
             break;
         
@@ -708,6 +762,8 @@ int SSSocket::readUDPSocket ( void *lpvData, int lLength, SSIP &senderIP, int ti
     
     // Wait to recieve UDP message, until timeout
 
+    // TODO: add ability to return IPv6 address?
+    
     nResult = (int) recvfrom ( _socket, (char *) lpvData, lLength, 0, (sockaddr *) &address, &addrlen );
     if ( nResult == -1 )
     {
