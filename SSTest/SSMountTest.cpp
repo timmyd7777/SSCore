@@ -70,7 +70,7 @@ int main ( int argc, const char * argv[] )
 		v6 = server[0].toIPv6();
 		cout << v6.toString() << endl;
 	
-		if ( server.size() > 0 && sock.openSocket ( server[0], 80, 1000 ) )
+		if ( sock.openSocket ( v6, 80, 1000 ) )
 			cout << "sock.openSocket ( server, 80, 1000 ) succeeded!" << endl;
 		else
 			cout << "sock.openSocket ( server, 80, 1000 ) failed!" << endl;
