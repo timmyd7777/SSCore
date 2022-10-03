@@ -69,6 +69,7 @@ void SSSocket::finalize ( void )
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <sys/ioctl.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #define ioctlsocket(s,p,o) ioctl(s,p,o)
