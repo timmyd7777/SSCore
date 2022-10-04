@@ -66,8 +66,7 @@ JNIEXPORT jint JNICALL Java_com_southernstars_sscore_JSSObject_getType ( JNIEnv 
 JNIEXPORT jstring JNICALL Java_com_southernstars_sscore_JSSObject_getName ( JNIEnv *pEnv, jobject pJObject, jint i )
 {
     SSObject *pObj = (SSObject *) GetLongField ( pEnv, pJObject, "pObject" );
-    const char *pName = pObj ?  pObj->getName ( i ).c_str() : "";
-    return pEnv->NewStringUTF ( pName );
+    return pEnv->NewStringUTF ( pObj ? pObj->getName ( i ).c_str() : "" );
 }
 
 /*
