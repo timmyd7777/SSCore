@@ -6,7 +6,7 @@
 //
 // This class implements basic IPv4 network TCP and UDP socket communication.
 // TCP server sockets are supported. IPv6 and SSL and not supported.
-// On Windows, make sure to link with WS2_32.LIB!
+// On Windows, make sure to link with WS2_32.LIB and IPHLPAPI.LIB!
 
 #ifndef SSSocket_hpp
 #define SSSocket_hpp
@@ -33,28 +33,36 @@ using namespace std;
 #include "SSTime.hpp"
 #include "SSVector.hpp"
 
-// Represents an IPv4 address.
-// Implemented as wrapper around platform-native IPv4 address struct.
+// Represents an IPv4 or IPv6 address.
+// Implemented as wrapper around platform-native IPv4/v6 address structs.
 
 struct SSIP
 {
-    struct in_addr addr;   // Native IPv4 address; internals are platform-dependent!
+    union
+    {
+        in_addr addr;    // Native IPv4 address; internals are platform-dependent!
+        in6_addr add6;   // Native IPv6 address; internals are platform-dependent!
+    };
+    bool ipv6;           // if true, this is an IPv6 address; if false, an IPv4.
     
     // Constructors
     
     SSIP ( void );
     SSIP ( const string &str );
     SSIP ( const struct in_addr &add );
+    SSIP ( const struct in6_addr &add );
     SSIP ( const uint32_t val );
     
-    // Returns IP address as 32-bit unsigned integer on all platforms
+    operator uint32_t() const;  // returns IPv4 address as 32-bit unsigned integer on all platforms; returns zero if IPv6.
+    bool specified ( void );    // return true if address is nonzero; works for both IPv4 amd v6
     
-    operator uint32_t() const;
-
-    // Converts IP address to/from dotted notation (like "192.168.0.1")
+    // Converts IP address to/from dotted notation (like "192.168.0.1" or "2345:425:2ca1::567:5673:23b5")
     
     string toString ( void );
     static SSIP fromString ( const string &str );
+    
+    SSIP toIPv6 ( void );   // Converts IPv4 address to IPv4-mapped IPv6 address. Returns IPv6 addresses unchanged.
+    SSIP toIPv4 ( void );   // Converts IPv4-mapped IPv6 addresses to IPv4. Returns IPv4 addresses unchanged.
 };
 
 class SSSocket
@@ -78,11 +86,12 @@ public:
     static bool initialize ( void );
     static void finalize ( void );
     
-    // Convert host names to IPv4 address and vice-versa; get IPv4 addresses of all local interfaces
+    // Converts host names to IPv4 or IPv6 addresses and vice-versa;
+    // Get IPv4 or v6 addresses of all local interfaces
     
-    static vector<SSIP> hostNameToIPs ( const string &hostname );
+    static vector<SSIP> hostNameToIPs ( const string &hostname, bool ipv6 = false );
     static string IPtoHostName ( const SSIP &ip );
-    static vector<SSIP> getLocalIPs ( void );
+    static vector<SSIP> getLocalIPs ( bool ipv6 = false );
     
     // TCP (connection-oriented) sockets: open, read, write, close
     
@@ -205,5 +214,11 @@ public:
 // Returns true if successful or false on failure.
 
 bool SSLocationFromIP ( SSSpherical &loc );
+
+// Attempts to find IPv4 address of SkyFi with the given name.
+// The function returns true if successful or false on failure.
+// If successful, SkyFi's IPv4 address will be returned in addr.
+
+bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts = 3, int timeout = 1000 );
 
 #endif /* SSSocket_hpp */

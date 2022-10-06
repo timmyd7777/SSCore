@@ -31,6 +31,74 @@ map<SSMount::Error,string> SSMountErrors =
 
 int main ( int argc, const char * argv[] )
 {
+    SSIP skyfiIP;
+    bool success = SSFindSkyFi ( "SkyFi", skyfiIP );
+    if ( success )
+        printf ( "SkyFi found at %s\n", skyfiIP.toString().c_str() );
+    else
+        printf ( "Failed to find SkyFi IP!\n" );
+    
+    exit ( 0 );
+    
+//    SSSocket::initialize();
+
+    SSIP v4 ( "192.168.0.2" );
+    SSIP v6 ( "2345:0425:2CA1:0000:0000:0567:5673:23b5" );
+    SSIP v8 ( "This is a dummy string" );
+    
+    cout << v4.toString() << endl;
+    cout << v6.toString() << endl;
+    cout << v8.toString() << endl;
+    cout << SSSocket::IPtoHostName ( v6 ) << endl;
+    
+    cout << "Testing SSSocket::hostNameToIPs( \"ip-api.com\", false )" << endl;
+    vector<SSIP> ips = SSSocket::hostNameToIPs( "ip-api.com", false );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() <<  ", " << SSSocket::IPtoHostName ( ip ) << endl;
+    
+    cout << "Testing SSSocket::hostNameToIPs( \"www.southernstars.com\", true )" << endl;
+    ips = SSSocket::hostNameToIPs( "www.southernstars.com", true );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() << ", " << SSSocket::IPtoHostName ( ip ) << endl;
+
+    cout << "Testing SSSocket::getLocalIPs ( false )" << endl;
+    ips = SSSocket::getLocalIPs ( false );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() << endl;
+
+    cout << "Testing SSSocket::getLocalIPs ( true )" << endl;
+    ips = SSSocket::getLocalIPs ( true );
+    for ( SSIP &ip : ips )
+        cout << ip.toString() << endl;
+
+    SSSocket sock;
+    vector<SSIP> server = SSSocket::hostNameToIPs ( "www.southernstars.com", false );
+    if ( server.size() > 0 )
+	{
+		cout << "www.southernstars.com is ";
+		v6 = server[0].toIPv6();
+		cout << v6.toString() << endl;
+	
+		if ( sock.openSocket ( v6, 80, 1000 ) )
+			cout << "sock.openSocket ( server, 80, 1000 ) succeeded!" << endl;
+		else
+			cout << "sock.openSocket ( server, 80, 1000 ) failed!" << endl;
+    
+		SSIP peer;
+		peer.ipv6 = true;
+		if ( sock.getRemoteIP ( peer ) )
+			cout << "sock.getPeerIP ( peer ) succeeded!" << endl;
+		else
+			cout << "sock.getPeerIP ( peer ) failed!" << endl;
+
+		cout << peer.toString() << endl;
+		sock.closeSocket();
+	}
+	else
+	{
+		cout << "SSSocket::hostNameToIPs ( \"www.southernstars.com\", false ) failed!" << endl;
+	}
+	
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;
