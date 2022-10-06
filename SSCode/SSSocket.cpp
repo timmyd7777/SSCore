@@ -4,9 +4,13 @@
 // Created by Tim DeBenedictis on 9/12/22.
 // Copyright © 2022 Southern Stars Group, LLC. All rights reserved.
 //
-// This class implements basic IPv4 network TCP and UDP socket communication.
-// TCP server sockets are supported. IPv6 and SSL and not supported.
+// This class implements basic IPv4 abd IPv6 network TCP and UDP socket communication.
+// TCP server sockets are supported. SSL is not supported.
+// Includes a class SSHTTP for making basic HTTP 1.1 client requests.
 // On Windows, make sure to link with WS2_32.LIB and IPHLPAPI.LIB!
+// On MacOS and iOS, make sure your Entitlements file allows both incoming
+// and outgoing network connections by setting these keys set to true:
+// com.apple.security.network.client and com.apple.security.network.server
 // Based primarily on example code from Beej's Guide to Network Programming:
 // https://beej.us/guide/bgnet/html/
 
@@ -1196,54 +1200,5 @@ bool SSLocationFromIP ( SSSpherical &loc )
         }
     }
     
-    return false;
-}
-
-// Attempts to find SkyFi IPv4 address on the local network via UDP broadcast.
-// Name of the specific SkyFi to find should be passed in (name); pass an empty
-// string to find any SkyFi on the net. Pass the number of attempts (at least 1)
-// and timeout for each attempt in milliseconds.
-// If found, SkyFi's IPv4 address will be returned in addr.
-// The function returns true if successful or false on failure.
-
-bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
-{
-    vector<SSIP> localIPs = SSSocket::getLocalIPs();
-    for ( SSIP ip : localIPs )
-    {
-        // format query to broadcast
-        
-        string out = "skyfi?";
-        if ( ! name.empty() )
-            out = "skyfi:" + name + "?";
-        
-        string str = ip.toString();
-        printf ( "%s\n", str.c_str() );
-
-        for ( int i = 0; i < attempts; i++ )
-        {
-            SSSocket sock;
-            if ( sock.openUDPSocket ( ip, 0 ) )
-            {
-                // broadcast UDP query, then parse response if we recieved one
-
-                if ( sock.writeUDPSocket ( out.c_str(), (int) out.length(), SSIP ( INADDR_BROADCAST ), 4031 ) == out.length() )
-                {
-                    char data[256] = { 0 };
-                    if ( sock.readUDPSocket ( data, sizeof ( data ), addr, timeout ) > out.length() )
-                    {
-                        if ( strncmp ( data, out.c_str(), out.length() - 1 ) == 0 )
-                        {
-                            addr = SSIP ( data + out.length() );
-                            sock.closeSocket();
-                            return true;
-                        }
-                    }
-                }
-                sock.closeSocket();
-            }
-        }
-    }
-
     return false;
 }

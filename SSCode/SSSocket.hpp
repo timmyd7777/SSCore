@@ -4,9 +4,11 @@
 // Created by Tim DeBenedictis on 9/12/22.
 // Copyright © 2022 Southern Stars Group, LLC. All rights reserved.
 //
-// This class implements basic IPv4 network TCP and UDP socket communication.
-// TCP server sockets are supported. IPv6 and SSL and not supported.
+// This class implements basic IPv4 and IPv6 network TCP and UDP socket communication.
+// TCP server sockets are supported. SSL and not supported. Implements basic HTTP 1.1 requests.
 // On Windows, make sure to link with WS2_32.LIB and IPHLPAPI.LIB!
+// On MacOS and iOS, make sure your Entitlements file supports both
+// incoming and outgoing network connections; see SSSocket.cpp for details
 
 #ifndef SSSocket_hpp
 #define SSSocket_hpp
@@ -214,11 +216,5 @@ public:
 // Returns true if successful or false on failure.
 
 bool SSLocationFromIP ( SSSpherical &loc );
-
-// Attempts to find IPv4 address of SkyFi with the given name.
-// The function returns true if successful or false on failure.
-// If successful, SkyFi's IPv4 address will be returned in addr.
-
-bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts = 3, int timeout = 1000 );
 
 #endif /* SSSocket_hpp */

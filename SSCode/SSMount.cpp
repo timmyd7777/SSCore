@@ -67,6 +67,55 @@ SSCelestronMountPtr SSGetCelestronMountPtr ( SSMountPtr ptr )
     return dynamic_cast<SSCelestronMount *> ( ptr );
 }
 
+// Attempts to find SkyFi IPv4 address on the local network via UDP broadcast.
+// Name of the specific SkyFi to find should be passed in (name); pass an empty
+// string to find any SkyFi on the net. Pass the number of attempts (at least 1)
+// and timeout for each attempt in milliseconds.
+// If found, SkyFi's IPv4 address will be returned in addr.
+// The function returns true if successful or false on failure.
+
+bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
+{
+    vector<SSIP> localIPs = SSSocket::getLocalIPs();
+    for ( SSIP ip : localIPs )
+    {
+        // format query to broadcast
+        
+        string out = "skyfi?";
+        if ( ! name.empty() )
+            out = "skyfi:" + name + "?";
+        
+        string str = ip.toString();
+        printf ( "%s\n", str.c_str() );
+
+        for ( int i = 0; i < attempts; i++ )
+        {
+            SSSocket sock;
+            if ( sock.openUDPSocket ( ip, 0 ) )
+            {
+                // broadcast UDP query, then parse response if we recieved one
+
+                if ( sock.writeUDPSocket ( out.c_str(), (int) out.length(), SSIP ( INADDR_BROADCAST ), 4031 ) == out.length() )
+                {
+                    char data[256] = { 0 };
+                    if ( sock.readUDPSocket ( data, sizeof ( data ), addr, timeout ) > out.length() )
+                    {
+                        if ( strncmp ( data, out.c_str(), out.length() - 1 ) == 0 )
+                        {
+                            addr = SSIP ( data + out.length() );
+                            sock.closeSocket();
+                            return true;
+                        }
+                    }
+                }
+                sock.closeSocket();
+            }
+        }
+    }
+
+    return false;
+}
+
 // SSMount base class constructor. Mount has no protocol;
 // all member variables are initialized to invalid values.
 
