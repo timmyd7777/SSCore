@@ -72,6 +72,7 @@ void SSSocket::finalize ( void )
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <net/if.h>
 
 #define ioctlsocket(s,p,o) ioctl(s,p,o)
 #define closesocket(s) close(s)
@@ -1226,10 +1227,10 @@ bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
             {
                 // broadcast UDP query, then parse response if we recieved one
 
-                if ( sock.writeUDPSocket ( out.c_str(), (int) out.length(), SSIP ( INADDR_BROADCAST ), 4031 ) )
+                if ( sock.writeUDPSocket ( out.c_str(), (int) out.length(), SSIP ( INADDR_BROADCAST ), 4031 ) == out.length() )
                 {
                     char data[256] = { 0 };
-                    if ( sock.readUDPSocket ( data, sizeof ( data ), addr, timeout ) )
+                    if ( sock.readUDPSocket ( data, sizeof ( data ), addr, timeout ) > out.length() )
                     {
                         if ( strncmp ( data, out.c_str(), out.length() - 1 ) == 0 )
                         {
