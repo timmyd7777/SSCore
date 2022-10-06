@@ -6,7 +6,7 @@
 //
 // This class implements basic IPv4 network TCP and UDP socket communication.
 // TCP server sockets are supported. IPv6 and SSL and not supported.
-// On Windows, make sure to link with WS2_32.LIB!
+// On Windows, make sure to link with WS2_32.LIB and IPHLPAPI.LIB!
 // Based primarily on example code from Beej's Guide to Network Programming:
 // https://beej.us/guide/bgnet/html/
 
@@ -16,6 +16,7 @@
 #include "SSUtilities.hpp"
 
 #ifdef _MSC_VER
+#include <iphlpapi.h>
 
 typedef int socklen_t;
 typedef ULONG in_addr_t;
@@ -303,16 +304,38 @@ string SSSocket::IPtoHostName ( const SSIP &ip )
 
 #ifdef _MSC_VER
 
-// Returns the IPv4 or IPv6 address corresponding to the local machine's host name.
+// Returns the IPv4 addresses of local network interfaces.
+// See https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getipaddrtable
+
+#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
+#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 
 vector<SSIP> SSSocket::getLocalIPs ( bool ipv6 )
 {
-    char szHost[256] = { 0 };
-    
-    if ( gethostname ( szHost, sizeof ( szHost ) ) == 0 )
-        return hostNameToIPs ( string ( szHost ), ipv6 );
-    else
-        return vector<SSIP> ( 0 );
+    vector<SSIP> vIPs;
+
+    // Make an initial call to GetIpAddrTable to get the necessary size into the dwSize variable
+
+    DWORD dwSize = 0;
+    GetIpAddrTable ( NULL, &dwSize, 0 );
+    PMIB_IPADDRTABLE pIPAddrTable = (MIB_IPADDRTABLE *) MALLOC ( dwSize );
+    if ( pIPAddrTable == NULL )
+        return vIPs;
+
+    // Make a second call to GetIpAddrTable to get the actual data we want
+
+    DWORD dwRetVal = GetIpAddrTable ( pIPAddrTable, &dwSize, 0 );
+    if ( dwRetVal != NO_ERROR )
+    { 
+        FREE ( pIPAddrTable );
+        return vIPs;
+    }
+
+    for (int i=0; i < (int) pIPAddrTable->dwNumEntries; i++)
+        vIPs.push_back ( SSIP ( pIPAddrTable->table[i].dwAddr ) );
+
+    FREE ( pIPAddrTable );
+    return vIPs;
 }
 
 #else
@@ -768,7 +791,7 @@ int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, ui
     // this call is what allows UDP broadcast packets to be sent. IPv4 only!
     
     if ( destIP == INADDR_BROADCAST )
-        if ( setsockopt ( _socket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast ) == -1 )
+        if ( setsockopt ( _socket, SOL_SOCKET, SO_BROADCAST, (char *) &broadcast, sizeof ( broadcast ) ) == -1 )
             return SOCKET_ERROR;
 
     do
@@ -1193,8 +1216,9 @@ bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
         if ( ! name.empty() )
             out = "skyfi:" + name + "?";
         
-        // make three attempts
-        
+        string str = ip.toString();
+        printf ( "%s\n", str.c_str() );
+
         for ( int i = 0; i < attempts; i++ )
         {
             SSSocket sock;
