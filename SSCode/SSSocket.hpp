@@ -215,4 +215,10 @@ public:
 
 bool SSLocationFromIP ( SSSpherical &loc );
 
+// Attempts to find IPv4 address of SkyFi with the given name.
+// The function returns true if successful or false on failure.
+// If successful, SkyFi's IPv4 address will be returned in addr.
+
+bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts = 3, int timeout = 1000 );
+
 #endif /* SSSocket_hpp */

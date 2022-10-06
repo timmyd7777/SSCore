@@ -31,6 +31,15 @@ map<SSMount::Error,string> SSMountErrors =
 
 int main ( int argc, const char * argv[] )
 {
+    SSIP skyfiIP;
+    bool success = SSFindSkyFi ( "SkyFi", skyfiIP );
+    if ( success )
+        printf ( "SkyFi found at %s\n", skyfiIP.toString().c_str() );
+    else
+        printf ( "Failed to find SkyFi IP!\n" );
+    
+    exit ( 0 );
+    
 //    SSSocket::initialize();
 
     SSIP v4 ( "192.168.0.2" );

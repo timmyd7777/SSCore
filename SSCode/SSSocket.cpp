@@ -759,10 +759,17 @@ int SSSocket::writeUDPSocket ( const void *lpvData, int lLength, SSIP destIP, ui
 {
     int             nResult;
     int             nBytesWritten = 0;
+    int             broadcast = 1;
     sockaddr_in     addr = { 0 };
     sockaddr_in6    add6 = { 0 };
     socklen_t       len = 0;
     sockaddr        *add = fill_sockaddr ( destIP, destPort, &addr, &add6, &len );
+
+    // this call is what allows UDP broadcast packets to be sent. IPv4 only!
+    
+    if ( destIP == INADDR_BROADCAST )
+        if ( setsockopt ( _socket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast ) == -1 )
+            return SOCKET_ERROR;
 
     do
     {
@@ -1165,5 +1172,53 @@ bool SSLocationFromIP ( SSSpherical &loc )
         }
     }
     
+    return false;
+}
+
+// Attempts to find SkyFi IPv4 address on the local network via UDP broadcast.
+// Name of the specific SkyFi to find should be passed in (name); pass an empty
+// string to find any SkyFi on the net. Pass the number of attempts (at least 1)
+// and timeout for each attempt in milliseconds.
+// If found, SkyFi's IPv4 address will be returned in addr.
+// The function returns true if successful or false on failure.
+
+bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
+{
+    vector<SSIP> localIPs = SSSocket::getLocalIPs();
+    for ( SSIP ip : localIPs )
+    {
+        // format query to broadcast
+        
+        string out = "skyfi?";
+        if ( ! name.empty() )
+            out = "skyfi:" + name + "?";
+        
+        // make three attempts
+        
+        for ( int i = 0; i < attempts; i++ )
+        {
+            SSSocket sock;
+            if ( sock.openUDPSocket ( ip, 0 ) )
+            {
+                // broadcast UDP query, then parse response if we recieved one
+
+                if ( sock.writeUDPSocket ( out.c_str(), (int) out.length(), SSIP ( INADDR_BROADCAST ), 4031 ) )
+                {
+                    char data[256] = { 0 };
+                    if ( sock.readUDPSocket ( data, sizeof ( data ), addr, timeout ) )
+                    {
+                        if ( strncmp ( data, out.c_str(), out.length() - 1 ) == 0 )
+                        {
+                            addr = SSIP ( data + out.length() );
+                            sock.closeSocket();
+                            return true;
+                        }
+                    }
+                }
+                sock.closeSocket();
+            }
+        }
+    }
+
     return false;
 }
