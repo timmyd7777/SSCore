@@ -103,6 +103,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 - Version 1.0 (4 Apr 2020): initial checkin.  
 - Version 1.1 (11 May 2020): added Mineo Wakita JE9PEL satellite radio frequency file.
 - Version 1.2 (21 Mar 2021): updated with latest data from all sources; added n2yo "brightest" satellites.
+- Version 1.3 (10 Oct 2022): updated with latest data from all sources. 
 
 Cities.csv
 ----------
