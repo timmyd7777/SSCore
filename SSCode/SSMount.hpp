@@ -53,6 +53,8 @@ enum SSSlewAxis
 };
 
 // Represents a telescope mount and implements communication with the mount.
+// The base SSMount class simulates an equatorial GoTo mount, but has no
+// communication protocol and controls no real hardware.
 
 class SSMount
 {
@@ -89,12 +91,14 @@ protected:
     SSIP        _addr;          // IP address of telescope mount, only valid for socket connections
     uint16_t    _port;          // TCP or UDP port for socket-based mount communication
     
+    SSAngle _initRA, _initDec;  // Mount coordinates where most recent slew began.
     SSAngle _slewRA, _slewDec;  // GoTo target coordinates, in J2000 mean equatorial (fundamental) frame
     SSAngle _currRA, _currDec;  // Most recent coordinates reported from mount, in fundamental frame
-
+    double      _slewTime[2];   // slew start time (seconds since midnight) on RA/Azm [0] and Alt/Dec [1] axes
     int         _slewRate[2];   // Current slew rate on RA/Azm [0] and Alt/Dec [1] axes
     bool        _slewing;       // true if a GoTo is currently in progress; false otherwise.
     bool        _connected;     // true if serial port or socket connection to mount is currently open.
+    bool        _aligned;       // true it mount has been star-aligned; false otherwise.
     string      _version;       // mount controller firmware version string, read from mount during connect()
 
     mutex       _cmdMtx;        // for preventing resource contention with asynchronous command calls
@@ -107,7 +111,8 @@ protected:
     virtual Error connect ( const string &path, uint16_t port, int baud, int party, int data, float stop, bool udp = false );
     Error serialCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
     Error socketCommand ( const char *input, int inlen, char *output, int outlen, char term, int timeout_ms );
-
+    static SSAngle angularRate ( int rate );  // converts integer slew rate identifier to angular rate in radians/second.
+    
 public:
     // Constructor, destructor
     

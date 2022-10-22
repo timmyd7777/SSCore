@@ -118,6 +118,8 @@ bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
 
 // SSMount base class constructor. Mount has no protocol;
 // all member variables are initialized to invalid values.
+// The base SSMount class simulates an equatorial GoTo mount
+// but has no communication protocol and controls no hardware.
 
 SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords )
 {
@@ -132,12 +134,15 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     
     _retries = 1;
     _timeout = 3000;
+
+    _initRA = _initDec = 0;
+    _currRA = _currDec = 0;
+    _slewRA = _slewDec = 0;
     
-    _currRA = _currDec = INFINITY;
-    _slewRA = _slewDec = INFINITY;
+    _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
+    _slewTime[ kAzmRAAxis ] = _slewTime[ kAltDecAxis ] = 0;
     
-    _slewRate[ kAzmRAAxis ] = 0;
-    _slewRate[ kAltDecAxis ] = 0;
+    _slewing = _aligned = false;
     
     _logFile = NULL;
     _logStart = 0;
@@ -152,10 +157,12 @@ SSMount::~SSMount ( void )
 }
 
 // Default connect() method for mounts with no protocol does nothing
+// other than set a dummy protocol version string.
 
 SSMount::Error SSMount::connect ( const string &path, uint16_t port )
 {
     _connected = true;
+    _version = "0.0";
     return kSuccess;
 }
 
@@ -564,11 +571,70 @@ void SSMount::closeLog ( void )
     }
 }
 
+// converts integer slew rate identifier to angular rate in radians/second.
+// For SSMount base class simulated mount, uses Meade LX-200 angular rates.
+
+SSAngle SSMount::angularRate ( int rate )
+{
+    SSAngle angRate;
+    int absRate = abs ( rate );
+    
+    if ( absRate == 4 )
+        angRate = SSAngle::fromDegrees ( 8.0 );
+    else if ( absRate == 3 )
+        angRate = SSAngle::fromDegrees ( 2.0 );
+    else if ( absRate == 2 )
+        angRate = SSAngle::fromArcsec ( 960.0 );    // 32x sidereal
+    else if ( absRate == 1 )
+        angRate = SSAngle::fromArcsec ( 30.0 );     // 2x sidereal
+
+    if ( rate < 0 )
+        angRate = -angRate;
+    
+    return angRate;
+}
+
 // Obtains current RA/Dec coordinates from mount in J2000 equatorial (fundamental) frame.
 // Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
 {
+    // If slewing on RA axis, compute angular rate and elapsed seconds since slew started.
+    // Compute current RA, and stop slewing if we've reached the target RA.
+    
+    if ( _slewRate[ kAzmRAAxis ] )
+    {
+        double angRate = angularRate ( _slewRate[kAzmRAAxis] );
+        double elapSec = clocksec() - _slewTime[ kAzmRAAxis ];
+        _currRA = mod2pi ( _initRA + elapSec * angRate );
+        if ( _slewing && ( elapSec > modpi ( _slewRA - _initRA ) / angRate ) )
+        {
+            _currRA = _slewRA;
+            _slewRate[ kAzmRAAxis ] = _slewTime[ kAzmRAAxis ] = 0;
+        }
+    }
+    
+    // If slewing on Dec axis, compute angular rate and elapsed seconds since slew started.
+    // Compute current Dec, and stop slewing if we've reached the target Dec.
+
+    if ( _slewRate[ kAltDecAxis ] )
+    {
+        double angRate = angularRate ( _slewRate[kAltDecAxis] );
+        double elapSec = clocksec() - _slewTime[ kAltDecAxis ];
+        _currDec = clamp ( (double) _initDec + elapSec * angRate, -SSAngle::kHalfPi, SSAngle::kHalfPi );
+        if ( _slewing && ( elapSec > ( _slewDec - _initDec ) / angRate ) )
+        {
+            _currDec = _slewDec;
+            _slewRate[ kAltDecAxis ] = _slewTime[ kAltDecAxis ] = 0;
+        }
+    }
+
+    // If slewing a GoTo, and motion on both axes has stopped, the GoTo has finished.
+    
+    if ( _slewing )
+        if ( _slewRate[ kAzmRAAxis ] == 0 && _slewRate[ kAltDecAxis ] == 0 )
+            _slewing = false;
+    
     ra = _currRA;
     dec = _currDec;
     return kSuccess;
@@ -580,8 +646,14 @@ SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
 
 SSMount::Error SSMount::slew ( SSAngle ra, SSAngle dec )
 {
+    _initRA = _currRA;
+    _initDec = _currDec;
     _slewRA = ra;
     _slewDec = dec;
+    _slewing = true;
+    _slewTime[kAzmRAAxis] = _slewTime[kAltDecAxis] = clocksec();
+    _slewRate[kAzmRAAxis] = modpi ( _slewRA - _initRA ) >= 0.0 ? 4 : -4;
+    _slewRate[kAltDecAxis] = _slewDec >= _initDec ? 4 : -4;
     return kSuccess;
 }
 
@@ -593,8 +665,26 @@ SSMount::Error SSMount::slew ( SSAngle ra, SSAngle dec )
 SSMount::Error SSMount::slew ( SSSlewAxis axis, int rate )
 {
     if ( abs ( rate ) <= maxSlewRate() )
+    {
+        if ( rate == 0 )    // If stopping, update mount position and reset time.
+        {
+            read ( _currRA, _currDec );
+            _slewTime[ axis ] = 0.0;
+        }
+        else    // If starting, save start position and time.
+        {
+            if ( axis == kAzmRAAxis )
+                 _initRA = _currRA;
+            else
+                _initDec = _currDec;
+            _slewTime[ axis ] = clocksec();
+        }
+
         _slewRate[ axis ] = rate;
-    return kSuccess;
+        return kSuccess;
+    }
+    
+    return kInvalidInput;
 }
 
 // Stops slewing, cancels any in-progress GoTo, and resumes sidereal tracking
@@ -602,7 +692,12 @@ SSMount::Error SSMount::slew ( SSSlewAxis axis, int rate )
 
 SSMount::Error SSMount::stop ( void )
 {
+    if ( _slewing )
+        read ( _currRA, _currDec );
+    
     _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
+    _slewTime[ kAzmRAAxis ] = _slewTime[ kAltDecAxis ] = 0;
+    _slewing = false;
     return kSuccess;
 }
 
@@ -614,6 +709,7 @@ SSMount::Error SSMount::sync ( SSAngle ra, SSAngle dec )
 {
     _currRA = ra;
     _currDec = dec;
+    _aligned = true;
     return kSuccess;
 }
 
@@ -622,14 +718,17 @@ SSMount::Error SSMount::sync ( SSAngle ra, SSAngle dec )
 
 SSMount::Error SSMount::slewing ( bool &status )
 {
+    read ( _currRA, _currDec );
+    status = _slewing;
     return kSuccess;
 }
 
-// Queries mount to determine whether initial star alignment is complete
+// Queries mount to determine whether initial star alignment is complete.
 // Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMount::aligned ( bool &status )
 {
+    status = _aligned;
     return kSuccess;
 }
 
@@ -650,19 +749,22 @@ SSMount::Error SSMount::setSite ( SSSpherical site )
 }
 
 // Reads local date, time, and time zone from mount. Implemented by SSMount subclasses.
+// For simulated mount base class, mount time is system time!
 // Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMount::getTime ( SSTime &time )
 {
+    time = SSTime::fromSystem();
     return kSuccess;
 }
 
 // Reads local site longitude and latitude from mount. Implemented by SSMount subclasses.
+// For simulated mount base class, mount site is determined from local system IP address.
 // Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSMount::getSite ( SSSpherical &site )
 {
-    return kSuccess;
+    return SSLocationFromIP ( site ) ? kSuccess : kTimedOut;
 }
 
 // Aynchronous read command. Launches read() in a background thread,
