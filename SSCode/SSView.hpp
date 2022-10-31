@@ -87,6 +87,7 @@ public:
     
     // sets celestial spherical coordinates of field of view center
     
+    void setCenter ( SSAngle lon, SSAngle lat );
     void setCenter ( SSAngle lon, SSAngle lat, SSAngle rot );
     SSAngle getCenterLongitude ( void ) { return _centerLon; }
     SSAngle getCenterLatitude ( void ) { return _centerLat; }
