@@ -427,20 +427,37 @@ string SSDate::format ( const string &fmt )
     time.tm_sec = sec;
     time.tm_wday = SSTime ( *this ).getWeekday();
     
-#ifndef _MSC_VER
-    time.tm_gmtoff = zone * 3600.0;
-#endif
-    
     // time.tm_gmtoff is not available on Windows, and not used when formatting %z on Apple platforms (but is used for %z on Linux/Emscripten).
     // To make strftime() output time zone on Windows, Mac, and iOS, we must temporarily change the timezone global.
     // See https://www.gnu.org/software/libc/manual/html_node/Time-Zone-Functions.html
     
+#ifndef _MSC_VER
+    time.tm_gmtoff = zone * 3600.0;
+#endif
+    
     double oldzone = get_timezone();
     set_timezone ( zone );
+
+    // Microsoft's version of strftime() crashes if time.tm_year < -1900, so if year < 0, make it positive,
+    // then prepend a '-' sign to the output string.
+
+    bool negyear = false;
+#ifdef _MSC_VER
+    if ( year < 0 )
+    {
+        time.tm_year = -year - 1900;
+        negyear = true;
+    }
+#endif
+
     strftime ( str, sizeof ( str ), fmt.c_str(), &time );
     set_timezone ( oldzone );
-    
-    return string ( str );
+    string timestr = string ( str );
+
+    if (negyear && startsWith(fmt, "%Y"))
+        timestr.insert ( timestr.begin(), '-' );
+
+    return timestr;
 }
 
 // Converts string to date using the same format argument(s) as strptime().
@@ -452,9 +469,9 @@ bool SSDate::parse ( const string &fmt, const string &str )
     struct tm time = { 0 };
     int negyear = startsWith ( fmt, "%Y" ) && str[0] == '-';
         
-#ifdef WIN32
-    stringstream ss ( str );
-    ss >> get_time ( &time, fmt.c_str() + negyear );
+#ifdef _MSC_VER
+    stringstream ss ( str.c_str() + negyear );
+    ss >> get_time ( &time, fmt.c_str() );
     if ( ss.fail() )
         return false;
 #else
