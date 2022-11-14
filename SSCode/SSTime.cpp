@@ -11,6 +11,7 @@
 #else
 #include <sys/time.h>
 #endif
+#include <cstdlib> // strtol
 
 #include "SSAngle.hpp"
 #include "SSTime.hpp"
@@ -414,7 +415,7 @@ SSTime SSDate::toJulianDate ( void )
 // Converts date to a string using the same format argument(s) as strftime().
 // Not thread-safe!
 
-string SSDate::format ( const string &fmt )
+string SSDate::format ( const string &format )
 {
     char str[1024] = { 0 };
     struct tm time = { 0 };
@@ -435,59 +436,59 @@ string SSDate::format ( const string &fmt )
     time.tm_gmtoff = zone * 3600.0;
 #endif
     
+    string fmt = format;
+    // For the year, use a simple replacement instead of strftime to avoid the 0..9999 limitation on some platforms
+    replaceAll ( fmt, "%Y", std::to_string ( year ) );
+    
     double oldzone = get_timezone();
     set_timezone ( zone );
-
-    // Microsoft's version of strftime() crashes if time.tm_year < -1900, so if year < 0, make it positive,
-    // then prepend a '-' sign to the output string.
-
-    bool negyear = false;
-#ifdef _MSC_VER
-    if ( year < 0 )
-    {
-        time.tm_year = -year - 1900;
-        negyear = true;
-    }
-#endif
-
     strftime ( str, sizeof ( str ), fmt.c_str(), &time );
     set_timezone ( oldzone );
-    string timestr = string ( str );
 
-    if (negyear && startsWith(fmt, "%Y"))
-        timestr.insert ( timestr.begin(), '-' );
-
-    return timestr;
+    return string ( str );;
 }
 
 // Converts string to date using the same format argument(s) as strptime().
 // Overwrites all internal fields except time zone and calendar system.
 // Returns true if string parsed successfully or false otherwise.
+// If the fmt string starts with "%Y", then any year will be parsed (including negative).
+// Otherwise, the input year is limited from 0 to 9999.
 
 bool SSDate::parse ( const string &fmt, const string &str )
 {
     struct tm time = { 0 };
-    int negyear = startsWith ( fmt, "%Y" ) && str[0] == '-';
+    const char *fmtString = fmt.c_str();
+    const char *inputString = str.c_str();
+    bool yearParsed = false;
+    
+    // Allow a large range of years beyond the strptime limitation of 0..9999
+    if ( startsWith ( fmt, "%Y" ) ) {
+        char *end = NULL;
+        year = (int)strtol ( inputString, &end, 10 );
+        if ( end <= inputString )
+            return false;
+        inputString = end;
+        fmtString += 2; // strlen("%Y")
+        yearParsed = true;
+    }
         
 #ifdef _MSC_VER
-    stringstream ss ( str.c_str() + negyear );
-    ss >> get_time ( &time, fmt.c_str() );
+    stringstream ss ( inputString );
+    ss >> get_time ( &time, fmtString );
     if ( ss.fail() )
         return false;
 #else
-    if ( strptime ( str.c_str() + negyear, fmt.c_str(), &time ) == nullptr )
+    if ( strptime ( inputString, fmtString, &time ) == nullptr )
         return false;
 #endif
 
-    year = time.tm_year + 1900;
+    if ( !yearParsed )
+        year = time.tm_year + 1900;
     month = time.tm_mon + 1;
     day = time.tm_mday;
     hour = time.tm_hour;
     min = time.tm_min;
     sec = time.tm_sec;
-    
-    if ( negyear )
-        year = -year;
     
     return true;
 }
