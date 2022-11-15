@@ -181,7 +181,7 @@ SSVector getEclipticPoleVector ( double jed )
         {  492.20,   413.442940, -356.652376,   376.202861,   421.535876 },
         { 1183.00,    78.614193, -186.387003,   184.778874,   -36.776172 },
         {  622.00,  -180.732815, -316.800070,   335.321713,  -145.278396 },
-        {  882.00,   -87.676083,  198.296071,  -185.138669,   -34.744450 },
+        {  882.00,   -87.676083,  198.296701,  -185.138669,   -34.744450 },
         {  547.00,    46.140315,  101.135679,  -120.972830,    22.885731 }
     };
     
@@ -232,7 +232,7 @@ SSVector getEclipticPoleVector ( double jed )
     double s = sin ( eps0 );
     double c = cos ( eps0 );
     
-    return SSVector ( p, - q * c - z * s, -q * s + z * c );
+    return SSVector ( p, - q * c - z * s, -q * s + z * c ).normalize();
 }
 
 SSVector getEquatorPoleVector ( double jed )
@@ -305,11 +305,13 @@ SSVector getEquatorPoleVector ( double jed )
     double z = x * x + y * y;
     z = z < 1.0 ? sqrt ( 1.0 - z ) : 0.0;
 
-    return SSVector ( x, y, z );
+    return SSVector ( x, y, z ).normalize();
 }
 
 // From "New precession expressions, valid for long time intervals",
 // J. Vondrak, N. Capitaine, and P. Wallace, Astronomy & Astrophysics 534, A22 (2011)
+// See https://www.aanda.org/articles/aa/abs/2011/10/aa17274-11/aa17274-11.html
+// and https://www.aanda.org/articles/aa/full_html/2012/05/aa17274e-11/aa17274e-11.html
 // Accuracy comparable to IAU 2006 precession model around the central epoch J2000.0,
 // a few arcseconds throughout the historical period, and a few tenths of a degree
 // at the ends of the +/-200 millennia time span.
