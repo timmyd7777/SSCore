@@ -65,6 +65,10 @@ bool endsWith ( const string &str, const string &suffix );
 bool startsWith ( const string &str, const string &prefix );
 void replaceAll ( string& str, const std::string& from, const std::string& to);
 
+string getFileExt ( string path );
+string setFileExt ( string path, string ext );
+bool hasFileExt ( string path, vector<string> exts );
+
 int strtoint ( string str );
 int64_t strtoint64 ( string str );
 float strtofloat ( string str );

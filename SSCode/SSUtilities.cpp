@@ -185,6 +185,45 @@ void replaceAll ( string& str, const std::string& from, const std::string& to)
     }
 }
 
+// Given a file path string and a file type extension (".jpg", ".png", ".tif", etc.)
+// returns file path changed to that extension. Input path string is not modified.
+
+string setFileExt ( string path, string ext )
+{
+    size_t dot = path.rfind ( "." );
+    if ( dot == string::npos )
+        return path + ext;
+    else
+        return path.substr ( 0, dot ) + ext;
+}
+
+// Returns file type extension (".jpg", ".png", ".tif", etc.) from a file path.
+
+string getFileExt ( string path )
+{
+    size_t dot = path.find_last_of ( '.' );
+    if ( dot == string::npos )
+        return "";
+    else
+        return path.substr ( dot, string::npos );
+}
+
+// Given a file path string and a vector of file extension strings,
+// returns true if the file path ends with any of the extensions or false otherwise.
+// File path is internally converted to lower case so extensions must be lowercase.
+
+bool hasFileExt ( string path, vector<string> exts )
+{
+    for ( char &c : path )
+        c = tolower ( c );
+
+    for ( std::string &ext : exts )
+        if ( endsWith ( path, ext ) )
+            return true;
+    
+    return false;
+}
+
 // Splits a string into a vector of token strings separated by the specified delimiter.
 // Two adjacent delimiters generate an empty token string (unlike C's strtok()).
 // The original string is not modified.
