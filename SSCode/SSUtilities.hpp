@@ -119,4 +119,9 @@ time_t filetime ( const string &path );
 string urlEncode ( const string &src );
 string urlDecode ( const string &src );
 
+#ifdef _MSC_VER
+typedef int mode_t;
+#endif
+int mkdir_p ( const char *dir, mode_t mode );
+
 #endif /* SSUtilities_hpp */

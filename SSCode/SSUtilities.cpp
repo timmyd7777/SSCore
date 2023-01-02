@@ -736,3 +736,37 @@ string urlDecode ( const string &src )
     
     return dst;
 }
+
+// Creates a directory, including parent directories.
+// Returns 0 on success.
+// Based on https://stackoverflow.com/a/2336245
+
+#ifdef _MSC_VER
+#define mkdir(name, mode) _mkdir(name)
+#endif
+
+int mkdir_p(const char *dir, mode_t mode)
+{
+    char tmp[4096];
+    char *p = NULL;
+    size_t len;
+
+    snprintf(tmp, sizeof(tmp), "%s", dir);
+    len = strlen(tmp);
+    if (tmp[len - 1] == '/')
+        tmp[len - 1] = 0;
+    for (p = tmp + 1; *p; p++)
+    {
+        if (*p == '/')
+        {
+            *p = 0;
+            if (mkdir(tmp, mode) != 0 && errno != EEXIST)
+                return -1;
+            *p = '/';
+        }
+    }
+    if (mkdir(tmp, mode) != 0 && errno != EEXIST)
+        return -1;
+    else
+        return 0;
+}
