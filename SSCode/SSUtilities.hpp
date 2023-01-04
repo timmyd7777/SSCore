@@ -16,6 +16,9 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#if !defined(_MSC_VER)
+#include <sys/stat.h>
+#endif
 
 using namespace std;
 
