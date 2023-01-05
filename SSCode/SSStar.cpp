@@ -14,6 +14,8 @@
 // "Stellar Spectral Classification", Gray & Corbally, 2009, Appendix B.
 // Magnitude values interpolated by Bruce MacEvoy here:
 // http://www.handprint.com/ASTRO/specclass.html
+// Data for brown dwarfs (type L,T) copied from Mamajek's table (below);
+// Data for carbon stars (type C) from Wikipedia: https://en.wikipedia.org/wiki/Carbon_star
 
 struct SpecClass
 {
@@ -98,6 +100,34 @@ static vector<SpecClass> _speclass =
     { "M7", 2815, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
     { "M8", 2680, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
     { "M9", 2545, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L0", 2270, 20,   INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L1", 2160, 20.5, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L2", 2060, 20.9, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L3", 1920, 21.7, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L4", 1870, 22.3, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L5", 1710, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L6", 1550, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L7", 1530, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L8", 1420, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "L9", 1370, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T0", 1255, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T1", 1240, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T2", 1220, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T3", 1200, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T4", 1180, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T5", 1160, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T6", 950,  INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T7", 825,  INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T8", 680,  INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "T9", 560,  INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C0", 4500, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C1", 4300, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C2", 4100, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C3", 3900, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C4", 3650, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C5", 3450, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C6", 3450, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY },
+    { "C7", 3450, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY, INFINITY }
 };
 
 // Table of main-sequence stellar properties from:
@@ -700,7 +730,8 @@ float SSStar::colorTemperature ( float bv, int lumclass )
     return pow ( 10.0, t );
 }
 
-// Converts B-V index to bolometric correction in magnitudes.
+// Converts stellar effective surface temperature (t) in Kelvins
+// to bolometric correction in magnitudes.
 // From Table 1 of "ON THE USE OF EMPIRICAL BOLOMETRIC CORRECTIONS FOR STARS",
 // Guillermo Torres, Harvard-Smithsonian Center for Astrophysics, 2010.
 // https://iopscience.iop.org/article/10.1088/0004-6256/140/5/1158/pdf
@@ -833,7 +864,7 @@ double SSStar::moffatRadius ( double z, double max, double beta )
 int SSStar::spectralType ( const string &spectrum )
 {
     int spectype = 0;
-    static char types[14] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T', 'R', 'N', 'S', 'C'  };
+    static char types[14] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T', 'C', 'R', 'N', 'S'  };
 
     for ( int i = 0; i < spectrum.length(); i++ )
     {
@@ -955,7 +986,7 @@ bool SSStar::parseSpectrum ( const string &spectrum, int &spectype, int &lumclas
 string SSStar::formatSpectrum ( int spectype, int lumclass )
 {
     string spectrum = "";
-    static char types[14] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T', 'R', 'N', 'S', 'C'  };
+    static char types[14] = { 'W', 'O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T', 'C', 'R', 'N', 'S'  };
     
     if ( lumclass == LumClass::VII )
         spectrum.append ( 1, 'D' );
@@ -1004,11 +1035,12 @@ SSStar::SpecInfo SSStar::spectralClassInfo ( int spectype, int lumclass )
     if ( lumclass == LumClass::V )
         return info;
     
-    // get absolute magnitudes from "Stellar Spectral Classifications" table for other luminosity classes.
+    // get properties from "Stellar Spectral Classifications" table for other luminosity classes.
     
     i = spectype - ( SpecType::O0 + 1 );
-    if ( i >= 0 && i < _specinfo.size() )
+    if ( i >= 0 && i < _speclass.size() )
     {
+        info.Teff = _speclass[i].temp;
         if ( lumclass == LumClass::IV )
         {
             info.spec = _speclass[i].spec + "IV";

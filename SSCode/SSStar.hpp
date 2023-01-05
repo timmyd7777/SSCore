@@ -112,10 +112,10 @@ public:
         M0 = 70,
         L0 = 80,   // Brown dwarfs
         T0 = 90,   // Brown dwarfs
-        R0 = 100,  // Carbon stars (obsolete)
-        N0 = 110,  // Carbon stars (obsolete)
-        S0 = 120,  // Carbon stars
-        C0 = 130,  // Carbon stars
+        C0 = 100,  // Carbon stars
+        R0 = 110,  // Carbon stars (obsolete)
+        N0 = 120,  // Carbon stars (obsolete)
+        S0 = 130,  // Carbon stars (obsolete)
     };
     
     enum LumClass
