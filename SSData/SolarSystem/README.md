@@ -55,6 +55,7 @@ The orbital inclinations, arguments, and nodes are referred to their Laplace Pla
 - Version 1.1 (22 Apr 2020): fixed absolute magnitudes (H)
 - Version 1.2 (10 Apr 2021): added moon masses
 - Version 1.3 (16 May 2021): added rotation periods and albedos
+- Version 1.4 (9  Jan 2023): added data for all 177 natural satellites in the original JPL data tables.
 
 Asteroids.txt
 -------------
