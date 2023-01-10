@@ -1780,6 +1780,29 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q, fl
     return true;
 }
 
+// Returns true if this SSPlanet is small moon, somewhat arbitrarily defined
+// as any non-spherical or temporary natural satellites (Phobos/Deimos excepted!)
+
+bool SSPlanet::isSmallMoon ( void )
+{
+    if ( _type != kTypeMoon )
+        return false;
+    
+    int id = (int) _id.identifier();
+    if ( id >= kLuna && id < kAmalthea )
+        return false;
+    if ( id >= kMimas && id < kPhoebe )
+        return false;
+    if ( id >= kAriel && id < kMiranda )
+        return false;
+    if ( id >= kTriton && id < kNereid )
+        return false;
+    if ( id == kCharon )
+        return false;
+    
+    return true;
+}
+
 // Returns length of this solar system object's umbral shadow cone, in AU,
 // with the object's physical radius multipled by a scale factor (s).
 // Uses hard-coded Sun radius of 695500 km.

@@ -226,12 +226,13 @@ public:
     double umbraRadius ( double d, float s = 1.0f );
     double penumbraRadius ( double d, float s = 1.0f );
 
-    // Convenience methods for testing whether a planet is the Sun/Moon/Earth
+    // Convenience methods for testing whether a planet is the Sun/Moon/Earth or a small moon.
 
     bool isSun ( void ) { return _type == kTypePlanet && _id.identifier() == kSun; }
     bool isLuna ( void ) { return _type == kTypeMoon && _id.identifier() == kLuna; }
     bool isEarth ( void ) { return _type == kTypePlanet && _id.identifier() == kEarth; }
-
+    bool isSmallMoon ( void );
+    
     // imports/exports from/to CSV-format text string
     
     static SSObjectPtr fromCSV ( string csv );
