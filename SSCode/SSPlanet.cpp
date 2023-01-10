@@ -334,7 +334,8 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
         {
             // By default, north pole of Laplacian plane is the Ecliptic north pole.
             // For outer planets' inner moons, Laplacian plane north pole is planet's north pole.
-
+            // For Uranus inner moons, flip north pole 180 degrees to make small moons orbit same direction as large moons!
+            
             SSSpherical lp = SSSpherical ( SSAngle::fromDegrees ( 270.0 ), SSAngle::fromDegrees ( 66.561 ) );
             double a = _orbit.semiMajorAxis() * SSCoordinates::kKmPerAU;
             if ( p == kJupiter && a < 1.0e6 )
@@ -342,7 +343,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
             else if ( p == kSaturn && a < 1.0e6 )
                 lp = SSSpherical ( SSAngle::fromDegrees ( 40.585 ), SSAngle::fromDegrees ( 83.538 ) );
             else if ( p == kUranus && a < 1.0e6 )
-                lp = SSSpherical ( SSAngle::fromDegrees ( 257.811 ), SSAngle::fromDegrees ( -15.175 ) );
+                lp = SSSpherical ( SSAngle::fromDegrees ( 257.811 - 180.0 ), SSAngle::fromDegrees ( 15.175 ) );
             else if ( p == kNeptune && a < 1.0e6 )
                 lp = SSSpherical ( SSAngle::fromDegrees ( 299.431 ), SSAngle::fromDegrees ( 42.94 ) );
             else if ( p == kPluto )
@@ -1697,6 +1698,86 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
             wd = -26.7394932;
             w  =   6.77 + wd * d + 0.04 * sin ( U16 );
         }
+        else if ( id == kCordelia )
+        {
+            double U1 = degtorad ( 15.75 + 54991.871 * T );
+            a0 = 257.31 - 0.15 * sin ( U1 );
+            d0 = -15.18 + 0.14 * cos ( U1 );
+            wd = -1074.5205730;
+            w  = 127.69 + wd * d - 0.04 * sin ( U1 );
+        }
+        else if ( id == kOphelia )
+        {
+            double U2 = degtorad ( 141.69 + 41887.66 * T );
+            a0 = 257.31 - 0.09 * sin ( U2 );
+            d0 = -15.18 + 0.09 * cos ( U2 );
+            wd = -956.4068150;
+            w  = 130.35 + wd * d - 0.03 * sin ( U2 );
+        }
+        else if ( id == kBianca )
+        {
+            double U3 = degtorad ( 135.03 + 29927.35 * T );
+            a0 = 257.31 - 0.16 * sin ( U3 );
+            d0 = -15.18 + 0.16 * cos ( U3 );
+            wd = -828.3914760;
+            w  = 105.46 + wd * d - 0.04 * sin ( U3 );
+        }
+        else if ( id == kCressida )
+        {
+            double U4 = degtorad ( 61.77 + 25733.59 * T );
+            a0 = 257.31 - 0.04 * sin ( U4 );
+            d0 = -15.18 + 0.04 * cos ( U4 );
+            wd = -776.5816320;
+            w  = 59.16 + wd * d - 0.01 * sin ( U4 );
+        }
+        else if ( id == kDesdemona )
+        {
+            double U5 = degtorad ( 249.32 + 24471.46 * T );
+            a0 = 257.31 - 0.17 * sin ( U5 );
+            d0 = -15.18 + 0.16 * cos ( U5 );
+            wd = -760.0531690;
+            w  = 95.08 + wd * d - 0.04 * sin ( U5 );
+        }
+        else if ( id == kJuliet )
+        {
+            double U6 = degtorad ( 43.86 + 22278.41 * T );
+            a0 = 257.31 - 0.17 * sin ( U6 );
+            d0 = -15.18 + 0.16 * cos ( U6 );
+            wd = -730.1253660;
+            w  = 302.56 + wd * d - 0.02 * sin ( U6 );
+        }
+        else if ( id == kPortia )
+        {
+            double U7 = degtorad ( 77.66 + 20289.42 * T );
+            a0 = 257.31 - 0.09 * sin ( U7 );
+            d0 = -15.18 + 0.09 * cos ( U7 );
+            wd = -701.4865870;
+            w  = 25.03 + wd * d - 0.02 * sin ( U7 );
+        }
+        else if ( id == kRosalind )
+        {
+            double U8 = degtorad ( 43.86 + 22278.41 * T );
+            a0 = 257.31 - 0.29 * sin ( U8 );
+            d0 = -15.18 + 0.28 * cos ( U8 );
+            wd = -644.6311260;
+            w  = 314.90 + wd * d - 0.08 * sin ( U8 );
+        }
+        else if ( id == kBelinda )
+        {
+            double U9 = degtorad ( 101.81 + 12872.63 * T );
+            a0 = 257.31 - 0.03 * sin ( U9 );
+            d0 = -15.18 + 0.03 * cos ( U9 );
+            wd = -577.3628170;
+            w  = 297.46 + wd * d - 0.01 * sin ( U9 );
+        }
+        else if ( id == kPuck )
+        {
+            double U10 = degtorad ( 138.64 + 8061.81 * T );
+            a0 = 257.31 - 0.33 * sin ( U10 );
+            d0 = -15.18 + 0.31 * cos ( U10 );
+            wd = -472.5450690;
+            w  = 91.24 + wd * d - 0.09 * sin ( U10 );
+        }
         else if ( id == kTriton )
         {
             double N7 = degtorad ( 177.85 + 52.316 * T );
@@ -1905,13 +1986,13 @@ bool SSPlanet::isSmallMoon ( void )
         return false;
     
     int id = (int) _id.identifier();
-    if ( id >= kLuna && id < kAmalthea )
+    if ( id >= kLuna && id <= kCallisto )
         return false;
-    if ( id >= kMimas && id < kPhoebe )
+    if ( id >= kMimas && id <= kPhoebe )
         return false;
-    if ( id >= kAriel && id < kMiranda )
+    if ( id >= kAriel && id <= kMiranda )
         return false;
-    if ( id >= kTriton && id < kNereid )
+    if ( id >= kTriton && id <= kNereid )
         return false;
     if ( id == kCharon )
         return false;
