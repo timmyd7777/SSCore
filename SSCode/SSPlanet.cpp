@@ -1792,6 +1792,60 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
                         + 0.74 * sin ( 4 * N7 ) + 0.28 * sin ( 5 * N7 ) + 0.11 * sin ( 6 * N7 )
                         + 0.05 * sin ( 7 * N7 ) + 0.02 * sin ( 8 * N7 ) + 0.01 * sin ( 9 * N7 );
         }
+        else if ( id == kNaiad )
+        {
+            double N  = degtorad ( 357.85 + 52.316 * T );
+            double N1 = degtorad ( 323.92 + 62606.6 * T );
+            a0 = 299.36 + 0.70 * sin ( N ) - 6.49 * sin ( N1 ) + 0.25 * sin ( 2.0 * N1 );
+            d0 =  43.36 - 0.51 * cos ( N ) - 4.75 * cos ( N1 ) + 0.09 * cos ( 2.0 * N1 );
+            wd = 1222.8441209;
+            w  = 254.06 + wd * d - 0.48 * sin ( N ) + 4.40 * sin ( N1 ) - 0.27 * sin ( 2.0 * N1 );
+        }
+        else if ( id == kThalassa )
+        {
+            double N  = degtorad ( 357.85 + 52.316 * T );
+            double N2 = degtorad ( 220.51 +  55064.2 * T );
+            a0 = 299.36 + 0.70 * sin ( N ) - 0.28 * sin ( N2 );
+            d0 =  43.45 - 0.51 * cos ( N ) - 0.21 * cos ( N2 );
+            wd = 1155.7555612;
+            w  = 102.06 + wd * d - 0.48 * sin ( N ) + 0.19 * sin ( N2 );
+        }
+        else if ( id == kDespina )
+        {
+            double N  = degtorad ( 357.85 + 52.316 * T );
+            double N3 = degtorad ( 354.27 + 46564.5 * T );
+            a0 = 299.36 + 0.70 * sin ( N ) - 0.09 * sin ( N3 );
+            d0 =  43.45 - 0.51 * cos ( N ) - 0.07 * cos ( N3 );
+            wd = 1075.7341562;
+            w  = 306.51 + wd * d - 0.49 * sin ( N ) + 0.06 * sin ( N3 );
+        }
+        else if ( id == kGalatea )
+        {
+            double N  = degtorad ( 357.85 + 52.316 * T );
+            double N4 = degtorad ( 75.31 + 26109.4 * T );
+            a0 = 299.36 + 0.70 * sin ( N ) - 0.07 * sin ( N4 );
+            d0 =  43.45 - 0.51 * cos ( N ) - 0.05 * cos ( N4 );
+            wd = 839.6597686;
+            w  = 258.09 + wd * d - 0.48 * sin ( N ) + 0.05 * sin ( N4 );
+        }
+        else if ( id == kLarissa )
+        {
+            double N  = degtorad ( 357.85 + 52.316 * T );
+            double N5 = degtorad ( 35.36 + 14325.4 * T );
+            a0 = 299.36 + 0.70 * sin ( N ) - 0.27 * sin ( N5 );
+            d0 =  43.41 - 0.51 * cos ( N ) - 0.20 * cos ( N5 );
+            wd = 649.0534470;
+            w  = 179.41 + wd * d - 0.48 * sin ( N ) + 0.19 * sin ( N5 );
+        }
+        else if ( id == kProteus )
+        {
+            double N  = degtorad ( 357.85 + 52.316 * T );
+            double N6 = degtorad ( 142.61 + 2824.6 * T );
+            a0 = 299.27 + 0.70 * sin ( N ) - 0.05 * sin ( N6 );
+            d0 =  42.91 - 0.51 * cos ( N ) - 0.04 * cos ( N6 );
+            wd = 320.7654228;
+            w  = 93.38 + wd * d - 0.48 * sin ( N ) + 0.04 * sin ( N6 );
+        }
         else if ( id == kCharon )
         {
             a0 = 132.993;
