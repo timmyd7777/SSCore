@@ -286,7 +286,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     // Special case for Moon: use JPL ephemeris to compute heliocentric position and velocity directly;
     // or if that fails, use PS ephemeris to compute Moon's geocentric position and velocity.
     
-    if ( _id.identifier() == kLuna )
+    if ( m == kLuna )
     {
         // When planets or the Moon are more than 1 light day away, don't use JPL DE 408; VSOP/ELP is much faster in this case.
         
@@ -331,7 +331,28 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
         // Fallback: compute moon's position using Keplerian orbit
         
         if ( ! result )
-            computeMinorPlanetPositionVelocity ( jed, lt, pos, vel );
+        {
+            // By default, north pole of Laplacian plane is the Ecliptic north pole.
+            // For outer planets' inner moons, Laplacian plane north pole is planet's north pole.
+
+            SSSpherical lp = SSSpherical ( SSAngle::fromDegrees ( 270.0 ), SSAngle::fromDegrees ( 66.561 ) );
+            double a = _orbit.semiMajorAxis() * SSCoordinates::kKmPerAU;
+            if ( p == kJupiter && a < 1.0e6 )
+                lp = SSSpherical ( SSAngle::fromDegrees ( 268.057 ), SSAngle::fromDegrees ( 64.495 ) );
+            else if ( p == kSaturn && a < 1.0e6 )
+                lp = SSSpherical ( SSAngle::fromDegrees ( 40.585 ), SSAngle::fromDegrees ( 83.538 ) );
+            else if ( p == kUranus && a < 1.0e6 )
+                lp = SSSpherical ( SSAngle::fromDegrees ( 257.811 ), SSAngle::fromDegrees ( -15.175 ) );
+            else if ( p == kNeptune && a < 1.0e6 )
+                lp = SSSpherical ( SSAngle::fromDegrees ( 299.431 ), SSAngle::fromDegrees ( 42.94 ) );
+            else if ( p == kPluto )
+                lp = SSSpherical ( SSAngle::fromDegrees ( 132.993 ), SSAngle::fromDegrees ( -6.613 ) );
+            
+            SSMatrix matrix = SSMatrix::rotation ( 2, 0, SSAngle::kHalfPi - lp.lat, 2, SSAngle::kHalfPi + lp.lon );
+            _orbit.toPositionVelocity ( jed - lt, pos, vel );
+            pos = matrix.multiply ( pos );
+            vel = matrix.multiply ( vel );
+        }
     }
     
     // If JED has changed since last time we computed primary's position and velocity, recompute them.
@@ -1476,6 +1497,36 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
             wd =  21.5710715;
             w  = 259.51 + wd * d + 0.061 * sin ( J5 ) - 0.533 * sin ( J6 ) - 0.009 * sin ( J8 );
         }
+        else if ( id == kAmalthea )
+        {
+            double J1 = degtorad ( 73.32 + 91472.9 * T );
+            a0 = 268.05 - 0.009 * T - 0.084 * sin ( J1 ) + 0.01 * sin ( 2.0 * J1 );
+            d0 =  64.49 + 0.003 * T - 0.036 * cos ( J1 );
+            wd =  722.6314560;
+            w  = 231.67 + wd * d + 0.76 * sin ( J1 ) - 0.01 * sin ( 2.0 * J1 );
+        }
+        else if ( id == kAdrastea )
+        {
+            a0 = 268.05 - 0.009 * T;
+            d0 =  64.49 + 0.003 * T;
+            wd = 1206.9986602;
+            w  = 33.29 + wd * d;
+        }
+        else if ( id == kThebe )
+        {
+            double J2 = degtorad ( 24.62 + 45137.2 * T );
+            a0 = 268.05 - 0.009 * T - 2.11 * sin ( J2 ) + 0.04 * sin ( 2.0 * J2 );
+            d0 =  64.49 + 0.003 * T - 0.91 * cos ( J2 ) + 0.01 * cos ( 2.0 * J2 );
+            wd = 533.7004100;
+            w  = 8.56 + wd * d + 1.91 * sin ( J2 ) - 0.04 * sin ( 2.0 * J2 );
+        }
+        else if ( id == kMetis )
+        {
+            a0 = 268.05 - 0.009 * T;
+            d0 =  64.49 + 0.003 * T;
+            wd = 1221.2547301;
+            w  = 346.09 + wd * d;
+        }
         else if ( id == kMimas )
         {
             double S3 = degtorad ( 177.40 - 36505.5 * T );
@@ -1536,6 +1587,71 @@ void SSPlanet::rotationElements ( double jed, double &a0, double &d0, double &w,
             d0 =  77.80;
             wd = 931.639;
             w  = 178.58 + wd * d;
+        }
+        else if ( id == kJanus )
+        {
+            double S2 = degtorad ( 28.72 + 75706.7 * T );
+            a0 =  40.38 - 0.036 * T - 1.623 * sin ( S2 ) + 0.023 * sin ( 2.0 * S2 );
+            d0 =  83.55 - 0.004 * T - 0.183 * cos ( S2 ) + 0.001 * cos ( 2.0 * S2 );
+            wd = 518.2359876;
+            w  = 58.83 + wd * d + 1.613 * sin ( S2 ) - 0.023 * sin ( 2.0 * S2 );
+        }
+        else if ( id == kEpimetheus )
+        {
+            double S1 = degtorad ( 353.32 + 75706.7 * T );
+            a0 =  40.38 - 0.036 * T - 3.153 * sin ( S1 ) + 0.086 * sin ( 2.0 * S1 );
+            d0 =  83.55 - 0.004 * T - 0.356 * cos ( S1 ) + 0.005 * cos ( 2.0 * S1 );
+            wd = 518.4907239;
+            w  = 293.87 + wd * d + 3.133 * sin ( S1 ) - 0.086 * sin ( 2.0 * S1 );
+        }
+        else if ( id == kHelene )
+        {
+            a0 = 40.85 - 0.036 * T;
+            d0 = 83.34 - 0.004 * T;
+            wd = 131.6174056;
+            w  = 245.12 + wd * d;
+        }
+        else if ( id == kTelesto )
+        {
+            a0 =  50.51 - 0.036 * T;
+            d0 =  84.06 - 0.004 * T;
+            wd = 190.6979332;
+            w  =  56.88 + wd * d;
+        }
+        else if ( id == kCalypso )
+        {
+            a0 =  36.41 - 0.036 * T;
+            d0 =  85.04 - 0.004 * T;
+            wd = 190.6742373;
+            w  = 153.51 + wd * d;
+        }
+        else if ( id == kAtlas )
+        {
+            a0 =  40.58 - 0.036 * T;
+            d0 =  83.53 - 0.004 * T;
+            wd = 598.3060000;
+            w  = 137.88 + wd * d;
+        }
+        else if ( id == kPrometheus )
+        {
+            a0 =  40.58 - 0.036 * T;
+            d0 =  83.53 - 0.004 * T;
+            wd = 587.289000;
+            w  = 296.14 + wd * d;
+        }
+        else if ( id == kPandora )
+        {
+            a0 =  40.58 - 0.036 * T;
+            d0 =  83.53 - 0.004 * T;
+            wd = 572.7891000;
+            w  = 162.92 + wd * d;
+        }
+        else if ( id == kPan )
+        {
+            a0 =  40.6 - 0.036 * T;
+            d0 =  83.5 - 0.004 * T;
+            wd = 626.0440000;
+            w  =  48.8 + wd * d;
         }
         else if ( id == kMiranda )
         {
