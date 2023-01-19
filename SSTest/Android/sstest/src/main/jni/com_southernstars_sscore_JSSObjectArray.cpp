@@ -2,6 +2,7 @@
 #include "JNIUtilities.h"
 #include "SSObject.hpp"
 #include "SSPlanet.hpp"
+#include "SSImportTLE.hpp"
 
 /*
  * Class:     com_southernstars_sscore_JSSObjectArray
