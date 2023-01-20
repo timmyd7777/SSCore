@@ -1,71 +1,18 @@
 SSCore/SSData To-Do's and Wishlist
 ==================================
 
-SSAngle
---------
-- split into separate files for SSDegMinSec, SSHourMinSec, SSAngle
-
 SSEvent
 --------
 - write C wrapper, JNI
-
-SSConstellation
----------------
-- deal with precession from B1875 -> J2000 consistently
-- interpolate constellation boundaries when reading from file
-
-SSIdentifier
-------------
-- make case-insensitive wherever possible
-- add comments for internal functions
-
-SSImportSKY2000
----------------
-- add import routines for WDS and GCVS catalogs
-
-SSJPLDEphemeris
----------------
-- rewrite guts to make thread-safe
 
 SSMatrix
 --------
 - use enumerated type as axis parameter to rotate() method.
 
-SSMoonEphemeris
----------------
-- update Saturn moon formulae which do not agree with Meeus.
-
-SSObject
---------
-- implement polymorphism correctly: add virtual functions for all of the accessors
-  and modifiers unique to subclasses; remove downcasting functions. This will have
-  big ripple effect but result in simpler code.
-
-
-SSStar
-------
-- add SSBinaryStar subclass.
-- add binary star orbit catalog import
-- star absolute to apparent magnitudes and vice-versa
-
 SSTLE
 -----
 - add TLE and revolution numbers to exported TLEs so they exactly match the imported versions.
 - add EFECtoECI() and ECItoECEF routines()
-
-
-SSTime
-------
-- split into separate files for SSDate and SSTime
-- add Moslem and Jewish calendars
-
-SSVector
---------
-- split into separate files for SSSpherical and SSVector
-
-VSOP2013 & ELPMPP02
--------------------
-- do more validation testing for times very far from present.
 
 Other
 -----
@@ -80,4 +27,4 @@ iOS
 ---
 - additional C wrapper for SSStar, SSPlanet
 
--Tim DeBenedictis (timd@southernstars.com) 29 April 2020
+-Tim DeBenedictis (timd@southernstars.com) 19 Jan 2023

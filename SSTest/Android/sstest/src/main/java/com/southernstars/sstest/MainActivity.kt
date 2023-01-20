@@ -3,8 +3,7 @@ package com.southernstars.sstest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.res.AssetManager
-
-//import kotlinx.android.synthetic.main.activity_main.*
+import android.widget.TextView
 import kotlin.math.*
 import com.southernstars.sscore.*
 
@@ -363,6 +362,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val sample_text: TextView = findViewById(R.id.sample_text)
         sample_text.text = str
 
         solsys.destroy()
