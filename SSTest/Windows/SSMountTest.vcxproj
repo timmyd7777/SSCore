@@ -26,6 +26,7 @@
     <ClCompile Include="..\..\SSCode\SSFeature.cpp" />
     <ClCompile Include="..\..\SSCode\SSHTM.cpp" />
     <ClCompile Include="..\..\SSCode\SSIdentifier.cpp" />
+    <ClCompile Include="..\..\SSCode\SSImportTLE.cpp" />
     <ClCompile Include="..\..\SSCode\SSJPLDEphemeris.cpp" />
     <ClCompile Include="..\..\SSCode\SSMatrix.cpp" />
     <ClCompile Include="..\..\SSCode\SSMoonEphemeris.cpp" />
@@ -71,6 +72,7 @@
     <ClInclude Include="..\..\SSCode\SSImportMPC.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportNGCIC.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportSKY2000.hpp" />
+    <ClInclude Include="..\..\SSCode\SSImportTLE.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportTYC.hpp" />
     <ClInclude Include="..\..\SSCode\SSImportWDS.hpp" />
     <ClInclude Include="..\..\SSCode\SSJPLDEphemeris.hpp" />

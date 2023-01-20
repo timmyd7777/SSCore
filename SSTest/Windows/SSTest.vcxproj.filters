@@ -135,6 +135,9 @@
     <ClCompile Include="..\..\SSCode\SSFeature.cpp">
       <Filter>Source Files\SSCode</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSImportTLE.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp">
@@ -225,6 +228,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SSCode\SSSocket.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSImportTLE.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
