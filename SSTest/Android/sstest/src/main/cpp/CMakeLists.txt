@@ -29,6 +29,7 @@ add_library( # Sets the name of the library.
              ../../../../../../SSCode/SSImportGJ.cpp
              ../../../../../../SSCode/SSImportMPC.cpp
              ../../../../../../SSCode/SSImportSKY2000.cpp
+             ../../../../../../SSCode/SSImportTLE.cpp
              ../../../../../../SSCode/SSJPLDEphemeris.cpp
              ../../../../../../SSCode/SSMatrix.cpp
              ../../../../../../SSCode/SSMoonEphemeris.cpp

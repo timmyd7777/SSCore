@@ -26,6 +26,7 @@
 #include "SSImportSKY2000.hpp"
 #include "SSImportNGCIC.hpp"
 #include "SSImportMPC.hpp"
+#include "SSImportTLE.hpp"
 #include "SSImportGJ.hpp"
 #include "SSImportWDS.hpp"
 #include "SSJPLDEphemeris.hpp"

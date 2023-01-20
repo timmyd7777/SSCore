@@ -3,7 +3,8 @@ package com.southernstars.sstest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.res.AssetManager
-import kotlinx.android.synthetic.main.activity_main.*
+
+//import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.*
 import com.southernstars.sscore.*
 

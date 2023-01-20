@@ -15,6 +15,7 @@
 		A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
 		A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C3241EE07900197F8A /* SSPlanet.cpp */; };
 		A30545C8241EF45000197F8A /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
+		A307FB09297A31E7003E30AD /* SSImportTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB07297A31E7003E30AD /* SSImportTLE.cpp */; };
 		A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */; };
 		A315D76E26370EEA00A2F317 /* SSImportGCVS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A315D76C26370EEA00A2F317 /* SSImportGCVS.cpp */; };
 		A31EBEA02457C231005C863E /* ELPMPP02.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A31EBE9E2457C231005C863E /* ELPMPP02.cpp */; };
@@ -124,6 +125,8 @@
 		A30545C4241EE07900197F8A /* SSPlanet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSPlanet.hpp; sourceTree = "<group>"; };
 		A30545C6241EF45000197F8A /* SSStar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSStar.cpp; sourceTree = "<group>"; };
 		A30545C7241EF45000197F8A /* SSStar.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSStar.hpp; sourceTree = "<group>"; };
+		A307FB07297A31E7003E30AD /* SSImportTLE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportTLE.cpp; sourceTree = "<group>"; };
+		A307FB08297A31E7003E30AD /* SSImportTLE.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportTLE.hpp; sourceTree = "<group>"; };
 		A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSIdentifier.cpp; sourceTree = "<group>"; };
 		A30C7A4924251E96004FEF82 /* SSIdentifier.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSIdentifier.hpp; sourceTree = "<group>"; };
 		A315D76C26370EEA00A2F317 /* SSImportGCVS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportGCVS.cpp; sourceTree = "<group>"; };
@@ -266,6 +269,8 @@
 				A36E2194242A7CF6005C9699 /* SSImportMPC.hpp */,
 				A3AAE7B1242972E70035E668 /* SSImportNGCIC.cpp */,
 				A3AAE7B2242972E70035E668 /* SSImportNGCIC.hpp */,
+				A307FB07297A31E7003E30AD /* SSImportTLE.cpp */,
+				A307FB08297A31E7003E30AD /* SSImportTLE.hpp */,
 				A37E084628D399B600489544 /* SSImportTYC.cpp */,
 				A37E084A28D399B600489544 /* SSImportTYC.hpp */,
 				A36B14BC263785E20058BF62 /* SSImportWDS.cpp */,
@@ -452,6 +457,7 @@
 				A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */,
 				A33E45B82438E7F900C15780 /* SSTLE.cpp in Sources */,
 				A3C22D1524574892004CE083 /* VSOP2013p9.cpp in Sources */,
+				A307FB09297A31E7003E30AD /* SSImportTLE.cpp in Sources */,
 				A315D76E26370EEA00A2F317 /* SSImportGCVS.cpp in Sources */,
 				A3848E992450E9CD0085973F /* SSMoonEphemeris.cpp in Sources */,
 				A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */,

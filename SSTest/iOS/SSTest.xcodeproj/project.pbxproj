@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		A30485FD243CCFF300052789 /* SSCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30485FC243CCFF300052789 /* SSCore.cpp */; };
+		A307FB0C297A329E003E30AD /* SSFeature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB0A297A329E003E30AD /* SSFeature.cpp */; };
+		A307FB0F297A32BC003E30AD /* SSImportGCVS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB0D297A32BC003E30AD /* SSImportGCVS.cpp */; };
+		A307FB12297A32E3003E30AD /* SSImportTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB10297A32E3003E30AD /* SSImportTLE.cpp */; };
+		A307FB15297A32F9003E30AD /* SSImportWDS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB13297A32F9003E30AD /* SSImportWDS.cpp */; };
+		A307FB18297A33CF003E30AD /* SSHTM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB16297A33CF003E30AD /* SSHTM.cpp */; };
 		A31CDC05243B76A800573D03 /* SSData in Resources */ = {isa = PBXBuildFile; fileRef = A31CDC04243B76A800573D03 /* SSData */; };
 		A3211C99245160CB008C9A3B /* SSMoonEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3211C97245160CB008C9A3B /* SSMoonEphemeris.cpp */; };
 		A322CA7F24467485004E0670 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A322CA7D24467485004E0670 /* SSPSEphemeris.cpp */; };
@@ -56,6 +61,16 @@
 /* Begin PBXFileReference section */
 		A30485FB243CCFF300052789 /* SSCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SSCore.h; sourceTree = "<group>"; };
 		A30485FC243CCFF300052789 /* SSCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSCore.cpp; sourceTree = "<group>"; };
+		A307FB0A297A329E003E30AD /* SSFeature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSFeature.cpp; sourceTree = "<group>"; };
+		A307FB0B297A329E003E30AD /* SSFeature.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSFeature.hpp; sourceTree = "<group>"; };
+		A307FB0D297A32BC003E30AD /* SSImportGCVS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportGCVS.cpp; sourceTree = "<group>"; };
+		A307FB0E297A32BC003E30AD /* SSImportGCVS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportGCVS.hpp; sourceTree = "<group>"; };
+		A307FB10297A32E3003E30AD /* SSImportTLE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportTLE.cpp; sourceTree = "<group>"; };
+		A307FB11297A32E3003E30AD /* SSImportTLE.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportTLE.hpp; sourceTree = "<group>"; };
+		A307FB13297A32F9003E30AD /* SSImportWDS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportWDS.cpp; sourceTree = "<group>"; };
+		A307FB14297A32F9003E30AD /* SSImportWDS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportWDS.hpp; sourceTree = "<group>"; };
+		A307FB16297A33CF003E30AD /* SSHTM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHTM.cpp; sourceTree = "<group>"; };
+		A307FB17297A33CF003E30AD /* SSHTM.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSHTM.hpp; sourceTree = "<group>"; };
 		A30DBCCA243AE47500E9CC82 /* SSTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SSTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A31CDC04243B76A800573D03 /* SSData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SSData; path = ../../SSData; sourceTree = "<group>"; };
 		A3211C97245160CB008C9A3B /* SSMoonEphemeris.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSMoonEphemeris.cpp; sourceTree = "<group>"; };
@@ -200,11 +215,17 @@
 				A3EBE0E8243AE4E800B47EAE /* SSConstellation.hpp */,
 				A3EBE0EC243AE4E800B47EAE /* SSCoordinates.cpp */,
 				A3EBE0CD243AE4E800B47EAE /* SSCoordinates.hpp */,
+				A307FB0A297A329E003E30AD /* SSFeature.cpp */,
+				A307FB0B297A329E003E30AD /* SSFeature.hpp */,
+				A307FB16297A33CF003E30AD /* SSHTM.cpp */,
+				A307FB17297A33CF003E30AD /* SSHTM.hpp */,
 				A3EBE0CB243AE4E800B47EAE /* SSIdentifier.cpp */,
 				A3EBE0EA243AE4E800B47EAE /* SSIdentifier.hpp */,
-				A3EBE0DB243AE4E800B47EAE /* SSImportGJ.cpp */,
 				A3EBE0DC243AE4E800B47EAE /* SSImportHIP.cpp */,
 				A3EBE0D1243AE4E800B47EAE /* SSImportHIP.hpp */,
+				A307FB0D297A32BC003E30AD /* SSImportGCVS.cpp */,
+				A307FB0E297A32BC003E30AD /* SSImportGCVS.hpp */,
+				A3EBE0DB243AE4E800B47EAE /* SSImportGJ.cpp */,
 				A3EBE0CF243AE4E800B47EAE /* SSImportGJ.hpp */,
 				A3EBE0E5243AE4E800B47EAE /* SSImportMPC.cpp */,
 				A3EBE0C6243AE4E800B47EAE /* SSImportMPC.hpp */,
@@ -212,6 +233,10 @@
 				A3EBE0D6243AE4E800B47EAE /* SSImportNGCIC.hpp */,
 				A3EBE0D0243AE4E800B47EAE /* SSImportSKY2000.cpp */,
 				A3EBE0DA243AE4E800B47EAE /* SSImportSKY2000.hpp */,
+				A307FB10297A32E3003E30AD /* SSImportTLE.cpp */,
+				A307FB11297A32E3003E30AD /* SSImportTLE.hpp */,
+				A307FB13297A32F9003E30AD /* SSImportWDS.cpp */,
+				A307FB14297A32F9003E30AD /* SSImportWDS.hpp */,
 				A3EBE0CC243AE4E800B47EAE /* SSJPLDEphemeris.cpp */,
 				A3EBE0EB243AE4E800B47EAE /* SSJPLDEphemeris.hpp */,
 				A3EBE0E7243AE4E800B47EAE /* SSMatrix.cpp */,
@@ -328,7 +353,9 @@
 				A3EBE0FA243AE4E800B47EAE /* SSStar.cpp in Sources */,
 				A3F33359243B8B0100D27A15 /* ContentView.swift in Sources */,
 				A3EBE100243AE4E800B47EAE /* SSCoordinates.cpp in Sources */,
+				A307FB0C297A329E003E30AD /* SSFeature.cpp in Sources */,
 				A351023E24591C42006507E6 /* VSOP2013p3.cpp in Sources */,
+				A307FB18297A33CF003E30AD /* SSHTM.cpp in Sources */,
 				A351023524591C42006507E6 /* VSOP2013p9.cpp in Sources */,
 				A341DE57244CBBA000F4FB82 /* SSEvent.cpp in Sources */,
 				A3EBE0F1243AE4E800B47EAE /* SSTime.cpp in Sources */,
@@ -342,12 +369,15 @@
 				A351023624591C42006507E6 /* VSOP2013p8.cpp in Sources */,
 				A3EBE0F0243AE4E800B47EAE /* SSJPLDEphemeris.cpp in Sources */,
 				A351023824591C42006507E6 /* ELPMPP02.cpp in Sources */,
+				A307FB0F297A32BC003E30AD /* SSImportGCVS.cpp in Sources */,
 				A3EBE102243AE69800B47EAE /* SSTest.cpp in Sources */,
+				A307FB12297A32E3003E30AD /* SSImportTLE.cpp in Sources */,
 				A351023B24591C42006507E6 /* VSOP2013p5.cpp in Sources */,
 				A322CA7F24467485004E0670 /* SSPSEphemeris.cpp in Sources */,
 				A3EBE0ED243AE4E800B47EAE /* SSObject.cpp in Sources */,
 				A3EBE0FE243AE4E800B47EAE /* SSMatrix.cpp in Sources */,
 				A3EBE0FD243AE4E800B47EAE /* SSImportMPC.cpp in Sources */,
+				A307FB15297A32F9003E30AD /* SSImportWDS.cpp in Sources */,
 				A351023A24591C42006507E6 /* VSOP2013p7.cpp in Sources */,
 				A3F3335A243B8B0100D27A15 /* AppDelegate.swift in Sources */,
 				A3EBE104243AE9A600B47EAE /* SSTest.h in Sources */,

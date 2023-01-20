@@ -636,7 +636,7 @@ double CSSCoordinatesRadVelToRedShift ( double rv )
 CSSVector CSSCoordinatesToGeocentric ( CSSSpherical csph, double re, double f )
 {
     SSSpherical sph = CSSSphericalToSSSpherical ( csph );
-    SSVector vec = SSCoordinates::toGeocentric ( sph, re, f );
+    SSVector vec = SSCoordinates::toGeocentricPosition ( sph, re, f );
     return CSSVectorFromSSVector ( vec );
 }
 
@@ -863,7 +863,7 @@ size_t CSSObjectArraySize ( CSSObjectArray *pObjArr )
 CSSObjectPtr CSSObjectGetFromArray ( CSSObjectArray *pObjArr, int i )
 {
     SSObjectVec *pObjVec = (SSObjectVec *) pObjArr;
-    return (CSSObject *) ( pObjVec ? pObjVec->at ( i ) : nullptr );
+    return (CSSObject *) ( pObjVec ? pObjVec->get( i ) : nullptr );
 }
 
 // C wrappers for C++ SSEvent definitions, classes and methods
