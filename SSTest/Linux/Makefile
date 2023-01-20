@@ -14,6 +14,7 @@ $(SOURCEDIR)/SSImportGJ.cpp \
 $(SOURCEDIR)/SSImportHIP.cpp \
 $(SOURCEDIR)/SSImportMPC.cpp \
 $(SOURCEDIR)/SSImportSKY2000.cpp \
+$(SOURCEDIR)/SSImportTLE.cpp \
 $(SOURCEDIR)/SSJPLDEphemeris.cpp \
 $(SOURCEDIR)/SSMatrix.cpp \
 $(SOURCEDIR)/SSMoonEphemeris.cpp \
