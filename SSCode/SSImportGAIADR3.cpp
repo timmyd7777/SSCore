@@ -119,7 +119,7 @@ static int SSReadGAIACSVRecord ( gzFile gz_fp, vector<string> &fields )
 // Reads one record from gzip-compressed GAIA DR3 source file.
 // Returns 1 (true) if successful, 0 (false) on parse failure, or -1 (EOF) on end-of-file
 
-int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord *pRec )
+int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &rec )
 {
     vector<string> fields;
     int result = SSReadGAIACSVRecord ( gdp->fp, fields );
@@ -128,39 +128,39 @@ int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord *pRec )
     if ( result < GAIADR3_SOURCE_NUM_FIELDS )
         return false;
     
-    pRec->solution_id = strtoint64 ( fields[0] );
-    pRec->source_id = strtoint64 ( fields[2] );
-    pRec->ref_epoch = strtoint64 ( fields[4] );
-    pRec->ra = strtofloat64 ( fields[5] );
-    pRec->ra_error = strtofloat64 ( fields[6] );
-    pRec->dec = strtofloat64 ( fields[7] );
-    pRec->dec_error = strtofloat64 ( fields[8] );
-    pRec->parallax = strtofloat64 ( fields[9] );
-    pRec->parallax_error = strtofloat64 ( fields[10] );
-    pRec->pmra = strtofloat64 ( fields[13] );
-    pRec->pmra_error = strtofloat64 ( fields[14] );
-    pRec->pmdec = strtofloat64 ( fields[15] );
-    pRec->pmdec_error = strtofloat64 ( fields[16] );
-    pRec->duplicated_source = fields[64][0] == 'T' ? true : false;
-    pRec->phot_g_mean_mag = strtofloat ( fields[69] );
-    pRec->phot_bp_mean_mag = strtofloat ( fields[74] );
-    pRec->phot_rp_mean_mag = strtofloat ( fields[79] );
-    pRec->radial_velocity = strtofloat ( fields[89] );
-    pRec->radial_velocity_error = strtofloat ( fields[90] );
-    pRec->vbroad = strtofloat ( fields[104] );
-    pRec->vbroad_error = strtofloat ( fields[105] );
-    pRec->phot_variable_flag = fields[111][0];
-    pRec->teff_gspphot = strtofloat ( fields[130] );
-    pRec->logg_gspphot = strtofloat ( fields[133] );
-    pRec->mh_gspphot = strtofloat ( fields[136] );
-    pRec->distance_gspphot = strtofloat ( fields[139] );
-    pRec->azero_gspphot = strtofloat ( fields[142] );
-    pRec->ag_gspphot = strtofloat ( fields[145] );
-    pRec->ebpminrp_gspphot = strtofloat ( fields[148] );
+    rec.solution_id = strtoint64 ( fields[0] );
+    rec.source_id = strtoint64 ( fields[2] );
+    rec.ref_epoch = strtoint64 ( fields[4] );
+    rec.ra = strtofloat64 ( fields[5] );
+    rec.ra_error = strtofloat64 ( fields[6] );
+    rec.dec = strtofloat64 ( fields[7] );
+    rec.dec_error = strtofloat64 ( fields[8] );
+    rec.parallax = strtofloat64 ( fields[9] );
+    rec.parallax_error = strtofloat64 ( fields[10] );
+    rec.pmra = strtofloat64 ( fields[13] );
+    rec.pmra_error = strtofloat64 ( fields[14] );
+    rec.pmdec = strtofloat64 ( fields[15] );
+    rec.pmdec_error = strtofloat64 ( fields[16] );
+    rec.duplicated_source = fields[64][0] == 'T' ? true : false;
+    rec.phot_g_mean_mag = strtofloat ( fields[69] );
+    rec.phot_bp_mean_mag = strtofloat ( fields[74] );
+    rec.phot_rp_mean_mag = strtofloat ( fields[79] );
+    rec.radial_velocity = strtofloat ( fields[89] );
+    rec.radial_velocity_error = strtofloat ( fields[90] );
+    rec.vbroad = strtofloat ( fields[104] );
+    rec.vbroad_error = strtofloat ( fields[105] );
+    rec.phot_variable_flag = fields[111][0];
+    rec.teff_gspphot = strtofloat ( fields[130] );
+    rec.logg_gspphot = strtofloat ( fields[133] );
+    rec.mh_gspphot = strtofloat ( fields[136] );
+    rec.distance_gspphot = strtofloat ( fields[139] );
+    rec.azero_gspphot = strtofloat ( fields[142] );
+    rec.ag_gspphot = strtofloat ( fields[145] );
+    rec.ebpminrp_gspphot = strtofloat ( fields[148] );
     
     // record must have a non-zero solution and source ID to be valid
     
-    return ( pRec->solution_id && pRec->source_id ) ? true : false;
+    return ( rec.solution_id && rec.source_id ) ? true : false;
 }
 
 // Reads one record from a GAIA DR3 <-> Hipparcos 2 cross-match file.
@@ -315,7 +315,7 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, const S
     while ( true )
     {
         SSGAIADR3SourceRecord record = { 0 };
-        result = SSReadGAIADir ( gdp, &record );
+        result = SSReadGAIADir ( gdp, record );
         if ( result == EOF )
             break;
         

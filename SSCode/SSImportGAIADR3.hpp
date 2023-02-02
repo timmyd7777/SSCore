@@ -101,11 +101,11 @@ typedef map<uint64_t,SSGAIACrossMatchRecord> SSGAIACrossMatch;
 struct SSGAIADir;   // Forward declaration of opaque GAIA directory/file reference
 
 SSGAIADir *SSOpenGAIADir ( const string &root );
-int SSReadGAIADir ( SSGAIADir *gdp, SSGAIADR3SourceRecord *record );
+int SSReadGAIADir ( SSGAIADir *gdp, SSGAIADR3SourceRecord &record );
 void SSCloseGAIADir ( SSGAIADir *gdp );
 
 int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSGAIACrossMatch &records );
-int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &rec );
+int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &record );
 
 int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax );
 
