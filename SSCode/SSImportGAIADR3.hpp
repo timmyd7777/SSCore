@@ -58,13 +58,13 @@ struct SSGAIARec
     int64_t     source_id;              // Unique GAIA DR3 source identifier
     int32_t     hip_source_id;          // Unique Hipparcos-2 catalogue source identifier
     int32_t     tyc_source_id;          // Unique Tycho-2 catalogue source identifier
-    int32_t     ra_mas;                 // Barycentric right ascension in ICRS at epoch 2015.5 [mas]
-    int32_t     dec_mas;                // Barycentric declination in ICRS at epoch 2015.5 [mas]
+    int32_t     ra_mas;                 // Barycentric right ascension in ICRS at epoch 2016.0 [mas]
+    int32_t     dec_mas;                // Barycentric declination in ICRS at epoch 2016.0 [mas]
     float       pos_error;              // Standard error of position = sqrt ( ra_error^2 + dec_error^2 ) [mas]
-    float       parallax;               // Absolute stellar parallax at epoch 2015.5 [mas]
+    float       parallax;               // Absolute stellar parallax at epoch 2016.0 [mas]
     float       parallax_error;         // Standard error of parallax [mas]
-    int16_t     pmra_mas;               // Proper motion in right ascension * cos (dec) in ICRS at epoch 2015.5 [mas/year]
-    int16_t     pmdec_mas;              // Proper motion in declination at epoch 2015.5 [mas/year]
+    float       pmra_mas;               // Proper motion in right ascension * cos (dec) in ICRS at epoch 2016.0 [mas/year]
+    float       pmdec_mas;              // Proper motion in declination at epoch 2016.0 [mas/year]
     float       pm_error;               // Standard error of proper motion = sqrt ( pm_ra_error^2 + pm_dec_error^2 ) [mas/year]
     int16_t     phot_g_mean_mmag;       // G-band mean magnitude [millimag]
     int16_t     phot_bp_mean_mmag;      // Integrated BP mean magnitude [millimag]
