@@ -9,8 +9,6 @@
 
 #include "SSStar.hpp"
 
-#endif /* SSImportTYC_hpp */
-
 struct TYC2HD
 {
     SSIdentifier tyc;
@@ -23,3 +21,6 @@ typedef multimap<SSIdentifier,TYC2HD> TYC2HDMap;
 int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &stars );
 int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &stars );
 int SSImportTYC2HD ( const string &filename, TYC2HDMap &tyc2hdmap );
+
+#endif /* SSImportTYC_hpp */
+
