@@ -22,5 +22,7 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &sta
 int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &stars );
 int SSImportTYC2HD ( const string &filename, TYC2HDMap &tyc2hdmap );
 
+void TychoToJohnsonMagnitude ( float bt, float vt, float &bj, float &vj );
+
 #endif /* SSImportTYC_hpp */
 

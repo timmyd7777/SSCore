@@ -104,13 +104,8 @@ void SSCloseGAIADir ( SSGAIADir *gdp );
 
 int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSGAIACrossMatch &records );
 int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &record );
-
 int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax );
 
-float GAIADR2JohnsonV ( float g, float gbp, float grp );
-float GAIADR2JohnsonI ( float g, float gbp, float grp );
-float GAIADR2JohnsonB ( float g, float gbp, float grp );
-
-int    GetGAIADR2SourceIDHEALPixRegion ( int64_t source_id );
+void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt );
 
 #endif /* SSImportGAIADR3_hpp */
