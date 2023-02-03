@@ -56,8 +56,6 @@ struct SSGAIADR3SourceRecord
 struct SSGAIARec
 {
     int64_t     source_id;              // Unique GAIA DR3 source identifier
-    int32_t     hip_source_id;          // Unique Hipparcos-2 catalogue source identifier
-    int32_t     tyc_source_id;          // Unique Tycho-2 catalogue source identifier
     int32_t     ra_mas;                 // Barycentric right ascension in ICRS at epoch 2016.0 [mas]
     int32_t     dec_mas;                // Barycentric declination in ICRS at epoch 2016.0 [mas]
     float       pos_error;              // Standard error of position = sqrt ( ra_error^2 + dec_error^2 ) [mas]

@@ -267,7 +267,7 @@ void GAIADR3toTycho2Magnitudes ( float g, float gbp, float grp, float &vt, float
 // Hipparcos (hipCM) and Tycho (tycCM) cross-match indexes should have been read previously.
 // GAIA sources brighter than gmin or fainter than gmax will be discarded.
 
-int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax )
+int SSExportGAIADR3StarData ( const string &root, const string &outpath, float gmin, float gmax )
 {
     int     i, n_records = 0, result = 0;
     FILE    *outfile = NULL;
@@ -321,15 +321,6 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, const S
         
         SSGAIARec outrec = { 0 };
         outrec.source_id = record.source_id;
-        
-        auto it = hipCM.find ( record.source_id );
-        if ( it != hipCM.end() )
-            outrec.hip_source_id = it->second.ext_source_id;
-
-        it = tycCM.find ( record.source_id );
-        if ( it != tycCM.end() )
-            outrec.tyc_source_id = it->second.ext_source_id;
-        
         outrec.ra_mas = record.ra * 3600000.0;
         outrec.dec_mas = record.dec * 3600000.0;
         outrec.pos_error = sqrt ( record.ra_error * record.ra_error + record.dec_error * record.dec_error );
@@ -365,7 +356,7 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, const S
     return i;
 }
 
-int SSImportGAIA17 ( const string &filename, SSObjectArray &stars )
+int SSImportGAIA17 ( const string &filename, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, SSObjectArray &stars )
 {
     // Open file; return on failure.
 
@@ -386,7 +377,17 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars )
         if ( ! file )
             break;
         
-        if ( gaia.hip_source_id != 0 || gaia.tyc_source_id == 0 )
+        uint32_t hip_source_id = 0;
+        auto it = hipCM.find ( gaia.source_id );
+        if ( it != hipCM.end() )
+            hip_source_id = it->second.ext_source_id;
+
+        uint32_t tyc_source_id = 0;
+        it = tycCM.find ( gaia.source_id );
+        if ( it != tycCM.end() )
+            tyc_source_id = it->second.ext_source_id;
+        
+        if ( hip_source_id != 0 || tyc_source_id == 0 )
             continue;
         
         SSSpherical coords ( SSAngle::fromArcsec ( gaia.ra_mas / 1000.0 ), SSAngle::fromArcsec ( gaia.dec_mas / 1000.0 ), INFINITY );
@@ -400,17 +401,17 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars )
         if ( gaia.radial_velocity != 0 && gaia.radial_velocity_error != 0 )
             motion.rad = gaia.radial_velocity / SSCoordinates::kLightKmPerSec;
                       
-        // Apply proper motion from epoch 2015.5 to epoch 2000
+        // Apply proper motion from epoch 2016.0 to epoch 2000
         
-        coords.lon -= motion.lon * 15.5;
-        coords.lat -= motion.lat * 15.5;
+        coords.lon -= motion.lon * 16.0;
+        coords.lat -= motion.lat * 16.0;
 
         vector<SSIdentifier> idents;
-        if ( gaia.hip_source_id )
-            idents.push_back ( SSIdentifier ( kCatHIP, gaia.hip_source_id ) );
+        if ( hip_source_id )
+            idents.push_back ( SSIdentifier ( kCatHIP, hip_source_id ) );
         
-        if ( gaia.tyc_source_id )
-            idents.push_back ( SSIdentifier ( kCatTYC, gaia.tyc_source_id ) );
+        if ( tyc_source_id )
+            idents.push_back ( SSIdentifier ( kCatTYC, tyc_source_id ) );
 
         if ( gaia.source_id )
             idents.push_back ( SSIdentifier ( kCatGAIA, gaia.source_id ) );
