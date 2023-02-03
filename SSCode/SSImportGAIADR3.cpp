@@ -242,37 +242,23 @@ int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSG
     return (int) records.size();
 }
 
-float GAIADR2JohnsonV ( float g, float gbp, float grp )
+// Converts GAIA DR3 magnitude sytem (G, G_BP, G_RP) to Tycho magnitude system (V_T, B_T).
+// See DAIA DR3 documentation version 1.1, page 349, Table 5.8; reproduced here:
+// https://gea.esac.esa.int/archive/documentation/GDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html
+
+void GAIADR3toTycho2Magnitudes ( float g, float gbp, float grp, float &vt, float &bt )
 {
     float gbp_grp = gbp && grp ? gbp - grp : 0.0;
     float gbp_grp2 = gbp_grp * gbp_grp;
-    float g_v = -0.01760 - 0.00686 * gbp_grp - 0.1732 * gbp_grp2;
-    float v = g - g_v;
+    float gbp_grp3 = gbp_grp * gbp_grp2;
+    float gbp_grp4 = gbp_grp * gbp_grp3;
+    float gbp_grp5 = gbp_grp * gbp_grp4;
     
-    return v;
-}
-
-float GAIADR2JohnsonI ( float g, float gbp, float grp )
-{
-    float gbp_grp = gbp && grp ? gbp - grp : 0.0;
-    float gbp_grp2 = gbp_grp * gbp_grp;
-    float g_i = 0.02085 + 0.7419 * gbp_grp - 0.09631 * gbp_grp2;
-    float i = g - g_i;
+    float g_vt = -0.01077  - 0.0682 * gbp_grp - 0.2387 * gbp_grp2;
+    float g_bt = -0.004288 - 0.8547 * gbp_grp + 0.1244 * gbp_grp2 - 0.9085 * gbp_grp3 + 0.4843 * gbp_grp4 - 0.06814 * gbp_grp5;
     
-    return i;
-}
-
-float GAIADR2JohnsonB ( float g, float gbp, float grp )
-{
-    float v = GAIADR2JohnsonV ( g, gbp, grp );
-    float i = GAIADR2JohnsonI ( g, gbp, grp );
-    float v_i = v && i ? v - i : 0.0;
-    float v_i2 = v_i * v_i;
-    float v_i3 = v_i * v_i2;
-    float g_b = 0.1201 - 1.2668 * v_i - 0.0044 * v_i2 + 0.0020 * v_i3;
-    float b = g - g_b;
-    
-    return b;
+    vt = g - g_vt;
+    bt = g - g_bt;
 }
 
 // Exports GAIA DR3 "essentials" from full GAIA source catalog.
