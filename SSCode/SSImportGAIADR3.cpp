@@ -10,6 +10,7 @@
 #include <dirent.h>
 
 #include "SSImportGAIADR3.hpp"
+#include "SSImportTYC.hpp"
 #include "SSUtilities.hpp"
 
 #define GAIADR3_HIP2_NUM_FIELDS 5
@@ -246,7 +247,7 @@ int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSG
 // See DAIA DR3 documentation version 1.1, page 349, Table 5.8; reproduced here:
 // https://gea.esac.esa.int/archive/documentation/GDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html
 
-void GAIADR3toTycho2Magnitudes ( float g, float gbp, float grp, float &vt, float &bt )
+void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt )
 {
     float gbp_grp = gbp && grp ? gbp - grp : 0.0;
     float gbp_grp2 = gbp_grp * gbp_grp;
@@ -415,8 +416,9 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars )
         if ( gaia.source_id )
             idents.push_back ( SSIdentifier ( kCatGAIA, gaia.source_id ) );
 
-        float vmag = GAIADR2JohnsonV ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0 );
-        float bmag = GAIADR2JohnsonB ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0 );
+        float vmag, bmag;
+        GAIADR3toTycho2Magnitude ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0, vmag, bmag );
+        TychoToJohnsonMagnitude ( bmag, vmag, bmag, vmag );
 
         // Construct star and insert into star vector.
 
