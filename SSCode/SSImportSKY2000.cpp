@@ -96,6 +96,7 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkySt
     // Get other star's HIP, Bayer, and GJ identifiers.
     
     SSIdentifier hipIdent = pStar->getIdentifier ( kCatHIP );
+    SSIdentifier tycIdent = pStar->getIdentifier ( kCatTYC );
     SSIdentifier bayIdent = pStar->getIdentifier ( kCatBayer );
     SSIdentifier gjIdent = pStar->getIdentifier ( kCatGJ );
     
@@ -104,6 +105,9 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkySt
     if ( ! pSkyStar->getIdentifier ( kCatHIP ) )
         pSkyStar->addIdentifier ( hipIdent );
     
+    if ( ! pSkyStar->getIdentifier ( kCatTYC ) )
+        pSkyStar->addIdentifier ( tycIdent );
+
     if ( ! pSkyStar->getIdentifier ( kCatBayer ) )
         pSkyStar->addIdentifier ( bayIdent );
 
@@ -252,7 +256,7 @@ string SKY2000VariableTypeString ( int type )
 // Imports SKY2000 Master Star Catalog v5:
 // https://cdsarc.unistra.fr/ftp/V/145
 // Adds name strings from nameNap.
-// Adds additional HIP, Bayer, and GJ identifiers from vectors of
+// Adds additional HIP, TYC, Bayer, and GJ identifiers from vectors of
 // Hipparcos stars (hipStars) and Gliese-Jahreiss nearby stars (gjStars).
 // Nothing will be added if these star vectors are empty.
 // Adds GCVS identifiers and variability information from vector of GCVS stars (gcvsStars);
