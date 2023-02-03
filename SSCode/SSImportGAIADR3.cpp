@@ -3,11 +3,18 @@
 //
 // Created by Tim DeBenedictis on 1/29/23.
 // Copyright ©2023 Southern Stars Group, LLC. All rights reserved.
+//
+// Routines for importing GAIA DR3 star catalog data.
+// Currently only tested on MacOS; will not compile on Windows due to
+// dependencies on zlib.h and dirent.h (and possibly others).
+
+#ifdef __APPLE__
 
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <dirent.h>
+#include <zlib.h>
 
 #include "SSImportGAIADR3.hpp"
 #include "SSImportTYC.hpp"
@@ -459,3 +466,5 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars )
     
     return numStars;
 }
+
+#endif // __APPLE__

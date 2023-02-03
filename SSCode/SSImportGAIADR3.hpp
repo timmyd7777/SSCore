@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "zlib.h"
 
 // Represents one record from a GAIA Dr3 source file
 
