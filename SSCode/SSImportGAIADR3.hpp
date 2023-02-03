@@ -114,5 +114,6 @@ int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &record );
 int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax );
 
 void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt );
+void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &rj, float &ij );
 
 #endif /* SSImportGAIADR3_hpp */

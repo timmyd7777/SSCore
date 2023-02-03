@@ -262,6 +262,26 @@ void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float 
     bt = g - g_bt;
 }
 
+// Converts GAIA DR3 magnitude sytem (G, G_BP, G_RP) to Johnson-Cousins magnitude system (V, R, I_C).
+// See DAIA DR3 documentation version 1.1, page 350, Table 5.9; reproduced here:
+// https://gea.esac.esa.int/archive/documentation/GDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html
+
+void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &rj, float &ic )
+{
+    float gbp_grp = gbp && grp ? gbp - grp : 0.0;
+    float gbp_grp2 = gbp_grp * gbp_grp;
+    float gbp_grp3 = gbp_grp * gbp_grp2;
+    float gbp_grp4 = gbp_grp * gbp_grp3;
+    
+    float g_v = -0.02704 + 0.01424 * gbp_grp - 0.2156 * gbp_grp2 + 0.01426 * gbp_grp3;
+    float g_r = -0.02275 + 0.3961  * gbp_grp - 0.1243 * gbp_grp2 - 0.01396 * gbp_grp3 + 0.003775 * gbp_grp4;
+    float g_i =  0.01753 + 0.76    * gbp_grp - 0.0991 * gbp_grp2;
+
+    vj = g - g_v;
+    rj = g - g_r;
+    ic = g - g_i;
+}
+
 // Exports GAIA DR3 "essentials" from full GAIA source catalog.
 // Gzipped GAIA DR2 source files are stored in the root directory.
 // Essentials file is written to the output file at (outpath).
