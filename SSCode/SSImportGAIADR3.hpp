@@ -56,6 +56,8 @@ struct SSGAIADR3SourceRecord
 struct SSGAIARec
 {
     int64_t     source_id;              // Unique GAIA DR3 source identifier
+    int32_t     hip_source_id;          // Unique Hipparcos-2 catalogue source identifier
+    int32_t     tyc_source_id;          // Unique Tycho-2 catalogue source identifier
     int32_t     ra_mas;                 // Barycentric right ascension in ICRS at epoch 2016.0 [mas]
     int32_t     dec_mas;                // Barycentric declination in ICRS at epoch 2016.0 [mas]
     float       pos_error;              // Standard error of position = sqrt ( ra_error^2 + dec_error^2 ) [mas]
@@ -69,6 +71,11 @@ struct SSGAIARec
     int16_t     phot_rp_mean_mmag;      // Integrated RP mean magnitude [millimag]
     float       radial_velocity;        // Radial velocity [km/s]
     float       radial_velocity_error;  // Radial velocity error [km/s]
+    uint16_t    teff_k;                 // Stellar effective temperature [K]
+    float       logg;                   // Surface gravity from GSP-Phot Aeneas best library using BP/RP spectra [log(cm/sec^2)]
+    float       distance_pc;            // Distance from GSP-Phot Aeneas best library using BP/RP spectra [pc]
+    int16_t     extinction_mmag;        // Extinction in G band from GSP-Phot Aeneas best library using BP/RP spectra [millimag]
+    int16_t     reddening_mmag;         // Reddening E(BP - RP) from GSP-Phot Aeneas best library using BP/RP spectra [millimag]
 };
 
 #pragma pack ( pop )

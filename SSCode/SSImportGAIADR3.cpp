@@ -10,6 +10,7 @@
 #include <dirent.h>
 
 #include "SSImportGAIADR3.hpp"
+#include "SSImportTYC.hpp"
 #include "SSUtilities.hpp"
 
 #define GAIADR3_HIP2_NUM_FIELDS 5
@@ -246,7 +247,7 @@ int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSG
 // See DAIA DR3 documentation version 1.1, page 349, Table 5.8; reproduced here:
 // https://gea.esac.esa.int/archive/documentation/GDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html
 
-void GAIADR3toTycho2Magnitudes ( float g, float gbp, float grp, float &vt, float &bt )
+void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt )
 {
     float gbp_grp = gbp && grp ? gbp - grp : 0.0;
     float gbp_grp2 = gbp_grp * gbp_grp;
@@ -267,9 +268,9 @@ void GAIADR3toTycho2Magnitudes ( float g, float gbp, float grp, float &vt, float
 // Hipparcos (hipCM) and Tycho (tycCM) cross-match indexes should have been read previously.
 // GAIA sources brighter than gmin or fainter than gmax will be discarded.
 
-int SSExportGAIADR3StarData ( const string &root, const string &outpath, float gmin, float gmax )
+int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax )
 {
-    int     i, n_records = 0, result = 0;
+    int     n_outrecs = 0, n_records = 0, result = 0;
     FILE    *outfile = NULL;
     double  startJD = SSTime::fromSystem().jd, endJD = 0;
 
@@ -295,9 +296,8 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, float g
     }
     
     // Read records from GAIA directory individually, until we hit end-of-file.
-    // Append "essentials" records to the array.
-    
-    vector<SSGAIARec> array;
+    // Write essentials from each record to output file.
+
     while ( true )
     {
         SSGAIADR3SourceRecord record = { 0 };
@@ -321,6 +321,15 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, float g
         
         SSGAIARec outrec = { 0 };
         outrec.source_id = record.source_id;
+        
+        auto it = hipCM.find ( record.source_id );
+        if ( it != hipCM.end() )
+            outrec.hip_source_id = it->second.ext_source_id;
+
+        it = tycCM.find ( record.source_id );
+        if ( it != tycCM.end() )
+            outrec.tyc_source_id = it->second.ext_source_id;
+        
         outrec.ra_mas = record.ra * 3600000.0;
         outrec.dec_mas = record.dec * 3600000.0;
         outrec.pos_error = sqrt ( record.ra_error * record.ra_error + record.dec_error * record.dec_error );
@@ -334,29 +343,30 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, float g
         outrec.phot_rp_mean_mmag = record.phot_rp_mean_mag * 1000.0;
         outrec.radial_velocity = record.radial_velocity;
         outrec.radial_velocity_error = record.radial_velocity_error;
-        
-        array.push_back ( outrec );
+        outrec.teff_k = record.teff_gspphot;
+        outrec.logg = record.logg_gspphot;
+        outrec.distance_pc = record.distance_gspphot;
+        outrec.extinction_mmag = record.ag_gspphot * 1000.0;
+        outrec.reddening_mmag = record.ebpminrp_gspphot * 1000.0;
+
+        if ( fwrite ( &outrec, sizeof ( outrec ), 1, outfile ) == 1 )
+            n_outrecs++;
+        else
+            printf ( "Failed to write output record for GAIA source ID %lld to %s!\n", outrec.source_id, outpath.c_str() );
     }
     
-    // Write array of output GAIA "essentials" records to file.
-    
-    n_records = (int) array.size();
-    for ( i = 0; i < n_records; i++ )
-        if ( fwrite ( &array[i], sizeof ( array[i] ), 1, outfile ) != 1 )
-            break;
-
     // Free memory for array anc close file.
     
     fclose ( outfile );
-    printf ( "Wrote %d records to %s, file closed.\n", i, outpath.c_str() );
+    printf ( "Wrote %d records to %s, file closed.\n", n_outrecs, outpath.c_str() );
     
     endJD = SSTime::fromSystem().jd;
     printf ( "Elapsed Time: %.02f min\n", SSTime::kMinutesPerDay * ( endJD - startJD ) );
     
-    return i;
+    return n_outrecs;
 }
 
-int SSImportGAIA17 ( const string &filename, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, SSObjectArray &stars )
+int SSImportGAIA17 ( const string &filename, SSObjectArray &stars )
 {
     // Open file; return on failure.
 
@@ -377,17 +387,7 @@ int SSImportGAIA17 ( const string &filename, const SSGAIACrossMatch &hipCM, cons
         if ( ! file )
             break;
         
-        uint32_t hip_source_id = 0;
-        auto it = hipCM.find ( gaia.source_id );
-        if ( it != hipCM.end() )
-            hip_source_id = it->second.ext_source_id;
-
-        uint32_t tyc_source_id = 0;
-        it = tycCM.find ( gaia.source_id );
-        if ( it != tycCM.end() )
-            tyc_source_id = it->second.ext_source_id;
-        
-        if ( hip_source_id != 0 || tyc_source_id == 0 )
+        if ( gaia.hip_source_id != 0 || gaia.tyc_source_id == 0 )
             continue;
         
         SSSpherical coords ( SSAngle::fromArcsec ( gaia.ra_mas / 1000.0 ), SSAngle::fromArcsec ( gaia.dec_mas / 1000.0 ), INFINITY );
@@ -401,23 +401,24 @@ int SSImportGAIA17 ( const string &filename, const SSGAIACrossMatch &hipCM, cons
         if ( gaia.radial_velocity != 0 && gaia.radial_velocity_error != 0 )
             motion.rad = gaia.radial_velocity / SSCoordinates::kLightKmPerSec;
                       
-        // Apply proper motion from epoch 2016.0 to epoch 2000
+        // Apply proper motion from epoch 2015.5 to epoch 2000
         
-        coords.lon -= motion.lon * 16.0;
-        coords.lat -= motion.lat * 16.0;
+        coords.lon -= motion.lon * 15.5;
+        coords.lat -= motion.lat * 15.5;
 
         vector<SSIdentifier> idents;
-        if ( hip_source_id )
-            idents.push_back ( SSIdentifier ( kCatHIP, hip_source_id ) );
+        if ( gaia.hip_source_id )
+            idents.push_back ( SSIdentifier ( kCatHIP, gaia.hip_source_id ) );
         
-        if ( tyc_source_id )
-            idents.push_back ( SSIdentifier ( kCatTYC, tyc_source_id ) );
+        if ( gaia.tyc_source_id )
+            idents.push_back ( SSIdentifier ( kCatTYC, gaia.tyc_source_id ) );
 
         if ( gaia.source_id )
             idents.push_back ( SSIdentifier ( kCatGAIA, gaia.source_id ) );
 
-        float vmag = GAIADR2JohnsonV ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0 );
-        float bmag = GAIADR2JohnsonB ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0 );
+        float vmag, bmag;
+        GAIADR3toTycho2Magnitude ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0, vmag, bmag );
+        TychoToJohnsonMagnitude ( bmag, vmag, bmag, vmag );
 
         // Construct star and insert into star vector.
 
