@@ -273,6 +273,10 @@ void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float 
 // Converts GAIA DR3 magnitude sytem (G, G_BP, G_RP) to Johnson-Cousins magnitude system (V, R, I_C).
 // See DAIA DR3 documentation version 1.1, page 350, Table 5.9; reproduced here:
 // https://gea.esac.esa.int/archive/documentation/GDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html
+// Note there is no direct transformation to Johnson B magnitude. The above table gives a
+// cubic polynomial transformation from B-V to G-V, but this is not reversible analytically
+// or numerically because it gives two solutions when G-V > -0.09 (i.w. when B-V < 0.4).
+// Instead, transform GAIA magnitudes to Tycho VT and BT, then Tycho to Johnson V and B.
 
 void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &rj, float &ic )
 {
