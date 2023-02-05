@@ -11,13 +11,8 @@
 #include <iostream>
 #include <fstream>
 
-struct SSObjectMaps
-{
-    SSObjectMap hdMap;
-    SSObjectMap bdMap;
-    SSObjectMap cdMap;
-    SSObjectMap cpMap;
-};
+// Populates identifier maps from a vector of stars.
+// Call this before cross indexing.
 
 void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps )
 {
@@ -27,29 +22,39 @@ void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps )
     maps.cpMap = SSMakeObjectMap ( stars, kCatCP );
 }
 
-SSStarPtr SSGetMatchingStar ( SSStarPtr pStar, SSObjectMaps &maps, SSObjectVec &stars )
+// Given a vector of identifiers (idents), returns pointer to the first star contining any of those
+// identifiers from a vector of stars (stars), using the initialized identifier maps (maps) for fast
+// lookups. If no star in (stars) contains any of the required identifiers (idents), returns nullptr.
+
+SSStarPtr SSGetMatchingStar ( vector<SSIdentifier> &idents, SSObjectMaps &maps, SSObjectVec &stars )
 {
-    SSIdentifier id = pStar->getIdentifier ( kCatHD );
+    SSIdentifier id = SSGetIdentifier ( kCatHD, idents );
     SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.hdMap, stars ) );
     if ( pStar1 )
         return pStar1;
     
-    id = pStar->getIdentifier ( kCatBD );
+    id = SSGetIdentifier ( kCatBD, idents );
     pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.bdMap, stars ) );
     if ( pStar1 )
         return pStar1;
     
-    id = pStar->getIdentifier ( kCatCD );
+    id = SSGetIdentifier ( kCatCD, idents );
     pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.cdMap, stars ) );
     if ( pStar1 )
         return pStar1;
     
-    id = pStar->getIdentifier ( kCatCP );
+    id = SSGetIdentifier ( kCatCP, idents );
     pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.cpMap, stars ) );
     if ( pStar1 )
         return pStar1;
     
     return nullptr;
+}
+
+SSStarPtr SSGetMatchingStar ( SSStarPtr pStar, SSObjectMaps &maps, SSObjectVec &stars )
+{
+    SSIdentifierVec idents = pStar->getIdentifiers();
+    return SSGetMatchingStar ( idents, maps, stars );
 }
 
 // Searches for double star in double star HTM (wdsHTM)
@@ -329,10 +334,10 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
 
     // Make index of HD catalog numbers in the Hipparcos, GJ, GCVS star vectors.
     
-    SSObjectMaps hipMaps, gjMaps;
+    SSObjectMaps hipMaps, gjMaps, gcvsMaps;
     SSMakeObjectMaps ( hipStars, hipMaps );
     SSMakeObjectMaps ( gjStars, gjMaps );
-    SSObjectMap gcvsMap = SSMakeObjectMap ( gcvsStars, kCatHD );
+    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
     
     // Read file line-by-line until we reach end-of-file
 
@@ -526,12 +531,12 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
                 SSAddIdentifier ( SSIdentifier ( kCatHR, hr ), idents );
         }
 
-        // Look for a GCVS star with the same HD number as our SKY2000 star.
+        // Look for a GCVS star with the same HD/BD/CD/CP identifier as our SKY2000 star.
         // If we find one, add the GCVS star identifier to the SKY2000 star identifiers.
         // Otherwise, if we don't have any GCVS stars, use the GCVS identifier string from SKY2000.
         
-        SSIdentifier hdIdent = SSIdentifier ( kCatHD, strtoint ( strHD ) ), gcvsIdent = 0;
-        SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSIdentifierToObject ( hdIdent, gcvsMap, gcvsStars ) );
+        SSIdentifier gcvsIdent = 0;
+        SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSGetMatchingStar ( idents, gcvsMaps, gcvsStars ) );
         if ( pGCVStar )
             gcvsIdent = pGCVStar->getIdentifier ( kCatGCVS );
         else if ( gcvsStars.size() == 0 && strVar.length() > 0 )
@@ -688,7 +693,8 @@ int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
     SSObjectMap skyTYCMap = SSMakeObjectMap ( skyStars, kCatTYC );
 
     // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HIP or TYC identifier.
-    // If we find one, remove the Hipparcos star.
+    // If we don't find one, append the Hipparcos/Tycho star to the SKY2000 star vector and remove it
+    // from the HIP/TYC star vector (but don't delete it!)
     
     for ( int i = 0; i < hipStars.size(); i++ )
     {
@@ -697,21 +703,16 @@ int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
         SSIdentifier tyc = pHipStar->getIdentifier ( kCatTYC );
         SSStarPtr pSkyHIPStar = SSGetStarPtr ( SSIdentifierToObject ( hip, skyHIPMap, skyStars ) );
         SSStarPtr pSkyTYCStar = SSGetStarPtr ( SSIdentifierToObject ( tyc, skyTYCMap, skyStars ) );
-        if ( pSkyHIPStar || pSkyTYCStar )
+        if ( pSkyHIPStar == nullptr && pSkyTYCStar == nullptr )
         {
-            hipStars.remove ( i );
-            delete pHipStar;
-            i--;
+            skyStars.append ( pHipStar );
+            hipStars.set ( i, nullptr );
         }
     }
     
-    // Append remaining Hipparcos/Tycho stars to the SKY2000 star array,
-    // then clear the Hip/Tyc star array to prevent double-deletes.
+    // Delete remaining Hip/Tyc star array to prevent double-deletes.
     
-    for ( int i = 0; i < hipStars.size(); i++ )
-        skyStars.append ( hipStars.get ( i ) );
-    hipStars.clear();
-    
+    hipStars.erase();
     return (int) skyStars.size();
 }
 

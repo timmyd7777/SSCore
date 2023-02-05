@@ -18,7 +18,7 @@ struct TYC2HD
 
 typedef multimap<SSIdentifier,TYC2HD> TYC2HDMap;
 
-int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &stars );
+int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &gcvsStars, SSObjectVec &stars );
 int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &stars );
 int SSImportTYC2HD ( const string &filename, TYC2HDMap &tyc2hdmap );
 

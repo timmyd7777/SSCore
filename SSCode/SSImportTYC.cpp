@@ -10,6 +10,7 @@
 
 #include "SSImportHIP.hpp"
 #include "SSImportTYC.hpp"
+#include "SSImportSKY2000.hpp"
 
 // Converts Tycho B (bt) and V (vt) magnitudes to Johnson B (bj) and V (vj) magnitudes
 
@@ -27,7 +28,7 @@ void TychoToJohnsonMagnitude ( float bt, float vt, float &bj, float &vj )
 // not already in Hipparcos will be appended, and existing Hipparcos stars will get
 // TYC identifiers from Tycho-1.
 
-int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &stars )
+int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &gcvsStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -35,6 +36,8 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &sta
     if ( ! file )
         return 0;
     
+    SSObjectMaps gcvsMaps;
+    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
     SSObjectMap hipMap = SSMakeObjectMap ( stars, kCatHIP );
     
     // Read file line-by-line until we reach end-of-file
@@ -135,6 +138,17 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &sta
         if ( tyc )
             SSAddIdentifier ( tyc, idents );
 
+        // Look for a GCVS star with the same HD/BD/CD/CP identifier as our Tycho star.
+        // If we find one, add the GCVS star identifier to the Tycho star identifiers.
+
+        SSIdentifier gcvs = 0;
+        SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSGetMatchingStar ( idents, gcvsMaps, gcvsStars ) );
+        if ( pGCVStar )
+        {
+            gcvs = pGCVStar->getIdentifier ( kCatGCVS );
+            SSAddIdentifier ( gcvs, idents );
+        }
+        
         // If this is a Hipparcos star, find corresponding Hipparcos star.
         // Copy TYC indetifier from Tycho-1 star if valid into HIP star
         // but do not append a new star to the star vector.
@@ -156,11 +170,11 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &sta
         // Construct star and insert into star vector.
 
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        SSObjectType type = kTypeStar;
+        SSObjectType type = pGCVStar ? kTypeVariableStar : kTypeStar;
 
         SSObjectPtr pObj = SSNewObject ( type );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
-        
+
         if ( pStar != nullptr )
         {
             pStar->setNames ( names );
@@ -176,6 +190,18 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &sta
             // cout << pStar->toCSV() << endl;
             stars.append ( pObj );
             numStars++;
+        }
+        
+        // If we have a matching star from the GCVS, copy its variability data.
+        
+        if ( pGCVStar )
+        {
+            SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
+            pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
+            pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
+            pVar->setPeriod ( pGCVStar->getPeriod() );
+            pVar->setEpoch ( pGCVStar->getEpoch() );
+            pVar->setVariableType ( pGCVStar->getVariableType() );
         }
     }
 

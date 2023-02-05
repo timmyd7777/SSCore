@@ -326,11 +326,7 @@ SSIdentifier SSStar::getIdentifier ( int i )
 
 SSIdentifier SSStar::getIdentifier ( SSCatalog cat )
 {
-    for ( int i = 0; i < _idents.size(); i++ )
-        if ( _idents[i].catalog() == cat )
-            return _idents[i];
-    
-    return SSIdentifier();
+    return SSGetIdentifier ( cat, _idents );
 }
 
 bool SSStar::addIdentifier ( SSIdentifier ident )

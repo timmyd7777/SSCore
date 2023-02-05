@@ -1127,6 +1127,18 @@ vector<string> SSIdentifiersToNames ( SSIdentifierVec &idents, SSIdentifierNameM
     return names;
 }
 
+// Returns identifier in a specific catalog from a vector of identifiers/
+// If not present in the vector, returns null identifier (i.e. zero).
+
+SSIdentifier SSGetIdentifier ( SSCatalog cat, SSIdentifierVec &identVec )
+{
+    for ( int i = 0; i < identVec.size(); i++ )
+        if ( identVec[i].catalog() == cat )
+            return identVec[i];
+    
+    return SSIdentifier();
+}
+
 // Adds a new identifier to a vector of identifiers,
 // if the new identifier is valid and not already present in the vector.
 // Returns true if identifier was added, false otherwise;

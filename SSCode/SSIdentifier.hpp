@@ -134,6 +134,7 @@ vector<string> SSIdentifiersToNames ( SSIdentifierVec &idents, SSIdentifierNameM
 
 bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
 
+SSIdentifier SSGetIdentifier ( SSCatalog cat, SSIdentifierVec &identVec );
 bool SSAddIdentifier ( SSIdentifier ident, vector<SSIdentifier> &identVec );
 int SSAddIdentifiers ( SSIdentifier ident, const SSIdentifierMap &map, SSIdentifierVec &idents );
 
