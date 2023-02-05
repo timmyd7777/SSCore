@@ -93,10 +93,11 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkySt
     if ( pStar == nullptr )
         return;
     
-    // Get other star's HIP, Bayer, and GJ identifiers.
+    // Get other star's HIP, TYC, GAIA, Bayer, and GJ identifiers.
     
     SSIdentifier hipIdent = pStar->getIdentifier ( kCatHIP );
     SSIdentifier tycIdent = pStar->getIdentifier ( kCatTYC );
+    SSIdentifier gaiIdent = pStar->getIdentifier ( kCatGAIA );
     SSIdentifier bayIdent = pStar->getIdentifier ( kCatBayer );
     SSIdentifier gjIdent = pStar->getIdentifier ( kCatGJ );
     
@@ -108,6 +109,9 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkySt
     if ( ! pSkyStar->getIdentifier ( kCatTYC ) )
         pSkyStar->addIdentifier ( tycIdent );
 
+    if ( ! pSkyStar->getIdentifier ( kCatGAIA ) )
+        pSkyStar->addIdentifier ( gaiIdent );
+
     if ( ! pSkyStar->getIdentifier ( kCatBayer ) )
         pSkyStar->addIdentifier ( bayIdent );
 
@@ -118,6 +122,17 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkySt
     
     if ( ! pSkyStar->getNames().size() && gjIdent && pStar->getNames().size() )
         pSkyStar->setNames ( pStar->getNames() );
+    
+    if ( gaiIdent )
+    {
+        SSSpherical coords = pStar->getFundamentalCoords();
+        if ( ::isinf ( coords.rad ) )
+            coords.rad = SSCoordinates::kLYPerParsec / pSkyStar->getParallax();
+        SSSpherical motion = pStar->getFundamentalMotion();
+        if ( ::isinf ( motion.rad ) )
+            motion.rad = pStar->getRadVel();
+        pSkyStar->setFundamentalMotion ( coords, motion );
+    }
 }
 
 // Imports IAU official star name table from Working Group on Star Names
@@ -622,3 +637,39 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
     
     return numStars;
 }
+
+// Merges Hipparcos-Tycho catalog (hipStars) into SKY2000 catalog (skyStars) using HD identifiers as cross-match.
+// On input, hipStars should contain Hipparcos and Tycho stars; and skyStars should contain SKY2000 stars.
+// On return, hipStars will be empty, and skyStars will contain merged catalog with Hipparcos/Tycho stars appended.
+// Returns total number of stars in merged catalog.
+
+int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
+{
+    SSObjectMap skyMap = SSMakeObjectMap ( skyStars, kCatHD );
+
+    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HD number.
+    // If we find one, remove the Hipparcos star.
+    
+    for ( int i = 0; i < hipStars.size(); i++ )
+    {
+        SSStarPtr pHipStar = SSGetStarPtr ( hipStars.get ( i ) );
+        SSIdentifier ident = pHipStar->getIdentifier ( kCatHD );
+        SSStarPtr pSkyStar = SSGetStarPtr ( SSIdentifierToObject ( ident, skyMap, skyStars ) );
+        if ( pSkyStar )
+        {
+            hipStars.remove ( i );
+            delete pHipStar;
+            i--;
+        }
+    }
+    
+    // Append remaining Hipparcos/Tycho stars to the SKY2000 star array,
+    // then clear the Hip/Tyc star array to prevent double-deletes.
+    
+    for ( int i = 0; i < hipStars.size(); i++ )
+        skyStars.append ( hipStars.get ( i ) );
+    hipStars.clear();
+    
+    return (int) skyStars.size();
+}
+

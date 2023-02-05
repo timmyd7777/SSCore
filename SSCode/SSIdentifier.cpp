@@ -187,7 +187,7 @@ static int string_to_bayer ( const string &str, bool casesens = true )
     return 0;
 }
 
-string bayer_to_string ( int64_t bay )
+string bayer_to_string ( uint64_t bay )
 {
     if ( bay > 50 )
         return string ( 1, bay - 51 + 'A' );
@@ -197,7 +197,7 @@ string bayer_to_string ( int64_t bay )
         return _bayvec[ bay - 1 ];
 }
 
-static int64_t string_to_gcvs ( string str, bool casesens = true )
+static uint64_t string_to_gcvs ( string str, bool casesens = true )
 {
     size_t len = str.length();
     int n1 = 0, n2 = 0;
@@ -250,9 +250,9 @@ static int64_t string_to_gcvs ( string str, bool casesens = true )
     return 0;
 }
 
-string gcvs_to_string ( int64_t n )
+string gcvs_to_string ( uint64_t n )
 {
-    int64_t n0 = 0, n1 = 0, n2 = 0;
+    uint64_t n0 = 0, n1 = 0, n2 = 0;
     
     // Sequence R, S, T, ... Z
     
@@ -301,7 +301,7 @@ string gcvs_to_string ( int64_t n )
     return "";
 }
 
-int64_t string_to_dm ( string str )
+uint64_t string_to_dm ( string str )
 {
     char     sign = 0, suffix = 0;
     int      zone = 0, num = 0;
@@ -329,12 +329,12 @@ int64_t string_to_dm ( string str )
     return sign * 100000000 + zone * 1000000 + num * 10 + suffix;
 }
 
-string dm_to_string ( int64_t dm )
+string dm_to_string ( uint64_t dm )
 {
-    int64_t sign = dm / 100000000;
-    int64_t zone = ( dm - sign * 100000000 ) / 1000000;
-    int64_t num = ( dm - sign * 100000000 - zone * 1000000 ) / 10;
-    int64_t suffix = dm - sign * 100000000 - zone * 1000000 - num * 10;
+    uint64_t sign = dm / 100000000;
+    uint64_t zone = ( dm - sign * 100000000 ) / 1000000;
+    uint64_t num = ( dm - sign * 100000000 - zone * 1000000 ) / 10;
+    uint64_t suffix = dm - sign * 100000000 - zone * 1000000 - num * 10;
     
     if ( sign )
         sign = '+';
@@ -358,16 +358,16 @@ string dm_to_string ( int64_t dm )
         return format ( "%c%02d %d", (int) sign, (int) zone, (int) num );
 }
 
-string tyc_to_string ( int64_t tyc )
+string tyc_to_string ( uint64_t tyc )
 {
-    int64_t r = tyc / 1000000;
-    int64_t n = ( tyc - r * 1000000 ) / 10;
-    int64_t c = ( tyc - r * 1000000 - n * 10 );
+    uint64_t r = tyc / 1000000;
+    uint64_t n = ( tyc - r * 1000000 ) / 10;
+    uint64_t c = ( tyc - r * 1000000 - n * 10 );
     
     return format ( "%04d-%04d-%d", (int) r, (int) n, (int) c );
 }
 
-int64_t string_to_tyc ( string str )
+uint64_t string_to_tyc ( string str )
 {
     char sep;
     int rgn = 0, num = 0, com = 0;
@@ -375,15 +375,15 @@ int64_t string_to_tyc ( string str )
     sscanf ( str.c_str(), "%d%c%d%c%d", &rgn, &sep, &num, &sep, &com );
 
     if ( rgn >= 1 && rgn <= 9537 && num >= 1 && num <= 12121 && com >= 0 && com <= 4 )
-        return (int64_t) rgn * 1000000 + num * 10 + com;
+        return (uint64_t) rgn * 1000000 + num * 10 + com;
     else
         return 0;
 }
 
-string gj_to_string ( int64_t gj )
+string gj_to_string ( uint64_t gj )
 {
-    int64_t d = gj / 10;
-    int64_t c = gj - d * 10;
+    uint64_t d = gj / 10;
+    uint64_t c = gj - d * 10;
     
     static vector<string> compvec = { "", "A", "B", "C", "D" };
     string comps = compvec[ c ];
@@ -394,7 +394,7 @@ string gj_to_string ( int64_t gj )
         return format ( "%.1f", d / 10.0 ) + comps;
 }
 
-int64_t string_to_gj ( string str )
+uint64_t string_to_gj ( string str )
 {
     size_t pos = str.find_first_of ( "ABCD" );
     int d = strtofloat64 ( str ) * 10.0 + 0.1;
@@ -406,7 +406,7 @@ int64_t string_to_gj ( string str )
         return 10 * d + c;
 }
 
-int64_t string_to_wds ( string str )
+uint64_t string_to_wds ( string str )
 {
     char    sign = 0;
     int     ra = 0, dec = 0;
@@ -424,11 +424,11 @@ int64_t string_to_wds ( string str )
         return 0;
 }
 
-string wds_to_string ( int64_t wds )
+string wds_to_string ( uint64_t wds )
 {
-    int64_t ra = wds / 100000;
-    int64_t sign = ( wds - ra * 100000 ) / 10000;
-    int64_t dec = wds - ra * 100000 - sign * 10000;
+    uint64_t ra = wds / 100000;
+    uint64_t sign = ( wds - ra * 100000 ) / 10000;
+    uint64_t dec = wds - ra * 100000 - sign * 10000;
     
     if ( sign )
         sign = '+';
@@ -438,7 +438,7 @@ string wds_to_string ( int64_t wds )
     return format ( "%05d%c%04d", (int) ra, (int) sign, (int) dec );
 }
 
-int64_t string_to_ngcic ( string str )
+uint64_t string_to_ngcic ( string str )
 {
     int     num = 0;
     char    ext = 0;
@@ -458,10 +458,10 @@ int64_t string_to_ngcic ( string str )
         return 0;
 }
 
-string ngcic_to_string ( int64_t ngcic )
+string ngcic_to_string ( uint64_t ngcic )
 {
-    int64_t num = ngcic / 10;
-    int64_t ext = ngcic - num * 10;
+    uint64_t num = ngcic / 10;
+    uint64_t ext = ngcic - num * 10;
     
     if ( ext > 0 )
         return format ( "%d%c", (int) num, (int) ext + 'A' - 1 );
@@ -469,7 +469,7 @@ string ngcic_to_string ( int64_t ngcic )
         return format ( "%d", (int) num );
 }
 
-int64_t string_to_pngpk ( string str )
+uint64_t string_to_pngpk ( string str )
 {
     double    lon = 0, lat = 0;
     int       londec = 0, latdec = 0;
@@ -497,11 +497,11 @@ int64_t string_to_pngpk ( string str )
         return 0;
 }
 
-string pngpk_to_string ( int64_t pngpk, SSCatalog cat )
+string pngpk_to_string ( uint64_t pngpk, SSCatalog cat )
 {
-    int64_t londec = pngpk / 10000;
-    int64_t    sign = ( pngpk - londec * 10000 ) / 1000;
-    int64_t    latdec = pngpk - londec * 10000 - sign * 1000;
+    uint64_t londec = pngpk / 10000;
+    uint64_t sign = ( pngpk - londec * 10000 ) / 1000;
+    uint64_t latdec = pngpk - londec * 10000 - sign * 1000;
     
     if ( sign )
         sign = '+';
@@ -519,31 +519,31 @@ SSIdentifier::SSIdentifier ( void )
     _id = 0;
 }
 
-SSIdentifier::SSIdentifier ( int64_t id )
+SSIdentifier::SSIdentifier ( uint64_t id )
 {
     _id = id;
 }
 
-SSIdentifier::SSIdentifier ( SSCatalog catalog, int64_t ident )
+SSIdentifier::SSIdentifier ( SSCatalog catalog, uint64_t ident )
 {
     if ( catalog == kCatGAIA )
-        _id = -ident;
+        _id = ident | 0x8000000000000000;
     else
         _id = catalog * 10000000000000000LL + ident;
 }
 
 SSCatalog SSIdentifier::catalog ( void )
 {
-    if ( _id < 0 )
+    if ( _id & 0x8000000000000000 )
         return kCatGAIA;
     else
         return static_cast<SSCatalog> ( _id / 10000000000000000LL );
 }
 
-int64_t SSIdentifier::identifier ( void )
+uint64_t SSIdentifier::identifier ( void )
 {
-    if ( _id < 0 )
-        return -_id;
+    if ( _id & 0x8000000000000000 )
+        return _id & 0x7FFFFFFFFFFFFFFF;
     else
         return _id % 10000000000000000LL;
 }
@@ -565,7 +565,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "M", 1, casesens ) == 0 && len > 1 )
     {
-        int64_t m = strtoint ( str.substr ( 1, len - 1 ) );
+        uint64_t m = strtoint ( str.substr ( 1, len - 1 ) );
         if ( m > 0 && m <= 110 )
             return SSIdentifier ( kCatMessier, m );
     }
@@ -574,7 +574,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "C", 1, casesens ) == 0 && len > 1 )
     {
-        int64_t c = strtoint ( str.substr ( 1, len - 1 ) );
+        uint64_t c = strtoint ( str.substr ( 1, len - 1 ) );
         if ( c > 0 && c <= 109 )
             return SSIdentifier ( kCatCaldwell, c );
     }
@@ -583,7 +583,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "NGC", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t ngc = string_to_ngcic ( str.substr ( 3, len - 3 ) );
+        uint64_t ngc = string_to_ngcic ( str.substr ( 3, len - 3 ) );
         if ( ngc )
             return SSIdentifier ( kCatNGC, ngc );
     }
@@ -592,7 +592,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "IC", 2, casesens ) == 0 && len > 2 )
     {
-        int64_t ic = string_to_ngcic ( str.substr ( 2, len - 2 ) );
+        uint64_t ic = string_to_ngcic ( str.substr ( 2, len - 2 ) );
         if ( ic )
             return SSIdentifier ( kCatIC, ic );
     }
@@ -610,7 +610,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "Sh2", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t sh2 = strtoint ( str.substr ( 3, len - 2 ) );
+        uint64_t sh2 = strtoint ( str.substr ( 3, len - 2 ) );
         if ( sh2 > 0 )
             return SSIdentifier ( kCatSh2, sh2 );
     }
@@ -619,7 +619,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "LBN", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t lbn = strtoint ( str.substr ( 3, len - 2 ) );
+        uint64_t lbn = strtoint ( str.substr ( 3, len - 2 ) );
         if ( lbn > 0 )
             return SSIdentifier ( kCatLBN, lbn );
     }
@@ -628,7 +628,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "LDN", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t ldn = strtoint ( str.substr ( 3, len - 2 ) );
+        uint64_t ldn = strtoint ( str.substr ( 3, len - 2 ) );
         if ( ldn > 0 )
             return SSIdentifier ( kCatLDN, ldn );
     }
@@ -637,7 +637,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "PNG", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t png = string_to_pngpk ( str.substr ( 3, len - 3 ) );
+        uint64_t png = string_to_pngpk ( str.substr ( 3, len - 3 ) );
         if ( png )
             return SSIdentifier ( kCatPNG, png );
     }
@@ -646,7 +646,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "PK", 2, casesens ) == 0 && len > 2 )
     {
-        int64_t pk = string_to_pngpk ( str.substr ( 2, len - 2 ) );
+        uint64_t pk = string_to_pngpk ( str.substr ( 2, len - 2 ) );
         if ( pk )
             return SSIdentifier ( kCatPK, pk );
     }
@@ -655,7 +655,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "PGC", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t pgc = strtoint ( str.substr ( 3, len - 3 ) );
+        uint64_t pgc = strtoint ( str.substr ( 3, len - 3 ) );
         if ( pgc )
             return SSIdentifier ( kCatPGC, pgc );
     }
@@ -664,7 +664,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "UGCA", 4, casesens ) == 0 && len > 4 )
     {
-        int64_t ugca = strtoint ( str.substr ( 4, len - 4 ) );
+        uint64_t ugca = strtoint ( str.substr ( 4, len - 4 ) );
         if ( ugca )
             return SSIdentifier ( kCatUGCA, ugca );
     }
@@ -673,7 +673,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "UGC", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t ugc = strtoint ( str.substr ( 3, len - 3 ) );
+        uint64_t ugc = strtoint ( str.substr ( 3, len - 3 ) );
         if ( ugc )
             return SSIdentifier ( kCatUGC, ugc );
     }
@@ -764,7 +764,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( compare ( str, "WDS", 3, casesens ) == 0 && len > 3 )
     {
-        int64_t wds = string_to_wds ( str.substr ( 3, len - 3 ) );
+        uint64_t wds = string_to_wds ( str.substr ( 3, len - 3 ) );
         if ( wds )
             return SSIdentifier ( kCatWDS, wds );
     }
@@ -773,7 +773,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( ( compare ( str, "GJ", 2, casesens ) == 0 || compare ( str, "Gl", 2, casesens ) == 0 || compare ( str, "NN", 2, casesens ) == 0 || compare ( str, "Wo", 2, casesens ) == 0 ) && len > 2 )
     {
-        int64_t gj = string_to_gj ( str.substr ( 2, len - 2 ) );
+        uint64_t gj = string_to_gj ( str.substr ( 2, len - 2 ) );
         if ( gj )
             return SSIdentifier ( kCatGJ, gj );
     }
@@ -790,7 +790,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
         // try parsing first token as a variable star designation; return GCVS identifier if successful.
         
-        int64_t var = string_to_gcvs ( tokens[0], casesens );
+        uint64_t var = string_to_gcvs ( tokens[0], casesens );
         if ( var > 0 )
             return SSIdentifier ( kCatGCVS, con * 10000 + var );
         
@@ -825,7 +825,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( str[0] == '(' && str[len - 1] == ')' )
     {
-        int64_t n = strtoint ( str.substr ( 1, len - 2 ) );
+        uint64_t n = strtoint ( str.substr ( 1, len - 2 ) );
         if ( n > 0 )
             return SSIdentifier ( kCatAstNum, n );
     }
@@ -839,7 +839,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
     
     if ( pos != string::npos )
     {
-        int64_t n = strtoint ( str.substr ( 0, pos ) );
+        uint64_t n = strtoint ( str.substr ( 0, pos ) );
         if ( n > 0 )
             return SSIdentifier ( kCatComNum, n );
     }
@@ -849,7 +849,7 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
 
     if ( isNumeric ( str ) )
     {
-        int64_t n = strtoint ( str );
+        uint64_t n = strtoint ( str );
         
         if ( ( type == kTypePlanet || type == kTypeMoon ) && n >= 0 )
             return SSIdentifier ( kCatJPLanet, n );
@@ -875,14 +875,14 @@ string SSIdentifier::toString ( void )
         mapinit();
 
     SSCatalog cat = catalog();
-    int64_t id = identifier();
+    uint64_t id = identifier();
     string str = "";
     
     if ( cat == kCatBayer )
     {
-        int64_t con = ( id / 10000 );
-        int64_t bay = ( id - 10000 * con ) / 10;
-        int64_t num = ( id - 10000 * con ) - bay * 10;
+        uint64_t con = ( id / 10000 );
+        uint64_t bay = ( id - 10000 * con ) / 10;
+        uint64_t num = ( id - 10000 * con ) - bay * 10;
         
         string baystr = bayer_to_string ( bay );
         string constr = _convec[con - 1];
@@ -893,14 +893,14 @@ string SSIdentifier::toString ( void )
     }
     else if ( cat == kCatFlamsteed )
     {
-        int64_t con = id / 10000;
-        int64_t num = id - 10000 * con;
+        uint64_t con = id / 10000;
+        uint64_t num = id - 10000 * con;
         str = to_string ( num ) + " " + _convec[con - 1];
     }
     else if ( cat == kCatGCVS )
     {
-        int64_t con = id / 10000;
-        int64_t num = id - 10000 * con;
+        uint64_t con = id / 10000;
+        uint64_t num = id - 10000 * con;
         str = gcvs_to_string ( num ) + " " + _convec[con - 1];
     }
     else if ( cat == kCatHR )
@@ -1032,25 +1032,25 @@ SSIdentifier SSIdentifier::strip ( void )
     
     if ( cat == kCatBayer )
     {
-        int64_t con = ( id / 10000 );
-        int64_t bay = ( id - 10000 * con ) / 10;
+        uint64_t con = ( id / 10000 );
+        uint64_t bay = ( id - 10000 * con ) / 10;
         return SSIdentifier ( cat, con * 10000 + bay * 10 );
     }
     else if ( cat == kCatGJ )
     {
-        int64_t gj = id / 10;
+        uint64_t gj = id / 10;
         return SSIdentifier ( cat, 10 * gj );
     }
     else if ( cat == kCatBD || cat == kCatCD || cat == kCatCP )
     {
-        int64_t sign = id / 100000000;
-        int64_t zone = ( id - sign * 100000000 ) / 1000000;
-        int64_t num = ( id - sign * 100000000 - zone * 1000000 ) / 10;
+        uint64_t sign = id / 100000000;
+        uint64_t zone = ( id - sign * 100000000 ) / 1000000;
+        uint64_t num = ( id - sign * 100000000 - zone * 1000000 ) / 10;
         return SSIdentifier ( cat, sign * 100000000 + zone * 1000000 + num * 10 );
     }
     else if ( cat == kCatNGC || cat == kCatIC )
     {
-        int64_t num = id / 10;
+        uint64_t num = id / 10;
         return SSIdentifier ( cat, num * 10 );
     }
     

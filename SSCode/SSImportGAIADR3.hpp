@@ -54,9 +54,9 @@ struct SSGAIADR3SourceRecord
 
 struct SSGAIARec
 {
-    int64_t     source_id;              // Unique GAIA DR3 source identifier
-    int32_t     hip_source_id;          // Unique Hipparcos-2 catalogue source identifier
-    int32_t     tyc_source_id;          // Unique Tycho-2 catalogue source identifier
+    uint64_t    source_id;              // Unique GAIA DR3 source identifier
+    uint32_t    hip_source_id;          // Unique Hipparcos-2 catalogue source identifier - DEPRECATED; will remove soon
+    uint32_t    tyc_source_id;          // Unique Tycho-2 catalogue source identifier - GARBAGE; DEPRECATED; will remove soon
     int32_t     ra_mas;                 // Barycentric right ascension in ICRS at epoch 2016.0 [mas]
     int32_t     dec_mas;                // Barycentric declination in ICRS at epoch 2016.0 [mas]
     float       pos_error;              // Standard error of position = sqrt ( ra_error^2 + dec_error^2 ) [mas]
@@ -91,8 +91,8 @@ enum SSGAIACrossMatchFile
 
 struct SSGAIACrossMatchRecord
 {
-    int64_t     source_id = 0;              // Unique Gaia source identifier
-    int32_t     ext_source_id = 0;          // Unique external catalogue source identifier
+    uint64_t    source_id = 0;              // Unique Gaia source identifier
+    uint64_t    ext_source_id = 0;          // Unique external catalogue source identifier
     float       angular_distance = 0;       // Angular distance between the two sources [arcsec]
     int8_t      number_of_neighbours = 0;   // Number of neighbours in external Ccatalogue which match the Gaia source within position errors.
     uint8_t     xm_flag = 0;                // Cross-match algorithm flag; see documentation
@@ -111,6 +111,7 @@ void SSCloseGAIADir ( SSGAIADir *gdp );
 int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSGAIACrossMatch &records );
 int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &record );
 int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax );
+int SSImportGAIA17 ( const string &filename, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, SSObjectArray &stars, bool onlyHIPTYC );
 
 void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt );
 void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &rj, float &ij );

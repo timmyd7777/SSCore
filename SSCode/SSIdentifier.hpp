@@ -88,23 +88,23 @@ class SSIdentifier
 {
 protected:
     
-    int64_t        _id;     // catalog identifier encoded as a 64-bit integer
+    uint64_t        _id;     // catalog identifier encoded as unsigned 64-bit integer
     
 public:
     
     SSIdentifier ( void );
-    SSIdentifier ( int64_t ident );
-    SSIdentifier ( SSCatalog catalog, int64_t id );
+    SSIdentifier ( uint64_t ident );
+    SSIdentifier ( SSCatalog catalog, uint64_t id );
     
     SSCatalog catalog ( void );
-    int64_t identifier ( void );
+    uint64_t identifier ( void );
     
     string toString ( void );
     static SSIdentifier fromString ( const string &s, SSObjectType type = kTypeNonexistent, bool casesens = true );
     
     bool operator > ( SSIdentifier other ) { return _id > other._id; }
     bool operator < ( SSIdentifier &other ) const { return _id < other._id; }
-    operator int64_t() const { return _id; }
+    operator uint64_t() const { return _id; }
     
     static SSIdentifier fromBayer ( string s );
     static SSIdentifier fromFlamsteed ( string s );
@@ -141,6 +141,6 @@ string catalog_to_string ( SSCatalog cat );
 SSCatalog string_to_catalog ( string str );
 
 string con_to_string ( int con );
-string bayer_to_string ( int64_t bay );
+string bayer_to_string ( uint64_t bay );
 
 #endif /* SSIdentifier_hpp */

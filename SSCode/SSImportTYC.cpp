@@ -187,7 +187,7 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &sta
 // Imports the Tycho-2 catalog: https://cdsarc.unistra.fr/ftp/I/259/
 // into a vector of SSObjects (stars). Henry Draper identifiers and spectral
 // types are inserted from the Tycho-2 HD Identifications (tyc2hdmap).
-// If stars vector alreadt cotains Tycho-1 star catalog on input, Tycho-2 stars
+// If stars vector already cotains Tycho-1 star catalog on input, Tycho-2 stars
 // not already in Tycho-1 will be appended, and existing Tycho-1 stars will get
 // updated position, motion, and magnitude data from Tycho-2.
 // Returns the total number of stars imported (2539913 if successful).
@@ -217,8 +217,9 @@ int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &st
         string strPMDec = trim ( line.substr ( 49, 7 ) );
         string strVMag = trim ( line.substr ( 123, 6 ) );
         string strBMag = trim ( line.substr ( 110, 6 ) );
-        string strHIP = trim ( line.substr ( 142, 6 ) );
         string strTYC1 = trim ( line.substr ( 140, 1 ) );
+        string strHIP = trim ( line.substr ( 142, 6 ) );
+        string strCCDM = trim ( line.substr ( 148, 3 ) );
         
         // Use the Epoch 2000.0 R.A. and Dec. where possible; if not, use the observed epoch R.A. and Dec.
         // The observed epoch is always within 2.4 years of 1990; this is close enough to 2000 that we won't quibble,
@@ -286,35 +287,25 @@ int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &st
         if ( strTYC1.length() > 0 && strTYC1[0] == 'T' )
             tyc1 = true;
         
-        // If this is a Hipparcos star, find corresponding Hipparcos star.
-        // Add Tycho-2 identifiers, but don't overwite Hipparcos star data.
-
-        if ( hip )
-        {
-            SSStarPtr pHipStar = SSGetStarPtr ( SSIdentifierToObject ( hip, hipMap, stars ) );
-            if ( pHipStar )
-            {
-                pHipStar->addIdentifier ( tyc );
-                numStars++;
-                continue;
-            }
-        }
-        
         // If this is a Tycho-1 star, find corresponding Tycho-1 star.
-        // Copy position, motion, magnitudes from Tycho-2 but leave identifiers alone.
-        
+        // Copy position, motion, magnitudes from Tycho-2.
+        // If this is a Hipparcos star, don't overwite Hipparcos star data.
+
         if ( tyc && tyc1 )
         {
             SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( tyc, tycMap, stars ) );
             if ( pStar1 )
             {
-                float plx = pStar1->getParallax();
-                if ( plx > 0.0 )
-                    position.rad = SSCoordinates::kLYPerParsec / plx;
-                
-                pStar1->setFundamentalMotion ( position, velocity );
-                pStar1->setVMagnitude ( vmag );
-                pStar1->setBMagnitude ( bmag );
+                if ( ! hip )
+                {
+                    float plx = pStar1->getParallax();
+                    if ( plx > 0.0 )
+                        position.rad = SSCoordinates::kLYPerParsec / plx;
+                    
+                    pStar1->setFundamentalMotion ( position, velocity );
+                    pStar1->setVMagnitude ( vmag );
+                    pStar1->setBMagnitude ( bmag );
+                }
                 numStars++;
                 continue;
             }
