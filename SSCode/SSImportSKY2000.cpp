@@ -11,6 +11,47 @@
 #include <iostream>
 #include <fstream>
 
+struct SSObjectMaps
+{
+    SSObjectMap hdMap;
+    SSObjectMap bdMap;
+    SSObjectMap cdMap;
+    SSObjectMap cpMap;
+};
+
+void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps )
+{
+    maps.hdMap = SSMakeObjectMap ( stars, kCatHD );
+    maps.bdMap = SSMakeObjectMap ( stars, kCatBD );
+    maps.cdMap = SSMakeObjectMap ( stars, kCatCD );
+    maps.cpMap = SSMakeObjectMap ( stars, kCatCP );
+}
+
+SSStarPtr SSGetMatchingStar ( SSStarPtr pStar, SSObjectMaps &maps, SSObjectVec &stars )
+{
+    SSIdentifier id = pStar->getIdentifier ( kCatHD );
+    SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.hdMap, stars ) );
+    if ( pStar1 )
+        return pStar1;
+    
+    id = pStar->getIdentifier ( kCatBD );
+    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.bdMap, stars ) );
+    if ( pStar1 )
+        return pStar1;
+    
+    id = pStar->getIdentifier ( kCatCD );
+    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.cdMap, stars ) );
+    if ( pStar1 )
+        return pStar1;
+    
+    id = pStar->getIdentifier ( kCatCP );
+    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.cpMap, stars ) );
+    if ( pStar1 )
+        return pStar1;
+    
+    return nullptr;
+}
+
 // Searches for double star in double star HTM (wdsHTM)
 // within 1 arcminute of target coordinates (coords)
 // matching a component character A, B, C, D, etc. (comp)
@@ -80,16 +121,13 @@ SSDoubleStarPtr getWDStar ( SSHTM &wdsHTM, SSSpherical coords, char comp, char &
 
 // Adds identifiers from other star catalog (stars) to a SKY2000 star (pStars).
 
-void addSKY2000StarData ( SSObjectVec &stars, SSObjectMap &map, SSStarPtr pSkyStar )
+void addSKY2000StarData ( SSObjectVec &stars, SSObjectMaps &maps, SSStarPtr pSkyStar )
 {
     // Find pointer to corresponding star in other star vector,
-    // using SKY2000 star's HD identifier.
+    // using SKY2000 star's HD, BD, CD, CP identifiers.
+    // Return if we don't find other corresponding star.
     
-    SSIdentifier ident = pSkyStar->getIdentifier ( kCatHD );
-    SSStarPtr pStar = SSGetStarPtr ( SSIdentifierToObject ( ident, map, stars ) );
-    
-    // Continue if we don't find other corresponding star.
-    
+    SSStarPtr pStar = SSGetMatchingStar ( pSkyStar, maps, stars );
     if ( pStar == nullptr )
         return;
     
@@ -291,8 +329,9 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
 
     // Make index of HD catalog numbers in the Hipparcos, GJ, GCVS star vectors.
     
-    SSObjectMap hipMap = SSMakeObjectMap ( hipStars, kCatHD );
-    SSObjectMap gjMap = SSMakeObjectMap ( gjStars, kCatHD );
+    SSObjectMaps hipMaps, gjMaps;
+    SSMakeObjectMaps ( hipStars, hipMaps );
+    SSMakeObjectMaps ( gjStars, gjMaps );
     SSObjectMap gcvsMap = SSMakeObjectMap ( gcvsStars, kCatHD );
     
     // Read file line-by-line until we reach end-of-file
@@ -540,8 +579,8 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         // Add additional HIP, Bayer, and GJ identifiers from other catalogs.
         // Sert star's identifier vector.
         
-        addSKY2000StarData ( hipStars, hipMap, pStar );
-        addSKY2000StarData ( gjStars, gjMap, pStar );
+        addSKY2000StarData ( hipStars, hipMaps, pStar );
+        addSKY2000StarData ( gjStars, gjMaps, pStar );
         pStar->sortIdentifiers();
         
         SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
