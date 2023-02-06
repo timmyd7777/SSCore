@@ -684,17 +684,20 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
 
 int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
 {
-    SSObjectMap skyMap = SSMakeObjectMap ( skyStars, kCatHD );
+    SSObjectMap skyHIPMap = SSMakeObjectMap ( skyStars, kCatHIP );
+    SSObjectMap skyTYCMap = SSMakeObjectMap ( skyStars, kCatTYC );
 
-    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HD number.
+    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HIP or TYC identifier.
     // If we find one, remove the Hipparcos star.
     
     for ( int i = 0; i < hipStars.size(); i++ )
     {
         SSStarPtr pHipStar = SSGetStarPtr ( hipStars.get ( i ) );
-        SSIdentifier ident = pHipStar->getIdentifier ( kCatHD );
-        SSStarPtr pSkyStar = SSGetStarPtr ( SSIdentifierToObject ( ident, skyMap, skyStars ) );
-        if ( pSkyStar )
+        SSIdentifier hip = pHipStar->getIdentifier ( kCatHIP );
+        SSIdentifier tyc = pHipStar->getIdentifier ( kCatTYC );
+        SSStarPtr pSkyHIPStar = SSGetStarPtr ( SSIdentifierToObject ( hip, skyHIPMap, skyStars ) );
+        SSStarPtr pSkyTYCStar = SSGetStarPtr ( SSIdentifierToObject ( tyc, skyTYCMap, skyStars ) );
+        if ( pSkyHIPStar || pSkyTYCStar )
         {
             hipStars.remove ( i );
             delete pHipStar;
