@@ -111,7 +111,7 @@ void SSCloseGAIADir ( SSGAIADir *gdp );
 int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSGAIACrossMatch &records );
 int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &record );
 int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax, bool onlyHIPTYC );
-int SSImportGAIA17 ( const string &filename, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, SSObjectArray &stars, bool onlyHIPTYC );
+int SSImportGAIA17 ( const string &filename, SSObjectArray &stars, bool onlyHIPTYC );
 
 void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt );
 void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &rj, float &ij );
