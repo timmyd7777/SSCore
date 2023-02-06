@@ -424,3 +424,146 @@ int SSImportGJAC ( const string &filename, SSObjectVec &hipStars, SSObjectVec &s
 
     return numStars;
 }
+
+// Imports The 10-parsec Sample in the Gaia Era, version 2, in CSV format:
+// https://gruze.org/10pc_v2/The10pcSample_v2.csv
+// Imported stars are stored in the provided vector of SSObjects (stars).
+// All object types except planets are imported.
+// Returns the total number of stars imported (should be 477 if successful).
+
+int SSImport10pcSample ( const string &filename, SSObjectVec &stars )
+{
+    // Open file; return on failure.
+
+    ifstream file ( filename );
+    if ( ! file )
+        return ( 0 );
+
+    // Read file line-by-line until we reach end-of-file
+
+    string line = "";
+    int numStars = 0;
+
+    while ( getline ( file, line ) )
+    {
+        vector<string> fields = split_csv ( line );
+        if ( fields.size() < 45 )
+            continue;
+        
+        // Ignore planets
+        
+        if ( fields[3] == "Planet" )
+            continue;
+        
+        // Get Right Ascension and Declination in degrees, and Epoch;
+        // convert to radians; ignore stars with RA, Dec, epoch
+        
+        double ra  = degtorad ( strtofloat64 ( fields[5] ) );
+        double dec = degtorad ( strtofloat64 ( fields[6] ) );
+        float epoch = strtofloat ( fields[7] );
+        if ( ra == 0 || dec == 0 || epoch == 0 )
+            continue;
+        
+        // Get parallax and error in milliarcsec and convert to distance in light years.
+
+        float parallax = fields[8].length() ? strtofloat ( fields[8] ) : INFINITY;
+        float parallax_error = fields[9].length() ? strtofloat ( fields[9] ) : INFINITY;
+        float distance = 1000.0 * SSCoordinates::kLYPerParsec / parallax;
+        
+        // Get proper motion in RA and Dec and errors in milliarcsec; convert to radians
+        // Note proper motion in RA is really pmRA * cos ( dec ); see below.
+
+        float pmra = SSAngle::fromArcsec ( fields[11].length() ? strtofloat ( fields[11] ) / 1000.0 : INFINITY );
+        float pmra_error = SSAngle::fromArcsec ( fields[12].length() ? strtofloat ( fields[12] ) / 1000.0 : INFINITY );
+        float pmdec = SSAngle::fromArcsec ( fields[13].length() ? strtofloat ( fields[13] ) / 1000.0 : INFINITY );
+        float pmdec_error = SSAngle::fromArcsec ( fields[14].length() ? strtofloat ( fields[14] ) / 1000.0 : INFINITY );
+
+        // Get spectral type string. Unless this is dwarf, append luminosity class 'V'.
+        
+        string sp_type = fields[19];
+        if ( sp_type.length() )
+            if ( sp_type[0] != 'D' && sp_type[0] != 'Y' && sp_type[0] != '>' )
+                if ( sp_type.back() != 'V' )
+                    sp_type += 'V';
+        
+        // Get radial velocity and error
+        
+        float rv = fields[16].length() ? strtofloat ( fields[16] ) : INFINITY;
+        float rv_error = fields[17].length() ? strtofloat ( fields[17] ) : INFINITY;
+
+        // Update coordinates and motion from specified epoch to J2000
+        
+        SSSpherical coords ( ra, dec, distance );
+        SSSpherical motion ( pmra / cos ( dec ), pmdec, rv / SSCoordinates::kLightKmPerSec );
+        SSUpdateStarCoordsAndMotion ( epoch, nullptr, coords, motion );
+
+        // Get B and V magnitudes
+        
+        float bmag = fields[28].length() ? strtofloat ( fields[28] ) : INFINITY;
+        float vmag = fields[29].length() ? strtofloat ( fields[29] ) : INFINITY;
+
+        // Get object name, SIMBAD name, common name; discard duplicates.
+        // If these can be parsed as catalog identifiers, store them that way.
+        
+        vector<string> names;
+        vector<SSIdentifier> idents;
+        
+        SSIdentifier id = SSIdentifier::fromString ( fields[4] );
+        if ( id )
+            SSAddIdentifier ( id, idents );
+        else if ( fields[4].length() )
+            names.push_back ( fields[4] );
+        
+        id = SSIdentifier::fromString ( fields[39] );
+        if ( id )
+            SSAddIdentifier ( id, idents );
+        else if ( fields[39].length() && fields[39] != fields[4] )
+            names.push_back ( fields[39] );
+
+        id = SSIdentifier::fromString ( fields[40] );
+        if ( id )
+            SSAddIdentifier ( id, idents );
+        else if ( fields[40].length() && fields[40] != fields[4] && fields[40] != fields[39] )
+            names.push_back ( fields[40] );
+
+        // Get GAIA DR3, GJ, HD, HIP identifiers
+
+        if ( startsWith ( fields[38], "Gaia DR3" ) )
+            SSAddIdentifier ( SSIdentifier ( kCatGAIA, strtoint64 ( fields[38].substr ( 8, string::npos ) ) ), idents );
+        
+        if ( startsWith ( fields[41], "GJ" ) )
+            SSAddIdentifier ( SSIdentifier::fromString ( fields[41] ), idents );
+
+        if ( startsWith ( fields[42], "HD" ) )
+            SSAddIdentifier ( SSIdentifier::fromString ( fields[42] ), idents );
+
+        if ( startsWith ( fields[43], "HIP" ) )
+            SSAddIdentifier ( SSIdentifier::fromString ( fields[43] ), idents );
+
+        // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
+        // Construct star and append to star vector.
+
+        sort ( idents.begin(), idents.end(), compareSSIdentifiers );
+        SSObjectType type = kTypeStar;
+        SSObjectPtr pObj = SSNewObject ( type );
+        SSStarPtr pStar = SSGetStarPtr ( pObj );
+        
+        if ( pStar != nullptr )
+        {
+            pStar->setNames ( names );
+            pStar->setIdentifiers ( idents );
+            pStar->setFundamentalMotion ( coords, motion );
+            pStar->setVMagnitude ( vmag );
+            pStar->setBMagnitude ( bmag );
+            pStar->setSpectralType ( sp_type );
+
+            cout << pStar->toCSV() << endl;
+            stars.append ( pObj );
+            numStars++;
+        }
+    }
+    
+    // Return imported star count; file is closed automatically.
+
+    return numStars;
+}
