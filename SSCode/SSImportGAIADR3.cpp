@@ -296,7 +296,7 @@ void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float
 // Hipparcos (hipCM) and Tycho (tycCM) cross-match indexes should have been read previously.
 // GAIA sources brighter than gmin or fainter than gmax will be discarded.
 
-int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax )
+int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax, bool onlyHIPTYC )
 {
     int     n_outrecs = 0, n_records = 0, result = 0;
     FILE    *outfile = NULL;
@@ -352,11 +352,16 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, const S
         
         auto it = hipCM.find ( record.source_id );
         if ( it != hipCM.end() )
-            outrec.hip_source_id = it->second.ext_source_id;
+            outrec.hip_source_id = (uint32_t) it->second.ext_source_id;
 
         it = tycCM.find ( record.source_id );
         if ( it != tycCM.end() )
             outrec.tyc_source_id = it->second.ext_source_id;
+        
+        // If we only want GAIA stars with HIP or TYC identifiers, skip this star if it does not have either
+        
+        if ( onlyHIPTYC && ( outrec.hip_source_id == 0 && outrec.tyc_source_id == 0 ) )
+            continue;
         
         outrec.ra_mas = record.ra * 3600000.0;
         outrec.dec_mas = record.dec * 3600000.0;

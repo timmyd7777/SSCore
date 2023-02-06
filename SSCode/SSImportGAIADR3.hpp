@@ -55,8 +55,8 @@ struct SSGAIADR3SourceRecord
 struct SSGAIARec
 {
     uint64_t    source_id;              // Unique GAIA DR3 source identifier
-    uint32_t    hip_source_id;          // Unique Hipparcos-2 catalogue source identifier - DEPRECATED; will remove soon
-    uint32_t    tyc_source_id;          // Unique Tycho-2 catalogue source identifier - GARBAGE; DEPRECATED; will remove soon
+    uint64_t    tyc_source_id;          // Unique Tycho-2 catalogue source identifier
+    uint32_t    hip_source_id;          // Unique Hipparcos-2 catalogue source identifier
     int32_t     ra_mas;                 // Barycentric right ascension in ICRS at epoch 2016.0 [mas]
     int32_t     dec_mas;                // Barycentric declination in ICRS at epoch 2016.0 [mas]
     float       pos_error;              // Standard error of position = sqrt ( ra_error^2 + dec_error^2 ) [mas]
@@ -83,8 +83,8 @@ struct SSGAIARec
 
 enum SSGAIACrossMatchFile
 {
-    kHipparcos2CrossMatch = 1,          // Hipparcos2BestNeighbour.csv
-    kTycho2CrossMatch = 2               // Tycho2tdscMergeBestNeighbour.csv
+    kHipparcos2CrossMatch = 1,          // Hipparcos2BestNeighbour.csv, 99525 records
+    kTycho2CrossMatch = 2               // Tycho2tdscMergeBestNeighbour.csv, 2511088 records
 };
 
 // Represents one record from a GAIA cross-match file
@@ -110,7 +110,7 @@ void SSCloseGAIADir ( SSGAIADir *gdp );
 
 int SSReadGAIACrossMatchFile ( const string &path, SSGAIACrossMatchFile cmf, SSGAIACrossMatch &records );
 int SSReadGAIADR3SourceRecord ( SSGAIADir *gdp, SSGAIADR3SourceRecord &record );
-int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax );
+int SSExportGAIADR3StarData ( const string &root, const string &outpath, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, float gmin, float gmax, bool onlyHIPTYC );
 int SSImportGAIA17 ( const string &filename, const SSGAIACrossMatch &hipCM, const SSGAIACrossMatch &tycCM, SSObjectArray &stars, bool onlyHIPTYC );
 
 void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt );
