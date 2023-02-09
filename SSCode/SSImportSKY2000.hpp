@@ -29,6 +29,8 @@ struct SSObjectMaps
     SSObjectMap bdMap;      // Bonner Durchmusterung identifier map
     SSObjectMap cdMap;      // Cordoba Durchmusterung identifier map
     SSObjectMap cpMap;      // Cape Photographic Durchmusterung identifier map
+    SSObjectMap hipMap;     // Hipparcos identifier map
+    SSObjectMap gcvsMap;    // General Catalog of Variable Stars map
 };
 
 void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps );

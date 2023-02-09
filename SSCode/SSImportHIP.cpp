@@ -10,6 +10,7 @@
 
 #include "SSCoordinates.hpp"
 #include "SSImportHIP.hpp"
+#include "SSImportSKY2000.hpp"
 
 // Cleans up some oddball conventions in the Hipparcos star name identification tables
 // for Bayer, Flamsteed, and variable star names so SSIdentifier understands them.
@@ -353,10 +354,11 @@ int SSImportHIP2 ( const string &filename, SSObjectVec &stars )
 // Adds SAO identifiers and radial velocity from Hipparcos Input Catalog (hicStars).
 // Uses position and proper motion with values from Hippacos New Reduction (hip2Stars) if possible.
 // Adds star name strings from a mapping of identifiers to names (nameMap).
+// Adds variability data from variable star vector (varStars), if not empty.
 // Stores results in vector of SSObjects (stars).
 // Returns number of objects imported (118218 if successful).
 
-int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMap &bayMap, SSIdentifierMap &gcvsMap, SSIdentifierNameMap &nameMap, SSObjectVec &hicStars, SSObjectVec &hip2Stars, SSObjectVec &stars )
+int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMap &bayMap, SSIdentifierMap &gcvsMap, SSIdentifierNameMap &nameMap, SSObjectVec &hicStars, SSObjectVec &hip2Stars, SSObjectVec &gcvsStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -369,6 +371,11 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
     
     SSObjectMap hicMap = SSMakeObjectMap ( hicStars, kCatHIP );
     SSObjectMap hip2Map = SSMakeObjectMap ( hip2Stars, kCatHIP );
+
+    // Make mapping of HD and DM identifiers to GCVS stars
+    
+    SSObjectMaps gcvsMaps;
+    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
 
     // Read file line-by-line until we reach end-of-file
 
@@ -499,11 +506,21 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
             velocity.rad = pStar->getRadVel();
         }
 
+        // Can we find a corresponding variable star in the GCVS star vector?
+        // If yes, add it GCVS identifier; we'll add other variability data below.
+        
+        if ( hip == 87937 )
+            hip = hip;
+        
+        SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSGetMatchingStar ( idents, gcvsMaps, gcvsStars ) );
+        if ( pGCVStar )
+            SSAddIdentifier ( pGCVStar->getIdentifier ( kCatGCVS ), idents );
+        
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
 
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        SSObjectType type = kTypeStar;
+        SSObjectType type = pGCVStar ? kTypeVariableStar : kTypeStar;
 
         SSObjectPtr pObj = SSNewObject ( type );
         pStar = SSGetStarPtr ( pObj );
@@ -516,6 +533,16 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
             pStar->setVMagnitude ( vmag );
             pStar->setBMagnitude ( bmag );
             pStar->setSpectralType ( strSpec );
+
+            SSVariableStarPtr pVar = SSGetVariableStarPtr ( pStar );
+            if ( pVar != nullptr )
+            {
+                pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
+                pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
+                pVar->setPeriod ( pGCVStar->getPeriod() );
+                pVar->setEpoch ( pGCVStar->getEpoch() );
+                pVar->setVariableType ( pGCVStar->getVariableType() );
+            }
 
             // cout << pStar->toCSV() << endl;
             stars.append ( pObj );

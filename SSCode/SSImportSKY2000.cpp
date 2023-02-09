@@ -20,6 +20,8 @@ void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps )
     maps.bdMap = SSMakeObjectMap ( stars, kCatBD );
     maps.cdMap = SSMakeObjectMap ( stars, kCatCD );
     maps.cpMap = SSMakeObjectMap ( stars, kCatCP );
+    maps.hipMap = SSMakeObjectMap ( stars, kCatHIP );
+    maps.gcvsMap = SSMakeObjectMap ( stars, kCatGCVS );
 }
 
 // Given a vector of identifiers (idents), returns pointer to the first star contining any of those
@@ -48,6 +50,16 @@ SSStarPtr SSGetMatchingStar ( vector<SSIdentifier> &idents, SSObjectMaps &maps, 
     if ( pStar1 )
         return pStar1;
     
+    id = SSGetIdentifier ( kCatGCVS, idents );
+    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.gcvsMap, stars ) );
+    if ( pStar1 )
+        return pStar1;
+
+    id = SSGetIdentifier ( kCatHIP, idents );
+    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.hipMap, stars ) );
+    if ( pStar1 )
+        return pStar1;
+
     return nullptr;
 }
 
@@ -531,17 +543,18 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
                 SSAddIdentifier ( SSIdentifier ( kCatHR, hr ), idents );
         }
 
-        // Look for a GCVS star with the same HD/BD/CD/CP identifier as our SKY2000 star.
-        // If we find one, add the GCVS star identifier to the SKY2000 star identifiers.
-        // Otherwise, if we don't have any GCVS stars, use the GCVS identifier string from SKY2000.
+        // Get GCVS identifier string from SKY2000.
         
-        SSIdentifier gcvsIdent = 0;
+        SSIdentifier gcvsIdent = SSIdentifier::fromString ( strVar );
+        if ( gcvsIdent )
+            SSAddIdentifier ( gcvsIdent, idents );
+
+        // Look for a GCVS star with the same HD/BD/CD/CP/GCVS identifier as our SKY2000 star.
+        // If we find one, add the GCVS star identifier to the SKY2000 star identifiers.
+
         SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSGetMatchingStar ( idents, gcvsMaps, gcvsStars ) );
         if ( pGCVStar )
-            gcvsIdent = pGCVStar->getIdentifier ( kCatGCVS );
-        else if ( gcvsStars.size() == 0 && strVar.length() > 0 )
-            gcvsIdent = SSIdentifier::fromString ( strVar );
-        SSAddIdentifier ( gcvsIdent, idents );
+            SSAddIdentifier ( pGCVStar->getIdentifier ( kCatGCVS ), idents );
 
         // If this star has a double star component string, look for a matching WDS star and get its primary component.
         
