@@ -425,6 +425,31 @@ int SSImportGJAC ( const string &filename, SSObjectVec &hipStars, SSObjectVec &s
     return numStars;
 }
 
+extern string cleanHIPNameString ( string str );
+
+static string strip_component ( string &name )
+{
+    char c = name.back();
+    if ( c == 'A' || c == 'B' || c == 'C' || c == 'D' )
+        name.erase ( name.length() - 1 );
+    
+    return cleanHIPNameString ( trim ( name ) );
+}
+
+// Discards GJ or JD identifiers; there is a separate column for these (below)
+
+SSIdentifier name_to_ident ( string &name )
+{
+    SSIdentifier id = SSIdentifier::fromString ( name );
+    SSCatalog cat = id.catalog();
+    if ( cat == kCatGJ || cat == kCatHD )
+    {
+        id = 0;
+        name = "";
+    }
+    return id;
+}
+
 // Imports The 10-parsec Sample in the Gaia Era, version 2, in CSV format:
 // https://gruze.org/10pc_v2/The10pcSample_v2.csv
 // Imported stars are stored in the provided vector of SSObjects (stars).
@@ -502,29 +527,45 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &stars )
         float bmag = fields[28].length() ? strtofloat ( fields[28] ) : INFINITY;
         float vmag = fields[29].length() ? strtofloat ( fields[29] ) : INFINITY;
 
-        // Get object name, SIMBAD name, common name; discard duplicates.
+        // Get system name, object name, SIMBAD name, common name; discard duplicates.
         // If these can be parsed as catalog identifiers, store them that way.
         
         vector<string> names;
         vector<SSIdentifier> idents;
         
-        SSIdentifier id = SSIdentifier::fromString ( fields[4] );
-        if ( id )
-            SSAddIdentifier ( id, idents );
-        else if ( fields[4].length() )
-            names.push_back ( fields[4] );
+        string sys_name = strip_component ( fields[2] );
+        if ( startsWith ( sys_name, "omi" ) )
+            sys_name = sys_name;
         
-        id = SSIdentifier::fromString ( fields[39] );
+        SSIdentifier id = name_to_ident ( sys_name );
         if ( id )
             SSAddIdentifier ( id, idents );
-        else if ( fields[39].length() && fields[39] != fields[4] )
-            names.push_back ( fields[39] );
+        else if ( sys_name.length() )
+            names.push_back ( sys_name );
 
-        id = SSIdentifier::fromString ( fields[40] );
+        if ( startsWith ( sys_name, "omi" ) )
+            sys_name = sys_name;
+        
+        string obj_name = strip_component ( fields[4] );
+        id = name_to_ident ( obj_name );
         if ( id )
             SSAddIdentifier ( id, idents );
-        else if ( fields[40].length() && fields[40] != fields[4] && fields[40] != fields[39] )
-            names.push_back ( fields[40] );
+        else if ( obj_name.length() && obj_name != sys_name )
+            names.push_back ( obj_name );
+        
+        string simbad_name = strip_component ( fields[39] );
+        id = name_to_ident ( simbad_name );
+        if ( id )
+            SSAddIdentifier ( id, idents );
+        else if ( simbad_name.length() && simbad_name != obj_name && simbad_name != sys_name )
+            names.push_back ( simbad_name );
+
+        string common_name = strip_component ( fields[40] );
+        id = name_to_ident ( common_name );
+        if ( id )
+            SSAddIdentifier ( id, idents );
+        else if ( common_name.length() && common_name != obj_name && common_name != simbad_name && common_name != sys_name )
+            names.push_back ( common_name );
 
         // Get GAIA DR3, GJ, HD, HIP identifiers
 
@@ -557,7 +598,7 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &stars )
             pStar->setBMagnitude ( bmag );
             pStar->setSpectralType ( sp_type );
 
-            cout << pStar->toCSV() << endl;
+            //cout << pStar->toCSV() << endl;
             stars.append ( pObj );
             numStars++;
         }

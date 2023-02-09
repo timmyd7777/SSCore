@@ -435,7 +435,7 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars, bool onlyHIPT
             continue;
         
         SSSpherical coords ( SSAngle::fromArcsec ( gaia.ra_mas / 1000.0 ), SSAngle::fromArcsec ( gaia.dec_mas / 1000.0 ), INFINITY );
-        if ( gaia.parallax > 0.0 && gaia.parallax < 100.0 )
+        if ( gaia.parallax > 0.0 && gaia.parallax < 1000.0 )
             coords.rad = 1000.0 * SSCoordinates::kLYPerParsec / gaia.parallax;
         
         SSSpherical motion ( SSAngle::fromArcsec ( gaia.pmra_mas / 1000.0 ) / cos ( coords.lat ), SSAngle::fromArcsec ( gaia.pmdec_mas / 1000.0 ), INFINITY );
