@@ -100,7 +100,7 @@ int SSImportGCVSCrossIdentifiers ( const string &filename, SSIdentifierMap &iden
             ident = SSIdentifier::fromString ( strIdent.substr ( 4, 3 ) + " " + strIdent.substr ( 0, 3 ), kTypeStar, true );
         
         if ( line.compare ( 0, 2, "Gl" ) == 0 )
-            ident = SSIdentifier::fromString ( "Gl " + strIdent, kTypeStar, true );
+            ident = SSIdentifier::fromString ( "Gl " + strIdent + line[31], kTypeStar, true );
 
         if ( line.compare ( 0, 2, "HD" ) == 0 )
             ident = SSIdentifier::fromString ( "HD " + strIdent, kTypeStar, true );

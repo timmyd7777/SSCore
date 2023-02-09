@@ -11,6 +11,7 @@
 #include "SSCoordinates.hpp"
 #include "SSImportHIP.hpp"
 #include "SSImportGJ.hpp"
+#include "SSImportSKY2000.hpp"
 
 // Comverts total proper motion (pm), position angle of motion (pa), and declination (dec)
 // to proper motion in R.A. (pmra) and proper motion in Dec. (pmdec).  All angles in radians.
@@ -442,7 +443,7 @@ SSIdentifier name_to_ident ( string &name )
 {
     SSIdentifier id = SSIdentifier::fromString ( name );
     SSCatalog cat = id.catalog();
-    if ( cat == kCatGJ || cat == kCatHD )
+    if ( cat == kCatGJ || cat == kCatHD || cat == kCatGCVS )
     {
         id = 0;
         name = "";
@@ -456,13 +457,18 @@ SSIdentifier name_to_ident ( string &name )
 // All object types except planets are imported.
 // Returns the total number of stars imported (should be 477 if successful).
 
-int SSImport10pcSample ( const string &filename, SSObjectVec &stars )
+int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
     ifstream file ( filename );
     if ( ! file )
         return ( 0 );
+
+    // Make index of GCVS star vectors.
+    
+    SSObjectMaps gcvsMaps;
+    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
 
     // Read file line-by-line until we reach end-of-file
 
@@ -475,9 +481,9 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &stars )
         if ( fields.size() < 45 )
             continue;
         
-        // Ignore planets
+        // Ignore planets and brown dwarfs
         
-        if ( fields[3] == "Planet" )
+        if ( fields[3] == "Planet" || fields[3] == "BD" )
             continue;
         
         // Get Right Ascension and Declination in degrees, and Epoch;
@@ -581,11 +587,18 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &stars )
         if ( startsWith ( fields[43], "HIP" ) )
             SSAddIdentifier ( SSIdentifier::fromString ( fields[43] ), idents );
 
+        // Look for a GCVS star with the same HD/GJ/HIP identifier as our 10pcSample star.
+        // If we find one, add the GCVS star identifier to the 10pcSample star identifiers.
+
+        SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSGetMatchingStar ( idents, gcvsMaps, gcvsStars ) );
+        if ( pGCVStar )
+            SSAddIdentifier ( pGCVStar->getIdentifier ( kCatGCVS ), idents );
+
         // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
         // Construct star and append to star vector.
 
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        SSObjectType type = kTypeStar;
+        SSObjectType type = pGCVStar ? kTypeVariableStar : kTypeStar;
         SSObjectPtr pObj = SSNewObject ( type );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
         
@@ -597,6 +610,18 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &stars )
             pStar->setVMagnitude ( vmag );
             pStar->setBMagnitude ( bmag );
             pStar->setSpectralType ( sp_type );
+
+            // If we have a matching star from the GCVS, copy its variability data.
+            
+            SSVariableStarPtr pVar = SSGetVariableStarPtr ( pStar );
+            if ( pGCVStar && pVar)
+            {
+                pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
+                pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
+                pVar->setPeriod ( pGCVStar->getPeriod() );
+                pVar->setEpoch ( pGCVStar->getEpoch() );
+                pVar->setVariableType ( pGCVStar->getVariableType() );
+            }
 
             //cout << pStar->toCSV() << endl;
             stars.append ( pObj );

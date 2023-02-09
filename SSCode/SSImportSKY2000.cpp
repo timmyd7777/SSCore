@@ -17,6 +17,7 @@
 void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps )
 {
     maps.hdMap = SSMakeObjectMap ( stars, kCatHD );
+    maps.gjMap = SSMakeObjectMap ( stars, kCatGJ );
     maps.bdMap = SSMakeObjectMap ( stars, kCatBD );
     maps.cdMap = SSMakeObjectMap ( stars, kCatCD );
     maps.cpMap = SSMakeObjectMap ( stars, kCatCP );
@@ -35,6 +36,11 @@ SSStarPtr SSGetMatchingStar ( vector<SSIdentifier> &idents, SSObjectMaps &maps, 
     if ( pStar1 )
         return pStar1;
     
+    id = SSGetIdentifier ( kCatGJ, idents );
+    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.gjMap, stars ) );
+    if ( pStar1 )
+        return pStar1;
+
     id = SSGetIdentifier ( kCatBD, idents );
     pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.bdMap, stars ) );
     if ( pStar1 )
@@ -543,6 +549,9 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
                 SSAddIdentifier ( SSIdentifier ( kCatHR, hr ), idents );
         }
 
+        if ( strHD == "156633" )
+            strHR = strHD;
+        
         // Get GCVS identifier string from SKY2000.
         
         SSIdentifier gcvsIdent = SSIdentifier::fromString ( strVar );

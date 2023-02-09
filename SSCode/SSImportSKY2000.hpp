@@ -26,6 +26,7 @@ int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars );
 struct SSObjectMaps
 {
     SSObjectMap hdMap;      // Henry Draper identifier map
+    SSObjectMap gjMap;      // Gliese-Jahreiss identifier map
     SSObjectMap bdMap;      // Bonner Durchmusterung identifier map
     SSObjectMap cdMap;      // Cordoba Durchmusterung identifier map
     SSObjectMap cpMap;      // Cape Photographic Durchmusterung identifier map
