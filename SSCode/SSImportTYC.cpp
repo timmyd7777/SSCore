@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "SSImportGCVS.hpp"
 #include "SSImportHIP.hpp"
 #include "SSImportTYC.hpp"
 #include "SSImportSKY2000.hpp"
@@ -37,7 +38,7 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &gcv
         return 0;
     
     SSObjectMaps gcvsMaps;
-    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
+    SSMakeObjectMaps ( gcvsStars, { kCatHD, kCatBD, kCatCD, kCatCP, kCatGCVS }, gcvsMaps );
     SSObjectMap hipMap = SSMakeObjectMap ( stars, kCatHIP );
     
     // Read file line-by-line until we reach end-of-file
@@ -195,14 +196,7 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &gcv
         // If we have a matching star from the GCVS, copy its variability data.
         
         if ( pGCVStar )
-        {
-            SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
-            pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
-            pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
-            pVar->setPeriod ( pGCVStar->getPeriod() );
-            pVar->setEpoch ( pGCVStar->getEpoch() );
-            pVar->setVariableType ( pGCVStar->getVariableType() );
-        }
+            SSCopyVariableStarData( pGCVStar, pStar );
     }
 
     // Return imported star count; file is closed automatically.

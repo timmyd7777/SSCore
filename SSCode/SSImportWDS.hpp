@@ -19,5 +19,7 @@ int SSImportORB6toHTM  ( const string &filename, SSHTM &htm );
 int SSImportWDStoHTM ( const string &filename, const SSIdentifierMap &identmap, SSHTM &htm );
 int SSImportWDSHIPCrossIndex ( const string &filename, SSIdentifierMap &identmap );
 int SSImportWDSBFCrossIndex ( const string &filename, SSIdentifierMap &identmap );
+SSDoubleStarPtr SSFindWDSStar ( SSHTM &wdsHTM, SSSpherical coords, char comp, char &prim, float sep );
+bool SSCopyDoubleStarData ( SSDoubleStarPtr pWDStar, char comp, char primComp, SSStarPtr pStar );
 
 #endif /* SSImportWDS_hpp */

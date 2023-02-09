@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include "SSCoordinates.hpp"
+#include "SSImportGCVS.hpp"
 #include "SSImportHIP.hpp"
 #include "SSImportSKY2000.hpp"
 
@@ -372,10 +373,10 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
     SSObjectMap hicMap = SSMakeObjectMap ( hicStars, kCatHIP );
     SSObjectMap hip2Map = SSMakeObjectMap ( hip2Stars, kCatHIP );
 
-    // Make mapping of HD and DM identifiers to GCVS stars
+    // Make mapping of GCVS and HIP identifiers to GCVS stars
     
     SSObjectMaps gcvsMaps;
-    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
+    SSMakeObjectMaps ( gcvsStars, { kCatGCVS, kCatHIP }, gcvsMaps );
 
     // Read file line-by-line until we reach end-of-file
 
@@ -531,15 +532,8 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
             pStar->setBMagnitude ( bmag );
             pStar->setSpectralType ( strSpec );
 
-            SSVariableStarPtr pVar = SSGetVariableStarPtr ( pStar );
-            if ( pVar != nullptr )
-            {
-                pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
-                pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
-                pVar->setPeriod ( pGCVStar->getPeriod() );
-                pVar->setEpoch ( pGCVStar->getEpoch() );
-                pVar->setVariableType ( pGCVStar->getVariableType() );
-            }
+            if ( pGCVStar )
+                SSCopyVariableStarData ( pGCVStar, pStar );
 
             // cout << pStar->toCSV() << endl;
             stars.append ( pObj );

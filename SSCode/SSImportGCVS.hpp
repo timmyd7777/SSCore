@@ -10,9 +10,10 @@
 #ifndef SSImportGCVS_hpp
 #define SSImportGCVS_hpp
 
-#include "SSObject.hpp"
+#include "SSStar.hpp"
 
 int SSImportGCVSCrossIdentifiers ( const string &filename, SSIdentifierMap &identmap );
 int SSImportGCVS ( const string &filename, SSIdentifierMap &identmap, SSObjectArray &stars );
+bool SSCopyVariableStarData ( SSVariableStarPtr pGCVStar, SSStarPtr pStar );
 
 #endif /* SSImportGCVS_hpp */

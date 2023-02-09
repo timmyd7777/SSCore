@@ -1170,3 +1170,18 @@ int SSAddIdentifiers ( SSIdentifier key, const SSIdentifierMap &map, SSIdentifie
     
     return n;
 }
+
+// Adds a new common name string to a vector of names,
+// if the new name is valid and not already present in the vector.
+// Returns true if name string was added, false otherwise;
+
+bool SSAddCommonName ( const string &name, vector<string> &names )
+{
+    if ( name.length() && find ( names.begin(), names.end(), name ) == names.end() )
+    {
+        names.push_back ( name );
+        return true;
+    }
+    
+    return false;
+}

@@ -9,10 +9,11 @@
 #define SSImportGJ_hpp
 
 #include "SSStar.hpp"
+#include "SSHTM.hpp"
 
 int SSImportGJCNS3 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &acStars, SSObjectVec &gjStars );
 int SSImportGJAC ( const string &filename, SSObjectVec &hipStars, SSObjectVec &acStars );
 
-int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjectVec &stars );
+int SSImport10pcSample ( const string &filename, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars );
 
 #endif /* SSImportGJ_hpp */

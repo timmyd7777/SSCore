@@ -454,3 +454,97 @@ int SSImportWDStoHTM ( const string &filename, const SSIdentifierMap &identmap, 
     return 0;
 }
 
+// Searches for double star in double star HTM (wdsHTM)
+// within 1 arcminute of target coordinates (coords)
+// matching a component character A, B, C, D, etc. (comp)
+// with an angular separation in arcseconds (sep); will be ignored if zero.
+// If found, returns primary component character (prim), and
+// returns pointer to matching double star, or nullptr if none.
+
+SSDoubleStarPtr SSFindWDSStar ( SSHTM &wdsHTM, SSSpherical coords, char comp, char &prim, float sep )
+{
+    if ( comp < 'A' || comp > 'F' )
+       return nullptr;
+        
+    // Find all WDS stars whose primaries are within 1 arcminute of the target coordinates.
+    
+    vector<SSObjectPtr> results;
+    wdsHTM.search ( 0, coords, SSAngle::fromArcmin ( 1.0 ), results );
+    if ( results.size() < 1 )
+        return nullptr;
+    
+    for ( SSObjectPtr &pObj : results )
+    {
+        SSDoubleStarPtr pWDStar = SSGetDoubleStarPtr ( pObj );
+        if ( pWDStar == nullptr )
+            continue;
+        
+        // Reject binary orbits for unseen components like Aa, Bb, etc.
+        
+        string compsWD = pWDStar->getComponents();
+        if ( compsWD.length() < 2 || ( compsWD[1] >= 'a' && compsWD[1] <= 'z' ) )
+            continue;
+
+        // Reject orbit if separation is greater than twice the apastron.
+        
+        if ( pWDStar->hasOrbit() )
+        {
+            SSOrbit orbit = pWDStar->getOrbit();
+            if ( sep > 0.0 && sep > orbit.apoapse() * 2 )
+                continue;
+        }
+        else
+        {
+            if ( sep > 0.0 && SSAngle::fromArcsec ( sep ) > pWDStar->getSeparation() * 2 )
+                continue;
+        }
+        
+        // cout << pWDStar->toCSV() << endl;
+
+        // If component matches first char of WDS component string like AB, BC, CD, component is primary.
+        
+        if ( compsWD.length() == 2 && compsWD[0] == comp && compsWD[1] == compsWD[0] + 1 )
+        {
+            prim = comp;
+            return pWDStar;
+        }
+        
+        // If component matches last char of WDS component string, component is secondary.
+        
+        if ( compsWD.back() == comp )
+        {
+            prim = compsWD[0];
+            return pWDStar;
+        }
+    }
+    
+    return nullptr;
+}
+
+// Copies double star data (including binary star orbit if present)
+// from WDS star (pWDStar) into target star (pStar).
+// The target star's component designation A, B, C, D is (comp).
+// The WDS star's primary component designation A, B, C, D is (primComp).
+
+bool SSCopyDoubleStarData ( SSDoubleStarPtr pWDStar, char comp, char primComp, SSStarPtr pStar )
+{
+    SSDoubleStarPtr pDbl = SSGetDoubleStarPtr ( pStar );
+    if ( pDbl == nullptr )
+        return false;
+    
+    if ( pWDStar->hasOrbit() )
+    {
+        pDbl->setOrbit ( pWDStar->getOrbit() );
+        if ( comp == primComp )
+            pDbl->setComponents ( pWDStar->getComponents() );
+        else
+            pDbl->setComponents ( string ( 1, comp ) + string ( 1, primComp ) );
+    }
+    
+    pDbl->setMagnitudeDelta ( pWDStar->getMagnitudeDelta() );
+    pDbl->setSeparation ( pWDStar->getSeparation() );
+    pDbl->setPositionAngle ( pWDStar->getPositionAngle() );
+    pDbl->setPositionAngleYear ( pWDStar->getPositionAngleYear() );
+    return true;
+}
+

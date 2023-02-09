@@ -89,7 +89,7 @@ SSVector SSSpherical::toVectorVelocity ( SSSpherical vel )
 
 SSSpherical SSSpherical::normalize ( void )
 {
-    return this->toVectorPosition().toSpherical();
+    return this->toVectorPosition().normalize().toSpherical();
 }
 
 // Returns the spherical coordinates at the opposite side of the sphere

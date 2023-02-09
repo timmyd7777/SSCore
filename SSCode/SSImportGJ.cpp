@@ -10,8 +10,10 @@
 
 #include "SSCoordinates.hpp"
 #include "SSImportHIP.hpp"
+#include "SSImportGCVS.hpp"
 #include "SSImportGJ.hpp"
 #include "SSImportSKY2000.hpp"
+#include "SSImportWDS.hpp"
 
 // Comverts total proper motion (pm), position angle of motion (pa), and declination (dec)
 // to proper motion in R.A. (pmra) and proper motion in Dec. (pmdec).  All angles in radians.
@@ -437,27 +439,30 @@ static string strip_component ( string &name )
     return cleanHIPNameString ( trim ( name ) );
 }
 
-// Discards GJ or JD identifiers; there is a separate column for these (below)
-
-SSIdentifier name_to_ident ( string &name )
+static void add_name ( string &field, bool allowIdents, vector<SSIdentifier> &idents, vector<string> &names )
 {
+    string name = strip_component ( field );
     SSIdentifier id = SSIdentifier::fromString ( name );
-    SSCatalog cat = id.catalog();
-    if ( cat == kCatGJ || cat == kCatHD || cat == kCatGCVS )
+    if ( id && allowIdents )
     {
-        id = 0;
-        name = "";
+        SSCatalog cat = id.catalog();   // Discards GJ, HD, GCVS identifiers; there is a separate column for these (below)
+        if ( cat != kCatGJ && cat != kCatHD && cat != kCatGCVS )
+            SSAddIdentifier ( id, idents );
     }
-    return id;
+    else if ( id == 0 )
+        SSAddCommonName ( name, names );
 }
 
 // Imports The 10-parsec Sample in the Gaia Era, version 2, in CSV format:
 // https://gruze.org/10pc_v2/The10pcSample_v2.csv
 // Imported stars are stored in the provided vector of SSObjects (stars).
-// All object types except planets are imported.
-// Returns the total number of stars imported (should be 477 if successful).
+// All stars are imported (no planets or brown dwarfs).
+// Additional identifiers are inserted from the vector of SKY2000/HIP/TYC stars (skyStars).
+// Variable star information is inserted from the vector of GCVS stars (gcvsStars).
+// Double star information is inserted from the HTM of WDS stars (wdsHTM).
+// Returns the total number of stars imported (should be 380 if successful).
 
-int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjectVec &stars )
+int SSImport10pcSample ( const string &filename, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -465,10 +470,11 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjec
     if ( ! file )
         return ( 0 );
 
-    // Make index of GCVS star vectors.
+    // Make cross-index of identifiers in other star star vectors.
     
-    SSObjectMaps gcvsMaps;
-    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
+    SSObjectMaps gcvsMaps, skyMaps;
+    SSMakeObjectMaps ( gcvsStars, { kCatGJ }, gcvsMaps );
+    SSMakeObjectMaps ( skyStars, { kCatGJ, kCatGAIA }, skyMaps );
 
     // Read file line-by-line until we reach end-of-file
 
@@ -538,40 +544,19 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjec
         
         vector<string> names;
         vector<SSIdentifier> idents;
+        bool allowIdents = false;
         
         string sys_name = strip_component ( fields[2] );
-        if ( startsWith ( sys_name, "omi" ) )
-            sys_name = sys_name;
-        
-        SSIdentifier id = name_to_ident ( sys_name );
-        if ( id )
-            SSAddIdentifier ( id, idents );
-        else if ( sys_name.length() )
-            names.push_back ( sys_name );
+        add_name ( sys_name, allowIdents, idents, names );
 
-        if ( startsWith ( sys_name, "omi" ) )
-            sys_name = sys_name;
-        
         string obj_name = strip_component ( fields[4] );
-        id = name_to_ident ( obj_name );
-        if ( id )
-            SSAddIdentifier ( id, idents );
-        else if ( obj_name.length() && obj_name != sys_name )
-            names.push_back ( obj_name );
+        add_name ( obj_name, allowIdents, idents, names );
         
         string simbad_name = strip_component ( fields[39] );
-        id = name_to_ident ( simbad_name );
-        if ( id )
-            SSAddIdentifier ( id, idents );
-        else if ( simbad_name.length() && simbad_name != obj_name && simbad_name != sys_name )
-            names.push_back ( simbad_name );
+        add_name ( simbad_name, allowIdents, idents, names );
 
         string common_name = strip_component ( fields[40] );
-        id = name_to_ident ( common_name );
-        if ( id )
-            SSAddIdentifier ( id, idents );
-        else if ( common_name.length() && common_name != obj_name && common_name != simbad_name && common_name != sys_name )
-            names.push_back ( common_name );
+        add_name ( common_name, allowIdents, idents, names );
 
         // Get GAIA DR3, GJ, HD, HIP identifiers
 
@@ -587,6 +572,17 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjec
         if ( startsWith ( fields[43], "HIP" ) )
             SSAddIdentifier ( SSIdentifier::fromString ( fields[43] ), idents );
 
+        // Look for a matching SKY2000/HIP/TYC star with the same HD/GJ/HIP identifier as our 10pcSample star.
+        // If we find one, add the other star's identifier to the 10pcSample star identifiers.
+        
+        SSStarPtr pSkyStar = SSGetMatchingStar ( idents, skyMaps, skyStars );
+        if ( pSkyStar )
+        {
+            vector<SSIdentifier> skyIdents = pSkyStar->getIdentifiers();
+            for ( SSIdentifier &ident : skyIdents )
+                SSAddIdentifier ( ident, idents );
+        }
+        
         // Look for a GCVS star with the same HD/GJ/HIP identifier as our 10pcSample star.
         // If we find one, add the GCVS star identifier to the 10pcSample star identifiers.
 
@@ -594,11 +590,27 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjec
         if ( pGCVStar )
             SSAddIdentifier ( pGCVStar->getIdentifier ( kCatGCVS ), idents );
 
-        // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
+        // If this star has a double star component string, look for a matching WDS star and get its primary component.
+        
+        char comp = fields[41].back();
+        if ( comp < 'A' || comp > 'D' )
+            comp = 0;
+        char primComp = 0;
+        SSDoubleStarPtr pWDStar = nullptr;
+        if ( comp > 0 && wdsHTM.countRegions() > 0 )
+            pWDStar = SSFindWDSStar ( wdsHTM, coords.normalize(), comp, primComp, 0.0 );
+
+        // Sert identifier vector.  Determine object type.
         // Construct star and append to star vector.
 
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        SSObjectType type = pGCVStar ? kTypeVariableStar : kTypeStar;
+        SSObjectType type = kTypeStar;
+        if ( pWDStar && pGCVStar )
+            type = kTypeDoubleVariableStar;
+        else if ( pWDStar )
+            type = kTypeDoubleStar;
+        else if ( pGCVStar )
+            type = kTypeVariableStar;
         SSObjectPtr pObj = SSNewObject ( type );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
         
@@ -612,16 +624,13 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &gcvsStars, SSObjec
             pStar->setSpectralType ( sp_type );
 
             // If we have a matching star from the GCVS, copy its variability data.
-            
-            SSVariableStarPtr pVar = SSGetVariableStarPtr ( pStar );
-            if ( pGCVStar && pVar)
-            {
-                pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
-                pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
-                pVar->setPeriod ( pGCVStar->getPeriod() );
-                pVar->setEpoch ( pGCVStar->getEpoch() );
-                pVar->setVariableType ( pGCVStar->getVariableType() );
-            }
+            // If we have a matching star from the WDS, copy its double star data.
+
+            if ( pGCVStar )
+                SSCopyVariableStarData ( pGCVStar, pStar );
+
+            if ( pWDStar )
+                SSCopyDoubleStarData ( pWDStar, comp, primComp, pStar );
 
             //cout << pStar->toCSV() << endl;
             stars.append ( pObj );

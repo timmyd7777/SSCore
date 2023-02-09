@@ -5,7 +5,9 @@
 //  Copyright © 2020 Southern Stars. All rights reserved.
 
 #include "SSCoordinates.hpp"
+#include "SSImportGCVS.hpp"
 #include "SSImportSKY2000.hpp"
+#include "SSImportWDS.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -14,15 +16,10 @@
 // Populates identifier maps from a vector of stars.
 // Call this before cross indexing.
 
-void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps )
+void SSMakeObjectMaps ( SSObjectVec &stars, const vector<SSCatalog> &catalogs, SSObjectMaps &maps )
 {
-    maps.hdMap = SSMakeObjectMap ( stars, kCatHD );
-    maps.gjMap = SSMakeObjectMap ( stars, kCatGJ );
-    maps.bdMap = SSMakeObjectMap ( stars, kCatBD );
-    maps.cdMap = SSMakeObjectMap ( stars, kCatCD );
-    maps.cpMap = SSMakeObjectMap ( stars, kCatCP );
-    maps.hipMap = SSMakeObjectMap ( stars, kCatHIP );
-    maps.gcvsMap = SSMakeObjectMap ( stars, kCatGCVS );
+    for ( const SSCatalog &cat : catalogs )
+        maps[cat] = SSMakeObjectMap ( stars, cat );
 }
 
 // Given a vector of identifiers (idents), returns pointer to the first star contining any of those
@@ -31,40 +28,16 @@ void SSMakeObjectMaps ( SSObjectVec &stars, SSObjectMaps &maps )
 
 SSStarPtr SSGetMatchingStar ( vector<SSIdentifier> &idents, SSObjectMaps &maps, SSObjectVec &stars )
 {
-    SSIdentifier id = SSGetIdentifier ( kCatHD, idents );
-    SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.hdMap, stars ) );
-    if ( pStar1 )
-        return pStar1;
-    
-    id = SSGetIdentifier ( kCatGJ, idents );
-    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.gjMap, stars ) );
-    if ( pStar1 )
-        return pStar1;
-
-    id = SSGetIdentifier ( kCatBD, idents );
-    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.bdMap, stars ) );
-    if ( pStar1 )
-        return pStar1;
-    
-    id = SSGetIdentifier ( kCatCD, idents );
-    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.cdMap, stars ) );
-    if ( pStar1 )
-        return pStar1;
-    
-    id = SSGetIdentifier ( kCatCP, idents );
-    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.cpMap, stars ) );
-    if ( pStar1 )
-        return pStar1;
-    
-    id = SSGetIdentifier ( kCatGCVS, idents );
-    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.gcvsMap, stars ) );
-    if ( pStar1 )
-        return pStar1;
-
-    id = SSGetIdentifier ( kCatHIP, idents );
-    pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, maps.hipMap, stars ) );
-    if ( pStar1 )
-        return pStar1;
+    for ( auto it = maps.begin(); it != maps.end(); it++ )
+    {
+        SSCatalog cat = it->first;
+        SSIdentifier id = SSGetIdentifier ( cat, idents );
+        if ( ! id )
+            continue;
+        SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( id, it->second, stars ) );
+        if ( pStar1 )
+            return pStar1;
+    }
 
     return nullptr;
 }
@@ -73,73 +46,6 @@ SSStarPtr SSGetMatchingStar ( SSStarPtr pStar, SSObjectMaps &maps, SSObjectVec &
 {
     SSIdentifierVec idents = pStar->getIdentifiers();
     return SSGetMatchingStar ( idents, maps, stars );
-}
-
-// Searches for double star in double star HTM (wdsHTM)
-// within 1 arcminute of target coordinates (coords)
-// matching a component character A, B, C, D, etc. (comp)
-// with an angular separation in arcseconds (sep); will be ignored if zero.
-// If found, returns primary component character (prim), and
-// returns pointer to matching double star, or nullptr if none.
-
-SSDoubleStarPtr getWDStar ( SSHTM &wdsHTM, SSSpherical coords, char comp, char &prim, float sep )
-{
-    if ( comp < 'A' || comp > 'F' )
-       return nullptr;
-        
-    // Find all WDS stars whose primaries are within 1 arcminute of the target coordinates.
-    
-    vector<SSObjectPtr> results;
-    wdsHTM.search ( 0, coords, SSAngle::fromArcmin ( 1.0 ), results );
-    if ( results.size() < 1 )
-        return nullptr;
-    
-    for ( SSObjectPtr &pObj : results )
-    {
-        SSDoubleStarPtr pWDStar = SSGetDoubleStarPtr ( pObj );
-        if ( pWDStar == nullptr )
-            continue;
-        
-        // Reject binary orbits for unseen components like Aa, Bb, etc.
-        
-        string compsWD = pWDStar->getComponents();
-        if ( compsWD.length() < 2 || ( compsWD[1] >= 'a' && compsWD[1] <= 'z' ) )
-            continue;
-
-        // Reject orbit if separation is greater than twice the apastron.
-        
-        if ( pWDStar->hasOrbit() )
-        {
-            SSOrbit orbit = pWDStar->getOrbit();
-            if ( sep > 0.0 && sep > orbit.apoapse() * 2 )
-                continue;
-        }
-        else
-        {
-            if ( sep > 0.0 && SSAngle::fromArcsec ( sep ) > pWDStar->getSeparation() * 2 )
-                continue;
-        }
-        
-        // cout << pWDStar->toCSV() << endl;
-
-        // If component matches first char of WDS component string like AB, BC, CD, component is primary.
-        
-        if ( compsWD.length() == 2 && compsWD[0] == comp && compsWD[1] == compsWD[0] + 1 )
-        {
-            prim = comp;
-            return pWDStar;
-        }
-        
-        // If component matches last char of WDS component string, component is secondary.
-        
-        if ( compsWD.back() == comp )
-        {
-            prim = compsWD[0];
-            return pWDStar;
-        }
-    }
-    
-    return nullptr;
 }
 
 // Adds identifiers from other star catalog (stars) to a SKY2000 star (pStars).
@@ -350,12 +256,12 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
     if ( ! file )
         return 0;
 
-    // Make index of HD catalog numbers in the Hipparcos, GJ, GCVS star vectors.
+    // Make cross-indexes of identifiers in other star vectors.
     
     SSObjectMaps hipMaps, gjMaps, gcvsMaps;
-    SSMakeObjectMaps ( hipStars, hipMaps );
-    SSMakeObjectMaps ( gjStars, gjMaps );
-    SSMakeObjectMaps ( gcvsStars, gcvsMaps );
+    SSMakeObjectMaps ( hipStars, { kCatHD, kCatBD, kCatCD, kCatCP }, hipMaps );
+    SSMakeObjectMaps ( gjStars, { kCatHD, kCatBD, kCatCD, kCatCP }, gjMaps );
+    SSMakeObjectMaps ( gcvsStars, { kCatGCVS, kCatHD, kCatBD, kCatCD, kCatCP }, gcvsMaps );
     
     // Read file line-by-line until we reach end-of-file
 
@@ -549,9 +455,6 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
                 SSAddIdentifier ( SSIdentifier ( kCatHR, hr ), idents );
         }
 
-        if ( strHD == "156633" )
-            strHR = strHD;
-        
         // Get GCVS identifier string from SKY2000.
         
         SSIdentifier gcvsIdent = SSIdentifier::fromString ( strVar );
@@ -570,7 +473,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         char primComp = 0;
         SSDoubleStarPtr pWDStar = nullptr;
         if ( strDblComp.length() > 0 && wdsHTM.countRegions() > 0 )
-            pWDStar = getWDStar ( wdsHTM, SSSpherical ( ra, dec, 1.0 ), strDblComp[0], primComp, strtofloat ( strDblSep ) );
+            pWDStar = SSFindWDSStar ( wdsHTM, SSSpherical ( ra, dec, 1.0 ), strDblComp[0], primComp, strtofloat ( strDblSep ) );
         
         // Get name string(s) corresponding to identifier(s).
         // Construct star and insert into star vector.
@@ -618,11 +521,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
             
             if ( pGCVStar )
             {
-                pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
-                pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
-                pVar->setPeriod ( pGCVStar->getPeriod() );
-                pVar->setEpoch ( pGCVStar->getEpoch() );
-                pVar->setVariableType ( pGCVStar->getVariableType() );
+                SSCopyVariableStarData ( pGCVStar, pVar );
             }
             else
             {
@@ -657,20 +556,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
             
             if ( pWDStar )
             {
-                if ( pWDStar->hasOrbit() )
-                {
-                    char comp = strDblComp[0];
-                    pDbl->setOrbit ( pWDStar->getOrbit() );
-                    if ( comp == primComp )
-                        pDbl->setComponents ( pWDStar->getComponents() );
-                    else
-                        pDbl->setComponents ( string ( 1, comp ) + string ( 1, primComp ) );
-                }
-                
-                pDbl->setMagnitudeDelta ( pWDStar->getMagnitudeDelta() );
-                pDbl->setSeparation ( pWDStar->getSeparation() );
-                pDbl->setPositionAngle ( pWDStar->getPositionAngle() );
-                pDbl->setPositionAngleYear ( pWDStar->getPositionAngleYear() );
+                SSCopyDoubleStarData ( pWDStar, strDblComp[0], primComp, pDbl );
             }
             else
             {

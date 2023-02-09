@@ -246,3 +246,22 @@ int SSImportGCVS ( const string &filename, SSIdentifierMap &identmap, SSObjectAr
     
     return numStars;
 }
+
+// Copies variable star data from GCVS star (pWDStar) into target star (pStar).
+// Returns true if successful or false on failure.
+
+bool SSCopyVariableStarData ( SSVariableStarPtr pGCVStar, SSStarPtr pStar )
+{
+    SSVariableStarPtr pVar = SSGetVariableStarPtr ( pStar );
+    if ( pGCVStar && pVar )
+    {
+        pVar->setMinimumMagnitude ( pGCVStar->getMinimumMagnitude() );
+        pVar->setMaximumMagnitude ( pGCVStar->getMaximumMagnitude() );
+        pVar->setPeriod ( pGCVStar->getPeriod() );
+        pVar->setEpoch ( pGCVStar->getEpoch() );
+        pVar->setVariableType ( pGCVStar->getVariableType() );
+        return true;
+    }
+    return false;
+}
+

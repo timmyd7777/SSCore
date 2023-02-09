@@ -137,6 +137,7 @@ bool compareSSIdentifiers ( const SSIdentifier &id1, const SSIdentifier &id2 );
 SSIdentifier SSGetIdentifier ( SSCatalog cat, SSIdentifierVec &identVec );
 bool SSAddIdentifier ( SSIdentifier ident, vector<SSIdentifier> &identVec );
 int SSAddIdentifiers ( SSIdentifier ident, const SSIdentifierMap &map, SSIdentifierVec &idents );
+bool SSAddCommonName ( const string &name, vector<string> &names );
 
 string catalog_to_string ( SSCatalog cat );
 SSCatalog string_to_catalog ( string str );
