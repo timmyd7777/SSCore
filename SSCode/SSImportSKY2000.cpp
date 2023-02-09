@@ -546,7 +546,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         // Get GCVS identifier string from SKY2000.
         
         SSIdentifier gcvsIdent = SSIdentifier::fromString ( strVar );
-        if ( gcvsIdent )
+        if ( gcvsIdent.catalog() == kCatGCVS )
             SSAddIdentifier ( gcvsIdent, idents );
 
         // Look for a GCVS star with the same HD/BD/CD/CP/GCVS identifier as our SKY2000 star.

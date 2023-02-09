@@ -509,9 +509,6 @@ int SSImportHIP ( const string &filename, SSIdentifierMap &hrMap, SSIdentifierMa
         // Can we find a corresponding variable star in the GCVS star vector?
         // If yes, add it GCVS identifier; we'll add other variability data below.
         
-        if ( hip == 87937 )
-            hip = hip;
-        
         SSVariableStarPtr pGCVStar = SSGetVariableStarPtr ( SSGetMatchingStar ( idents, gcvsMaps, gcvsStars ) );
         if ( pGCVStar )
             SSAddIdentifier ( pGCVStar->getIdentifier ( kCatGCVS ), idents );
