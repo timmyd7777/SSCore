@@ -3,16 +3,18 @@ Star Data
 
 This directory contains essential data on the brightest and nearest stars in Southern Stars CSV format. These files exist primarily for testing SSCore import/export functionality, but may be generally useful in their own right.
 
-Even in this day and age of multi-billion-star catalogs (e.g. GAIA) it's still useful to have all the most pertinent data gathered in one place, and GAIA is missing several thousand of the brightest stars in the sky.
+Even in this day and age of multi-billion-star catalogs (e.g. GAIA) it's still useful to have all the most pertinent data gathered in one place, and GAIA is missing several hundred of the brightest stars in the sky.
 
 You may use this data free of charge for any purpose as you see fit.  If it's helpful to you, drop me a note!
+
+We've been exceedingly careful to generate these data files from the latest and most accurate sources. If you find errors, please let us know.
 
 _Tim DeBenedictis (timd@southernstars.com), 6 Apr 2020_
 
 Brightest.csv
 -----------
 
-This bright star catalog was extracted from NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated with data from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239) and the Gliese-Jahreiss [Catalog of Nearby Stars, 3rd Edition](ftp://cdsarc.u-strasbg.fr/cats/V/70A/) (CNS3). It contains all 9092 stars from SKY2000 with HR (Harvard Revised = Bright Star) catalog numbers.
+This bright star catalog was extracted from NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated with data from the [GAIA DR3](https://www.cosmos.esa.int/web/gaia/dr3), [Tycho-2](https://www.cosmos.esa.int/web/hipparcos/tycho-2), [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239), [] and the Gliese-Jahreiss [Catalog of Nearby Stars, 3rd Edition](ftp://cdsarc.u-strasbg.fr/cats/V/70A/) (CNS3). It contains all 9092 stars from SKY2000 with HR (Harvard Revised = Bright Star) catalog numbers.
 
 Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm).
 
@@ -54,9 +56,10 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year, T
 - **_Ident1, Ident2, etc._** are catalog identifiers in preferred order: Bayer, Flamsteed, GCVS, HR, HD, SAO, BD, CD, CP, WDS
 - **_Common1, Common2, etc._** are star common names.
 
-Fields **_[Comp ... P]_** are only present for star types DS and DV.  
-Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV.  
-Empty fields indicate unknown or missing values.
+Fields **_[Comp ... P]_** are only present for star types DS and DV. 
+Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV. 
+
+Empty fields indicate unknown or missing values. 
 
 For binary stars with orbits, the **_Comp_** field contains two characters: first this component's identifier, then the other component's identifier.  So, "AB" means "this component is A, and the other component in the binary pair is B", and "DC" means "this component is D, and the other component in the binary pair is C". This convention resolves ambiguities in the original binary star orbit catalog, which contains orbits for pairs ("AB", "CD", "AB,C") rather than individual components ("A", "B", "C", "D", etc.)
 
@@ -66,15 +69,16 @@ For binary stars with orbits, the **_Comp_** field contains two characters: firs
 - Version 1.1 (30 Mar 2020): corrected erroneous proper motions for open clusters with RV.
 - Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 - Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS, a few nearby star proper names.
+- Version 3.0 (9 Feb 2023): Added identifiers, positions, motions, and distances fom GAIA DR3.
 
 Nearest.csv
 -----------
 
-This list of the 160 nearest stars is primarily based on data from [RECONS](http://www.recons.org/TOP100.posted.htm). Wherever possible, accurate coordinates and proper motion are from [Accurate Coordinates for Gliese Catalog Stars](https://cdsarc.unistra.fr/ftp/J/PASP/122/885). Johnson B (blue) magnitudes and radial velocities are preferentially from [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239), the [Hipparcos Input Catalog](https://cdsarc.unistra.fr/ftp/I/196), or the Gliese [Catalog of Nearby Stars](ftp://cdsarc.u-strasbg.fr/cats/V/70A/).
+This list of the 377 nearest stars is primarily based on data from [The 10-parsec Sample in the GAIA Era](https://gruze.org/10pc_v2/), version 2. It includes all known stars closer than 10 parsecs; brown dwarfs and exoplanets are not included. 
 
-Identifiers and common names are from RECONS and cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley, and NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145). Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm).
+Missing names, identifiers, and magnitudes were added from the [RECONS](http://www.recons.org/TOP100.posted.htm) list of 160 nearest stars, cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley, and NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145). Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm). 
 
-The column format is identical to that of **Stars.csv**, above. The preferred order for the catalog identifiers and names is: Bayer or GCVS, Flamsteed, GJ, HD, DM, HIP, then common names.
+The column format is identical to that of **Stars.csv**, above. The preferred order for the catalog identifiers and names is: Bayer or GCVS, Flamsteed, GJ, HD, DM, HIP, then common names. 
 
 **Revision History**
 
@@ -83,6 +87,7 @@ The column format is identical to that of **Stars.csv**, above. The preferred or
 - Version 1.3 (3 Apr 2021): Fixed bad data for Sigma Dra, e Eri, and HIP 113020.
 - Version 1.4 (11 Apr 2021): Added names for Luyten 726-8 A & B, moved many names in the GJ column to the name column.
 - Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS. Fixed a few common names assigned to the wrong stars.
+- Version 3.0 (9 Feb 2023): Complete rework based on the 10-parsec sample described above.
 
 Names.csv
 ---------
