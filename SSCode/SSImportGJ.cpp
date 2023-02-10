@@ -477,7 +477,7 @@ static void add_name ( string &field, bool allowIdents, vector<SSIdentifier> &id
 // Double star information is inserted from the HTM of WDS stars (wdsHTM).
 // Returns the total number of stars imported (should be 380 if successful).
 
-int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars )
+int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames, SSObjectVec &cns3Stars, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -487,9 +487,10 @@ int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames,
 
     // Make cross-index of identifiers in other star star vectors.
     
-    SSObjectMaps gcvsMaps, skyMaps;
+    SSObjectMaps gcvsMaps, skyMaps, cns3Maps;
     SSMakeObjectMaps ( gcvsStars, { kCatGJ }, gcvsMaps );
     SSMakeObjectMaps ( skyStars, { kCatGJ, kCatGAIA }, skyMaps );
+    SSMakeObjectMaps ( cns3Stars, { kCatGJ }, cns3Maps );
 
     // Read file line-by-line until we reach end-of-file
 
@@ -592,6 +593,26 @@ int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames,
         vector<string> commonNames = SSIdentifiersToNames ( idents, starNames );
         names.insert ( names.end(), commonNames.begin(), commonNames.end() );
 
+        // Look for a matching CNS3 star with the same GJ identifier.
+        // If we find one, add its L, LP, G identifiers; V and B magnitudes,
+        // radial velocity, and spectral type (if missing from the 10pc sample star).
+        
+        SSStarPtr pCNS3Star = SSGetMatchingStar ( idents, cns3Maps, cns3Stars );
+        if ( pCNS3Star )
+        {
+            SSAddIdentifier ( pCNS3Star->getIdentifier ( kCatGiclas ), idents );
+            SSAddIdentifier ( pCNS3Star->getIdentifier ( kCatLuyten ), idents );
+            SSAddIdentifier ( pCNS3Star->getIdentifier ( kCatLP ), idents );
+            if ( isinf ( vmag ) )
+                vmag = pCNS3Star->getVMagnitude();
+            if ( isinf ( bmag ) )
+                bmag = pCNS3Star->getBMagnitude();
+            if ( isinf ( rv ) )
+                rv = pCNS3Star->getRadVel();
+            if ( sp_type.empty() )
+                sp_type = pCNS3Star->getSpectralType();
+         }
+        
         // Look for a matching SKY2000/HIP/TYC star with the same HD/GJ/HIP identifier as our 10pcSample star.
         // If we find one, add the other star's Bayer, Flamsteed, HR, TYC identifiers to the 10pcSample star identifiers.
         
