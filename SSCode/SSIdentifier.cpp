@@ -30,6 +30,10 @@ static map<SSCatalog,string> _catNameMap =
     { kCatHIP, "HIP" },
     { kCatTYC, "TYC" },
     { kCatGAIA, "GAIA" },
+    { kCat2MASS, "2MASS" },
+    { kCatGiclas, "G" },
+    { kCatLuyten, "L" },
+    { kCatLP, "LP" },
     { kCatWDS, "WDS" },
     { kCatMessier, "M" },
     { kCatCaldwell, "C" },
@@ -65,6 +69,10 @@ static map<string,SSCatalog> _nameCatMap =
     { "HIP", kCatHIP },
     { "TYC", kCatTYC },
     { "GAIA", kCatGAIA },
+    { "2MASS", kCat2MASS },
+    { "G", kCatGiclas },
+    { "L", kCatLuyten },
+    { "LP", kCatLP },
     { "WDS", kCatWDS },
     { "M", kCatMessier },
     { "C", kCatCaldwell },
@@ -404,6 +412,26 @@ uint64_t string_to_gj ( string str )
         return 0;
     else
         return 10 * d + c;
+}
+
+string glp_to_string ( uint64_t glp )
+{
+    uint64_t r = glp / 1000;
+    uint64_t n = ( glp - r * 1000 );
+    
+    return format ( "%d-%d", (int) r, (int) n );
+}
+
+uint64_t string_to_glp ( string str )
+{
+    char    sign = 0;
+    int     r = 0, n = 0;
+    
+    sscanf ( str.c_str(), "%d%c%d", &r, &sign, &n );
+    if ( r > 0 && r < 1000 & n > 0 && n < 1000 )
+        return r * 1000 + n;
+    else
+        return 0;
 }
 
 uint64_t string_to_wds ( string str )
@@ -778,6 +806,33 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
             return SSIdentifier ( kCatGJ, gj );
     }
 
+    // if string begins with "G", attempt to parse a Giclas catalog identifier
+    
+    if ( compare ( str, "G", 1, casesens ) == 0 && len > 3 )
+    {
+        uint64_t glp = string_to_glp ( str.substr ( 1, len - 1 ) );
+        if ( glp )
+            return SSIdentifier ( kCatGiclas, glp );
+    }
+
+    // if string begins with "LP", attempt to parse a Luyten-Palomar catalog identifier
+    
+    if ( compare ( str, "LP", 2, casesens ) == 0 && len > 3 )
+    {
+        uint64_t glp = string_to_glp ( str.substr ( 2, len - 2 ) );
+        if ( glp )
+            return SSIdentifier ( kCatLP, glp );
+    }
+
+    // if string begins with "L", attempt to parse a Luyten catalog identifier
+    
+    if ( compare ( str, "L", 1, casesens ) == 0 && len > 3 )
+    {
+        uint64_t glp = string_to_glp ( str.substr ( 1, len - 1 ) );
+        if ( glp )
+            return SSIdentifier ( kCatLuyten, glp );
+    }
+
     // Tokenize string into words separated by whitespace.
     // if last token is a constellation abbrevation,
     // attempt to parse Bayer/Flamsteed/GCVS identifier.
@@ -946,6 +1001,18 @@ string SSIdentifier::toString ( void )
     else if ( cat == kCatGJ )
     {
         str = "GJ " + gj_to_string ( id );
+    }
+    else if ( cat == kCatGiclas )
+    {
+        str = "G " + glp_to_string ( id );
+    }
+    else if ( cat == kCatLuyten )
+    {
+        str = "L " + glp_to_string ( id );
+    }
+    else if ( cat == kCatLP )
+    {
+        str = "LP " + glp_to_string ( id );
     }
     else if ( cat == kCatMessier )
     {

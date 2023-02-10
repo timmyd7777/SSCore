@@ -545,6 +545,8 @@ bool SSCopyDoubleStarData ( SSDoubleStarPtr pWDStar, char comp, char primComp, S
     pDbl->setSeparation ( pWDStar->getSeparation() );
     pDbl->setPositionAngle ( pWDStar->getPositionAngle() );
     pDbl->setPositionAngleYear ( pWDStar->getPositionAngleYear() );
+    pDbl->addIdentifier ( pWDStar->getIdentifier ( kCatWDS ) );
+    pDbl->sortIdentifiers();
     return true;
 }
 

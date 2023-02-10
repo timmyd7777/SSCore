@@ -307,28 +307,24 @@ int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &st
         if ( strTYC1.length() > 0 && strTYC1[0] == 'T' )
             tyc1 = true;
         
-        // If this is a Tycho-1 star, find corresponding Tycho-1 star.
-        // Copy position, motion, magnitudes from Tycho-2.
-        // If this is a Hipparcos star, don't overwite Hipparcos star data.
+        // If this is a Hipparcos or Tycho-1 star, find corresponding Tycho-1 star.
+        // Copy position, motion, magnitudes from Tycho-2, but don't overwite Hipparcos star data.
 
-        if ( tyc && tyc1 )
+        if ( hip || ( tyc && tyc1 ) )
         {
             SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( tyc, tycMap, stars ) );
-            if ( pStar1 )
+            if ( pStar1 && ! hip )
             {
-                if ( ! hip )
-                {
-                    float plx = pStar1->getParallax();
-                    if ( plx > 0.0 )
-                        position.rad = SSCoordinates::kLYPerParsec / plx;
-                    
-                    pStar1->setFundamentalMotion ( position, velocity );
-                    pStar1->setVMagnitude ( vmag );
-                    pStar1->setBMagnitude ( bmag );
-                }
-                numStars++;
-                continue;
+                float plx = pStar1->getParallax();
+                if ( plx > 0.0 )
+                    position.rad = SSCoordinates::kLYPerParsec / plx;
+                
+                pStar1->setFundamentalMotion ( position, velocity );
+                pStar1->setVMagnitude ( vmag );
+                pStar1->setBMagnitude ( bmag );
             }
+            numStars++;
+            continue;
         }
         
         // Otherwise, add a new Tycho-2 star to the Tycho star vector

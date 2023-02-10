@@ -457,12 +457,13 @@ static void add_name ( string &field, bool allowIdents, vector<SSIdentifier> &id
 // https://gruze.org/10pc_v2/The10pcSample_v2.csv
 // Imported stars are stored in the provided vector of SSObjects (stars).
 // All stars are imported (no planets or brown dwarfs).
+// Additional names are inserted from the vector of nearby star names (starNames)
 // Additional identifiers are inserted from the vector of SKY2000/HIP/TYC stars (skyStars).
 // Variable star information is inserted from the vector of GCVS stars (gcvsStars).
 // Double star information is inserted from the HTM of WDS stars (wdsHTM).
 // Returns the total number of stars imported (should be 380 if successful).
 
-int SSImport10pcSample ( const string &filename, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars )
+int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -544,7 +545,7 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &skyStars, SSObject
         
         vector<string> names;
         vector<SSIdentifier> idents;
-        bool allowIdents = false;
+        bool allowIdents = true;
         
         string sys_name = strip_component ( fields[2] );
         add_name ( sys_name, allowIdents, idents, names );
@@ -572,15 +573,24 @@ int SSImport10pcSample ( const string &filename, SSObjectVec &skyStars, SSObject
         if ( startsWith ( fields[43], "HIP" ) )
             SSAddIdentifier ( SSIdentifier::fromString ( fields[43] ), idents );
 
+        // Finally add common names to individual stars
+        
+        vector<string> commonNames = SSIdentifiersToNames ( idents, starNames );
+        names.insert ( names.end(), commonNames.begin(), commonNames.end() );
+
         // Look for a matching SKY2000/HIP/TYC star with the same HD/GJ/HIP identifier as our 10pcSample star.
-        // If we find one, add the other star's identifier to the 10pcSample star identifiers.
+        // If we find one, add the other star's Bayer, Flamsteed, HR, TYC identifiers to the 10pcSample star identifiers.
         
         SSStarPtr pSkyStar = SSGetMatchingStar ( idents, skyMaps, skyStars );
         if ( pSkyStar )
         {
-            vector<SSIdentifier> skyIdents = pSkyStar->getIdentifiers();
-            for ( SSIdentifier &ident : skyIdents )
-                SSAddIdentifier ( ident, idents );
+            SSAddIdentifier ( pSkyStar->getIdentifier ( kCatBayer ), idents );
+            SSAddIdentifier ( pSkyStar->getIdentifier ( kCatFlamsteed ), idents );
+            SSAddIdentifier ( pSkyStar->getIdentifier ( kCatHR ), idents );
+            SSAddIdentifier ( pSkyStar->getIdentifier ( kCatBD ), idents );
+            SSAddIdentifier ( pSkyStar->getIdentifier ( kCatCD ), idents );
+            SSAddIdentifier ( pSkyStar->getIdentifier ( kCatCP ), idents );
+            SSAddIdentifier ( pSkyStar->getIdentifier ( kCatTYC ), idents );
         }
         
         // Look for a GCVS star with the same HD/GJ/HIP identifier as our 10pcSample star.

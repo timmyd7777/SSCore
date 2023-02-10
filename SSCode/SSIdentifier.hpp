@@ -68,6 +68,10 @@ enum SSCatalog
     kCatHIP = 21,           // Hipparcos star catalog
     kCatTYC = 22,           // Tycho and Tycho II star catalogs
     kCatGAIA = 23,          // GAIA star catalog
+    kCat2MASS = 24,         // Two-Micron All Sky Survey catalog
+    kCatGiclas = 25,        // Giclas catalog numbers
+    kCatLuyten = 26,        // Luyten catalog numbers
+    kCatLP = 27,            // Luyten-Palomar catalog numbers
     
     kCatMessier = 30,       // Messier deep sky objects
     kCatCaldwell = 31,      // Caldwell deep sky objects

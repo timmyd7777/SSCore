@@ -14,6 +14,7 @@
 int SSImportGJCNS3 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &acStars, SSObjectVec &gjStars );
 int SSImportGJAC ( const string &filename, SSObjectVec &hipStars, SSObjectVec &acStars );
 
-int SSImport10pcSample ( const string &filename, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars );
+int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars );
+int SSMergeNearbyStars ( SSObjectVec &skyStars, SSObjectVec &nearStars );
 
 #endif /* SSImportGJ_hpp */

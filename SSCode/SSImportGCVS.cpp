@@ -260,6 +260,8 @@ bool SSCopyVariableStarData ( SSVariableStarPtr pGCVStar, SSStarPtr pStar )
         pVar->setPeriod ( pGCVStar->getPeriod() );
         pVar->setEpoch ( pGCVStar->getEpoch() );
         pVar->setVariableType ( pGCVStar->getVariableType() );
+        pVar->addIdentifier ( pGCVStar->getIdentifier ( kCatGCVS ) );
+        pVar->sortIdentifiers();
         return true;
     }
     return false;

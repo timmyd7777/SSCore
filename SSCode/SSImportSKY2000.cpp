@@ -624,3 +624,27 @@ int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
     return (int) skyStars.size();
 }
 
+// Merges SKY2000/HIP/TYC stars (skyStars) and nearby stars vector (nearStars), avoiding duplicates.
+// On input, nearStars contains all stars closer than 10 parsecs; skyStars contains all stars.
+// On return, skyStars will be empty, and nearStars will contain merged catalog with other stars appended.
+// Returns total number of stars in merged catalog.
+
+int SSMergeNearbyStars ( SSObjectVec &skyStars, SSObjectVec &nearStars )
+{
+    SSObjectMaps nearMaps;
+    SSMakeObjectMaps ( nearStars, { kCatGJ, kCatHIP, kCatHD, kCatTYC, kCatGAIA }, nearMaps );
+    
+    for ( int i = 0; i < skyStars.size(); i++ )
+    {
+        SSStarPtr pSkyStar = SSGetStarPtr ( skyStars.get ( i ) );
+        SSStarPtr pNearStar = SSGetMatchingStar ( pSkyStar, nearMaps, nearStars );
+        if ( pNearStar == nullptr )
+        {
+            nearStars.append ( pSkyStar );
+            skyStars.set ( i, nullptr );
+        }
+    }
+    
+    skyStars.erase();
+    return (int) nearStars.size();
+}
