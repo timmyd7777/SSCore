@@ -106,12 +106,13 @@ int SSImportGJCNS3 ( const string &filename, SSIdentifierNameMap &nameMap, SSObj
         // and treating all identifiers as GJ numbers.
         
         string strGJ = trim ( line.substr ( 2, 6 ) );
-         string comps = trim ( line.substr ( 8, 2 ) );
+        string comps = trim ( line.substr ( 8, 2 ) );
 
-        // Get Identifier, HD, DM catalog numbers.
+        // Get Identifier, HD, DM, Giclas catalog numbers.
 
         string strHD = len < 153 ? "" : trim ( line.substr ( 146, 6 ) );
         string strDM = len < 165 ? "" : trim ( line.substr ( 153, 12 ) );
+        string strG  = len < 175 ? "" : trim ( line.substr ( 166, 9 ) );
 
         // Extract RA and Dec. If either are blank, skip this line.
         
@@ -197,6 +198,9 @@ int SSImportGJCNS3 ( const string &filename, SSIdentifierNameMap &nameMap, SSObj
         if ( ! strDM.empty() )
             SSAddIdentifier ( SSIdentifier::fromString ( strDM ), idents );
 
+        if ( ! strG.empty() )
+            SSAddIdentifier ( SSIdentifier::fromString ( strG ), idents );
+
         // Attempt to parse variable-star designation.  Avoid strings that start with
         // "MU", "NU"; these are just capitalized Bayer letters, not legit GCVS idents.
         
@@ -210,6 +214,16 @@ int SSImportGJCNS3 ( const string &filename, SSIdentifierNameMap &nameMap, SSObj
             SSCatalog cat = ident.catalog();
             if ( cat == kCatGCVS )
                 SSAddIdentifier ( ident, idents );
+            
+            // Add Luyten and Luyten-Palomar identifiers if present.
+            
+            size_t pos = strName.find ( "L " );
+            if ( pos != string::npos )
+                SSAddIdentifier ( SSIdentifier::fromString ( strName.substr ( pos, string::npos ) ), idents );
+
+            pos = strName.find ( "LP " );
+            if ( pos != string::npos )
+                SSAddIdentifier ( SSIdentifier::fromString ( strName.substr ( pos, string::npos ) ), idents );
         }
         
         // Construct star and insert components into star vector.

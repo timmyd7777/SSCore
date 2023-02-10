@@ -428,7 +428,7 @@ uint64_t string_to_glp ( string str )
     int     r = 0, n = 0;
     
     sscanf ( str.c_str(), "%d%c%d", &r, &sign, &n );
-    if ( r > 0 && r < 1000 & n > 0 && n < 1000 )
+    if ( r > 0 && r < 10000 & n > 0 && n < 1000 )
         return r * 1000 + n;
     else
         return 0;
