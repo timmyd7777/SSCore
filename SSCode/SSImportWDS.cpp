@@ -413,47 +413,31 @@ int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObj
 }
 
 // Imports ORB6 catalog to Heirarchal Triangular Mesh (htm) instead of SSObjectArray.
-// Returns number of ORB6 stars stored in HTM.
+// Returns number of ORB6 stars stored in HTM. On return, stars vector will be empty.
 
-int SSImportORB6toHTM ( const string &filename, const SSIdentifierMap &identMap, SSHTM &htm )
+int SSImportORB6toHTM ( SSObjectArray &stars, SSHTM &htm )
 {
-    SSObjectArray stars;
-    int n = SSImportORB6 ( filename, identMap, stars );
+    vector<float> magLevels = { INFINITY };
+    htm = SSHTM ( magLevels, "" );
+    int n = htm.store ( stars );
     if ( n > 0 )
-    {
-        vector<float> magLevels = { INFINITY };
-        htm = SSHTM ( magLevels, "" );
-        n = htm.store ( stars );
-        if ( n > 0 )
-        {
-            stars.clear();
-            return n;
-        }
-    }
+        stars.clear();
 
-    return 0;
+    return n;
 }
 
 // Imports WDS catalog to Heirarchal Triangular Mesh (htm) instead of SSObjectArray.
-// Returns number of WDS stars stored in HTM.
+// Returns number of WDS stars stored in HTM. On return, stars vector will be empty.
 
-int SSImportWDStoHTM ( const string &filename, const SSIdentifierMap &identmap, SSHTM &htm )
+int SSImportWDStoHTM ( SSObjectArray &stars, SSHTM &htm )
 {
-    SSObjectArray stars;
-    int n = SSImportWDS ( filename, identmap, stars );
+    vector<float> magLevels = { 6.0, 7.2, 8.4, INFINITY };
+    htm = SSHTM ( magLevels, "" );
+    int n = htm.store ( stars );
     if ( n > 0 )
-    {
-        vector<float> magLevels = { 6.0, 7.2, 8.4, INFINITY };
-        htm = SSHTM ( magLevels, "" );
-        n = htm.store ( stars );
-        if ( n > 0 )
-        {
-            stars.clear();
-            return n;
-        }
-    }
+        stars.clear();
 
-    return 0;
+    return n;
 }
 
 // Searches for double star in double star HTM (wdsHTM)
