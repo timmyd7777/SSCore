@@ -90,15 +90,22 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMaps &maps, SSStarPtr pSky
     if ( ! pSkyStar->getNames().size() && gjIdent && pStar->getNames().size() )
         pSkyStar->setNames ( pStar->getNames() );
     
+    // Copy parallax, proper motion, and radial velocity from GAIA to SKY2000 star, if present in GAIA.
+    // But keep SKY2000 positions.
+    
     if ( gaiIdent )
     {
-        SSSpherical coords = pStar->getFundamentalCoords();
-        if ( ::isinf ( coords.rad ) )
-            coords.rad = SSCoordinates::kLYPerParsec / pSkyStar->getParallax();
-        SSSpherical motion = pStar->getFundamentalMotion();
-        if ( ::isinf ( motion.rad ) )
-            motion.rad = pStar->getRadVel();
-        pSkyStar->setFundamentalMotion ( coords, motion );
+        float plx = pStar->getParallax();
+        if ( plx > 0.0 )
+            pSkyStar->setParallax ( plx );
+
+        SSVector vel = pStar->getFundamentalVelocity();
+        if ( ! vel.isinf() )
+            pSkyStar->setFundamentalVelocity ( vel );
+        
+        float rv = pStar->getRadVel();
+        if ( ! ::isinf ( rv ) )
+            pSkyStar->setRadVel ( rv );
     }
 }
 

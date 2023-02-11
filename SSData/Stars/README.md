@@ -70,13 +70,14 @@ For binary stars with orbits, the **_Comp_** field contains two characters: firs
 - Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 - Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS, a few nearby star proper names.
 - Version 3.0 (9 Feb 2023): Added identifiers, positions, motions, and distances fom GAIA DR3.
+- Version 3.1 (11 Feb 2023): Keep original SKY2000 positions to preserve double stars. Use identifiers, motions, radial velocities, and parallaxes fom GAIA DR3.
 
 Nearest.csv
 -----------
 
-This list of the 377 nearest stars is primarily based on data from [The 10-parsec Sample in the GAIA Era](https://gruze.org/10pc_v2/), version 2. It includes all known stars closer than 10 parsecs; brown dwarfs and exoplanets are not included. 
+This list of the 377 nearest stars is primarily based on data from [The 10-parsec Sample in the GAIA Era](https://gruze.org/10pc_v2/), version 2. It includes all known stars closer than 10 parsecs; brown dwarfs and exoplanets are not included. Three problematic stars (41 Ara Bb, Xi UMa Ab, Xi UMa Bb) were removed from the original 10-pc sample, which contains 380 stars. 
 
-Missing names, identifiers, and magnitudes were added from the [RECONS](http://www.recons.org/TOP100.posted.htm) list of 160 nearest stars, cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley, and NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145). Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm). 
+Missing names, identifiers, and magnitudes were added from the [Gliese-Jahreiss Catalog of Nearby Stars](https://heasarc.gsfc.nasa.gov/W3Browse/star-catalog/cns3.html) 3rd Edition, the [RECONS](http://www.recons.org/TOP100.posted.htm) list of 160 nearest stars, cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley, and NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145). Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Double star identifiers and data were added from the [Washington Double Star Catalog](http://www.astro.gsu.edu/wds/). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm). 
 
 The column format is identical to that of **Stars.csv**, above. The preferred order for the catalog identifiers and names is: Bayer or GCVS, Flamsteed, GJ, HD, DM, HIP, then common names. 
 
@@ -88,6 +89,7 @@ The column format is identical to that of **Stars.csv**, above. The preferred or
 - Version 1.4 (11 Apr 2021): Added names for Luyten 726-8 A & B, moved many names in the GJ column to the name column.
 - Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS. Fixed a few common names assigned to the wrong stars.
 - Version 3.0 (9 Feb 2023): Complete rework based on the 10-parsec sample described above.
+- Version 3.1 (11 Feb 2023): Add missing Giclas (G), Luyten (L), Luyten-Palomar (LP) identifiers and B, V magnitudes from CNS3. Add WDS identifiers.
 
 Names.csv
 ---------

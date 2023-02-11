@@ -53,6 +53,8 @@ public:
     void setFundamentalVelocity ( SSVector vel ) { _velocity = vel; }
     void setFundamentalCoords ( SSSpherical coords );
     void setFundamentalMotion ( SSSpherical coords, SSSpherical motion );
+    void setParallax ( float plx ) { _parallax = plx; }
+    void setRadVel ( float rv ) { _radvel = rv; }
     void setVMagnitude ( float vmag ) { _Vmag = vmag; }
     void setBMagnitude ( float bmag ) { _Bmag = bmag; }
     void setSpectralType ( const string &spectrum ) { _spectrum = spectrum; }
