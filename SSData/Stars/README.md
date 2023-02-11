@@ -14,7 +14,7 @@ _Tim DeBenedictis (timd@southernstars.com), 6 Apr 2020_
 Brightest.csv
 -----------
 
-This bright star catalog was extracted from NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated with data from the [GAIA DR3](https://www.cosmos.esa.int/web/gaia/dr3), [Tycho-2](https://www.cosmos.esa.int/web/hipparcos/tycho-2), [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239), [] and the Gliese-Jahreiss [Catalog of Nearby Stars, 3rd Edition](ftp://cdsarc.u-strasbg.fr/cats/V/70A/) (CNS3). It contains all 9092 stars from SKY2000 with HR (Harvard Revised = Bright Star) catalog numbers.
+This bright star catalog was extracted from NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated with data from the [GAIA DR3](https://www.cosmos.esa.int/web/gaia/dr3), [Tycho-2](https://www.cosmos.esa.int/web/hipparcos/tycho-2), [Hipparcos](https://cdsarc.unistra.fr/ftp/I/239), and the Gliese-Jahreiss [Catalog of Nearby Stars, 3rd Edition](ftp://cdsarc.u-strasbg.fr/cats/V/70A/) (CNS3). It contains all 9092 stars from SKY2000 with HR (Harvard Revised = Bright Star) catalog numbers.
 
 Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm).
 
