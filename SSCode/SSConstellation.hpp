@@ -70,6 +70,7 @@ SSConstellationPtr SSGetConstellationPtr ( SSObjectPtr ptr );
 
 // Imports constellations, boundaries, shapes from CSV-format text files into vector of SSObjectPtr.
 
+int SSImportConstellations ( const string &filename );
 int SSImportConstellations ( const string &filename, SSObjectVec &constellations );
 int SSImportConstellationBoundaries ( const string &filename, SSObjectVec &constellations );
 int SSImportConstellationShapes ( const string &filename, SSObjectVec &constellations );

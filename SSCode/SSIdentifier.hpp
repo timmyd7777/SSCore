@@ -146,7 +146,8 @@ bool SSAddCommonName ( const string &name, vector<string> &names );
 string catalog_to_string ( SSCatalog cat );
 SSCatalog string_to_catalog ( string str );
 
-string con_to_string ( int con );
 string bayer_to_string ( uint64_t bay );
+string con_to_string ( int con );
+int string_to_con ( const string &str, bool casesens );
 
 #endif /* SSIdentifier_hpp */

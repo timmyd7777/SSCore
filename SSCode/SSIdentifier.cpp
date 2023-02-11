@@ -10,6 +10,7 @@
 
 #include "SSAngle.hpp"
 #include "SSIdentifier.hpp"
+#include "SSConstellation.hpp"
 
 static map<SSCatalog,string> _catNameMap =
 {
@@ -127,7 +128,7 @@ static vector<string> _bayvec =
     "omega",
 };
 
-static vector<string> _convec =
+vector<string> _convec =
 {
     "And", "Ant", "Aps", "Aqr", "Aql", "Ara", "Ari", "Aur",
     "Boo", "Cae", "Cam", "Cnc", "CVn", "CMa", "CMi", "Cap",
@@ -142,8 +143,9 @@ static vector<string> _convec =
     "TrA", "Tuc", "UMa", "UMi", "Vel", "Vir", "Vol", "Vul"
 };
 
-static map<string,int> _conmap;
+map<string,int> _conmap;
 static map<string,int> _baymap;
+extern SSObjectVec _constellationVec;
 
 static void mapinit ( void )
 {
@@ -159,7 +161,7 @@ string con_to_string ( int con )
     return con > 0 && con < _convec.size() ? _convec[con - 1] : "";
 }
 
-static int string_to_con ( const string &str, bool casesens = true )
+int string_to_con ( const string &str, bool casesens )
 {
     if ( _conmap.size() == 0 )
         mapinit();
@@ -171,6 +173,20 @@ static int string_to_con ( const string &str, bool casesens = true )
         if ( compare ( _convec[i], str, 0, casesens ) == 0 )
             return i + 1;
     
+    // If string contains at least 3 characters, test against abbreviation, name, genitive
+    // for all constellations previously loaded by SSImportConstellations()
+    
+    size_t len = str.length();
+    for ( int i = 0; len >= 3 && i < _constellationVec.size(); i++ )
+    {
+        SSConstellationPtr pCon = SSGetConstellationPtr ( _constellationVec.get ( i ) );
+        if ( pCon == nullptr )
+            continue;
+        
+        for ( int n = 0; n < 3; n++ )
+            if ( compare ( str, pCon->getName ( n ), len, casesens ) == 0 )
+                return i + 1;
+    }
     return 0;
 }
 
