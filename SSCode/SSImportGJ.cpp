@@ -477,7 +477,7 @@ static void add_name ( string &field, bool allowIdents, vector<SSIdentifier> &id
 // Double star information is inserted from the HTM of WDS stars (wdsHTM).
 // Returns the total number of stars imported (should be 380 if successful).
 
-int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames, SSObjectVec &cns3Stars, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars )
+int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames, SSObjectVec &cns3Stars, SSObjectVec &skyStars, SSObjectVec &gcvsStars, SSHTM &orbHTM, SSHTM &wdsHTM, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -636,13 +636,16 @@ int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames,
             SSAddIdentifier ( pGCVStar->getIdentifier ( kCatGCVS ), idents );
 
         // If this star has a double star component string, look for a matching WDS star and get its primary component.
+        // First search the ORB6 binary orbit stars; if that fails, search the larger WDS catalog.
         
         char comp = fields[41].back();
         if ( comp < 'A' || comp > 'D' )
             comp = 0;
         char primComp = 0;
         SSDoubleStarPtr pWDStar = nullptr;
-        if ( comp > 0 && wdsHTM.countRegions() > 0 )
+        if ( comp > 0 && orbHTM.countRegions() > 0 )
+            pWDStar = SSFindWDSStar ( orbHTM, coords.normalize(), comp, primComp, 0.0 );
+        if ( pWDStar == nullptr && comp > 0 && wdsHTM.countRegions() > 0 )
             pWDStar = SSFindWDSStar ( wdsHTM, coords.normalize(), comp, primComp, 0.0 );
 
         // Sert identifier vector.  Determine object type.

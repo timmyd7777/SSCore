@@ -13,9 +13,9 @@
 #include "SSHTM.hpp"
 #include "SSStar.hpp"
 
-int SSImportORB6  ( const string &filename, SSObjectArray &stars );
+int SSImportORB6  ( const string &filename, const SSIdentifierMap &identmap, SSObjectArray &stars );
 int SSImportWDS  ( const string &filename, const SSIdentifierMap &identmap, SSObjectArray &stars );
-int SSImportORB6toHTM  ( const string &filename, SSHTM &htm );
+int SSImportORB6toHTM  ( const string &filename, const SSIdentifierMap &identmap, SSHTM &htm );
 int SSImportWDStoHTM ( const string &filename, const SSIdentifierMap &identmap, SSHTM &htm );
 int SSImportWDSHIPCrossIndex ( const string &filename, SSIdentifierMap &identmap );
 int SSImportWDSBFCrossIndex ( const string &filename, SSIdentifierMap &identmap );

@@ -13,10 +13,11 @@
 
 // Imports the Sixth Catalog of Orbits of Visual Binary Stars
 // (orb6orbits.txt) from http://www.astro.gsu.edu/wds/orb6/
+// Adds Bayer, Flamsteed, identifiers from cross index (identmap).
 // Stores results in vector of SSObjects (stars).
 // Returns number of objects imported.
 
-int SSImportORB6 ( const string &filename, SSObjectArray &stars )
+int SSImportORB6 ( const string &filename, const SSIdentifierMap &identMap, SSObjectArray &stars )
 {
     // Open file; return on failure.
 
@@ -138,6 +139,7 @@ int SSImportORB6 ( const string &filename, SSObjectArray &stars )
         if ( strWDS[0] != '.' )
             idents.push_back ( SSIdentifier::fromString ( "WDS " + strWDS ) );
 
+        SSAddIdentifiers ( SSGetIdentifier ( kCatWDS, idents ), identMap, idents );
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
 
         // Construct star and insert into star vector.
@@ -413,10 +415,10 @@ int SSImportWDS ( const string &filename, const SSIdentifierMap &identmap, SSObj
 // Imports ORB6 catalog to Heirarchal Triangular Mesh (htm) instead of SSObjectArray.
 // Returns number of ORB6 stars stored in HTM.
 
-int SSImportORB6toHTM ( const string &filename, SSHTM &htm )
+int SSImportORB6toHTM ( const string &filename, const SSIdentifierMap &identMap, SSHTM &htm )
 {
     SSObjectArray stars;
-    int n = SSImportORB6 ( filename, stars );
+    int n = SSImportORB6 ( filename, identMap, stars );
     if ( n > 0 )
     {
         vector<float> magLevels = { INFINITY };
