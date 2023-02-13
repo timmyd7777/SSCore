@@ -114,6 +114,6 @@ int SSExportGAIADR3StarData ( const string &root, const string &outpath, const S
 int SSImportGAIA17 ( const string &filename, SSObjectArray &stars, bool onlyHIPTYC );
 
 void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float &bt );
-void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &rj, float &ij );
+void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &bj, float &rj, float &ij );
 
 #endif /* SSImportGAIADR3_hpp */

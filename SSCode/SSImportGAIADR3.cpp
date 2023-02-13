@@ -273,12 +273,9 @@ void GAIADR3toTycho2Magnitude ( float g, float gbp, float grp, float &vt, float 
 // Converts GAIA DR3 magnitude sytem (G, G_BP, G_RP) to Johnson-Cousins magnitude system (V, R, I_C).
 // See DAIA DR3 documentation version 1.1, page 350, Table 5.9; reproduced here:
 // https://gea.esac.esa.int/archive/documentation/GDR3/Data_processing/chap_cu5pho/cu5pho_sec_photSystem/cu5pho_ssec_photRelations.html
-// Note there is no direct transformation to Johnson B magnitude. The above table gives a
-// cubic polynomial transformation from B-V to G-V, but this is not reversible analytically
-// or numerically because it gives two solutions when G-V > -0.09 (i.w. when B-V < 0.4).
-// Instead, transform GAIA magnitudes to Tycho VT and BT, then Tycho to Johnson V and B.
+// The transformation to Johnson B is not included in this table but was emailed by the GAIA DPAC (gaia-helpdesk@cosmos.esa.int) 13 Feb 2023
 
-void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &rj, float &ic )
+void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float &bj, float &rj, float &ic )
 {
     float gbp_grp = clamp ( gbp - grp, -0.5f, 5.0f );
     float gbp_grp2 = gbp_grp * gbp_grp;
@@ -286,10 +283,12 @@ void GAIADR3toJohnsonMagnitude ( float g, float gbp, float grp, float &vj, float
     float gbp_grp4 = gbp_grp * gbp_grp3;
     
     float g_v = -0.02704 + 0.01424 * gbp_grp - 0.2156 * gbp_grp2 + 0.01426 * gbp_grp3;
+    float g_b =  0.01448 - 0.6874  * gbp_grp - 0.3604 * gbp_grp2 + 0.06718 * gbp_grp3 - 0.006061 * gbp_grp4;
     float g_r = -0.02275 + 0.3961  * gbp_grp - 0.1243 * gbp_grp2 - 0.01396 * gbp_grp3 + 0.003775 * gbp_grp4;
     float g_i =  0.01753 + 0.76    * gbp_grp - 0.0991 * gbp_grp2;
 
     vj = g - g_v;
+    bj = g - g_b;
     rj = g - g_r;
     ic = g - g_i;
 }
@@ -450,11 +449,10 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars, bool onlyHIPT
         // Convert GAIA magnitudes to Tycho, then Johnson B and V if both GAIA BP and RP colors are valid.
         // Otherwise use GAIA G magnitude as Johnson V.
         
-        float vmag = INFINITY, bmag = INFINITY;
+        float vmag = INFINITY, bmag = INFINITY, rmag = INFINITY, imag = INFINITY;
         if ( gaia.phot_g_mean_mmag && gaia.phot_bp_mean_mmag && gaia.phot_rp_mean_mmag )
         {
-            GAIADR3toTycho2Magnitude ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0, vmag, bmag );
-            TychoToJohnsonMagnitude ( bmag, vmag, bmag, vmag );
+            GAIADR3toJohnsonMagnitude ( gaia.phot_g_mean_mmag / 1000.0, gaia.phot_bp_mean_mmag / 1000.0, gaia.phot_rp_mean_mmag / 1000.0, vmag, bmag, rmag, imag );
         }
         else if ( gaia.phot_g_mean_mmag )   // don't have GAIA colors, just assume V is G magnitude
         {
