@@ -944,14 +944,13 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userDa
 
 // Given an identifier, uses this HTM's identifier index to find all objects matching
 // the identifier. Object locations are appended to the vector (results).
-// Returns number of object locations found, or -1 if there is no object map
-// for the catalog to which the identifier belongs.
+// Returns number of object locations found.
 
 int SSHTM::findObjectLocs ( SSIdentifier ident, vector<SSHTM::ObjectLoc> &results )
 {
     SSCatalog cat = ident.catalog();
     if ( objectMapSize ( cat ) == 0 )
-        return -1;
+        return 0;
     
     IdentMap &map = _identIndex[cat];
     auto it0 = map.lower_bound ( ident );
@@ -971,7 +970,7 @@ int SSHTM::findObjectLocs ( SSIdentifier ident, vector<SSHTM::ObjectLoc> &result
 int SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &results, bool casesens, bool begins )
 {
     if ( objectMapSize ( kCatUnknown ) == 0 )
-        return -1;
+        return 0;
     
     NameMap &map = _nameIndex[kCatUnknown];
     int n = (int) results.size();
