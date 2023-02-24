@@ -247,7 +247,7 @@ int SSImportGCVS ( const string &filename, SSIdentifierMap &identmap, SSObjectAr
     return numStars;
 }
 
-// Copies variable star data from GCVS star (pWDStar) into target star (pStar).
+// Copies variable star data from GCVS star (pGCVStar) into target star (pStar).
 // Returns true if successful or false on failure.
 
 bool SSCopyVariableStarData ( SSVariableStarPtr pGCVStar, SSStarPtr pStar )
