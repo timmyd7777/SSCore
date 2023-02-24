@@ -964,6 +964,80 @@ int SSStar::luminosityClass ( const string &spectrum )
     return lumclass;
 }
 
+// Returns main-sequence spectral type identifier closest to the effective temperature (temp) in Kelvins.
+// Returns -1 if temperature is outside the temperature range for spectral types O3 thru T9.
+
+int SSStar::spectralType ( float temp )
+{
+    int min = 0;
+    int max = (int) _specinfo.size() - 1;
+    
+    if ( temp < _specinfo[max].Teff || temp > _specinfo[min].Teff )
+        return -1;
+    
+    // Binary search the spectral information table until we find
+    // two entries which bracket the requested temperature.
+    
+    while ( max - min > 1 )
+    {
+        int mid = ( max + min ) / 2;
+        if ( temp < _specinfo[mid].Teff )
+            min = mid;
+        else
+            max = mid;
+    }
+    
+    // Choose the entry closer to the requested temperature
+    
+    float mid = ( _specinfo[max].Teff + _specinfo[min].Teff ) / 2;
+    if ( temp > mid )
+        return SpecType::O0 + 3 + min;
+    else
+        return SpecType::O0 + 3 + max;
+}
+
+// Returns luminosity class identifier from a given spectral type (sp)
+// and absolute visual magnitude (mv); or -1 if luminosity class cannot be identified.
+
+int SSStar::luminosityClass ( int sp, float mv )
+{
+    if ( sp < SpecType::O0 + 1 || sp > SpecType::T0 + 9 || ::isinf ( mv ) )
+        return -1;
+    
+    // Copy the spectral class table entry for the requested spectral type
+    // First assume the luminosity class is main sequence (V).
+    
+    SpecClass sc = _speclass[ sp - SpecType::O0 - 1 ];
+    LumClass lc = LumClass::V;
+    float scmv = sc.MvV;
+
+    // For each luminosity class with a finite absolute magnitude, assign the star
+    // to that class if its absolute magnitude is closer to that class's absolute magnitude.
+    
+    auto testLumClass = [&] ( float scMv, LumClass LC )
+    {
+        if ( ! ::isinf ( scMv ) && mv < ( scmv + scMv ) / 2.0 )
+        {
+            lc = LC;
+            scmv = scMv;
+        }
+    };
+
+    testLumClass ( sc.MvIV, LumClass::IV );
+    testLumClass ( sc.MvIII, LumClass::III );
+    testLumClass ( sc.MvII, LumClass::II );
+    testLumClass ( sc.MvIb, LumClass::Ib );
+    testLumClass ( sc.MvIa, LumClass::Ia );
+
+    // Special case for white dwarfs
+    
+    if ( sp < SpecType::K0 )
+        if ( mv > sc.MvV + 5.0 )
+            lc = LumClass::VII;
+        
+    return lc;
+}
+
 // Given a stellar spectral class string, parses integer code for spectral type
 // and luminosity class. Assumes leading and trailing whitespace has been removed.
 // See https://en.wikipedia.org/wiki/Stellar_classification
@@ -1011,7 +1085,7 @@ string SSStar::formatSpectrum ( int spectype, int lumclass )
         spectrum.append ( "V" );
     else if ( lumclass == LumClass::VI )
         spectrum.append ( "VI" );
-
+    
     return spectrum;
 }
 

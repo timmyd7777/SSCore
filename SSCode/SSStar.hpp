@@ -150,6 +150,8 @@ public:
 
     static int spectralType ( const string &spectrum );
     static int luminosityClass ( const string &spectrum );
+    static int spectralType ( float temp );
+    static int luminosityClass ( int spectype, float mv );
     static bool parseSpectrum ( const string &spectrum, int &spectype, int &lumclass );
     static string formatSpectrum ( int spectype, int lumclass );
     static float bolometricCorrection ( float temp );
