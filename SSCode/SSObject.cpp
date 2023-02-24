@@ -351,7 +351,11 @@ SSObjectPtr SSIdentifierToObject ( SSIdentifier ident, SSObjectMap &map, SSObjec
 
 SSObjectPtr SSNewObject ( SSObjectType type )
 {
-    if ( type >= kTypePlanet && type <= kTypeSpacecraft )
+    SSTLE tle;
+    
+    if ( type == kTypeSatellite )
+        return new SSSatellite ( tle );
+    else if ( type >= kTypePlanet && type <= kTypeSpacecraft )
         return new SSPlanet ( type );
     else if ( type == kTypeFeature )
         return new SSFeature;
@@ -380,18 +384,34 @@ SSObjectPtr SSNewObject ( SSObjectType type )
 
 SSObjectPtr SSCloneObject ( SSObject *pObj )
 {
-    if ( pObj )
-    {
-        SSObjectPtr pNewObj = SSNewObject ( pObj->getType() );
-        *pNewObj = *pObj;
-        
-        if ( SSGetDoubleStarPtr ( pNewObj ) )
-            SSGetDoubleStarPtr ( pNewObj )->cloneOrbit();
-        
-        return pNewObj;
-    }
+    if ( pObj == nullptr )
+        return nullptr;
     
-    return nullptr;
+    SSObjectType type = pObj->getType();
+    if ( type == kTypeSatellite )
+        return new SSSatellite ( *SSGetSatellitePtr ( pObj ) );
+    else if ( type >= kTypePlanet && type <= kTypeSpacecraft )
+        return new SSPlanet ( *SSGetPlanetPtr ( pObj ) );
+    else if ( type == kTypeFeature )
+        return new SSFeature ( *SSGetFeaturePtr ( pObj ) );
+    else if ( type == kTypeCity )
+        return new SSCity ( *SSGetCityPtr ( pObj ) );
+    else if ( type == kTypeStar )
+        return new SSStar ( *SSGetStarPtr ( pObj ) );
+    else if ( type == kTypeDoubleStar )
+        return new SSDoubleStar ( *SSGetDoubleStarPtr ( pObj ) );
+    else if ( type == kTypeVariableStar )
+        return new SSVariableStar ( *SSGetVariableStarPtr ( pObj ) );
+    else if ( type == kTypeDoubleVariableStar )
+        return new SSDoubleVariableStar ( *SSGetDoubleVariableStarPtr ( pObj ) );
+    else if ( type >= kTypeOpenCluster && type <= kTypeGalaxy )
+        return new SSDeepSky ( *SSGetDeepSkyPtr ( pObj ) );
+    else if ( type == kTypeNonexistent )
+        return new SSDeepSky ( *SSGetDeepSkyPtr ( pObj ) );
+    else if ( type >= kTypeConstellation && type <= kTypeAsterism )
+        return new SSConstellation ( *SSGetConstellationPtr ( pObj ) );
+    else
+        return nullptr;
 }
 
 // Exports a vector of objects to a CSV-formatted text file.

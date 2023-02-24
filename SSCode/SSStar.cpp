@@ -1608,6 +1608,15 @@ SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr )
     return dynamic_cast<SSVariableStarPtr> ( ptr );
 }
 
+// Downcasts generic SSObject pointer to SSVariableStar pointer.
+// Returns nullptr if pointer is not an instance of SSVariableStar
+// or SSDoubleVariableStar!
+
+SSDoubleVariableStarPtr SSGetDoubleVariableStarPtr ( SSObjectPtr ptr )
+{
+    return dynamic_cast<SSDoubleVariableStarPtr> ( ptr );
+}
+
 // Downcasts generic SSObject pointer to SSDeepSkyStar pointer.
 // Returns nullptr if pointer is not an instance of SSDeepSky!
 

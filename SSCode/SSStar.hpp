@@ -296,6 +296,7 @@ public:
 typedef SSStar *SSStarPtr;
 typedef SSDoubleStar *SSDoubleStarPtr;
 typedef SSVariableStar *SSVariableStarPtr;
+typedef SSDoubleVariableStar *SSDoubleVariableStarPtr;
 typedef SSDeepSky *SSDeepSkyPtr;
 
 // These functions downcast a pointer from the SSObject base class to its various SSStar subclasses.
@@ -304,6 +305,7 @@ typedef SSDeepSky *SSDeepSkyPtr;
 SSStarPtr SSGetStarPtr ( SSObjectPtr ptr );
 SSDoubleStarPtr SSGetDoubleStarPtr ( SSObjectPtr ptr );
 SSVariableStarPtr SSGetVariableStarPtr ( SSObjectPtr ptr );
+SSDoubleVariableStarPtr SSGetDoubleVariableStarPtr ( SSObjectPtr ptr );
 SSDeepSkyPtr SSGetDeepSkyPtr ( SSObjectPtr ptr );
 
 #endif /* SSStar_hpp */
