@@ -453,11 +453,11 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars, float vmax )
         // Get GAIA star position and parallax
         
         SSSpherical coords ( SSAngle::fromArcsec ( gaia.ra_mas / 1000.0 ), SSAngle::fromArcsec ( gaia.dec_mas / 1000.0 ), INFINITY );
-        if ( gaia.distance_pc > 0 )
-            coords.rad = SSCoordinates::kLYPerParsec * gaia.distance_pc;
-        else if ( gaia.parallax > 0.0 && gaia.parallax < 1000.0 )
+        if ( gaia.parallax > 0.0 && gaia.parallax < 1000.0 )
             coords.rad = 1000.0 * SSCoordinates::kLYPerParsec / gaia.parallax;
-        
+        else if ( gaia.distance_pc > 0.0 )
+            coords.rad = SSCoordinates::kLYPerParsec * gaia.distance_pc;
+
         // Get GAIA star proper motion and radial velocity
         
         SSSpherical motion ( SSAngle::fromArcsec ( gaia.pmra_mas / 1000.0 ) / cos ( coords.lat ), SSAngle::fromArcsec ( gaia.pmdec_mas / 1000.0 ), INFINITY );
