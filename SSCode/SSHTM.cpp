@@ -772,9 +772,9 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat )
         makeObjectMap ( cat, it->first, nameMap, identMap );
     
     if ( cat == kCatUnknown && nameMap.size() > 0 )
-        _nameIndex.insert ( { cat, nameMap } );
+        _nameIndex[cat] = nameMap;
     if ( cat != kCatUnknown && identMap.size() > 0 )
-        _identIndex.insert ( { cat, identMap } );
+        _identIndex[cat] = identMap;
     
     return cat == kCatUnknown ? nameMap.size() : identMap.size();
 }
@@ -934,9 +934,9 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userDa
     if ( n > 0 )
     {
         if ( cat == kCatUnknown )
-            _nameIndex.insert ( { cat, nameMap } );
+            _nameIndex[cat] = nameMap;
         else
-            _identIndex.insert ( { cat, identMap } );
+            _identIndex[cat] = identMap;
     }
 
     return n;

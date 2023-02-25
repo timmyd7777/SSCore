@@ -618,7 +618,7 @@ int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
         SSIdentifier tyc = pHipStar->getIdentifier ( kCatTYC );
         SSStarPtr pSkyHIPStar = SSGetStarPtr ( SSIdentifierToObject ( hip, skyHIPMap, skyStars ) );
         SSStarPtr pSkyTYCStar = SSGetStarPtr ( SSIdentifierToObject ( tyc, skyTYCMap, skyStars ) );
-        if ( pSkyHIPStar == nullptr && pSkyTYCStar == nullptr )
+        if ( pSkyHIPStar == nullptr && pSkyTYCStar == nullptr && pHipStar->getIdentifier ( kCatGAIA ) )
         {
             skyStars.append ( pHipStar );
             hipStars.set ( i, nullptr );
