@@ -617,9 +617,6 @@ int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
         SSStarPtr pSkyStar = SSGetMatchingStar ( pHipStar, skyMaps, skyStars);
         if ( pSkyStar == nullptr )
         {
-            if ( pHipStar->getVMagnitude() < 8.0 )
-                cout << pHipStar->toCSV() << endl;
-            
             skyStars.append ( pHipStar );
             hipStars.set ( i, nullptr );
         }
