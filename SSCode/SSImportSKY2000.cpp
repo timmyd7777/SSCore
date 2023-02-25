@@ -604,22 +604,22 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
 
 int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
 {
-    SSObjectMap skyHIPMap = SSMakeObjectMap ( skyStars, kCatHIP );
-    SSObjectMap skyTYCMap = SSMakeObjectMap ( skyStars, kCatTYC );
-
-    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HIP or TYC identifier.
+    SSObjectMaps skyMaps;
+    SSMakeObjectMaps ( skyStars, { kCatHR, kCatHD, kCatSAO, kCatBD, kCatCD, kCatCP, kCatHIP, kCatTYC }, skyMaps );
+    
+    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HR/HD/SAO/BD/CD/CP/HIP/TYC identifiers.
     // If we don't find one, append the Hipparcos/Tycho star to the SKY2000 star vector and remove it
     // from the HIP/TYC star vector (but don't delete it!)
     
     for ( int i = 0; i < hipStars.size(); i++ )
     {
         SSStarPtr pHipStar = SSGetStarPtr ( hipStars.get ( i ) );
-        SSIdentifier hip = pHipStar->getIdentifier ( kCatHIP );
-        SSIdentifier tyc = pHipStar->getIdentifier ( kCatTYC );
-        SSStarPtr pSkyHIPStar = SSGetStarPtr ( SSIdentifierToObject ( hip, skyHIPMap, skyStars ) );
-        SSStarPtr pSkyTYCStar = SSGetStarPtr ( SSIdentifierToObject ( tyc, skyTYCMap, skyStars ) );
-        if ( pSkyHIPStar == nullptr && pSkyTYCStar == nullptr )
+        SSStarPtr pSkyStar = SSGetMatchingStar ( pHipStar, skyMaps, skyStars);
+        if ( pSkyStar == nullptr )
         {
+            if ( pHipStar->getVMagnitude() < 8.0 )
+                cout << pHipStar->toCSV() << endl;
+            
             skyStars.append ( pHipStar );
             hipStars.set ( i, nullptr );
         }
