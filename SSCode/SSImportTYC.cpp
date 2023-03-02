@@ -205,14 +205,16 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &gcv
 }
 
 // Imports the Tycho-2 catalog: https://cdsarc.unistra.fr/ftp/I/259/
-// into a vector of SSObjects (stars). Henry Draper identifiers and spectral
-// types are inserted from the Tycho-2 HD Identifications (tyc2hdmap).
-// If stars vector already cotains Tycho-1 star catalog on input, Tycho-2 stars
-// not already in Tycho-1 will be appended, and existing Tycho-1 stars will get
-// updated position, motion, and magnitude data from Tycho-2.
-// Returns the total number of stars imported (2539913 if successful).
+// into a vector of SSObjects (stars).
+// If filename contains "suppl", reads Tycho-2 supplement file.
+// HD/BD/CD/CP identifiers, parallaxes, and spectral types are inserted from
+// Tycho-1 star vector (tyc1stars).
+// If stars vector already cotains Hipparcos star catalog on input,
+// Tycho-2 stars not already in Hipparcos will be appended.
+// Returns the total number of stars imported (if successful:
+// 2539913 for main Tycho-2 catalog, 17588 for Supplement-1).
 
-int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &stars )
+int SSImportTYC2 ( const string &filename, SSObjectVec &tyc1Stars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -220,8 +222,12 @@ int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &st
     if ( ! file )
         return 0;
     
+    // Is this a Tycho-2 supplement file?
+    
+    bool suppl = filename.find ( "suppl") != string::npos;
+    
     SSObjectMap hipMap = SSMakeObjectMap ( stars, kCatHIP );
-    SSObjectMap tycMap = SSMakeObjectMap ( stars, kCatTYC );
+    SSObjectMap tycMap = SSMakeObjectMap ( tyc1Stars, kCatTYC );
     
     // Read file line-by-line until we reach end-of-file
 
@@ -235,11 +241,12 @@ int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &st
         string strDec = trim ( line.substr ( 28, 12 ) );
         string strPMRA = trim ( line.substr ( 41, 7 ) );
         string strPMDec = trim ( line.substr ( 49, 7 ) );
-        string strVMag = trim ( line.substr ( 123, 6 ) );
-        string strBMag = trim ( line.substr ( 110, 6 ) );
-        string strTYC1 = trim ( line.substr ( 140, 1 ) );
-        string strHIP = trim ( line.substr ( 142, 6 ) );
-        string strCCDM = trim ( line.substr ( 148, 3 ) );
+        string strBMag = trim ( line.substr ( suppl ? 83 : 110, 6 ) );
+        string strVMag = trim ( line.substr ( suppl ? 96 : 123, 6 ) );
+        string strTYC1 = trim ( line.substr ( suppl ? 113 : 140, 1 ) );
+        string strHIP = trim ( line.substr ( suppl ? 115 : 142, 6 ) );
+        string strCCDM = trim ( line.substr ( suppl ? 121 : 148, suppl ? 1 : 3 ) );
+        string spectrum = "";
         
         // Use the Epoch 2000.0 R.A. and Dec. where possible; if not, use the observed epoch R.A. and Dec.
         // The observed epoch is always within 2.4 years of 1990; this is close enough to 2000 that we won't quibble,
@@ -295,45 +302,53 @@ int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &st
         if ( tyc )
             SSAddIdentifier ( tyc, idents );
 
-        // Get HD identifier from TYC2-HD cross index
-        
-        TYC2HDMap::iterator it = tyc2hdmap.find ( tyc );
-        if ( it != tyc2hdmap.end() )
-            idents.push_back ( it->second.hd );
-                
         // Is this a Tycho-1 star?
         
         bool tyc1 = false;
         if ( strTYC1.length() > 0 && strTYC1[0] == 'T' )
             tyc1 = true;
         
-        // If this is a Hipparcos or Tycho-1 star, find corresponding Tycho-1 star.
-        // Copy position, motion, magnitudes from Tycho-2, but don't overwite Hipparcos star data.
-
-        if ( hip || ( tyc && tyc1 ) )
+        // If this Tycho-2 has a HIP identifier, find corresponding Hipparocs star.
+        // Copy TYC identifier from Tycho-2, but don't overwite Hipparcos star data.
+        // Note some HIP stars are duplicated in Tycho-2 so may get 2 separate TYC idents.
+        
+        if ( hip )
         {
-            SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( tyc, tycMap, stars ) );
-            if ( pStar1 && ! hip )
-            {
-                float plx = pStar1->getParallax();
-                if ( plx > 0.0 )
-                    position.rad = SSCoordinates::kLYPerParsec / plx;
-                
-                pStar1->setFundamentalMotion ( position, velocity );
-                pStar1->setVMagnitude ( vmag );
-                pStar1->setBMagnitude ( bmag );
-            }
+            SSStarPtr pStarH = SSGetStarPtr ( SSIdentifierToObject ( hip, hipMap, stars ) );
+            if ( pStarH )
+                pStarH->addIdentifier ( tyc );
             numStars++;
             continue;
         }
         
-        // Otherwise, add a new Tycho-2 star to the Tycho star vector
-        // Sert identifier vector.  Get name string(s) corresponding to identifier(s).
-        // Construct star and insert into star vector.
+        // If this is a Tycho-1 star, find corresponding Tycho-1 star.
+        // Copy HD/BD/CD/CP identifiers, parallax, spectra, variability from Tycho-1.
+
+        SSVariableStarPtr pVar = nullptr;
+        if ( tyc && tyc1 )
+        {
+            SSStarPtr pStar1 = SSGetStarPtr ( SSIdentifierToObject ( tyc, tycMap, tyc1Stars ) );
+            if ( pStar1 )
+            {
+                SSAddIdentifier ( pStar1->getIdentifier ( kCatHD ), idents );
+                SSAddIdentifier ( pStar1->getIdentifier ( kCatBD ), idents );
+                SSAddIdentifier ( pStar1->getIdentifier ( kCatCD ), idents );
+                SSAddIdentifier ( pStar1->getIdentifier ( kCatCP ), idents );
+
+                float plx = pStar1->getParallax();
+                if ( plx > 0.0 )
+                    position.rad = SSCoordinates::kLYPerParsec / plx;
+                
+                spectrum = pStar1->getSpectralType();
+                pVar = SSGetVariableStarPtr ( pStar1 );
+            }
+        }
+        
+        // Sert identifier vector.
+        // Add a new Tycho-2 star to the output star vector.
 
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        SSObjectType type = kTypeStar;
-
+        SSObjectType type = pVar ? kTypeVariableStar : kTypeStar;
         SSObjectPtr pObj = SSNewObject ( type );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
         
@@ -344,9 +359,10 @@ int SSImportTYC2 ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &st
             pStar->setFundamentalMotion ( position, velocity );
             pStar->setVMagnitude ( vmag );
             pStar->setBMagnitude ( bmag );
+            pStar->setSpectralType ( spectrum );
 
-            if ( it != tyc2hdmap.end() )
-                pStar->setSpectralType ( it->second.spectrum );
+            if ( pVar )
+                SSCopyVariableStarData ( pVar, pStar );
 
             stars.append ( pObj );
             numStars++;
