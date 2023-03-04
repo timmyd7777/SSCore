@@ -541,7 +541,7 @@ float SSPlanet::computeMagnitude ( double rad, double dist, double phase )
             mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, ::isinf ( _Gmag ) ? 0.15 : _Gmag );
     }
     else if ( _type == kTypeAsteroid )
-        mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, _Gmag );
+        mag = computeAsteroidMagnitude ( rad, dist, phase, _Hmag, ::isinf ( _Gmag ) ? 0.15 : _Gmag );
     else if ( _type == kTypeComet )
         mag = computeCometMagnitude ( rad, dist, _Hmag, _Gmag );
     else if ( _type == kTypeSatellite )
@@ -573,6 +573,8 @@ float SSPlanet::computeAsteroidMagnitude ( double rad, double dist, double phase
 
 float SSPlanet::computeCometMagnitude ( double rad, double dist, double h, double k )
 {
+    if ( ! isinf ( h ) && isinf ( k ) )
+        k = k;
     return h + 5.0 * log10 ( dist ) + 2.5 * k * log10 ( rad );
 }
 
