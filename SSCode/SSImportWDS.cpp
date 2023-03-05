@@ -267,6 +267,47 @@ int SSImportWDSHIPCrossIndex ( const string &filename, SSIdentifierMap &identmap
     return count;
 }
 
+// Imports WDS Tycho-2 cross-index (wds2tyc2.txt).
+// Inserts results into map of catalog identifiers, indexed by WDS identifier (identmap),
+// and returns number of identifiers inserted into map (23691 if successful).
+
+int SSImportWDSTYCCrossIndex ( const string &filename, SSIdentifierMap &identmap )
+{
+    // Open file; return on failure.
+    
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+    
+    // Read file line-by-line until we reach end-of-file
+
+    string line ( "" );
+    int count = 0;
+    
+    while ( getline ( file, line ) )
+    {
+        if ( line.length() < 29 )
+            continue;
+        
+        string strWDS = line.substr ( 0,  10 );
+        string strTYC = line.substr ( 23, 12 );
+
+        SSIdentifier wds = SSIdentifier::fromString ( "WDS " + strWDS );
+        SSIdentifier tyc = SSIdentifier::fromString ( "TYC " + strTYC );
+
+        if ( wds == 0 || tyc== 0 )
+            continue;
+        
+        // cout << wds.toString() << "," << hip.toString() << "," << endl;
+        identmap.insert ( { wds, tyc } );
+        count++;
+    }
+    
+    // Return count of identifiers added.  File is closed automatically.
+
+    return count;
+}
+
 // Imports the Washington Double Star Catalog (wdsweb_summ.txt) from http://www.astro.gsu.edu/wds/
 // Adds Bayer, Flamsteed, HIP, TYC identifiers from cross index (identmap).
 // Stores results in vector of SSObjects (stars).
@@ -525,6 +566,10 @@ bool SSCopyDoubleStarData ( SSDoubleStarPtr pWDStar, char comp, char primComp, S
             pDbl->setComponents ( pWDStar->getComponents() );
         else
             pDbl->setComponents ( string ( 1, comp ) + string ( 1, primComp ) );
+    }
+    else
+    {
+        pDbl->setComponents ( pWDStar->getComponents() );
     }
     
     pDbl->setMagnitudeDelta ( pWDStar->getMagnitudeDelta() );

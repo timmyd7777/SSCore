@@ -12,6 +12,7 @@
 #include "SSImportHIP.hpp"
 #include "SSImportTYC.hpp"
 #include "SSImportSKY2000.hpp"
+#include "SSImportWDS.hpp"
 
 // Converts Tycho B (bt) and V (vt) magnitudes to Johnson B (bj) and V (vj) magnitudes
 
@@ -207,14 +208,16 @@ int SSImportTYC ( const string &filename, TYC2HDMap &tyc2hdmap, SSObjectVec &gcv
 // Imports the Tycho-2 catalog: https://cdsarc.unistra.fr/ftp/I/259/
 // into a vector of SSObjects (stars).
 // If filename contains "suppl", reads Tycho-2 supplement file.
-// HD/BD/CD/CP identifiers, parallaxes, and spectral types are inserted from
-// Tycho-1 star vector (tyc1stars).
+// HD/BD/CD/CP identifiers, parallaxes, and spectral types are
+// inserted from Tycho-1 star vector (tyc1stars) if not empty.
+// WDS identifiers and double stan information is inserter from
+// the Washington Double Star catalog vector (wdsStars) if not empty.
 // If stars vector already cotains Hipparcos star catalog on input,
 // Tycho-2 stars not already in Hipparcos will be appended.
 // Returns the total number of stars imported (if successful:
 // 2539913 for main Tycho-2 catalog, 17588 for Supplement-1).
 
-int SSImportTYC2 ( const string &filename, SSObjectVec &tyc1Stars, SSObjectVec &stars )
+int SSImportTYC2 ( const string &filename, SSObjectVec &tyc1Stars, SSObjectVec &wdsStars, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -228,7 +231,8 @@ int SSImportTYC2 ( const string &filename, SSObjectVec &tyc1Stars, SSObjectVec &
     
     SSObjectMap hipMap = SSMakeObjectMap ( stars, kCatHIP );
     SSObjectMap tycMap = SSMakeObjectMap ( tyc1Stars, kCatTYC );
-    
+    SSObjectMap wdsMap = SSMakeObjectMap ( wdsStars, kCatTYC );
+
     // Read file line-by-line until we reach end-of-file
 
     string line = "";
@@ -344,11 +348,15 @@ int SSImportTYC2 ( const string &filename, SSObjectVec &tyc1Stars, SSObjectVec &
             }
         }
         
+        // Find the Washington Double Star (if any) with this TYC identifier.
+        
+        SSDoubleStarPtr pDbl = SSGetDoubleStarPtr ( SSIdentifierToObject ( tyc, wdsMap, wdsStars ) );
+        
         // Sert identifier vector.
         // Add a new Tycho-2 star to the output star vector.
 
         sort ( idents.begin(), idents.end(), compareSSIdentifiers );
-        SSObjectType type = pVar ? kTypeVariableStar : kTypeStar;
+        SSObjectType type = pDbl ? pVar ? kTypeDoubleVariableStar : kTypeDoubleStar : kTypeStar;
         SSObjectPtr pObj = SSNewObject ( type );
         SSStarPtr pStar = SSGetStarPtr ( pObj );
         
@@ -363,6 +371,9 @@ int SSImportTYC2 ( const string &filename, SSObjectVec &tyc1Stars, SSObjectVec &
 
             if ( pVar )
                 SSCopyVariableStarData ( pVar, pStar );
+
+            if ( pDbl )
+                SSCopyDoubleStarData ( pDbl, 'A', 'A', pStar );
 
             stars.append ( pObj );
             numStars++;
