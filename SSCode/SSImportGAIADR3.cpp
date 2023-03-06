@@ -459,7 +459,9 @@ int SSImportGAIA17 ( const string &filename, SSObjectArray &stars, float vmin, f
 
         // Get GAIA star proper motion and radial velocity
         
-        SSSpherical motion ( SSAngle::fromArcsec ( gaia.pmra_mas / 1000.0 ) / cos ( coords.lat ), SSAngle::fromArcsec ( gaia.pmdec_mas / 1000.0 ), INFINITY );
+        SSSpherical motion ( INFINITY, INFINITY, INFINITY );
+        if ( gaia.pmra_mas != 0 && gaia.pmdec_mas != 0 && gaia.pm_error != 0 )
+            motion = SSSpherical ( SSAngle::fromArcsec ( gaia.pmra_mas / 1000.0 ) / cos ( coords.lat ), SSAngle::fromArcsec ( gaia.pmdec_mas / 1000.0 ), INFINITY );
         if ( gaia.radial_velocity != 0 && gaia.radial_velocity_error != 0 )
             motion.rad = gaia.radial_velocity / SSCoordinates::kLightKmPerSec;
                       

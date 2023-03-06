@@ -291,11 +291,17 @@ int SSImportWDSTYCCrossIndex ( const string &filename, SSIdentifierMap &identmap
         
         string strWDS = line.substr ( 0,  10 );
         string strTYC = line.substr ( 23, 12 );
-
+        string strComps = trim ( line.substr ( 17, 6 ) );
+        
+        if ( strComps.empty() )
+            strComps = string ( "AB" );
+        
         SSIdentifier wds = SSIdentifier::fromString ( "WDS " + strWDS );
         SSIdentifier tyc = SSIdentifier::fromString ( "TYC " + strTYC );
 
-        if ( wds == 0 || tyc== 0 )
+        // Only apply TYC identifier to the primary component of the WDS entry.
+        
+        if ( wds == 0 || tyc == 0 || strComps[0] != 'A' )
             continue;
         
         // cout << wds.toString() << "," << hip.toString() << "," << endl;

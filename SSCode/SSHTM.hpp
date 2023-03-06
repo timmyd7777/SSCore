@@ -91,6 +91,7 @@ public:
     SSObjectVec *loadRegion ( uint64_t htmID, bool sync = true, void *userData = nullptr );
     void dumpRegions ( void );
     void dumpRegion ( uint64_t htmID );
+    void clearRegions ( void );
     
     // test whether region objects are loaded into memory, get array of pointers to loaded region objects
     

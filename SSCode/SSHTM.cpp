@@ -354,6 +354,15 @@ void SSHTM::dumpRegions ( void )
     _regions.clear();
 }
 
+// Empties all regions in this HTM, but does not delete objects!
+
+void SSHTM::clearRegions ( void )
+{
+    for ( auto it = _regions.begin(); it != _regions.end(); it++ )
+        if ( it->second != nullptr )
+            it->second->clear();
+}
+
 // Counts total number of stars stored in all regions in this HTM.
 
 int SSHTM::countStars ( void )
