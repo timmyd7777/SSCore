@@ -259,11 +259,8 @@ string SKY2000VariableTypeString ( int type )
 // Adds GCVS identifiers and variability information from vector of GCVS stars (gcvsStars);
 // if this is empty, uses GCVS identifiers and variability info already present in SKY2000.
 // Returns number of SKY2000 stars imported (299460 if successful).
-// If a non-null filter function (filter) is provided, objects are exported
-// only if they pass the filter; optional data pointer (userData) is passed
-// to the filter but not used otherwise.
 
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars, SSObjectFilter filter, void *userData )
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars )
 {
     // Open file; return on failure.
 
@@ -274,6 +271,7 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
     // Make cross-indexes of identifiers in other star vectors.
     
     SSObjectMaps hipMaps, gjMaps, gcvsMaps;
+    SSMakeObjectMaps ( hipStars, { kCatHR, kCatHD, kCatSAO, kCatBD, kCatCD, kCatCP }, hipMaps );
     SSMakeObjectMaps ( gjStars, { kCatHD, kCatBD, kCatCD, kCatCP }, gjMaps );
     SSMakeObjectMaps ( gcvsStars, { kCatGCVS, kCatHD, kCatBD, kCatCD, kCatCP }, gcvsMaps );
     
@@ -520,15 +518,17 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         pStar->setBMagnitude ( bmag );
         pStar->setSpectralType ( strSpec );
 
-        // Add additional GJ identifiers.
-        
+        // Add additional HIP, TYC, GAIA, Bayer, and GJ identifiers from other catalogs.
+
+        addSKY2000StarData ( hipStars, hipMaps, pStar );
         addSKY2000StarData ( gjStars, gjMaps, pStar );
+        
+        // If we have a matching star from the GCVS, copy its variability data;
+        // otherwise use variability data already present in SKY2000.
+        
         SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
         if ( pVar != nullptr )
         {
-            // If we have a matching star from the GCVS, copy its variability data;
-            // otherwise use variability data already present in SKY2000.
-            
             if ( pGCVStar )
             {
                 SSCopyVariableStarData ( pGCVStar, pVar );
@@ -588,11 +588,8 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         }
         
         // cout << pStar->toCSV() << endl;
-        if ( filter == nullptr || filter ( pObj, userData ) )
-        {
-            stars.append ( pObj );
-            numStars++;
-        }
+        stars.append ( pObj );
+        numStars++;
     }
     
     // Return imported star count; file is closed automatically.
@@ -608,11 +605,11 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
 int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
 {
     SSObjectMaps skyMaps;
-    SSMakeObjectMaps ( skyStars, { kCatHD, kCatSAO, kCatBD, kCatCD, kCatCP }, skyMaps );
+    SSMakeObjectMaps ( skyStars, { kCatHIP, kCatTYC }, skyMaps );
     SSHTM skyHTM = SSHTM ( { 6.0, 7.2, 8.4, INFINITY }, "" );
     int n = skyHTM.store ( skyStars );
 
-    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HD/SAO/BD/CD/CP identifiers.
+    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HIP/TYC identifiers.
     // If we don't find one, search for a SKY2000 star within 2 arcseconds of the Hipparcos/Tycho star.
     // If we find one, copy data from the Hip/Tyc star to the SKY2000 star.
     // If we don't, append the Hipparcos/Tycho star to the SKY2000 star vector and remove it
@@ -629,13 +626,11 @@ int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
             skyHTM.search ( 0, pHipStar->getFundamentalPosition(), SSAngle::fromArcsec ( 2.0 ), results );
             if ( results.size() > 0 )
                 pSkyStar = SSGetStarPtr ( results[0] );
+            if ( pSkyStar )
+                addSKY2000StarData ( pHipStar, pSkyStar );
         }
         
-        if ( pSkyStar )
-        {
-            addSKY2000StarData ( pHipStar, pSkyStar );
-        }
-        else
+        if ( pSkyStar == nullptr )
         {
             skyStars.append ( pHipStar );
             hipStars.set ( i, nullptr );
