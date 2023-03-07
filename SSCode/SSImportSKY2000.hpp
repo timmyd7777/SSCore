@@ -17,7 +17,7 @@
 #include "SSStar.hpp"
 
 int SSImportIAUStarNames ( const string &filename, SSIdentifierNameMap &nameMap );
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars, SSObjectFilter filter = nullptr, void *userData = nullptr );
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars, SSObjectFilter filter = nullptr, void *userData = nullptr );
 int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars );
 
 // Contains identifier maps multiple catalogs;

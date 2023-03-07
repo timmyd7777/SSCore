@@ -48,18 +48,10 @@ SSStarPtr SSGetMatchingStar ( SSStarPtr pStar, SSObjectMaps &maps, SSObjectVec &
     return SSGetMatchingStar ( idents, maps, stars );
 }
 
-// Adds identifiers from other star catalog (stars) to a SKY2000 star (pStars).
+// Adds selected data from pStar to pSkyStar.
 
-void addSKY2000StarData ( SSObjectVec &stars, SSObjectMaps &maps, SSStarPtr pSkyStar )
+void addSKY2000StarData ( SSStarPtr pStar, SSStarPtr pSkyStar )
 {
-    // Find pointer to corresponding star in other star vector,
-    // using SKY2000 star's HD, BD, CD, CP identifiers.
-    // Return if we don't find other corresponding star.
-    
-    SSStarPtr pStar = SSGetMatchingStar ( pSkyStar, maps, stars );
-    if ( pStar == nullptr )
-        return;
-    
     // Get other star's HIP, TYC, GAIA, Bayer, and GJ identifiers.
     
     SSIdentifier hipIdent = pStar->getIdentifier ( kCatHIP );
@@ -85,6 +77,8 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMaps &maps, SSStarPtr pSky
     if ( ! pSkyStar->getIdentifier ( kCatGJ ) )
         pSkyStar->addIdentifier ( gjIdent );
 
+    pSkyStar->sortIdentifiers();
+    
     // If the SKY2000 star has no proper names, but does have a GJ identifier, add the GJ star's proper names.
     
     if ( ! pSkyStar->getNames().size() && gjIdent && pStar->getNames().size() )
@@ -107,6 +101,20 @@ void addSKY2000StarData ( SSObjectVec &stars, SSObjectMaps &maps, SSStarPtr pSky
         if ( ! ::isinf ( rv ) )
             pSkyStar->setRadVel ( rv );
     }
+}
+
+// Adds identifiers and other selected data from stars in other catalog (stars)
+// to a SKY2000 star (pSkyStar) using common identifiers as cross indexes (maps).
+
+void addSKY2000StarData ( SSObjectVec &stars, SSObjectMaps &maps, SSStarPtr pSkyStar )
+{
+    // Find pointer to corresponding star in other star vector,
+    // using SKY2000 star's HD, BD, CD, CP identifiers.
+    // Return if we don't find other corresponding star.
+    
+    SSStarPtr pStar = SSGetMatchingStar ( pSkyStar, maps, stars );
+    if ( pStar != nullptr )
+        addSKY2000StarData ( pStar, pSkyStar );
 }
 
 // Imports IAU official star name table from Working Group on Star Names
@@ -255,7 +263,7 @@ string SKY2000VariableTypeString ( int type )
 // only if they pass the filter; optional data pointer (userData) is passed
 // to the filter but not used otherwise.
 
-int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &hipStars, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars, SSObjectFilter filter, void *userData )
+int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSObjectVec &gjStars, SSObjectVec &gcvsStars, SSHTM &wdsHTM, SSObjectVec &stars, SSObjectFilter filter, void *userData )
 {
     // Open file; return on failure.
 
@@ -266,7 +274,6 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
     // Make cross-indexes of identifiers in other star vectors.
     
     SSObjectMaps hipMaps, gjMaps, gcvsMaps;
-    SSMakeObjectMaps ( hipStars, { kCatHD, kCatBD, kCatCD, kCatCP }, hipMaps );
     SSMakeObjectMaps ( gjStars, { kCatHD, kCatBD, kCatCD, kCatCP }, gjMaps );
     SSMakeObjectMaps ( gcvsStars, { kCatGCVS, kCatHD, kCatBD, kCatCD, kCatCP }, gcvsMaps );
     
@@ -513,13 +520,9 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
         pStar->setBMagnitude ( bmag );
         pStar->setSpectralType ( strSpec );
 
-        // Add additional HIP, Bayer, and GJ identifiers from other catalogs.
-        // Sert star's identifier vector.
+        // Add additional GJ identifiers.
         
-        addSKY2000StarData ( hipStars, hipMaps, pStar );
         addSKY2000StarData ( gjStars, gjMaps, pStar );
-        pStar->sortIdentifiers();
-        
         SSVariableStarPtr pVar = SSGetVariableStarPtr ( pObj );
         if ( pVar != nullptr )
         {
@@ -605,22 +608,41 @@ int SSImportSKY2000 ( const string &filename, SSIdentifierNameMap &nameMap, SSOb
 int SSMergeHIPTYCtoSKY2000 ( SSObjectVec &hipStars, SSObjectVec &skyStars )
 {
     SSObjectMaps skyMaps;
-    SSMakeObjectMaps ( skyStars, { kCatHR, kCatHD, kCatSAO, kCatBD, kCatCD, kCatCP, kCatHIP, kCatTYC }, skyMaps );
-    
-    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HR/HD/SAO/BD/CD/CP/HIP/TYC identifiers.
-    // If we don't find one, append the Hipparcos/Tycho star to the SKY2000 star vector and remove it
+    SSMakeObjectMaps ( skyStars, { kCatHD, kCatSAO, kCatBD, kCatCD, kCatCP }, skyMaps );
+    SSHTM skyHTM = SSHTM ( { 6.0, 7.2, 8.4, INFINITY }, "" );
+    int n = skyHTM.store ( skyStars );
+
+    // For each Hipparcos/Tycho star, search for a SKY2000 star with the same HD/SAO/BD/CD/CP identifiers.
+    // If we don't find one, search for a SKY2000 star within 2 arcseconds of the Hipparcos/Tycho star.
+    // If we find one, copy data from the Hip/Tyc star to the SKY2000 star.
+    // If we don't, append the Hipparcos/Tycho star to the SKY2000 star vector and remove it
     // from the HIP/TYC star vector (but don't delete it!)
     
     for ( int i = 0; i < hipStars.size(); i++ )
     {
         SSStarPtr pHipStar = SSGetStarPtr ( hipStars.get ( i ) );
         SSStarPtr pSkyStar = SSGetMatchingStar ( pHipStar, skyMaps, skyStars);
-        if ( pSkyStar == nullptr )
+        
+        if ( pSkyStar == nullptr && pHipStar->getVMagnitude() < 10.0 )
+        {
+            vector<SSObjectPtr> results;
+            skyHTM.search ( 0, pHipStar->getFundamentalPosition(), SSAngle::fromArcsec ( 2.0 ), results );
+            if ( results.size() > 0 )
+                pSkyStar = SSGetStarPtr ( results[0] );
+        }
+        
+        if ( pSkyStar )
+        {
+            addSKY2000StarData ( pHipStar, pSkyStar );
+        }
+        else
         {
             skyStars.append ( pHipStar );
             hipStars.set ( i, nullptr );
         }
     }
+    
+    skyHTM.clearRegions();
     
     // Delete remaining Hip/Tyc star array to prevent double-deletes.
     
