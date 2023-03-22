@@ -50,6 +50,12 @@
             ReferencedContainer = "container:SSTest.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-f -n4 -i/Users/timmyd/Desktop/align.dat -o/Users/timmyd/Desktop/align.out"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

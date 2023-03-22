@@ -13,6 +13,7 @@
 #include <thread>
 
 #include "SSMount.hpp"
+#include "SSMountModel.hpp"
 #include "SSUtilities.hpp"
 
 map<SSMount::Error,string> SSMountErrors =
@@ -31,6 +32,39 @@ map<SSMount::Error,string> SSMountErrors =
 
 int main ( int argc, const char * argv[] )
 {
+    // alignment stars format is { x, y, alt, azm },
+    // (x,y) are encoder counts; (alt,azm) are in degrees
+    
+    double stars[10][4] =
+    {
+        { 17, 3866, 63.927860, -4.134850 },
+        { 2097, 3987, 58.157393, 83.200673 },
+        { 1349, 4072, 54.451366, 54.451366 },
+        { 1378, -3978, 48.301383, 52.845623 },
+        { 2297, -3709, 36.089183, 92.311798 },
+        { 1066, -3626, 32.031212, 39.272662 },
+        { 1251, 3683, 71.564240, 48.027036 },
+        { 289, -3854, 43.183365, 5.714938 },
+        { -734, -4035, 52.109516, -38.657697 },
+        { -863, -3695, 36.817657, -44.943200 }
+    };
+    
+    SSMountModel model ( 4, 0, 0 );
+    
+    for ( int i = 0; i < 10; i++ )
+        model.addStar ( stars[i][0], stars[i][1], SSAngle::fromDegrees ( stars[i][3] ), SSAngle::fromDegrees ( stars[i][2] ) );
+    
+    double rms_err = model.align();
+    for ( int i = 0; i < 10; i++ )
+    {
+        SSAngle azm, alt;
+        model.encodersToCelestial ( stars[i][0], stars[i][1], azm, alt );
+        printf ( "%5.0f %5.0f  %.9f %.9f  %.9f %.9f\n",
+                stars[i][0], stars[i][1], stars[i][3], stars[i][2], azm.toDegrees(), alt.toDegrees() );
+    }
+    
+    cout << "RMS alignment error: " << rms_err << endl;
+    
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;

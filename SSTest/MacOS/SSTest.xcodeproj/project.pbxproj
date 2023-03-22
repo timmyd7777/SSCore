@@ -72,6 +72,8 @@
 		A388CCDC24CF7EAB009EA2CA /* SSView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A388CCDA24CF7EAB009EA2CA /* SSView.cpp */; };
 		A39A54C0244BDBD00010334B /* SSEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A39A54BE244BDBD00010334B /* SSEvent.cpp */; };
 		A3AAE7B3242972E70035E668 /* SSImportNGCIC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3AAE7B1242972E70035E668 /* SSImportNGCIC.cpp */; };
+		A3BEBE9A29CA59F10048AAFA /* SSMountModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BEBE9829CA59F10048AAFA /* SSMountModel.cpp */; };
+		A3BEBE9B29CA59F10048AAFA /* SSMountModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BEBE9829CA59F10048AAFA /* SSMountModel.cpp */; };
 		A3BFC838242BEDB2001CBE62 /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */; };
 		A3C22D0424574695004CE083 /* VSOP2013.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22CFA24574695004CE083 /* VSOP2013.cpp */; };
 		A3C22D1524574892004CE083 /* VSOP2013p9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D0C24574892004CE083 /* VSOP2013p9.cpp */; };
@@ -179,6 +181,8 @@
 		A39A54BF244BDBD00010334B /* SSEvent.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSEvent.hpp; sourceTree = "<group>"; };
 		A3AAE7B1242972E70035E668 /* SSImportNGCIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportNGCIC.cpp; sourceTree = "<group>"; };
 		A3AAE7B2242972E70035E668 /* SSImportNGCIC.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSImportNGCIC.hpp; sourceTree = "<group>"; };
+		A3BEBE9829CA59F10048AAFA /* SSMountModel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSMountModel.cpp; sourceTree = "<group>"; };
+		A3BEBE9929CA59F10048AAFA /* SSMountModel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSMountModel.hpp; sourceTree = "<group>"; };
 		A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSConstellation.cpp; sourceTree = "<group>"; };
 		A3BFC837242BEDB2001CBE62 /* SSConstellation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSConstellation.hpp; sourceTree = "<group>"; };
 		A3C22CF924574695004CE083 /* VSOP2013.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = VSOP2013.hpp; sourceTree = "<group>"; };
@@ -281,6 +285,8 @@
 				4703A8812404EF3800BDD11C /* SSMatrix.hpp */,
 				A37E084C28D399B600489544 /* SSMount.cpp */,
 				A37E084728D399B600489544 /* SSMount.hpp */,
+				A3BEBE9829CA59F10048AAFA /* SSMountModel.cpp */,
+				A3BEBE9929CA59F10048AAFA /* SSMountModel.hpp */,
 				A3848E972450E9CD0085973F /* SSMoonEphemeris.cpp */,
 				A3848E982450E9CD0085973F /* SSMoonEphemeris.hpp */,
 				A30545C0241EDBB400197F8A /* SSObject.cpp */,
@@ -453,6 +459,7 @@
 				A3AAE7B3242972E70035E668 /* SSImportNGCIC.cpp in Sources */,
 				A36E2195242A7CF6005C9699 /* SSImportMPC.cpp in Sources */,
 				4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */,
+				A3BEBE9A29CA59F10048AAFA /* SSMountModel.cpp in Sources */,
 				A30545C8241EF45000197F8A /* SSStar.cpp in Sources */,
 				A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */,
 				A33E45B82438E7F900C15780 /* SSTLE.cpp in Sources */,
@@ -478,6 +485,7 @@
 				A37E084F28D399B600489544 /* SSSocket.cpp in Sources */,
 				A34D209928D3A04B0005A5F1 /* VSOP2013p2.cpp in Sources */,
 				A34D208D28D39FCB0005A5F1 /* SSConstellation.cpp in Sources */,
+				A3BEBE9B29CA59F10048AAFA /* SSMountModel.cpp in Sources */,
 				A34D209A28D3A04B0005A5F1 /* VSOP2013p1.cpp in Sources */,
 				A34D208428D39EFA0005A5F1 /* SSUtilities.cpp in Sources */,
 				A34D208828D39F780005A5F1 /* SSPlanet.cpp in Sources */,
