@@ -54,7 +54,7 @@ protected:
 
 public:
     
-    SSMountModel ( int n_params, int xres, int yres );
+    SSMountModel ( int xres, int yres );
     
     bool adjustable ( int param );
     void adjustable ( int param, bool adj );
@@ -70,6 +70,7 @@ public:
     void reset ( void );
     
     double align ( void );
+    bool getResiduals ( int i, double &azm_resid, double &alt_resid );
 };
 
 #endif /* SSMountModel_hpp */

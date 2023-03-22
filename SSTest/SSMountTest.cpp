@@ -30,12 +30,25 @@ map<SSMount::Error,string> SSMountErrors =
     { SSMount::kTimedOut, "kTimedOut" }
 };
 
-int main ( int argc, const char * argv[] )
+// Tests SSMountModel class with sample data provided by Project Pluto.
+// Expected output should look like this:
+// Aligned model parameters:
+// -0.0007669904
+// -2.1942641713
+//  0.0007669904
+// -0.1358079290
+// Xencoder   Yencoder     Azimuth   Altitude      AzmPred    AltPred     AzmResid   AltResid
+//    17.00    3866.00      -4.135     63.928       -7.034     64.385       -1.253      0.457
+//  2097.00    3987.00      83.201     58.157       84.372     59.068        0.602      0.911
+// ...
+// RMS alignment error: 1.3236 degrees
+
+void TestMountModel ( void )
 {
     // alignment stars format is { x, y, alt, azm },
     // (x,y) are encoder counts; (alt,azm) are in degrees
     
-    double stars[10][4] =
+    double stars[20][4] =
     {
         { 17, 3866, 63.927860, -4.134850 },
         { 2097, 3987, 58.157393, 83.200673 },
@@ -46,24 +59,58 @@ int main ( int argc, const char * argv[] )
         { 1251, 3683, 71.564240, 48.027036 },
         { 289, -3854, 43.183365, 5.714938 },
         { -734, -4035, 52.109516, -38.657697 },
-        { -863, -3695, 36.817657, -44.943200 }
+        { -863, -3695, 36.817657, -44.943200 },
+        { -1114, 3673, 73.631468, -51.839778 },
+        { -1451, -3813, 42.814768, -70.685456 },
+        { -2219, -3702, 38.135595, -105.351328 },
+        { -2459, 4072, 57.049984, -115.766982 },
+        { -3297, -3997, 51.568455, -154.108377 },
+        { -3850, -3652, 35.250054, -178.349256 },
+        { -4035, 3784, 68.866570, 171.432717 },
+        { 3004, 3796, 67.167076, 120.747715 },
+        { 3518, -3685, 36.055417, 145.187806 },
+        { 354, 3871, 63.454505, 9.651296 }
     };
     
-    SSMountModel model ( 4, 0, 0 );
+    // Create mount model with 8192-step encoders on both axes.
+    // Then add alignment stars.
     
-    for ( int i = 0; i < 10; i++ )
+    SSMountModel model ( 8192, 8192 );
+    for ( int i = 0; i < 20; i++ )
         model.addStar ( stars[i][0], stars[i][1], SSAngle::fromDegrees ( stars[i][3] ), SSAngle::fromDegrees ( stars[i][2] ) );
     
+    // Align the model, then print best-fit model parameters
+    
     double rms_err = model.align();
-    for ( int i = 0; i < 10; i++ )
+    printf ( "Aligned model parameters:\n" );
+    for ( int i = 0; i < 4; i++ )
+        printf ( "%13.10f\n", model.getParameter ( i ) );
+    
+    // Print encoder positions, celestial coordinates, and residuals for alignment stars
+    
+    printf( "\n%10s %10s  %10s %10s   %10s %10s   %10s %10s\n",
+           "Xencoder", "Yencoder", "Azimuth", "Altitude",
+           "AzmPred", "AltPred", "AzmResid", "AltResid" );
+
+    for ( int i = 0; i < 20; i++ )
     {
         SSAngle azm, alt;
         model.encodersToCelestial ( stars[i][0], stars[i][1], azm, alt );
-        printf ( "%5.0f %5.0f  %.9f %.9f  %.9f %.9f\n",
-                stars[i][0], stars[i][1], stars[i][3], stars[i][2], azm.toDegrees(), alt.toDegrees() );
+        double azm_resid, alt_resid;
+        model.getResiduals ( i, azm_resid, alt_resid );
+        printf( "%10.2lf %10.2lf  %10.3lf %10.3lf   %10.3lf %10.3lf   %10.3lf %10.3lf\n",
+               stars[i][0], stars[i][1], stars[i][3], stars[i][2], azm.toDegrees(), alt.toDegrees(),
+               radtodeg ( azm_resid ), radtodeg ( alt_resid ) );
     }
     
-    cout << "RMS alignment error: " << rms_err << endl;
+    // Print total RMS alignment error
+    
+    cout << "RMS alignment error: " << radtodeg ( rms_err ) << " degrees\n\n";
+}
+
+int main ( int argc, const char * argv[] )
+{
+    TestMountModel();
     
     // Get current location from IP address - this tests SSHTTP API!
     

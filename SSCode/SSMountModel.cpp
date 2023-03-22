@@ -518,14 +518,14 @@ double correct_for_encoders( int n_stars, double *enc, double *ang, double res)
 }
 
 // SSMountModel constructor.
-// Valid mount models should have at least 4 parameters (n_params >= 4).
 // If known, the telescope's mount azimuth and altitude axis encoder
 // steps per revolution should be passed in (xres,yres). If unknown,
 // set them to zero; they will be estimated during align().
+// Initially, the model will have 4 adjustable parameters:
+// MODEL_ALT_RATE, MODEL_ALT_ZERO, MODEL_AZM_RATE, MODEL_AZM_ZERO.
 
-SSMountModel::SSMountModel ( int n_params, int xres, int yres )
+SSMountModel::SSMountModel ( int xres, int yres )
 {
-    _n_params = n_params;
     _xres = xres;
     _yres = yres;
     _n_stars = 0;
@@ -537,10 +537,11 @@ SSMountModel::SSMountModel ( int n_params, int xres, int yres )
     memset ( _azm_stars, 0, sizeof ( _azm_stars ) );
     memset ( _alt_stars, 0, sizeof ( _alt_stars ) );
     
-    for ( int j = 0; j < n_params; j++)
-       _adjustable[j] = true;
+    // Note MODEL_AZM_RATE and MODEL_ALT_RATE will be made
+    // non-adjustable in align() if xres and yres are nonzero.
     
-    // TODO: if xres and yres are known, should we make MODEL_AZM_RATE and MODEL_ALT_RATE not adjustable???
+    for ( int j = 0; j < 4; j++ )
+       _adjustable[j] = true;
 }
 
 // Set adjustability flag for model parameter (param) indexed from 0 ... MODEL_N_PARAMS - 1
@@ -612,7 +613,7 @@ void SSMountModel::reset ( void )
 
 double SSMountModel::align ( void )
 {
-    if ( _xres || _yres )
+    if ( _xres && _yres )
     {
         if ( _n_stars < 2 )
         {
@@ -624,6 +625,9 @@ double SSMountModel::align ( void )
             _m[MODEL_AZM_RATE] = correct_for_encoders ( _n_stars, _x_stars, _azm_stars, labs ( _xres ) );
             _m[MODEL_ALT_RATE] = correct_for_encoders ( _n_stars, _y_stars, _alt_stars, labs ( _yres ) );
         }
+        
+        _adjustable[MODEL_AZM_RATE] = false;
+        _adjustable[MODEL_ALT_RATE] = false;
     }
     
     _m[MODEL_ALT_ZERO] = 0.0;
@@ -676,18 +680,12 @@ double SSMountModel::align ( void )
     for ( int i = 0; i < _n_stars; i++ )
     {
         double xresid = 0.0, yresid = 0.0;
-        double alt1 = 0.0, azm1 = 0.0;
-        
-        encoder_to_alt_az ( _m, _x_stars[i], _y_stars[i], &alt1, &azm1 );
-        while ( azm1 - _azm_stars[i] >  PI ) azm1 -= PI + PI;
-        while ( azm1 - _azm_stars[i] < -PI ) azm1 += PI + PI;
-        xresid = ( azm1 - _azm_stars[i] ) * cos ( alt1 );
-        yresid = ( alt1 - _alt_stars[i] );
+        getResiduals ( i, xresid, yresid );
         rms_x += xresid * xresid;
         rms_y += yresid * yresid;
     }
     
-    // compute RMS residual in alt and az; return total RMS residual
+    // compute RMS residual in alt and az; return total RMS residual in radians
     
     rms_total = sqrt ( ( rms_x + rms_y ) / _n_stars );
     rms_x = sqrt ( rms_x / _n_stars );
@@ -695,3 +693,24 @@ double SSMountModel::align ( void )
 
     return rms_total;
 }
+
+// Calculates residuals, i.e. differences between actual and predicted position
+// for an alignment star in azimuth (azm_resid) and altitude (alt_resid), in radians.
+// Alignment star index (i) must range from 0 ... number of alignment stars - 1.
+// Only valid after alignment has been performed.
+
+bool SSMountModel::getResiduals ( int i, double &azm_resid, double &alt_resid )
+{
+    if ( i < 0 || i >= _n_stars )
+        return false;
+    
+    double alt1 = 0.0, azm1 = 0.0;
+    encoder_to_alt_az ( _m, _x_stars[i], _y_stars[i], &alt1, &azm1 );
+    while ( azm1 - _azm_stars[i] >  PI ) azm1 -= PI + PI;
+    while ( azm1 - _azm_stars[i] < -PI ) azm1 += PI + PI;
+    azm_resid = ( azm1 - _azm_stars[i] ) * cos ( alt1 );
+    alt_resid = ( alt1 - _alt_stars[i] );
+
+    return true;
+}
+
