@@ -17,12 +17,13 @@
 
 static SSMountProtocolMap _protocols =
 {
-    { kNoProtocol,        "No Protocol" },
+    { kNoProtocol,        "Mount Simulator" },
     { kMeadeLX200,        "Meade LX200" },
     { kMeadeAutostar,     "Meade Autostar" },
     { kCelestronNexStar,  "Celestron NexStar" },
     { kSkyWatcherSynScan, "Skywatcher SynScan" },
-    { kSyntaDirect,       "Synta Direct" }
+    { kSyntaDirect,       "Synta Direct" },
+    { kCelestronAUX,      "Celestron AUX" }
 };
 
 // Obtains map of supported mount protocol names, indexed by protocol identifier.
@@ -48,6 +49,9 @@ SSMountPtr SSNewMount ( SSMountType type, SSMountProtocol protocol, SSCoordinate
     if ( protocol == kSyntaDirect )
         return new SSSyntaMount ( type, coords );
 
+    if ( protocol == kCelestronAUX )
+        return new SSCelestronAUXMount ( type, coords );
+
     return new SSMount ( type, coords );
 };
 
@@ -65,6 +69,22 @@ SSMeadeMountPtr SSGetMeadeMountPtr ( SSMountPtr ptr )
 SSCelestronMountPtr SSGetCelestronMountPtr ( SSMountPtr ptr )
 {
     return dynamic_cast<SSCelestronMount *> ( ptr );
+}
+
+// Downcasts generic SSMount pointer to SSSyntaMount pointer.
+// Returns nullptr if input pointer is not an instance of SSSyntaMount!
+
+SSSyntaMountPtr SSGetSyntaMountPtr ( SSMountPtr ptr )
+{
+    return dynamic_cast<SSSyntaMount *> ( ptr );
+}
+
+// Downcasts generic SSMount pointer to SSCelestronAUXMount pointer.
+// Returns nullptr if input pointer is not an instance of SSCelestronAUXMount!
+
+SSCelestronAUXMountPtr SSGetCelestronAUXMountPtr ( SSMountPtr ptr )
+{
+    return dynamic_cast<SSCelestronAUXMount *> ( ptr );
 }
 
 // Attempts to find SkyFi IPv4 address on the local network via UDP broadcast.
@@ -2269,3 +2289,16 @@ SSMount::Error SSSyntaMount::aligned ( bool &status )
     status = _aligned;
     return kSuccess;
 }
+
+// Overrides and mount-specific methods for Celestron AUX mount motor controllers.
+// See http://www.paquettefamily.ca/nexstar/NexStar_AUX_Commands_10.pdf
+// SSCelestronAUXMount constructor:
+
+SSCelestronAUXMount::SSCelestronAUXMount ( SSMountType type, SSCoordinates &coords ) : SSMount ( type, coords )
+{
+    _protocol = kCelestronAUX;
+    // _countsPerRev[kAzmRAAxis] = _countsPerRev[kAltDecAxis] = 0;
+    // _breakSteps[kAzmRAAxis] = _breakSteps[kAltDecAxis] = 3500;
+    _aligned = false;
+}
+

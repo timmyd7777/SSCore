@@ -41,7 +41,8 @@ enum SSMountProtocol
     kMeadeAutostar = 1001,      // Meade Autostar and Audiostar controllers
     kCelestronNexStar = 2000,   // Celestron NexStar and StarSense controllers
     kSkyWatcherSynScan = 2001,  // SkyWatcher and Orion SynScan controllers
-    kSyntaDirect = 3000         // Direct interface to Synta motor controllers (e.g. SynScan Wi-Fi, EQMOD, EQDIR)
+    kSyntaDirect = 3000,        // Direct interface to Synta motor controllers (e.g. SynScan Wi-Fi, EQMOD, EQDIR)
+    kCelestronAUX = 4000        // Celestron AUX port communication (e.g. Celestron Wi-Fi Link)
 };
 
 // Directional slew axis identifiers
@@ -317,6 +318,21 @@ public:
     virtual Error getSite ( SSSpherical &site ) { return kNotSupported; }
 };
 
+// Overrides for Celestron AUX port mount communication.
+// Implements direct communication with Celestron mount motors via AUX port,
+// bypassing the NexStar hand controller, via Celestron Wi-Fi adapter.
+// This class is still somewhat experimental; it should work if the mount is
+// perfectly polar aligned (equatorial mounts) or perfectly level (alt-azimuth).
+// Really we should use a mount pointing model and mult-star alignment. TBD!
+
+class SSCelestronAUXMount : public SSMount
+{
+public:
+    
+    SSCelestronAUXMount ( SSMountType type, SSCoordinates &coords );
+
+};
+
 // Obtains map of supported mount protocol names, indexed by protocol identifier
 
 typedef map<SSMountProtocol,string> SSMountProtocolMap;
@@ -326,6 +342,7 @@ typedef SSMount *SSMountPtr;
 typedef SSMeadeMount *SSMeadeMountPtr;
 typedef SSCelestronMount *SSCelestronMountPtr;
 typedef SSSyntaMount *SSSyntaMountPtr;
+typedef SSCelestronAUXMount *SSCelestronAUXMountPtr;
 
 // Allocates new SSMount (or subclass of SSMount) depending on supplied protocol identifier.
 
@@ -336,6 +353,8 @@ SSMountPtr SSNewMount ( SSMountType type, SSMountProtocol protocol, SSCoordinate
 
 SSMeadeMountPtr SSGetMeadeMountPtr ( SSMountPtr ptr );
 SSCelestronMountPtr SSGetCelestronMountPtr ( SSMountPtr ptr );
+SSSyntaMountPtr SSGetSyntaMountPtr ( SSMountPtr ptr );
+SSCelestronAUXMountPtr SSGetCelesronAUXMountPtr ( SSMountPtr ptr );
 
 // Attempts to find IPv4 address of SkyFi with the given name.
 // The function returns true if successful or false on failure.
