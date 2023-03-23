@@ -398,20 +398,6 @@ int alt_az_to_encoder( const double *m, const double alt, const double az, doubl
    return( 0);
 }
 
-int set_up_scope_model( double *m, const  int n_stars,
-                const double *x, const double *y,
-                const double *alt, const double *az)
-{
-   memset( m, 0, MODEL_N_PARAMS * sizeof( double));
-
-   m[MODEL_ALT_RATE] = (alt[1] - alt[0]) / (y[1] - y[0]);
-   m[MODEL_AZM_RATE] = (az[1] - az[0]) / (x[1] - x[0]);
-   m[MODEL_ALT_ZERO] = alt[0] - y[0] * m[MODEL_ALT_RATE];
-   m[MODEL_AZM_ZERO] = az[0] - x[0] * m[MODEL_AZM_RATE];
-
-   return( 0);
-}
-
 int improve_model( double *m, const int n_stars, const double *x,
             const double *y, const double *alt, const double *az,
             const char *adjustable)

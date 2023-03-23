@@ -239,7 +239,7 @@ protected:
 public:
     SSCelestronMount ( SSMountType type, SSMountProtocol variant, SSCoordinates &coords );
 
-    virtual int maxSlewRate ( void ) { return 10; }
+    virtual int maxSlewRate ( void ) { return 9; }
     virtual Error connect ( const string &path, uint16_t port );
     virtual Error read ( SSAngle &ra, SSAngle &dec );
     virtual Error slew ( SSAngle ra, SSAngle dec );

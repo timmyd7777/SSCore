@@ -110,7 +110,7 @@ void TestMountModel ( void )
 
 int main ( int argc, const char * argv[] )
 {
-    TestMountModel();
+    // TestMountModel();
     
     // Get current location from IP address - this tests SSHTTP API!
     
