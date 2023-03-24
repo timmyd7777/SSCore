@@ -368,12 +368,11 @@ int main ( int argc, const char * argv[] )
 
     // Test slewing() status query
     
-    status = true;
-    while ( status )
+    while ( pMount->slewing() )
     {
-        err = pMount->slewing ( status );
+        err = pMount->read ( ra, dec );
         if ( err )
-            cout << "slewing() returned error " << SSMountErrors[err] << endl;
+            cout << "read() returned error " << SSMountErrors[err] << endl;
         else
             cout << "Still slewing..." << endl;
         sleep ( 1 );
