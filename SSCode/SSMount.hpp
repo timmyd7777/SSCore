@@ -159,7 +159,7 @@ public:
 
     // High-level mount commands, synchronous versions
     
-    virtual Error read ( SSAngle &ra, SSAngle &dec );            // get current mount RA/Dec coordinates
+    virtual Error read ( SSAngle &ra, SSAngle &dec );            // get current mount RA/Dec coordinates and slewing state
     virtual Error slew ( SSAngle ra, SSAngle dec );              // start GoTo slewing to target RA/Dec coordinates at fastest possible rate
     virtual Error slew ( SSSlewAxis axis, int rate );            // start or stop slewing mount on an axis at a positive or negative rate
     virtual Error stop ( void );                                 // stop slewing, cancel any in-progress GoTo, and resume sidereal tracking

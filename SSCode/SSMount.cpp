@@ -615,7 +615,7 @@ SSAngle SSMount::angularRate ( int rate )
 }
 
 // Obtains current RA/Dec coordinates from mount in J2000 equatorial (fundamental) frame.
-// Returns zero if successful or nonzero error code on failure.
+// Returns zero if successful or nonzero error code on failure. Also checks slew state.
 
 SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
 {
@@ -992,7 +992,7 @@ SSMount::Error SSCelestronMount::connect ( const string &path, uint16_t port )
 }
 
 // Gets mount RA/Dec in J2000 mean equatorial (fundamental) frame from NexStar/SynScan controller.
-// Returns zero if successful or nonzero error code on failure.
+// Returns zero if successful or nonzero error code on failure. Also checks slew state.
 
 SSMount::Error SSCelestronMount::read ( SSAngle &ra, SSAngle &dec )
 {
@@ -1039,6 +1039,11 @@ SSMount::Error SSCelestronMount::read ( SSAngle &ra, SSAngle &dec )
 
     if ( _protocol == kCelestronNexStar && strtofloat ( _version ) > 4.175 )
         _coords.transform ( kEquatorial, kFundamental, ra, dec );
+    
+    // If the mount is currently slewing, check to see if the slew has stopped.
+    
+    if ( _slewing )
+        slewing ( _slewing );
     
     _currRA = ra;
     _currDec = dec;
@@ -1407,6 +1412,11 @@ SSMount::Error SSMeadeMount::read ( SSAngle &ra, SSAngle &dec )
     _currRA = ra;
     _currDec = dec;
     
+    // If slewing in progress, check to see if the slew has stopped
+    
+    if ( _slewing )
+        slewing ( _slewing );
+    
     return kSuccess;
 }
 
@@ -1732,6 +1742,7 @@ SSMount::Error SSMeadeMount::getSite ( SSSpherical &site )
 }
 
 // Queries status of a GoTo: true = in progress, false = not slewing.
+// For LX-200 mounts, assumes read() has been called previously; see below.
 // Returns error code or zero if successful.
 
 SSMount::Error SSMeadeMount::slewing ( bool &status )
@@ -1755,15 +1766,11 @@ SSMount::Error SSMeadeMount::slewing ( bool &status )
     {
         // The ":D#" commmand is not supported on many LX-200 clones (Losmany Gemini, AstroPhysics GTO)
         // so test whether a GoTo is in progress by comparing mount's current RA/Dec to target RA/Dec.
+        // This assumes current RA/Dec has previously been read with a read() command!
         
         if ( _slewing )
         {
-            SSAngle ra, dec;
-            err = read ( ra, dec );
-            if ( err )
-                return err;
-            
-            SSAngle sep = SSSpherical ( ra, dec ).angularSeparation ( SSSpherical ( _slewRA, _slewDec ) );
+            SSAngle sep = SSSpherical ( _currRA, _currDec ).angularSeparation ( SSSpherical ( _slewRA, _slewDec ) );
             if ( sep < SSAngle::fromDegrees ( 1.0 ) )
                 _slewing = false;
         }
@@ -2129,7 +2136,7 @@ SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, double rad )
 
 // Gets mount RA/Dec in J2000 mean equatorial (fundamental) frame from Synta motor controller.
 // Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
-// Returns zero if successful or nonzero error code on failure.
+// Returns zero if successful or nonzero error code on failure. Also checks slew state.
 
 SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
 {
@@ -2155,6 +2162,11 @@ SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
     else
         _coords.transform ( kHorizon, kFundamental, ra, dec );
 
+    // If slewing in progress, check to see if the slew has stopped
+    
+    if ( _slewing )
+        slewing ( _slewing );
+    
     return kSuccess;
 }
 
