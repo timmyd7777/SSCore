@@ -327,9 +327,51 @@ public:
 
 class SSCelestronAUXMount : public SSMount
 {
+protected:
+    
+    // Identifiers for known Celestron AUX bus devices.
+    
+    enum Device
+    {
+        kMainBoard = 0x01,          // Main Board
+        kNexStarHC = 0x04,          // NexStar Hand Controller
+        kNexStarPlusHC = 0x0d,      // NexStar+ Hand Controller
+        kStarSenseHC = 0x0e,        // StarSense Hand Controller
+        kAzimuthMC = 0x10,          // Azimuth Motor Controller
+        kAltitudeMC = 0x11,         // Altitude Motor Controller
+        kFocuser = 0x12,            // Focus motor
+        kDewHeater = 0x17,          // Dew Heater
+        kControlApp = 0x20,         // Control application (e.g. SkyPortal)
+        kWiFiLink = 0xb3,           // WiFi Link acccessory
+        kGPS = 0xb0                 // GPS Accessory
+    };
+    
+    // Celestron AUX bus device command identifiers
+    
+    enum Command
+    {
+        kMCGetPosition = 0x01,      // Get position. Response is signed 24-bit fraction of a full rotation.
+        kMCGotoFast = 0x02,         // Goto position at fastest rate. Position is signed 24-bit fraction of a full rotation.
+        kMCSetPosition = 0x04,      // Set position. Position is signed 24-bit fraction of a full rotation.
+        kMCGetModel = 0x05,         // Returns the model number of the telescope
+        kMCGotoDone = 0x13,         // Checks if Goto is complete, where 0x00 = not done, 0xff = done.
+        kMCGotoSlow = 0x17,         // Goto position with slow rate. Position is signed 24-bit fraction of a full rotation.
+        kMCMovePositive = 0x24,     // Move positive (up/right) at rate 0 - 9, rate = 0 means stop.
+        kMCMoveNegative = 0x25,     // Move negative (down/left) at rate 0 - 9, rate = 0 means stop.
+        kGetVersion = 0xfe          // Get firmware version, where byte 0 = major, byte 1 = minor, byte 2-3 = build.
+    };
+    
+    char _sendBuff[256];    // contains most-recently-sent AUX bus packet
+    char _recvBuff[256];    // contains most-recently-read AUX bus packet
+    
+    Error sendAUXPacket ( uint8_t cmd, uint8_t len, uint8_t *data, uint8_t src, uint8_t dst );
+    Error recvAUXPacket ( uint8_t &cmd, uint8_t &len, uint8_t *data, uint8_t &src, uint8_t &dst );
+
 public:
     
     SSCelestronAUXMount ( SSMountType type, SSCoordinates &coords );
+
+    virtual Error connect ( const string &path, uint16_t port );
 
 };
 

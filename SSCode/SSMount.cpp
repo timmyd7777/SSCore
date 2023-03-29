@@ -2312,5 +2312,112 @@ SSCelestronAUXMount::SSCelestronAUXMount ( SSMountType type, SSCoordinates &coor
     // _countsPerRev[kAzmRAAxis] = _countsPerRev[kAltDecAxis] = 0;
     // _breakSteps[kAzmRAAxis] = _breakSteps[kAltDecAxis] = 3500;
     _aligned = false;
+    
+    memset ( _sendBuff, 0, sizeof ( _sendBuff ) );
+    memset ( _recvBuff, 0, sizeof ( _recvBuff ) );
 }
 
+// Sends a Celestron AUX bus packet containing a command to a specific device.
+// The source device (src) identifies which AUX bus device is sending the packet.
+// The destination device (dst) identifies which AUX bus device should recieve the packet.
+// The command identifier (cmd) is specific to the destination device.
+// Any command-specific parameters (data) should be provided in the supplied buffer.
+// The data buffer length (len) is the number of bytes of command-specific data.
+// This method returns kSuccess or a non-zero error code on failure.
+
+SSMount::Error SSCelestronAUXMount::sendAUXPacket ( uint8_t cmd, uint8_t len, uint8_t *data, uint8_t src, uint8_t dst )
+{
+    memset ( _sendBuff, 0, sizeof ( _sendBuff ) );
+    
+    _sendBuff[0] = 0x3b;
+    _sendBuff[1] = len + 3;
+    _sendBuff[2] = src;
+    _sendBuff[3] = dst;
+    _sendBuff[4] = cmd;
+
+    memcpy ( &_sendBuff[5], data, len );
+    
+    char checksum = 0;
+    for ( int i = 1; i < len + 5; i++ )
+        checksum += _sendBuff[i];
+    
+    _sendBuff[len + 5] = -checksum;
+    return command ( _sendBuff, len + 6, NULL, 0, 0 );
+}
+
+// Receives a Celestron AUX bus packet in reply to a previously-send command packet.
+// The source device (src) identifies the AUX bus sending the response packet.
+// The destination device (dst) identifies the AUX bus that originally sent the packet.
+// The command identifier (cmd) echoes the command originally sent to the device.
+// Any reply-specific parameters (data) will be copied to this buffer, which must be able to receive up to 255 bytes.
+// The number of bytes actually copied to the data buffer (len) may be from 0 to 255.
+// This method returns kSuccess or a non-zero error code on failure.
+
+SSMount::Error SSCelestronAUXMount::recvAUXPacket ( uint8_t &cmd, uint8_t &len, uint8_t *data, uint8_t &src, uint8_t &dst )
+{
+    memset ( _recvBuff, 0, sizeof ( _sendBuff ) );
+    Error err = command ( NULL, 0, _recvBuff, 5, 0 );
+    if ( err != kSuccess )
+        return err;
+    
+    if ( _recvBuff[0] != 0x3b )
+        return kInvalidOutput;
+    
+    len = _recvBuff[1] - 3;
+    src = _recvBuff[2];
+    dst = _recvBuff[3];
+    cmd = _recvBuff[4];
+    
+    err = command ( NULL, 0, &_recvBuff[5], len + 1, 0 );
+    if ( err != kSuccess )
+        return err;
+        
+    memcpy ( data, &_recvBuff[5], len );
+    
+    char checksum = 0;
+    for ( int i = 1; i < len + 5; i++ )
+        checksum += _recvBuff[i];
+
+    if ( _recvBuff[len + 5] != -checksum )
+        return kInvalidOutput;
+    
+    return kSuccess;
+}
+
+SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port )
+{
+    Error err = kSuccess;
+    
+    // Open serial communication at 9600 baud, no parity, 8 data bits, 1 stop bit.
+    
+    err = SSMount::connect ( path, port, 9600, SSSerial::kNoParity, SSSerial::k8DataBits, SSSerial::k1StopBits );
+    if ( err != kSuccess )
+        return err;
+
+    // Get motor board version on both axes
+    
+    string data;
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        err = sendAUXPacket ( kGetVersion, 0, nullptr, kControlApp, kAzimuthMC + axis );
+        if ( err != kSuccess )
+            return err;
+        
+        uint8_t cmd = 0, src = 0, dst = 0, len = 0, data[256] = { 0 };
+        err = recvAUXPacket ( cmd, len, data, src, dst );
+        if ( err != kSuccess )
+            return err;
+        
+        // Parse both 2- and 4-byte respobses to the version command.
+        
+        if ( len == 2 )
+            _version += format ( "%d.%d", data[0], data[1] );
+        else if ( len == 4 )
+            _version += format ( "%d.%d.%d", data[0], data[1], 256 * (int) data[2] + data[3] );
+        
+        if ( axis == kAzmRAAxis )
+            _version += ",";
+    }
+
+    return kSuccess;
+}
