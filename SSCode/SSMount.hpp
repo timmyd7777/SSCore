@@ -330,6 +330,7 @@ class SSCelestronAUXMount : public SSMount
 protected:
     
     // Identifiers for known Celestron AUX bus devices.
+    // See https://github.com/platini2/celestronauxbus/blob/main/celestron.py
     
     enum Device
     {
@@ -366,13 +367,24 @@ protected:
     
     Error sendAUXPacket ( uint8_t cmd, uint8_t len, uint8_t *data, uint8_t src, uint8_t dst );
     Error recvAUXPacket ( uint8_t &cmd, uint8_t &len, uint8_t *data, uint8_t &src, uint8_t &dst );
-
+    Error commandAUXDevice ( uint8_t cmd, uint8_t dst, uint8_t sendLen, uint8_t *sendData, uint8_t &recvLen, uint8_t *recvData );
+    
+    static constexpr double kStepsPerRad = 0x01000000 / SSAngle::kTwoPi; // 2670176.85772
+    static double stepsToRadians ( int32_t steps ) { return steps / kStepsPerRad; }
+    static int32_t radiansToSteps ( double rad ) { return rad * kStepsPerRad; }
+    
 public:
     
     SSCelestronAUXMount ( SSMountType type, SSCoordinates &coords );
+    virtual int maxSlewRate ( void ) { return 9; }
 
     virtual Error connect ( const string &path, uint16_t port );
-
+    virtual Error read ( SSAngle &ra, SSAngle &dec );
+    virtual Error slew ( SSAngle ra, SSAngle dec );
+    virtual Error slew ( SSSlewAxis axis, int rate );
+    virtual Error stop ( void );
+    virtual Error sync ( SSAngle ra, SSAngle dec );
+    virtual Error slewing ( bool &status );
 };
 
 // Obtains map of supported mount protocol names, indexed by protocol identifier

@@ -2303,7 +2303,6 @@ SSMount::Error SSSyntaMount::aligned ( bool &status )
 }
 
 // Overrides and mount-specific methods for Celestron AUX mount motor controllers.
-// See http://www.paquettefamily.ca/nexstar/NexStar_AUX_Commands_10.pdf
 // SSCelestronAUXMount constructor:
 
 SSCelestronAUXMount::SSCelestronAUXMount ( SSMountType type, SSCoordinates &coords ) : SSMount ( type, coords )
@@ -2318,6 +2317,7 @@ SSCelestronAUXMount::SSCelestronAUXMount ( SSMountType type, SSCoordinates &coor
 }
 
 // Sends a Celestron AUX bus packet containing a command to a specific device.
+// See http://www.paquettefamily.ca/nexstar/NexStar_AUX_Commands_10.pdf
 // The source device (src) identifies which AUX bus device is sending the packet.
 // The destination device (dst) identifies which AUX bus device should recieve the packet.
 // The command identifier (cmd) is specific to the destination device.
@@ -2346,6 +2346,7 @@ SSMount::Error SSCelestronAUXMount::sendAUXPacket ( uint8_t cmd, uint8_t len, ui
 }
 
 // Receives a Celestron AUX bus packet in reply to a previously-send command packet.
+// See http://www.paquettefamily.ca/nexstar/NexStar_AUX_Commands_10.pdf
 // The source device (src) identifies the AUX bus sending the response packet.
 // The destination device (dst) identifies the AUX bus that originally sent the packet.
 // The command identifier (cmd) echoes the command originally sent to the device.
@@ -2371,8 +2372,9 @@ SSMount::Error SSCelestronAUXMount::recvAUXPacket ( uint8_t &cmd, uint8_t &len, 
     err = command ( NULL, 0, &_recvBuff[5], len + 1, 0 );
     if ( err != kSuccess )
         return err;
-        
-    memcpy ( data, &_recvBuff[5], len );
+    
+    if ( data != nullptr )
+        memcpy ( data, &_recvBuff[5], len );
     
     char checksum = 0;
     for ( int i = 1; i < len + 5; i++ )
@@ -2383,6 +2385,38 @@ SSMount::Error SSCelestronAUXMount::recvAUXPacket ( uint8_t &cmd, uint8_t &len, 
     
     return kSuccess;
 }
+
+// Wrapper for the above methods which combine them into a single step.
+// All parameters are as described for the above methods.
+
+SSMount::Error SSCelestronAUXMount::commandAUXDevice ( uint8_t cmd, uint8_t dst,
+uint8_t sendLen, uint8_t *sendData, uint8_t &recvLen, uint8_t *recvData )
+{
+    // Send command packet; return error code on failure
+    
+    SSMount::Error err = sendAUXPacket ( cmd, sendLen, sendData, kControlApp, dst );
+    if ( err != kSuccess )
+        return err;
+    
+    // Receive response packet; return error code on failure
+    
+    uint8_t recvCmd = 0, recvSrc = 0, recvDst = 0;
+    err = recvAUXPacket ( recvCmd, recvLen, recvData, recvSrc, recvDst );
+    if ( err != kSuccess )
+        return err;
+    
+    // Make sure we received a response that corresponds to the command we sent!
+    
+    if ( recvCmd != cmd || recvSrc != dst || recvDst != kControlApp )
+        return kInvalidOutput;
+    
+    return kSuccess;
+}
+
+// Opens serial or socket connection to Celestron AUX mount and reads controller firmware version strings.
+// If port is zero, path is a serial device file (like "/dev/ttyUSBserial0" on Linux or "\\.\COM3" on Windows)
+// If port is nonzero, path is mount IP address or fully-qualified domain name (like "1.2.3.4")
+// Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port )
 {
@@ -2396,28 +2430,237 @@ SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port 
 
     // Get motor board version on both axes
     
-    string data;
     for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
     {
-        err = sendAUXPacket ( kGetVersion, 0, nullptr, kControlApp, kAzimuthMC + axis );
+        uint8_t len = 0, data[256] = { 0 };
+        err = commandAUXDevice ( kGetVersion, kAzimuthMC + axis, 0, nullptr, len, data );
         if ( err != kSuccess )
             return err;
-        
-        uint8_t cmd = 0, src = 0, dst = 0, len = 0, data[256] = { 0 };
-        err = recvAUXPacket ( cmd, len, data, src, dst );
-        if ( err != kSuccess )
-            return err;
-        
+
         // Parse both 2- and 4-byte respobses to the version command.
         
         if ( len == 2 )
             _version += format ( "%d.%d", data[0], data[1] );
         else if ( len == 4 )
             _version += format ( "%d.%d.%d", data[0], data[1], 256 * (int) data[2] + data[3] );
+        else
+            return kInvalidOutput;
         
         if ( axis == kAzmRAAxis )
             _version += ",";
     }
 
+    return kSuccess;
+}
+
+// Gets mount RA/Dec in J2000 mean equatorial (fundamental) frame from Celestron AUX motor controller.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure. Also checks slew state.
+
+SSMount::Error SSCelestronAUXMount::read ( SSAngle &ra, SSAngle &dec )
+{
+    Error err = kSuccess;
+    double lon = 0.0, lat = 0.0;
+    uint32_t pos[2] = { 0 };
+    
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        uint8_t len = 0, data[256] = { 0 };
+        err = commandAUXDevice ( kMCGetPosition, kAzimuthMC + axis, 0, nullptr, len, data );
+        if ( err != kSuccess )
+            return err;
+        
+        if ( len == 3 )
+            pos[axis] = (uint32_t) data[0] << 16 | (uint32_t) data[1] << 8 | data[2];
+        else
+            return kInvalidOutput;
+    }
+    
+    lon = stepsToRadians ( pos[kAzmRAAxis] );
+    lat = stepsToRadians ( pos[kAltDecAxis] );
+
+    // Convert from mount frame of reference to fundamental RA/Dec.
+    // Really we should use a mount model. TBD.
+    // This will also fix declinations > 90!
+    // For equatorial mounts, lon is really hour angle; convert to RA.
+    // HA = LST - RA so RA = LST - HA
+    
+    ra  = isEquatorial() ? _coords.getLST() - lon : lon;
+    dec = lat;
+    
+    if ( isEquatorial() )
+        _coords.transform ( kEquatorial, kFundamental, ra, dec );
+    else
+        _coords.transform ( kHorizon, kFundamental, ra, dec );
+
+    // If slewing in progress, check to see if the slew has stopped
+    
+    if ( _slewing )
+        slewing ( _slewing );
+    
+    return kSuccess;
+}
+
+// Starts GoTo target RA/Dec coordinates in J2000 mean equatorial (fundamental) frame.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSCelestronAUXMount::slew ( SSAngle ra, SSAngle dec )
+{
+    // Convert from fundamental RA/Dec to mount frame of reference.
+    // For equatorial mounts, convert RA to hour angle.
+    // Really we should use a mount model. TBD.
+
+    SSAngle lon = ra, lat = dec;
+    if ( isEquatorial() )
+        _coords.transform ( kFundamental, kEquatorial, lon, lat );
+    else
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
+
+    if ( isEquatorial() )
+        lon = mod2pi ( _coords.getLST() - lon );
+    
+    int32_t steps[2] = { 0 };
+    steps[0] = radiansToSteps ( lon );
+    steps[1] = radiansToSteps ( lat );
+    
+    Error err = kSuccess;
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        uint8_t len = 0, data[256] = { 0 };
+        
+        data[0] = steps[axis] >> 16;
+        data[1] = steps[axis] >> 8;
+        data[2] = steps[axis];
+        
+        // TODO: use GotoSlow if the target coordinates are very close to current position?
+        
+        err = commandAUXDevice ( kMCGotoFast, kAzimuthMC + axis, 3, data, len, nullptr );
+        if ( err != kSuccess )
+            break;
+    }
+
+    if ( err == kSuccess )
+    {
+        _slewing = true;
+        _slewRA = ra;
+        _slewDec = dec;
+    }
+    
+    return err;
+}
+
+// Starts or stops slewing mount on an axis at a positive or negative rate
+// from zero ... maxSlewRate(). If rate is zero, stops slewing on the specified axis.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSCelestronAUXMount::slew ( SSSlewAxis axis, int rate )
+{
+    if ( abs ( rate ) > maxSlewRate() )
+        return kInvalidInput;
+    
+    // TODO: If we have stopped slewing on both axes, get the current sidereal tracking mode
+    
+    if ( _slewRate[kAzmRAAxis] == 0 && _slewRate[kAltDecAxis] == 0 )
+        ;
+
+    uint8_t data = abs ( rate );
+    uint8_t cmd = rate > 0 ? kMCMovePositive : kMCMoveNegative;
+    uint8_t dst = axis == kAzmRAAxis ? kAzimuthMC : kAltitudeMC;
+    uint8_t len = 0;
+    
+    Error err = commandAUXDevice ( cmd, dst, 1, &data, len, nullptr );
+    if ( err )
+        return err;
+    
+    // If we have stopped slewing on both axes, restore the original tracking mode
+    
+    _slewRate[ axis ] = rate;
+    if ( _slewRate[kAzmRAAxis] == 0 && _slewRate[kAltDecAxis] == 0 )
+        ; // TODO: setTrackingMode ( _trackMode );
+    
+    return kSuccess;
+}
+
+// Stops any in-progress GoTo or slew, and resumes sidereal tracking.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSCelestronAUXMount::stop ( void )
+{
+    Error err0 = slew ( kAzmRAAxis, 0 );
+    Error err1 = slew ( kAltDecAxis, 0 );
+    if ( err0 == kSuccess && err1 == kSuccess )
+        _slewing = false;
+    return err0 == kSuccess ? err1 : err0;
+}
+
+// Syncs mount on the specified RA/Dec in J2000 mean equatorial (fundamental) coordinates.
+// Assumes mount is perfectly polar-aligned if equatorial, or perfectly level if altazimuth!
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
+{
+    // Convert from fundamental RA/Dec to mount frame of reference.
+    // For equatorial mounts, convert RA to hour angle.
+    // Really we should use a mount model. TBD.
+
+    SSAngle lon = ra, lat = dec;
+    if ( isEquatorial() )
+        _coords.transform ( kFundamental, kEquatorial, lon, lat );
+    else
+        _coords.transform ( kFundamental, kHorizon, lon, lat );
+
+    if ( isEquatorial() )
+        lon = mod2pi ( _coords.getLST() - lon );
+    
+    int32_t steps[2] = { 0 };
+    steps[0] = radiansToSteps ( lon );
+    steps[1] = radiansToSteps ( lat );
+    
+    Error err = kSuccess;
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        uint8_t len = 0, data[256] = { 0 };
+        
+        data[0] = steps[axis] >> 16;
+        data[1] = steps[axis] >> 8;
+        data[2] = steps[axis];
+        
+        err = commandAUXDevice ( kMCSetPosition, kAzimuthMC + axis, 3, data, len, nullptr );
+        if ( err != kSuccess )
+            break;
+    }
+
+    if ( err == kSuccess )
+    {
+        _slewing = true;
+        _slewRA = ra;
+        _slewDec = dec;
+    }
+    
+    return err;
+}
+
+// Queries status of a GoTo: true = in progress, false = not slewing.
+// Returns error code or zero if successful.
+
+SSMount::Error SSCelestronAUXMount::slewing ( bool &status )
+{
+    uint8_t done[2] = { 0 };
+    
+    for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
+    {
+        uint8_t len = 0, data[256] = { 0 };
+        Error err = commandAUXDevice ( kMCGotoDone, kAzimuthMC, 0, nullptr, len, data );
+        if ( err != kSuccess )
+            return err;
+        
+        if ( len == 1 )
+            done[axis] = data[0];
+        else
+            return kInvalidOutput;
+    }
+    
+    status = done[0] && done[1] ? false : true;
     return kSuccess;
 }
