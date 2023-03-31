@@ -2333,7 +2333,8 @@ SSMount::Error SSCelestronAUXMount::sendAUXPacket ( uint8_t cmd, uint8_t len, ui
     _sendBuff[3] = dst;
     _sendBuff[4] = cmd;
 
-    memcpy ( &_sendBuff[5], data, len );
+    if ( data != nullptr && len > 0 )
+        memcpy ( &_sendBuff[5], data, len );
     
     char checksum = 0;
     for ( int i = 1; i < len + 5; i++ )
@@ -2378,7 +2379,10 @@ SSMount::Error SSCelestronAUXMount::recvAUXPacket ( uint8_t &cmd, uint8_t &len, 
     for ( int i = 1; i < len + 5; i++ )
         checksum += _recvBuff[i];
 
-    if ( _recvBuff[len + 5] != (uint8_t) -checksum )
+    // negate checkum first, so comparison works correctly if char type is unsigned!
+    
+    checksum = -checksum;
+    if ( _recvBuff[len + 5] != checksum )
         return kInvalidOutput;
     
     return kSuccess;
