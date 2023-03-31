@@ -155,9 +155,9 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     _retries = 1;
     _timeout = 3000;
 
-    _initRA = _initDec = 0;
-    _currRA = _currDec = 0;
-    _slewRA = _slewDec = 0;
+    _initLon = _initLat = 0;
+    _currLon = _currLat = 0;
+    _slewLon = _slewLat = 0;
     
     _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
     _slewTime[ kAzmRAAxis ] = _slewTime[ kAltDecAxis ] = 0;
@@ -626,10 +626,10 @@ SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
     {
         double angRate = angularRate ( _slewRate[kAzmRAAxis] );
         double elapSec = clocksec() - _slewTime[ kAzmRAAxis ];
-        _currRA = mod2pi ( _initRA + elapSec * angRate );
-        if ( _slewing && ( elapSec > modpi ( _slewRA - _initRA ) / angRate ) )
+        _currLon = mod2pi ( _initLon + elapSec * angRate );
+        if ( _slewing && ( elapSec > modpi ( _slewLon - _initLon ) / angRate ) )
         {
-            _currRA = _slewRA;
+            _currLon = _slewLon;
             _slewRate[ kAzmRAAxis ] = _slewTime[ kAzmRAAxis ] = 0;
         }
     }
@@ -641,10 +641,10 @@ SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
     {
         double angRate = angularRate ( _slewRate[kAltDecAxis] );
         double elapSec = clocksec() - _slewTime[ kAltDecAxis ];
-        _currDec = clamp ( (double) _initDec + elapSec * angRate, -SSAngle::kHalfPi, SSAngle::kHalfPi );
-        if ( _slewing && ( elapSec > ( _slewDec - _initDec ) / angRate ) )
+        _currLat = clamp ( (double) _initLat + elapSec * angRate, -SSAngle::kHalfPi, SSAngle::kHalfPi );
+        if ( _slewing && ( elapSec > ( _slewLat - _initLat ) / angRate ) )
         {
-            _currDec = _slewDec;
+            _currLat = _slewLat;
             _slewRate[ kAltDecAxis ] = _slewTime[ kAltDecAxis ] = 0;
         }
     }
@@ -655,8 +655,7 @@ SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
         if ( _slewRate[ kAzmRAAxis ] == 0 && _slewRate[ kAltDecAxis ] == 0 )
             _slewing = false;
     
-    ra = _currRA;
-    dec = _currDec;
+    mountToFundamental ( _currLon, _currLat, ra, dec );
     return kSuccess;
 };
 
@@ -666,14 +665,14 @@ SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
 
 SSMount::Error SSMount::slew ( SSAngle ra, SSAngle dec )
 {
-    _initRA = _currRA;
-    _initDec = _currDec;
-    _slewRA = ra;
-    _slewDec = dec;
+    _initLon = _currLon;
+    _initLat = _currLat;
+    fundamentalToMount ( ra, dec, _slewLon, _slewLat );
+
     _slewing = true;
     _slewTime[kAzmRAAxis] = _slewTime[kAltDecAxis] = clocksec();
-    _slewRate[kAzmRAAxis] = modpi ( _slewRA - _initRA ) >= 0.0 ? 4 : -4;
-    _slewRate[kAltDecAxis] = _slewDec >= _initDec ? 4 : -4;
+    _slewRate[kAzmRAAxis] = modpi ( _slewLon - _initLon ) >= 0.0 ? 4 : -4;
+    _slewRate[kAltDecAxis] = _slewLat >= _initLat ? 4 : -4;
     return kSuccess;
 }
 
@@ -688,15 +687,15 @@ SSMount::Error SSMount::slew ( SSSlewAxis axis, int rate )
     {
         if ( rate == 0 )    // If stopping, update mount position and reset time.
         {
-            read ( _currRA, _currDec );
+            SSAngle ra, dec;
+            read ( ra, dec );
+            fundamentalToMount ( ra, dec, _currLon, _currLat );
             _slewTime[ axis ] = 0.0;
         }
         else    // If starting, save start position and time.
         {
-            if ( axis == kAzmRAAxis )
-                 _initRA = _currRA;
-            else
-                _initDec = _currDec;
+            _initLon = _currLon;
+            _initLat = _currLat;
             _slewTime[ axis ] = clocksec();
         }
 
@@ -712,8 +711,9 @@ SSMount::Error SSMount::slew ( SSSlewAxis axis, int rate )
 
 SSMount::Error SSMount::stop ( void )
 {
+    SSAngle ra, dec;
     if ( _slewing )
-        read ( _currRA, _currDec );
+        read ( ra, dec );
     
     _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
     _slewTime[ kAzmRAAxis ] = _slewTime[ kAltDecAxis ] = 0;
@@ -727,8 +727,7 @@ SSMount::Error SSMount::stop ( void )
 
 SSMount::Error SSMount::sync ( SSAngle ra, SSAngle dec )
 {
-    _currRA = ra;
-    _currDec = dec;
+    fundamentalToMount ( ra, dec, _currLon, _currLat );
     _aligned = true;
     return kSuccess;
 }
@@ -738,7 +737,6 @@ SSMount::Error SSMount::sync ( SSAngle ra, SSAngle dec )
 
 SSMount::Error SSMount::slewing ( bool &status )
 {
-    read ( _currRA, _currDec );
     status = _slewing;
     return kSuccess;
 }
@@ -785,6 +783,32 @@ SSMount::Error SSMount::getTime ( SSTime &time )
 SSMount::Error SSMount::getSite ( SSSpherical &site )
 {
     return SSLocationFromIP ( site ) ? kSuccess : kTimedOut;
+}
+
+// Converts spherical coordinates (ra,dec) in the fundamental (J2000 mean equatorial) frame
+// to spherical coordinates (lon,lat) in the mount's reference frame, where (lon,lat) are:
+// (hour angle,declination) for equatorial mounts
+// (azimuth,altitude) for alt-azimuth mounts
+
+void SSMount::fundamentalToMount ( SSAngle ra, SSAngle dec, SSAngle &lon, SSAngle &lat )
+{
+    lon = ra; lat = dec;
+    _coords.transform ( kFundamental, isEquatorial() ? kEquatorial : kHorizon, lon, lat );
+    if ( isEquatorial() )   // HA = LST - RA
+        lon = mod2pi ( _coords.getLST() - lon );
+}
+
+// Converts spherical coordinates (lon,lat) in the mount's reference frame, where (lon,lat) are:
+// (hour angle,declination) for equatorial mounts
+// (azimuth,altitude) for alt-azimuth mounts
+// to spherical coordinates (ra,dec) in the fundamental (J2000 mean equatorial) frame.
+
+void SSMount::mountToFundamental ( SSAngle lon, SSAngle lat, SSAngle &ra, SSAngle &dec )
+{
+    if ( isEquatorial() )   // RA = LST - HA
+        lon = mod2pi ( _coords.getLST() - lon );
+    _coords.transform ( isEquatorial() ? kEquatorial : kHorizon, kFundamental, lon, lat );
+    ra = lon; dec = lat;
 }
 
 // Aynchronous read command. Launches read() in a background thread,
@@ -1045,8 +1069,8 @@ SSMount::Error SSCelestronMount::read ( SSAngle &ra, SSAngle &dec )
     if ( _slewing )
         slewing ( _slewing );
     
-    _currRA = ra;
-    _currDec = dec;
+    _currLon = ra;
+    _currLat = dec;
     return kSuccess;
 }
 
@@ -1076,8 +1100,8 @@ SSMount::Error SSCelestronMount::slew ( SSAngle ra, SSAngle dec )
     
     // If successful, save slew target RA/Dec and set slewing state flag
     
-    _slewRA = ra;
-    _slewDec = dec;
+    _slewLon = ra;
+    _slewLat = dec;
     _slewing = true;
     return kSuccess;
 }
@@ -1409,8 +1433,8 @@ SSMount::Error SSMeadeMount::read ( SSAngle &ra, SSAngle &dec )
     ra = SSAngle ( hms );
     dec = SSAngle ( dms );
     _coords.transform ( kEquatorial, kFundamental, ra, dec );
-    _currRA = ra;
-    _currDec = dec;
+    _currLon = ra;
+    _currLat = dec;
     
     // If slewing in progress, check to see if the slew has stopped
     
@@ -1473,8 +1497,8 @@ SSMount::Error SSMeadeMount::slew ( SSAngle ra, SSAngle dec )
     
     // If successful, save goto target RA/Dec and set slewing state flag.
     
-    _slewRA = ra;
-    _slewDec = dec;
+    _slewLon = ra;
+    _slewLat = dec;
     _slewing = true;
     return kSuccess;
 }
@@ -1770,7 +1794,7 @@ SSMount::Error SSMeadeMount::slewing ( bool &status )
         
         if ( _slewing )
         {
-            SSAngle sep = SSSpherical ( _currRA, _currDec ).angularSeparation ( SSSpherical ( _slewRA, _slewDec ) );
+            SSAngle sep = SSSpherical ( _currLon, _currLat ).angularSeparation ( SSSpherical ( _slewLon, _slewLat ) );
             if ( sep < SSAngle::fromDegrees ( 1.0 ) )
                 _slewing = false;
         }
@@ -2035,7 +2059,7 @@ SSMount::Error SSSyntaMount::mcAxisSlewTo ( int axis, double targetPosition )
 {
     // Get current position of the axis.
     
-    double curPosition = 0.0;
+    SSAngle curPosition = 0.0;
     Error err = mcGetAxisPosition ( axis, curPosition );
     if ( err )
         return err;
@@ -2110,7 +2134,7 @@ SSMount::Error SSSyntaMount::mcGetAxisStatus ( int axis, AxisStatus &status )
     return kSuccess;
 }
 
-SSMount::Error SSSyntaMount::mcGetAxisPosition ( int axis, double &rad )
+SSMount::Error SSSyntaMount::mcGetAxisPosition ( int axis, SSAngle &rad )
 {
     string response;
     Error err = motorCommand ( axis, 'j', "", response ) ;
@@ -2126,7 +2150,7 @@ SSMount::Error SSSyntaMount::mcGetAxisPosition ( int axis, double &rad )
     return kSuccess;
 }
 
-SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, double rad )
+SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, SSAngle rad )
 {
     string response;
     int iPosition = angleToStep ( axis, rad ) + 0x00800000;
@@ -2140,28 +2164,17 @@ SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, double rad )
 
 SSMount::Error SSSyntaMount::read ( SSAngle &ra, SSAngle &dec )
 {
-    double lon = 0.0, lat = 0.0;
-    
-    Error err = mcGetAxisPosition ( kAzmRAAxis, lon );
+    Error err = mcGetAxisPosition ( kAzmRAAxis, _currLon );
     if ( err == kSuccess )
-        err = mcGetAxisPosition ( kAltDecAxis, lat );
+        err = mcGetAxisPosition ( kAltDecAxis, _currLat );
     if ( err )
         return err;
     
     // Convert from mount frame of reference to fundamental RA/Dec.
     // Really we should use a mount model. TBD.
-    // This will also fix declinations > 90!
-    // For equatorial mounts, lon is really hour angle; convert to RA.
-    // HA = LST - RA so RA = LST - HA
     
-    ra  = isEquatorial() ? _coords.getLST() - lon : lon;
-    dec = lat;
+    mountToFundamental ( _currLon, _currLat, ra, dec );
     
-    if ( isEquatorial() )
-        _coords.transform ( kEquatorial, kFundamental, ra, dec );
-    else
-        _coords.transform ( kHorizon, kFundamental, ra, dec );
-
     // If slewing in progress, check to see if the slew has stopped
     
     if ( _slewing )
@@ -2221,17 +2234,10 @@ SSMount::Error SSSyntaMount::stop ( void )
 SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
 {
     // Convert from fundamental RA/Dec to mount frame of reference.
-    // For equatorial mounts, convert RA to hour angle.
     // Really we should use a mount model. TBD.
 
-    SSAngle lon = ra, lat = dec;
-    if ( isEquatorial() )
-        _coords.transform ( kFundamental, kEquatorial, lon, lat );
-    else
-        _coords.transform ( kFundamental, kHorizon, lon, lat );
-
-    if ( isEquatorial() )
-        lon = mod2pi ( _coords.getLST() - lon );
+    SSAngle lon, lat;
+    fundamentalToMount ( ra, dec, lon, lat );
     
     Error err = mcAxisSlewTo ( kAzmRAAxis, lon );
     if ( err == kSuccess )
@@ -2240,8 +2246,8 @@ SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
     if ( err == kSuccess )
     {
         _slewing = true;
-        _slewRA = ra;
-        _slewDec = dec;
+        _slewLon = lon;
+        _slewLat = lat;
     }
     
     return err;
@@ -2254,21 +2260,13 @@ SSMount::Error SSSyntaMount::slew ( SSAngle ra, SSAngle dec )
 SSMount::Error SSSyntaMount::sync ( SSAngle ra, SSAngle dec )
 {
     // Convert from fundamental RA/Dec to mount frame of reference.
-    // For equatorial mounts, convert RA to hour angle.
     // Really we should use a mount model. TBD.
 
-    SSAngle lon ( ra ), lat ( dec );
-    if ( isEquatorial() )
-        _coords.transform ( kFundamental, kEquatorial, lon, lat );
-    else
-        _coords.transform ( kFundamental, kHorizon, lon, lat );
+    fundamentalToMount ( ra, dec, _currLon, _currLat );
 
-    if ( isEquatorial() )
-        lon = mod2pi ( _coords.getLST() - lon );
-
-    Error err = mcSetAxisPosition ( kAzmRAAxis, lon );
+    Error err = mcSetAxisPosition ( kAzmRAAxis, _currLon );
     if ( err == kSuccess )
-        err = mcSetAxisPosition ( kAltDecAxis, lat );
+        err = mcSetAxisPosition ( kAltDecAxis, _currLat );
 
     if ( err == kSuccess )
         _aligned = true;
@@ -2405,6 +2403,16 @@ uint8_t sendLen, uint8_t *sendData, uint8_t &recvLen, uint8_t *recvData )
     if ( err != kSuccess )
         return err;
     
+    // Some AUX bus devices echo the command we sent, before the real response.
+    // If we recieved an echoed copy of the packet we just sent, get another packet.
+    
+    if ( sendLen == recvLen && memcmp ( _sendBuff, _recvBuff, sendLen + 6 ) == 0 )
+    {
+        err = recvAUXPacket ( recvCmd, recvLen, recvData, recvSrc, recvDst );
+        if ( err != kSuccess )
+            return err;
+    }
+    
     // Make sure we received a response that corresponds to the command we sent!
     
     if ( recvCmd != cmd || recvSrc != dst || recvDst != kControlApp )
@@ -2428,6 +2436,21 @@ SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port 
     if ( err != kSuccess )
         return err;
 
+    // This handshake is needed for the original SkyQ Link based on the Roving Networks RN-171 module.
+    
+    string output;
+    msleep ( 500 );
+    err = command ( "$$$", output, 4, '\r', 500 );
+    if ( err == kSuccess && output.compare ( "CMD\r" ) == 0 )
+    {
+        for ( int i = 0; i < 3; i++ )
+        {
+            err = command ( "exit\r", output, 12, 0, 1000 );
+            if ( err == kSuccess && output.compare ( "exit\r\r\nEXIT\r" ) == 0 )
+                break;
+        }
+    }
+    
     // Get motor board version on both axes
     
     for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
@@ -2460,7 +2483,6 @@ SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port 
 SSMount::Error SSCelestronAUXMount::read ( SSAngle &ra, SSAngle &dec )
 {
     Error err = kSuccess;
-    double lon = 0.0, lat = 0.0;
     uint32_t pos[2] = { 0 };
     
     for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
@@ -2476,22 +2498,13 @@ SSMount::Error SSCelestronAUXMount::read ( SSAngle &ra, SSAngle &dec )
             return kInvalidOutput;
     }
     
-    lon = stepsToRadians ( pos[kAzmRAAxis] );
-    lat = stepsToRadians ( pos[kAltDecAxis] );
+    _currLon = stepsToRadians ( pos[kAzmRAAxis] );
+    _currLat = stepsToRadians ( pos[kAltDecAxis] );
 
     // Convert from mount frame of reference to fundamental RA/Dec.
     // Really we should use a mount model. TBD.
-    // This will also fix declinations > 90!
-    // For equatorial mounts, lon is really hour angle; convert to RA.
-    // HA = LST - RA so RA = LST - HA
-    
-    ra  = isEquatorial() ? _coords.getLST() - lon : lon;
-    dec = lat;
-    
-    if ( isEquatorial() )
-        _coords.transform ( kEquatorial, kFundamental, ra, dec );
-    else
-        _coords.transform ( kHorizon, kFundamental, ra, dec );
+
+    mountToFundamental ( _currLon, _currLat, ra, dec );
 
     // If slewing in progress, check to see if the slew has stopped
     
@@ -2511,14 +2524,8 @@ SSMount::Error SSCelestronAUXMount::slew ( SSAngle ra, SSAngle dec )
     // For equatorial mounts, convert RA to hour angle.
     // Really we should use a mount model. TBD.
 
-    SSAngle lon = ra, lat = dec;
-    if ( isEquatorial() )
-        _coords.transform ( kFundamental, kEquatorial, lon, lat );
-    else
-        _coords.transform ( kFundamental, kHorizon, lon, lat );
-
-    if ( isEquatorial() )
-        lon = mod2pi ( _coords.getLST() - lon );
+    SSAngle lon, lat;
+    fundamentalToMount ( ra, dec, lon, lat );
     
     int32_t steps[2] = { 0 };
     steps[0] = radiansToSteps ( lon );
@@ -2543,8 +2550,8 @@ SSMount::Error SSCelestronAUXMount::slew ( SSAngle ra, SSAngle dec )
     if ( err == kSuccess )
     {
         _slewing = true;
-        _slewRA = ra;
-        _slewDec = dec;
+        _slewLon = lon;
+        _slewLat = lat;
     }
     
     return err;
@@ -2601,21 +2608,13 @@ SSMount::Error SSCelestronAUXMount::stop ( void )
 SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
 {
     // Convert from fundamental RA/Dec to mount frame of reference.
-    // For equatorial mounts, convert RA to hour angle.
     // Really we should use a mount model. TBD.
 
-    SSAngle lon = ra, lat = dec;
-    if ( isEquatorial() )
-        _coords.transform ( kFundamental, kEquatorial, lon, lat );
-    else
-        _coords.transform ( kFundamental, kHorizon, lon, lat );
+    fundamentalToMount ( ra, dec, _currLon, _currLat );
 
-    if ( isEquatorial() )
-        lon = mod2pi ( _coords.getLST() - lon );
-    
     int32_t steps[2] = { 0 };
-    steps[0] = radiansToSteps ( lon );
-    steps[1] = radiansToSteps ( lat );
+    steps[0] = radiansToSteps ( _currLon );
+    steps[1] = radiansToSteps ( _currLat );
     
     Error err = kSuccess;
     for ( int axis = kAzmRAAxis; axis <= kAltDecAxis; axis++ )
@@ -2634,8 +2633,8 @@ SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
     if ( err == kSuccess )
     {
         _slewing = true;
-        _slewRA = ra;
-        _slewDec = dec;
+        _slewLon = ra;
+        _slewLat = dec;
     }
     
     return err;

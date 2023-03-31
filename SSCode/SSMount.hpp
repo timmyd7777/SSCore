@@ -92,9 +92,9 @@ protected:
     SSIP        _addr;          // IP address of telescope mount, only valid for socket connections
     uint16_t    _port;          // TCP or UDP port for socket-based mount communication
     
-    SSAngle _initRA, _initDec;  // Mount coordinates where most recent slew began.
-    SSAngle _slewRA, _slewDec;  // GoTo target coordinates, in J2000 mean equatorial (fundamental) frame
-    SSAngle _currRA, _currDec;  // Most recent coordinates reported from mount, in fundamental frame
+    SSAngle _initLon, _initLat; // Mount coordinates where most recent slew began, in mount frame.
+    SSAngle _currLon, _currLat; // Most recent coordinates, in mount frame (kEquatorial or kHorizon).
+    SSAngle _slewLon, _slewLat; // GoTo target coordinates, in mount frame (kEquatorial or kHorizon).
     double      _slewTime[2];   // slew start time (seconds since midnight) on RA/Azm [0] and Alt/Dec [1] axes
     int         _slewRate[2];   // Current slew rate on RA/Azm [0] and Alt/Dec [1] axes
     bool        _slewing;       // true if a GoTo is currently in progress; false otherwise.
@@ -125,14 +125,14 @@ public:
     SSMountType getType ( void ) { return _type; }
     SSMountProtocol getProtocol ( void ) { return _protocol; }
     SSCoordinates &getCoordinates ( void ) { return _coords; }
-    SSAngle getRA ( void ) { return _currRA; }
-    SSAngle getDec ( void ) { return _currDec; }
     int getSlewRate ( SSSlewAxis axis ) { return _slewRate[axis]; }
     string getVersion ( void ) { return _version; }
     bool slewing ( void ) { return _slewing; }
     bool connected ( void )  { return _connected; }
     bool isEquatorial ( void ) { return _type == kEquatorialPushMount || _type == kEquatorialGotoMount; }
     bool isGoTo ( void ) { return _type == kAltAzimuthGotoMount || _type == kEquatorialGotoMount; }
+    void fundamentalToMount ( SSAngle ra, SSAngle dec, SSAngle &lon, SSAngle &lat );
+    void mountToFundamental ( SSAngle lon, SSAngle lat, SSAngle &ra, SSAngle &dec );
 
     // Open and close serial or socket connection to mount
     
@@ -292,8 +292,8 @@ protected:
     Error mcAxisSlew ( int axis, double speed );    // speed in radians/sec
     Error mcAxisSlewTo ( int axis, double radians );
     Error mcGetAxisStatus ( int axis, AxisStatus &status );
-    Error mcGetAxisPosition ( int axis, double &radians );
-    Error mcSetAxisPosition ( int axis, double radians );
+    Error mcGetAxisPosition ( int axis, SSAngle &radians );
+    Error mcSetAxisPosition ( int axis, SSAngle radians );
 
     int angleToStep ( int axis, double rad ) { return _countsPerRev[axis] * rad / SSAngle::kTwoPi; }
     double stepToAngle ( int axis, int step ) { return SSAngle::kTwoPi * step / _countsPerRev[axis]; }
