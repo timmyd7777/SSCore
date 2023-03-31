@@ -2371,14 +2371,14 @@ SSMount::Error SSCelestronAUXMount::recvAUXPacket ( uint8_t &cmd, uint8_t &len, 
     if ( err != kSuccess )
         return err;
     
-    if ( data != nullptr )
+    if ( data != nullptr && len > 0 )
         memcpy ( data, &_recvBuff[5], len );
     
     char checksum = 0;
     for ( int i = 1; i < len + 5; i++ )
         checksum += _recvBuff[i];
 
-    if ( _recvBuff[len + 5] != -checksum )
+    if ( _recvBuff[len + 5] != (uint8_t) -checksum )
         return kInvalidOutput;
     
     return kSuccess;
@@ -2436,20 +2436,10 @@ SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port 
     if ( err != kSuccess )
         return err;
 
-    // This handshake is needed for the original SkyQ Link based on the Roving Networks RN-171 module.
+    // This pause is for the original SkyQ Link, which sends a *HELLO* string after opening.
+    // We send the first AUX commands after *HELLO*, so it's not mistaken for the AUX response.
     
-    string output;
     msleep ( 500 );
-    err = command ( "$$$", output, 4, '\r', 500 );
-    if ( err == kSuccess && output.compare ( "CMD\r" ) == 0 )
-    {
-        for ( int i = 0; i < 3; i++ )
-        {
-            err = command ( "exit\r", output, 12, 0, 1000 );
-            if ( err == kSuccess && output.compare ( "exit\r\r\nEXIT\r" ) == 0 )
-                break;
-        }
-    }
     
     // Get motor board version on both axes
     
