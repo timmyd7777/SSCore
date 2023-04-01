@@ -93,6 +93,7 @@ SSCelestronAUXMountPtr SSGetCelestronAUXMountPtr ( SSMountPtr ptr )
 // and timeout for each attempt in milliseconds.
 // If found, SkyFi's IPv4 address will be returned in addr.
 // The function returns true if successful or false on failure.
+// Default SkyFi IP address is 10.0.0.1, TCP port 4030.
 
 bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
 {
@@ -1892,6 +1893,7 @@ SSMount::Error SSSyntaMount::motorCommand ( int axis, char cmd, string indata, s
 // Opens serial or socket connection to Synta direct motor controller and reads controller firmware version string.
 // If port is zero, path is a serial device file (like "/dev/ttyUSBserial0" on Linux or "\\.\COM3" on Windows)
 // If port is nonzero, path is mount IP address or fully-qualified domain name (like "192.168.4.1")
+// For SynScan Wi-Fi Adapter in Access Point mode, default IP address is 192.168.4.1, UDP port 11880.
 // Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
@@ -2428,6 +2430,7 @@ uint8_t sendLen, uint8_t *sendData, uint8_t &recvLen, uint8_t *recvData )
 // Opens serial or socket connection to Celestron AUX mount and reads controller firmware version strings.
 // If port is zero, path is a serial device file (like "/dev/ttyUSBserial0" on Linux or "\\.\COM3" on Windows)
 // If port is nonzero, path is mount IP address or fully-qualified domain name (like "1.2.3.4")
+// For Celestron Wi-Fi/SkyQ Link in Access Point mode, default IP address is 1.2.3.4, TCP port 2000.
 // Returns zero if successful or nonzero error code on failure.
 
 SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port )
