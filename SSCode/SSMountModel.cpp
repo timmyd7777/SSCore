@@ -597,10 +597,10 @@ bool SSMountModel::delStar ( int i )
         return false;
     
     _n_stars--;
-    memcpy ( &_x_stars[i], &_x_stars[i+1], _n_stars );
-    memcpy ( &_y_stars[i], &_y_stars[i+1], _n_stars );
-    memcpy ( &_azm_stars[i], &_azm_stars[i+1], _n_stars );
-    memcpy ( &_alt_stars[i], &_alt_stars[i+1], _n_stars );
+    memcpy ( &_x_stars[i], &_x_stars[i+1], _n_stars * sizeof ( double ) );
+    memcpy ( &_y_stars[i], &_y_stars[i+1], _n_stars * sizeof ( double ) );
+    memcpy ( &_azm_stars[i], &_azm_stars[i+1], _n_stars * sizeof ( double ) );
+    memcpy ( &_alt_stars[i], &_alt_stars[i+1], _n_stars * sizeof ( double ) );
 
     _x_stars[_n_stars] = _x_stars[_n_stars] = 0.0;
     _azm_stars[_n_stars] = _alt_stars[_n_stars] = 0.0;
@@ -624,6 +624,8 @@ void SSMountModel::reset ( void )
 
 double SSMountModel::align ( void )
 {
+    memset ( _m, 0, sizeof ( _m ) );
+
     if ( _xres && _yres )
     {
         if ( _n_stars < 2 )
@@ -669,15 +671,14 @@ double SSMountModel::align ( void )
     
     // Initial model made
     
-    if ( 0 ) // _n_params > 4 ) // TODO: how to handle this?
-        for( int iter = 4; iter < MODEL_N_PARAMS; iter++)
-        {
-            char adjust[MODEL_N_PARAMS];
-            memcpy ( adjust, _adjustable, iter );
-            memset ( adjust + iter, 0, MODEL_N_PARAMS - iter );
-            improve_model ( _m, _n_stars, _x_stars, _y_stars, _alt_stars, _azm_stars, adjust );
-            improve_model ( _m, _n_stars, _x_stars, _y_stars, _alt_stars, _azm_stars, adjust );
-        }
+    for( int iter = 4; iter < MODEL_N_PARAMS; iter++)
+    {
+        char adjust[MODEL_N_PARAMS];
+        memcpy ( adjust, _adjustable, iter );
+        memset ( adjust + iter, 0, MODEL_N_PARAMS - iter );
+        improve_model ( _m, _n_stars, _x_stars, _y_stars, _alt_stars, _azm_stars, adjust );
+        improve_model ( _m, _n_stars, _x_stars, _y_stars, _alt_stars, _azm_stars, adjust );
+    }
 
     // Now do an iterative nonlinear least-squares best fit to find the
     // remaining model parameters (and improve the initial ones).

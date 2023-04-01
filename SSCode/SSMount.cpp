@@ -2623,11 +2623,27 @@ SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
             return kBadAlignment;
     }
     
-    // Add alignment star, but only keep the two most recent.
+    // Add alignment star, but only keep the three most recent.
     
     _model.addStar ( _currLon, _currLat, lon, lat );
-    if ( _model.numStars() > 2 )
-        _model.delStar ( 2 );
+    if ( _model.numStars() > 3 )
+        _model.delStar ( 0 );
+    
+    // Enable higher-order model parameters as we add stars.
+    
+    if ( _model.numStars() >= 2 )
+    {
+        _model.adjustable ( MODEL_TILT1, true );
+        _model.adjustable ( MODEL_TILT2, true );
+    }
+    
+    if ( _model.numStars() >= 3 )
+    {
+        _model.adjustable ( MODEL_MISALIGN, true );
+        _model.adjustable ( MODEL_FLEXURE, true );
+    }
+    
+    // Now recompute the mount model alignment.
     
     _model.align();
     _aligned = true;
