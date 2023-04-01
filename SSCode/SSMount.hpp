@@ -21,6 +21,7 @@
 #include "SSSocket.hpp"
 #include "SSSerial.hpp"
 #include "SSCoordinates.hpp"
+#include "SSMountModel.hpp"
 
 // Mechanical mount families
 
@@ -75,6 +76,7 @@ public:
         kWriteFail = 7,         // Can't write to serial port or socket connection
         kNotSupported = 8,      // Functionality is not implemented/not supported
         kTimedOut = 9,          // Read/write operation timed out before completion
+        kBadAlignment = 10      // Alignment star could not be added to mount model
     };
 
     // Pointer to completion callback for asynchronouos command methods
@@ -86,6 +88,7 @@ protected:
     SSMountType     _type;      // Physical mount type
     SSMountProtocol _protocol;  // Mount communication protocol identifier
     SSCoordinates &_coords;     // Reference to SSCoordinates object containing mount's geographic location and current date/time
+    SSMountModel    _model;     // Celestial alignment model; used by Synta Direct and Celestron AUX mounts.
     
     SSSerial    _serial;        // Serial port used for communication; invalid if not connected
     SSSocket    _socket;        // Socket used for communcation; invalid if not connected

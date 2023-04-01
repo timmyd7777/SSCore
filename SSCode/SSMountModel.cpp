@@ -510,7 +510,7 @@ double correct_for_encoders( int n_stars, double *enc, double *ang, double res)
 // Initially, the model will have 4 adjustable parameters:
 // MODEL_ALT_RATE, MODEL_ALT_ZERO, MODEL_AZM_RATE, MODEL_AZM_ZERO.
 
-SSMountModel::SSMountModel ( int xres, int yres )
+SSMountModel::SSMountModel ( double xres, double yres )
 {
     _xres = xres;
     _yres = yres;
@@ -567,19 +567,44 @@ void SSMountModel::celestialToEncoders ( SSAngle azm, SSAngle alt, double &x, do
     y = ey;
 }
 
-// Adds an alignment star to the mount model. Star's encoder position (x,y) corresponds
-// to celestial coordinates (azm,alt). Call align() after adding all alignment stars.
+// Adds an alignment star to the end of the mount model's alignment star array.
+// Star's encoder position (x,y) corresponds to celestial coordinates (azm,alt).
+// Returns true if successful or false if alignment star array is full.
+// Call align() after adding alignment stars.
 
-void SSMountModel::addStar ( double x, double y, SSAngle azm, SSAngle alt )
+bool SSMountModel::addStar ( double x, double y, SSAngle azm, SSAngle alt )
 {
-    if ( _n_stars < MODEL_N_STARS )
-    {
-        _x_stars[ _n_stars ] = x;
-        _y_stars[ _n_stars ] = y;
-        _azm_stars[ _n_stars ] = azm;
-        _alt_stars[ _n_stars ] = alt;
-        _n_stars++;
-    }
+    if ( _n_stars >= MODEL_N_STARS )
+        return false;
+    
+    _x_stars[ _n_stars ] = x;
+    _y_stars[ _n_stars ] = y;
+    _azm_stars[ _n_stars ] = azm;
+    _alt_stars[ _n_stars ] = alt;
+    _n_stars++;
+    
+    return true;
+}
+
+// Deletes alignment star at index i in the mount model's alignment star array.
+// The index must be 0 ... numStars() - 1.
+// Returns true if successful or false if the index is out of range.
+// Call align() after deleting alignment stars.
+
+bool SSMountModel::delStar ( int i )
+{
+    if ( i < 0 || i >= _n_stars )
+        return false;
+    
+    _n_stars--;
+    memcpy ( &_x_stars[i], &_x_stars[i+1], _n_stars );
+    memcpy ( &_y_stars[i], &_y_stars[i+1], _n_stars );
+    memcpy ( &_azm_stars[i], &_azm_stars[i+1], _n_stars );
+    memcpy ( &_alt_stars[i], &_alt_stars[i+1], _n_stars );
+
+    _x_stars[_n_stars] = _x_stars[_n_stars] = 0.0;
+    _azm_stars[_n_stars] = _alt_stars[_n_stars] = 0.0;
+    return true;
 }
 
 // Removes all alignment star data and resets all mount model parameters to zero.
@@ -608,8 +633,8 @@ double SSMountModel::align ( void )
         }
         else
         {
-            _m[MODEL_AZM_RATE] = correct_for_encoders ( _n_stars, _x_stars, _azm_stars, labs ( _xres ) );
-            _m[MODEL_ALT_RATE] = correct_for_encoders ( _n_stars, _y_stars, _alt_stars, labs ( _yres ) );
+            _m[MODEL_AZM_RATE] = correct_for_encoders ( _n_stars, _x_stars, _azm_stars, fabs ( _xres ) );
+            _m[MODEL_ALT_RATE] = correct_for_encoders ( _n_stars, _y_stars, _alt_stars, fabs ( _yres ) );
         }
         
         _adjustable[MODEL_AZM_RATE] = false;
@@ -644,8 +669,8 @@ double SSMountModel::align ( void )
     
     // Initial model made
     
-    if ( _n_params > 4 )
-        for( int iter = 4; iter < _n_params; iter++)
+    if ( 0 ) // _n_params > 4 ) // TODO: how to handle this?
+        for( int iter = 4; iter < MODEL_N_PARAMS; iter++)
         {
             char adjust[MODEL_N_PARAMS];
             memcpy ( adjust, _adjustable, iter );

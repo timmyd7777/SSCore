@@ -43,9 +43,8 @@ protected:
     
     double _m[MODEL_N_PARAMS];              // array of model parameters, meanings as #defined above.
     char _adjustable[MODEL_N_PARAMS];       // array of booleans indicating which parameters are adjustable (true) or fixed (false).
-    int _n_params;                          // number of parameters used in model
-    int _xres;                              // mount X (azimuth) axis encoder steps per revolution
-    int _yres;                              // mount Y (altitude) axis encoder steps per revolution
+    double _xres;                           // mount X (azimuth) axis encoder steps per revolution
+    double _yres;                           // mount Y (altitude) axis encoder steps per revolution
     int _n_stars;                           // number of reference stars used for alignment
     double _x_stars[MODEL_N_STARS];         // mount X (azimuth) axis encoder position of alignment stars
     double _y_stars[MODEL_N_STARS];         // mount Y (altitude) axis encoder position of alignment stars
@@ -54,19 +53,19 @@ protected:
 
 public:
     
-    SSMountModel ( int xres, int yres );
+    SSMountModel ( double xres, double yres );
     
     bool adjustable ( int param );
     void adjustable ( int param, bool adj );
     
-    int numParameters ( void ) { return _n_params; }
     double getParameter ( int param ) { return param >= 0 && param < MODEL_N_PARAMS ? _m[param] : 0.0; };
     
     void encodersToCelestial ( double x, double y, SSAngle &azm, SSAngle &alt );
     void celestialToEncoders ( SSAngle azm, SSAngle alt, double &x, double &y );
     
     int numStars ( void ) { return _n_stars; }
-    void addStar ( double x, double y, SSAngle azm, SSAngle alt );
+    bool addStar ( double x, double y, SSAngle azm, SSAngle alt );
+    bool delStar ( int i );
     void reset ( void );
     
     double align ( void );

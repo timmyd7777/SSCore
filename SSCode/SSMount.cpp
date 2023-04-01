@@ -142,7 +142,7 @@ bool SSFindSkyFi ( const string &name, SSIP &addr, int attempts, int timeout )
 // The base SSMount class simulates an equatorial GoTo mount
 // but has no communication protocol and controls no hardware.
 
-SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords )
+SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords ), _model ( SSMountModel ( 0, 0 ) )
 {
     _type = type;
     _protocol = kNoProtocol;
@@ -2308,8 +2308,7 @@ SSMount::Error SSSyntaMount::aligned ( bool &status )
 SSCelestronAUXMount::SSCelestronAUXMount ( SSMountType type, SSCoordinates &coords ) : SSMount ( type, coords )
 {
     _protocol = kCelestronAUX;
-    // _countsPerRev[kAzmRAAxis] = _countsPerRev[kAltDecAxis] = 0;
-    // _breakSteps[kAzmRAAxis] = _breakSteps[kAltDecAxis] = 3500;
+    _model = SSMountModel ( M_2PI, M_2PI );
     _aligned = false;
     
     memset ( _sendBuff, 0, sizeof ( _sendBuff ) );
@@ -2501,7 +2500,10 @@ SSMount::Error SSCelestronAUXMount::read ( SSAngle &ra, SSAngle &dec )
     // Convert from mount frame of reference to fundamental RA/Dec.
     // Really we should use a mount model. TBD.
 
-    mountToFundamental ( _currLon, _currLat, ra, dec );
+    SSAngle lon = _currLon, lat = _currLat;
+    if ( _aligned )
+        _model.encodersToCelestial ( _currLon, _currLat, lon, lat );
+    mountToFundamental ( lon, lat, ra, dec );
 
     // If slewing in progress, check to see if the slew has stopped
     
@@ -2521,8 +2523,11 @@ SSMount::Error SSCelestronAUXMount::slew ( SSAngle ra, SSAngle dec )
     // For equatorial mounts, convert RA to hour angle.
     // Really we should use a mount model. TBD.
 
-    SSAngle lon, lat;
-    fundamentalToMount ( ra, dec, lon, lat );
+    double lon, lat;
+    SSAngle mlon, mlat;
+    fundamentalToMount ( ra, dec, mlon, mlat );
+    if ( _aligned )
+        _model.celestialToEncoders ( mlon, mlat, lon, lat );
     
     int32_t steps[2] = { 0 };
     steps[0] = radiansToSteps ( lon );
@@ -2604,11 +2609,35 @@ SSMount::Error SSCelestronAUXMount::stop ( void )
 
 SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
 {
+    SSAngle lon, lat;
+    fundamentalToMount ( ra, dec, lon, lat );
+    
+    // check if star coordinates are within 1 degree of predicted
+    // TODO: test whether new alignment star is within 1 degree of existing alignment star(s) - prevent duplicates!
+    
+    if ( _aligned )
+    {
+        SSAngle plon, plat;
+        _model.encodersToCelestial ( _currLon, _currLat, plon, plat );
+        if ( SSSpherical ( plon, plat ).angularSeparation ( SSSpherical ( lon, lat ) ) > SSAngle::kRadPerDeg )
+            return kBadAlignment;
+    }
+    
+    // Add alignment star, but only keep the two most recent.
+    
+    _model.addStar ( _currLon, _currLat, lon, lat );
+    if ( _model.numStars() > 2 )
+        _model.delStar ( 2 );
+    
+    _model.align();
+    _aligned = true;
+    return kSuccess;
+    
     // Convert from fundamental RA/Dec to mount frame of reference.
     // Really we should use a mount model. TBD.
 
     fundamentalToMount ( ra, dec, _currLon, _currLat );
-
+    
     int32_t steps[2] = { 0 };
     steps[0] = radiansToSteps ( _currLon );
     steps[1] = radiansToSteps ( _currLat );
@@ -2628,11 +2657,7 @@ SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
     }
 
     if ( err == kSuccess )
-    {
-        _slewing = true;
-        _slewLon = ra;
-        _slewLat = dec;
-    }
+        _aligned = true;
     
     return err;
 }
