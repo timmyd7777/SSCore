@@ -163,7 +163,7 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
     _slewTime[ kAzmRAAxis ] = _slewTime[ kAltDecAxis ] = 0;
     
-    _slewing = _aligned = false;
+    _connected = _slewing = _aligned = false;
     
     _logFile = NULL;
     _logStart = 0;
@@ -192,6 +192,13 @@ SSMount::Error SSMount::connect ( const string &path, uint16_t port )
 
 SSMount::Error SSMount::connect ( const string &path, uint16_t port, int baud, int parity, int data, float stop, bool udp )
 {
+    // On Apple and Linux platforms, writes to closed sockets can cause a crash due to "signal 13".
+    // This line converts those crashes to write failures.
+
+#ifndef _MSC_VER_
+    signal ( SIGPIPE, SIG_IGN );
+#endif
+    
     if ( connected() )
         disconnect();
     
