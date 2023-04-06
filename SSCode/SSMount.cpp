@@ -195,7 +195,7 @@ SSMount::Error SSMount::connect ( const string &path, uint16_t port, int baud, i
     // On Apple and Linux platforms, writes to closed sockets can cause a crash due to "signal 13".
     // This line converts those crashes to write failures.
 
-#ifndef _MSC_VER_
+#if defined ( __APPLE__ ) || defined ( __linux__ )
     signal ( SIGPIPE, SIG_IGN );
 #endif
     
