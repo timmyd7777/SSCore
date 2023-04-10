@@ -1875,8 +1875,14 @@ SSMount::Error SSSyntaMount::motorCommand ( int axis, char cmd, string indata, s
     if ( err != kSuccess )
         return err;
 
-    // Ensure response indicates success
+    // Newer SynScan Wi-Fi link echoes back a CR before the real response;
+    // unsure why, but this fixes it.
     
+    if ( output.length() > 0 && output[0] == '\r' )
+        output.erase ( output.begin() );
+    
+    // Ensure response indicates success
+
     if ( output.length() < 2 || output[0] != '=' || output.back() != '\r' )
         return kInvalidOutput;
     
@@ -1914,6 +1920,8 @@ SSMount::Error SSSyntaMount::connect ( const string &path, uint16_t port )
     if ( err != kSuccess )
         return err;
 
+    msleep ( 500 );
+    
     // Get motor board version on both axes
     
     string data;
