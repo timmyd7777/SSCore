@@ -322,9 +322,11 @@ void SSHTM::dumpRegion ( uint64_t htmID )
     }
 }
 
-// Deletes all star data for all regions in this HTM from memory.
+// Deletes all star data for all regions in this HTM from memory if testFunc is nullptr.
+// Otherwise deletes only regions for which testFunc returns true.
+// userData is a pointer to arbitrary user-defined data passed to testFunc (if not nullptr).
 
-void SSHTM::dumpRegions ( void )
+void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
 {
 #if USE_THREADS
     // Let all load threads run to completion, and delete them before destroying regions!
@@ -345,7 +347,12 @@ void SSHTM::dumpRegions ( void )
     for ( auto it = _regions.begin(); it != _regions.end(); it++ )
     {
         if ( it->second != nullptr )
-            delete it->second;
+        {
+            if ( testFunc == nullptr )
+                delete it->second;
+            else if ( testFunc ( this, it->first, userData ) )
+                delete it->second;
+        }
     }
 
 #if USE_THREADS
