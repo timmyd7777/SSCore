@@ -9,6 +9,9 @@
 // Meade LX-200/Autostar, Celestron NexStar, and SkyWatcher/Orion SynScan.
 
 #include <thread>
+#if defined ( __APPLE__ ) || defined ( __linux__ )
+#include <signal.h>
+#endif
 
 #include "SSMount.hpp"
 #include "SSUtilities.hpp"
