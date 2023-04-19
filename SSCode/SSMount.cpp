@@ -163,10 +163,13 @@ SSMount::SSMount ( SSMountType type, SSCoordinates &coords ) : _coords ( coords 
     _currLon = _currLat = 0;
     _slewLon = _slewLat = 0;
     
+    mountToFundamental ( _currLon, _currLat, _trackRA, _trackDec );
+    
     _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
     _slewTime[ kAzmRAAxis ] = _slewTime[ kAltDecAxis ] = 0;
     
     _connected = _slewing = _aligned = false;
+    _tracking = true;
     
     _logFile = NULL;
     _logStart = 0;
@@ -630,9 +633,10 @@ SSAngle SSMount::angularRate ( int rate )
 
 SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
 {
-    // If slewing on RA axis, compute angular rate and elapsed seconds since slew started.
-    // Compute current RA, and stop slewing if we've reached the target RA.
-    
+    // If slewing on Azm/RA axis, compute angular rate and elapsed seconds since slew started.
+    // Compute current Azm/RA, and stop slewing if we've reached the target Azm/RA.
+    // Convert mount axis position to new tracking target RA/Dec.
+
     if ( _slewRate[ kAzmRAAxis ] )
     {
         double angRate = angularRate ( _slewRate[kAzmRAAxis] );
@@ -643,10 +647,12 @@ SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
             _currLon = _slewLon;
             _slewRate[ kAzmRAAxis ] = _slewTime[ kAzmRAAxis ] = 0;
         }
+        mountToFundamental ( _currLon, _currLat, _trackRA, _trackDec );
     }
     
-    // If slewing on Dec axis, compute angular rate and elapsed seconds since slew started.
-    // Compute current Dec, and stop slewing if we've reached the target Dec.
+    // If slewing on Alt/Dec axis, compute angular rate and elapsed seconds since slew started.
+    // Compute current Alt/Dec, and stop slewing if we've reached the target Alt/Dec.
+    // Convert mount axis position to new tracking target RA/Dec.
 
     if ( _slewRate[ kAltDecAxis ] )
     {
@@ -658,14 +664,23 @@ SSMount::Error SSMount::read ( SSAngle &ra, SSAngle &dec )
             _currLat = _slewLat;
             _slewRate[ kAltDecAxis ] = _slewTime[ kAltDecAxis ] = 0;
         }
+        mountToFundamental ( _currLon, _currLat, _trackRA, _trackDec );
     }
 
-    // If slewing a GoTo, and motion on both axes has stopped, the GoTo has finished.
+    // If GoTo slewing, and motion on both axes has stopped, the slew has finished.
     
     if ( _slewing )
         if ( _slewRate[ kAzmRAAxis ] == 0 && _slewRate[ kAltDecAxis ] == 0 )
             _slewing = false;
     
+    // If the mount should track sidereal motion, and slewing has stopped on both axes,
+    // update the mount axis positions so the mount is pointing at the tracking RA/Dec.
+
+    if ( _tracking && _slewRate[ kAltDecAxis ] == 0 && _slewRate[ kAltDecAxis ] == 0 )
+        fundamentalToMount ( _trackRA, _trackDec, _currLon, _currLat );
+
+    // Get fundamental RA/Dec corresponding to mount axes' current positions.
+
     mountToFundamental ( _currLon, _currLat, ra, dec );
     return kSuccess;
 };
@@ -703,7 +718,7 @@ SSMount::Error SSMount::slew ( SSSlewAxis axis, int rate )
             fundamentalToMount ( ra, dec, _currLon, _currLat );
             _slewTime[ axis ] = 0.0;
         }
-        else    // If starting, save start position and time.
+        else    // If starting motion, save start position and time.
         {
             _initLon = _currLon;
             _initLat = _currLat;
@@ -729,6 +744,7 @@ SSMount::Error SSMount::stop ( void )
     _slewRate[ kAzmRAAxis ] = _slewRate[ kAltDecAxis ] = 0;
     _slewTime[ kAzmRAAxis ] = _slewTime[ kAltDecAxis ] = 0;
     _slewing = false;
+    
     return kSuccess;
 }
 
@@ -739,6 +755,8 @@ SSMount::Error SSMount::stop ( void )
 SSMount::Error SSMount::sync ( SSAngle ra, SSAngle dec )
 {
     fundamentalToMount ( ra, dec, _currLon, _currLat );
+    _trackRA = ra;
+    _trackDec = dec;
     _aligned = true;
     return kSuccess;
 }
@@ -758,6 +776,24 @@ SSMount::Error SSMount::slewing ( bool &status )
 SSMount::Error SSMount::aligned ( bool &status )
 {
     status = _aligned;
+    return kSuccess;
+}
+
+// Queries mount to determine whether it's currently tracking sidereal motion.
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSMount::tracking ( bool &state )
+{
+    state = _tracking;
+    return kSuccess;
+}
+
+// Turns sidereal tracking on or off (depending on state).
+// Returns zero if successful or nonzero error code on failure.
+
+SSMount::Error SSMount::tracking ( bool state )
+{
+    _tracking = state;
     return kSuccess;
 }
 
@@ -2538,14 +2574,14 @@ SSMount::Error SSCelestronAUXMount::read ( SSAngle &ra, SSAngle &dec )
 SSMount::Error SSCelestronAUXMount::slew ( SSAngle ra, SSAngle dec )
 {
     // Convert from fundamental RA/Dec to mount frame of reference.
-    // For equatorial mounts, convert RA to hour angle.
-    // Really we should use a mount model. TBD.
 
     double lon, lat;
     SSAngle mlon, mlat;
     fundamentalToMount ( ra, dec, mlon, mlat );
     if ( _aligned )
         _model.celestialToEncoders ( mlon, mlat, lon, lat );
+    else
+        { lon = mlon; lat = mlat; }
     
     int32_t steps[2] = { 0 };
     steps[0] = radiansToSteps ( lon );
@@ -2667,8 +2703,8 @@ SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
     _aligned = true;
     return kSuccess;
     
+    /* For posterity's sake, here's how we did it before using the mount model:
     // Convert from fundamental RA/Dec to mount frame of reference.
-    // Really we should use a mount model. TBD.
 
     fundamentalToMount ( ra, dec, _currLon, _currLat );
     
@@ -2693,7 +2729,7 @@ SSMount::Error SSCelestronAUXMount::sync ( SSAngle ra, SSAngle dec )
     if ( err == kSuccess )
         _aligned = true;
     
-    return err;
+    return err; */
 }
 
 // Queries status of a GoTo: true = in progress, false = not slewing.

@@ -98,11 +98,14 @@ protected:
     SSAngle _initLon, _initLat; // Mount coordinates where most recent slew began, in mount frame.
     SSAngle _currLon, _currLat; // Most recent coordinates, in mount frame (kEquatorial or kHorizon).
     SSAngle _slewLon, _slewLat; // GoTo target coordinates, in mount frame (kEquatorial or kHorizon).
+    SSAngle _trackRA, _trackDec;// Tracking target coordinataes, in fundamental (J2000 mean equatorial) frame.
+    
     double      _slewTime[2];   // slew start time (seconds since midnight) on RA/Azm [0] and Alt/Dec [1] axes
     int         _slewRate[2];   // Current slew rate on RA/Azm [0] and Alt/Dec [1] axes
     bool        _slewing;       // true if a GoTo is currently in progress; false otherwise.
     bool        _connected;     // true if serial port or socket connection to mount is currently open.
     bool        _aligned;       // true it mount has been star-aligned; false otherwise.
+    bool        _tracking;      // true if mount is should track sidereal motion when not slewing.
     string      _version;       // mount controller firmware version string, read from mount during connect()
 
     mutex       _cmdMtx;        // for preventing resource contention with asynchronous command calls
@@ -132,6 +135,8 @@ public:
     string getVersion ( void ) { return _version; }
     bool slewing ( void ) { return _slewing; }
     bool connected ( void )  { return _connected; }
+    bool aligned ( void )  { return _aligned; }
+    bool tracking ( void )  { return _tracking; }
     bool isEquatorial ( void ) { return _type == kEquatorialPushMount || _type == kEquatorialGotoMount; }
     bool isGoTo ( void ) { return _type == kAltAzimuthGotoMount || _type == kEquatorialGotoMount; }
     void fundamentalToMount ( SSAngle ra, SSAngle dec, SSAngle &lon, SSAngle &lat );
@@ -169,6 +174,8 @@ public:
     virtual Error sync ( SSAngle ra, SSAngle dec );              // sync or align mount on the specified coordinates
     virtual Error slewing ( bool &status );                      // queries whether a GoTo slew is currently in progress
     virtual Error aligned ( bool &status );                      // queries whether mount is currently aligned or not
+    virtual Error tracking ( bool &state );                      // queries whether mount is currently tracking sidereal motion, or not.
+    virtual Error tracking ( bool state );                       // starts or stops sidereal tracking.
     virtual Error setTime ( SSTime time );                       // send local date, time, and time zone to mount
     virtual Error setSite ( SSSpherical site );                  // send local site longitude and latitude to mount
     virtual Error getTime ( SSTime &time );                      // read local date, time, and time zone from mount
