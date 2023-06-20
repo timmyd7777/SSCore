@@ -152,7 +152,7 @@ void toUpper ( string &str )
 bool isNumeric ( const string &str )
 {
     for ( auto it = str.begin(); it != str.end(); it++ )
-        if ( ! ( *it == '-' || *it == '+' || *it == '.' || isdigit ( *it ) ) )
+        if ( ! ( isascii(*it) && ( *it == '-' || *it == '+' || *it == '.' || isdigit ( *it ) ) ) )
             return false;
     
     return str.empty() ? false : true;
