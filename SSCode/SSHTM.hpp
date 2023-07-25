@@ -41,7 +41,8 @@ class SSHTM
 public:
     typedef void (* RegionLoadCallback) ( SSHTM *pHTM, uint64_t htmID );
     typedef int (* DataFileFunc) ( SSHTM *pHTM, uint64_t htmID, SSObjectArray *objects, void *userData );
-
+    typedef bool (* RegionTestCallback) ( SSHTM *pHTM, uint64_t htmID, void *userData );
+    
 protected:
     DataFileFunc                _readFunc = nullptr;    // custom function for reading region data files
     DataFileFunc                _writeFunc = nullptr;   // custom function for writing region data files
@@ -89,7 +90,7 @@ public:
     int saveRegion ( uint64_t id, void *userData = nullptr );
     int loadRegions ( uint64_t htmID = 0, bool sync = true, void *userData = nullptr );
     SSObjectVec *loadRegion ( uint64_t htmID, bool sync = true, void *userData = nullptr );
-    void dumpRegions ( void );
+    void dumpRegions ( RegionTestCallback callback = nullptr, void *userData = nullptr );
     void dumpRegion ( uint64_t htmID );
     void clearRegions ( void );
     
