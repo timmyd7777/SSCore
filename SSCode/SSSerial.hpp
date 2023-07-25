@@ -10,7 +10,7 @@
 #ifndef SSSerial_hpp
 #define SSSerial_hpp
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #endif
 
@@ -22,7 +22,7 @@ using namespace std;
 class SSSerial
 {
 public:
-#ifdef _WIN32
+#ifdef _MSC_VER
     typedef HANDLE PortRef;
     static constexpr HANDLE kError = INVALID_HANDLE_VALUE;
 #else
@@ -65,7 +65,7 @@ public:
     static constexpr int k7DataBits = 7;
     static constexpr int k8DataBits = 8;
 
-    // Suppored stop bits
+    // Supported stop bits
 
     static constexpr float k1StopBits = 1.0f;
     static constexpr float k15StopBits = 1.5f; // 1.5 stop bits not supported in MacOS!
