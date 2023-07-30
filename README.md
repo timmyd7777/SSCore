@@ -1,7 +1,7 @@
 SSCore
 ======
 
-**SSCore** is Southern Stars' astronomical core code, data, and telescope control library. It contains routines for astronomical calculations like time conversion, coordinate transformation, orbital mechanics, lunar and planetary position computation. It also contains functions for importing, storing, and combining data from a variety of astronomical catalogs. SSCore now includes code for controlling common amateur astronomical telescope mounts from Meade, Celestron, SkyWatcher, and Orion!
+**SSCore** is Southern Stars' astronomical core code, data, and telescope control library. It contains routines for astronomical calculations like time conversion, coordinate transformation, orbital mechanics, lunar and planetary position computation. It also contains functions for importing, storing, and combining data from a variety of astronomical catalogs. SSCore now includes code for controlling common amateur astronomical telescope mounts from Meade, Celestron, SkyWatcher, and Orion! The world's largest telescope manufacturer, [Celestron](www.celestron.com), has commercially licensed SSCore for use with its products.
 
 SSCore is written in highly portable, modern C++.  It has been tested on MacOS, iOS, Android, Linux, Windows, and web browsers, via [Emscripten](https://emscripten.org).  It uses common STL types and language features (string, vector, map; operator overloading) and stack-based memory management wherever possible to produce compact, highly efficient, optimized code.
 
