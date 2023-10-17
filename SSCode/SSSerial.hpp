@@ -10,7 +10,7 @@
 #ifndef SSSerial_hpp
 #define SSSerial_hpp
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -22,7 +22,7 @@ using namespace std;
 class SSSerial
 {
 public:
-#ifdef _MSC_VER
+#ifdef _WIN32
     typedef HANDLE PortRef;
     static constexpr HANDLE kError = INVALID_HANDLE_VALUE;
 #else
@@ -65,7 +65,7 @@ public:
     static constexpr int k7DataBits = 7;
     static constexpr int k8DataBits = 8;
 
-    // Supported stop bits
+    // Suppored stop bits
 
     static constexpr float k1StopBits = 1.0f;
     static constexpr float k15StopBits = 1.5f; // 1.5 stop bits not supported in MacOS!
@@ -76,11 +76,11 @@ public:
     
     static int listPorts ( vector<string> &names, vector<string> &paths );
     bool openPort ( const string &path );
-    bool portOpen ( void );
+    bool portOpen () const;
     bool closePort ( void );
-    int writePort ( const void *data, size_t size );
-    int readPort ( void *data, size_t size );
-    int inputBytes ( void );
+    int writePort ( const void *data, size_t size ) const;
+    int readPort ( void *data, size_t size ) const;
+    int inputBytes () const;
     int outputBytes ( void );
     bool getPortConfig ( int &baud, int &parity, int &data, float &stop );
     bool setPortConfig ( int baud, int parity, int data, float stop );

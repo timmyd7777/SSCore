@@ -77,6 +77,10 @@ int64_t strtoint64 ( string str );
 float strtofloat ( string str );
 double strtofloat64 ( string str );
 
+void hexstring_to_binary ( const std::string &source, uint8_t *destination, size_t length );
+void binary_to_hexstring ( const uint8_t *source, size_t length, std::string& destination );
+string hexstring ( const void *source, size_t length );
+
 double strtodeg ( string str );
 double degtorad ( double deg );
 double radtodeg ( double rad );

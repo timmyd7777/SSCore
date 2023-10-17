@@ -5,7 +5,7 @@
 // Copyright © 2022 Southern Stars Group, LLC. All rights reserved.
 //
 // This class implements basic IPv4 and IPv6 network TCP and UDP socket communication.
-// TCP server sockets are supported. SSL and not supported. Implements basic HTTP 1.1 requests.
+// TCP server sockets are supported. SSL is not supported. Implements basic HTTP 1.1 requests.
 // On Windows, make sure to link with WS2_32.LIB and IPHLPAPI.LIB!
 // On MacOS and iOS, make sure your Entitlements file supports both
 // incoming and outgoing network connections; see SSSocket.cpp for details

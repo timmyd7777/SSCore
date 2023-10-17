@@ -38,8 +38,7 @@ string getcwd ( void )
 string getcwd(void)
 {
     char path[PATH_MAX] = { 0 };
-    getcwd ( path, PATH_MAX );
-    return string ( path );
+    return ( getcwd ( path, PATH_MAX ) == NULL ? "" : string ( path ) );
 }
 
 #endif
@@ -369,6 +368,43 @@ float strtofloat ( string str )
 double strtofloat64 ( string str )
 {
     return strtod ( str.c_str(), nullptr );
+}
+
+// Converts hexadecimal string to binary data.
+// See https://stackoverflow.com/questions/7363774/c-converting-binary-data-to-a-hex-string-and-back
+
+void hexstring_to_binary ( const std::string &source, uint8_t *destination, size_t length )
+{
+    size_t effective_length = min ( length, source.length() / 2 );
+    for( size_t b = 0; b < effective_length; b++)
+    {
+        unsigned int ui;
+        sscanf (source.data() + ( b * 3 ), "%02x", &ui);
+        destination[b] = (uint8_t) ui;
+    }
+}
+
+// Converts binary data to hexadecimal string
+// See https://stackoverflow.com/questions/7363774/c-converting-binary-data-to-a-hex-string-and-back
+
+void binary_to_hexstring ( const uint8_t *source, size_t length, std::string& destination )
+{
+    destination.clear();
+    for ( unsigned int i = 0; i < length; i++ )
+    {
+        char digit[4] = { 0 };
+        snprintf(digit, sizeof ( digit ), "%02x ", source[i] );
+        destination.append (digit );
+    }
+}
+
+// Convenience wrapper for binary_to_hexstring() that accepts a void * and returns the hex sting
+
+string hexstring ( const void *data, size_t size )
+{
+    string hexstr;
+    binary_to_hexstring ( (const uint8_t *) data, size, hexstr );
+    return hexstr;
 }
 
 // Converts a string representing an angle in deg min sec to decimal degrees.

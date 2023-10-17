@@ -567,7 +567,7 @@ void state(double et2[2],int list[12],double pv[][6],double nut[4])
         {
           nrl=nr;
           fseek(F1,nr*RECSIZE,SEEK_SET);
-          fread(buf,sizeof(buf),1,F1);
+          size_t n = fread(buf,sizeof(buf),1,F1);
         }
 
       if(KM)
@@ -638,9 +638,9 @@ void constan(char nam[][6], double val[], double sss[], int *n)
 {
   int i,j;
 
-  fread(&R1,sizeof(R1),1,F1);
+  size_t nread = fread(&R1,sizeof(R1),1,F1);
   *n =(int)R1.r1.ncon;
-  fread(&R2,sizeof(R2),1,F1);
+  nread = fread(&R2,sizeof(R2),1,F1);
 
   for(i=0;i<3;++i) sss[i]=R1.r1.ss[i];
 

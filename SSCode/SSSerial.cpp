@@ -425,8 +425,7 @@ error:
 // SSSerial::portOpen() returns true if this port is currently open,
 // or false if the port is closed (or other error).
 
-bool SSSerial::portOpen ( void )
-{
+bool SSSerial::portOpen () const {
     return _port != kError ? true : false;
 }
 
@@ -443,24 +442,21 @@ bool SSSerial::closePort ( void )
 // SSSerial::readPort() reads up to (size) bytes from serial port into (data) buffer.
 // Returns number of bytes read from serial port, or -1 on error.
 
-int SSSerial::readPort ( void *data, size_t size )
-{
+int SSSerial::readPort ( void *data, size_t size ) const {
     return (int) read ( _port, data, size );
 }
 
 // SSSerial::writePort() writes up to (size) bytes from (data) buffer into serial port.
 // Returns number of bytes written to serial port, or -1 on error.
 
-int SSSerial::writePort ( const void *data, size_t size )
-{
+int SSSerial::writePort ( const void *data, size_t size ) const {
     return (int) write ( _port, data, size );
 }
 
 // SSSerial::inputBytes() returns the number of bytes available to read from the serial port,
 // or -1 on error.
 
-int SSSerial::inputBytes ( void )
-{
+int SSSerial::inputBytes () const {
     int bytes = 0;
     
     if ( ioctl ( _port, FIONREAD, &bytes ) == -1 )

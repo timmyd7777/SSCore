@@ -1075,14 +1075,15 @@ int SSHTTP::readContent ( void )
     if ( ! _socket.socketOpen() || _contLen < 1 )
         return 0;
     
+    _content = vector<char> ( _contLen );
+    memset ( &_content[0], 0, _contLen );
+    
     // read content until timeout, error, or content buffer filled.
     
     int pos = 0;
     double timeout = clocksec() + _timeout / 1000.0;
     while ( clocksec() < timeout )
     {
-        _content = vector<char> ( _contLen );
-        memset ( &_content[0], 0, _contLen );
         int bytes = _socket.readSocket ( &_content[pos], (int) _contLen - pos );
         if ( bytes < 0 )
             break;
