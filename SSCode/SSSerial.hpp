@@ -65,7 +65,7 @@ public:
     static constexpr int k7DataBits = 7;
     static constexpr int k8DataBits = 8;
 
-    // Suppored stop bits
+    // Supported stop bits
 
     static constexpr float k1StopBits = 1.0f;
     static constexpr float k15StopBits = 1.5f; // 1.5 stop bits not supported in MacOS!
@@ -76,7 +76,7 @@ public:
     
     static int listPorts ( vector<string> &names, vector<string> &paths );
     bool openPort ( const string &path );
-    bool portOpen () const;
+    bool portOpen ( void ) const;
     bool closePort ( void );
     int writePort ( const void *data, size_t size ) const;
     int readPort ( void *data, size_t size ) const;

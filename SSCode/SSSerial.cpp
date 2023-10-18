@@ -86,7 +86,7 @@ bool SSSerial::openPort ( const string &path )
 // SSSerial::portOpen() returns true if this port is currently open,
 // or false if the port is closed (or other error).
 
-bool SSSerial::portOpen ( void )
+bool SSSerial::portOpen ( void ) const
 {
     return _port != kError ? true : false;
 }
@@ -100,7 +100,7 @@ bool SSSerial::closePort ( void )
 
 // SSSerial::readPort()
 
-int SSSerial::readPort ( void *lpvBuffer, size_t lNumBytes )
+int SSSerial::readPort ( void *lpvBuffer, size_t lNumBytes ) const
 {
 	unsigned long dwNumBytesRead = 0;
 
@@ -112,7 +112,7 @@ int SSSerial::readPort ( void *lpvBuffer, size_t lNumBytes )
 
 // SSSerial::writePort()
 
-int SSSerial::writePort ( const void *lpvBuffer, size_t lNumBytes )
+int SSSerial::writePort ( const void *lpvBuffer, size_t lNumBytes ) const
 {
 	unsigned long	dwNumBytesWritten = 0;
 
@@ -187,7 +187,7 @@ bool SSSerial::getPortConfig ( int &iBaudRate, int &iParity, int &iDataBits, flo
 
 // SSSerial::inputBytes
 
-int SSSerial::inputBytes ( void )
+int SSSerial::inputBytes ( void ) const
 {
 	COMSTAT			comstat;
 	unsigned long	dwError;
