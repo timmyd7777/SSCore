@@ -373,7 +373,7 @@ double SSCoordinates::getObliquity ( double jd )
 
 SSMatrix SSCoordinates::getNutationMatrix ( double obq, double nutLon, double nutObq )
 {
-    return SSMatrix::rotation ( 3, 0, -obq, 2, nutLon, 0, obq + nutObq );
+    return SSMatrix::rotations ( 3, 0, -obq, 2, nutLon, 0, obq + nutObq );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
@@ -383,7 +383,7 @@ SSMatrix SSCoordinates::getNutationMatrix ( double obq, double nutLon, double nu
 
 SSMatrix SSCoordinates::getEclipticMatrix ( double obliquity )
 {
-    return SSMatrix::rotation ( 1, 0, obliquity );
+    return SSMatrix::rotations ( 1, 0, obliquity );
 }
 
 // Returns a rotation matrix for transforming rectangular coordinates from the
@@ -393,7 +393,7 @@ SSMatrix SSCoordinates::getEclipticMatrix ( double obliquity )
 
 SSMatrix SSCoordinates::getHorizonMatrix ( double lst, double lat )
 {
-    SSMatrix m = SSMatrix::rotation ( 2, 2, SSAngle::kPi - lst, 1, lat - SSAngle::kHalfPi );
+    SSMatrix m = SSMatrix::rotations ( 2, 2, SSAngle::kPi - lst, 1, lat - SSAngle::kHalfPi );
     return m.negateMiddleRow();
 }
 

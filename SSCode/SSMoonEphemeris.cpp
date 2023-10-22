@@ -1647,7 +1647,7 @@ SSMatrix phobosMatrix ( double jed )
     double na = degtorad ( 47.39 - 0.0014 * y );
     double ja = degtorad ( 37.27 + 0.0008 * y );
 
-    return SSMatrix::rotation ( 2, 0, ja, 2, na );
+    return SSMatrix::rotations ( 2, 0, ja, 2, na );
 }
 
 // Returns matrix for transforming Deimos's XYZ vector to the Earth's J2000 equatorial frame.
@@ -1659,7 +1659,7 @@ SSMatrix deimosMatrix ( double jed )
     double na = degtorad ( 46.37 - 0.0014 * y );
     double ja = degtorad ( 36.62 + 0.0008 * y );
 
-    return SSMatrix::rotation ( 2, 0, ja, 2, na );
+    return SSMatrix::rotations ( 2, 0, ja, 2, na );
 }
 
 // Returns Triton's Neptune-centric orbital elements on a given Julian Ephemeris Date (jed).
@@ -1711,7 +1711,7 @@ SSMatrix tritonMatrix ( double jed )
     double je = degtorad ( 90.0 - dp );
     double ne = degtorad ( 90.0 + ap );
     
-    return SSMatrix::rotation ( 2, 0, je, 2, ne );
+    return SSMatrix::rotations ( 2, 0, je, 2, ne );
 }
 
 // Returns matrix for transforming Nereid's XYZ vector to the Earth's J2000 equatorial frame.
@@ -1720,7 +1720,7 @@ SSMatrix tritonMatrix ( double jed )
 SSMatrix nereidMatrix ( void )
 {
     static SSMatrix matrix = SSCoordinates::getPrecessionMatrix ( SSTime::kB1950 ).transpose()
-                            * SSMatrix::rotation ( 2, 0, degtorad ( 22.313 ), 2, degtorad ( 3.522 ) );
+                            * SSMatrix::rotations ( 2, 0, degtorad ( 22.313 ), 2, degtorad ( 3.522 ) );
     return matrix;
 }
 
@@ -1753,7 +1753,7 @@ SSMatrix charonMatrix ( void )
     double j = degtorad ( 90.0 - d );
     double n = degtorad ( 90.0 + a );
     
-    return SSMatrix::rotation ( 2, 0, j, 2, n );
+    return SSMatrix::rotations ( 2, 0, j, 2, n );
 }
 
 // Computes Phobos & Deimos's areo-centric position and velocity vectors, in units of AU and AU/day,

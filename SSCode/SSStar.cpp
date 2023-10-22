@@ -1323,7 +1323,7 @@ string SSStar::toCSV ( void )
 
 void SSDoubleStar::setOrbit ( SSOrbit orbit, SSAngle ra, SSAngle dec )
 {
-    SSMatrix m = SSMatrix::rotation ( 2, 1, dec + SSAngle::kHalfPi, 2, ra );
+    SSMatrix m = SSMatrix::rotations ( 2, 1, dec + SSAngle::kHalfPi, 2, ra );
     setOrbit ( orbit.transform ( m ) );
 }
 
@@ -1332,7 +1332,7 @@ void SSDoubleStar::setOrbit ( SSOrbit orbit, SSAngle ra, SSAngle dec )
 
 SSOrbit SSDoubleStar::getOrbit ( SSAngle ra, SSAngle dec )
 {
-    SSMatrix m = SSMatrix::rotation ( 2, 2, -ra, 1, -dec - SSAngle::kHalfPi );
+    SSMatrix m = SSMatrix::rotations ( 2, 2, -ra, 1, -dec - SSAngle::kHalfPi );
     return getOrbit().transform ( m );
 }
 

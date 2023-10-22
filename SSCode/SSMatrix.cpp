@@ -127,32 +127,8 @@ SSMatrix SSMatrix::multiply ( SSMatrix mat )
 
 SSMatrix SSMatrix::rotate ( int axis, double angle )
 {
-    double cosa = cos ( angle );
-    double sina = sin ( angle );
-    SSMatrix r;
-    
-    if ( axis == 0 )
-    {
-        return SSMatrix ( 1.0, 0.0,  0.0,
-                          0.0, cosa, -sina,
-                          0.0, sina, cosa ).multiply ( *this );
-    }
-    else if ( axis == 1 )
-    {
-        return SSMatrix ( cosa, 0.0, -sina,
-                           0.0, 1.0, 0.0,
-                          sina, 0.0, cosa ).multiply ( *this );
-    }
-    else if ( axis == 2 )
-    {
-        return SSMatrix ( cosa, -sina, 0.0,
-                          sina,  cosa, 0.0,
-                           0.0,   0.0, 1.0 ).multiply ( *this );
-    }
-    else
-    {
-        return *this;
-    }
+    SSMatrix r = rotation ( axis, angle );
+    return r.multiply ( *this );
 }
 
 // Returns a matrix which represents an arbitrary set of rotations around
@@ -162,7 +138,7 @@ SSMatrix SSMatrix::rotate ( int axis, double angle )
 // For example, the matrix returned by rotation ( 3, 0, a, 1, b, 2, c ) is the inverse
 // (i.e. transpose) of the matrix returned by rotation ( 3, 2, -c, 1, -b, 0, a )
 
-SSMatrix SSMatrix::rotation ( int n, ... )
+SSMatrix SSMatrix::rotations ( int n, ... )
 {
     SSMatrix m = SSMatrix::identity();
     va_list ap;
@@ -178,6 +154,54 @@ SSMatrix SSMatrix::rotation ( int n, ... )
     
     va_end ( ap );
     return ( m );
+}
+
+// Returns a matrix which represents a rotation around an arbitrary unit vector (axis)
+// by a value in radians (angle). Rotation is counter-clockwise; coordinate frame is right-handed.
+// See https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
+// and https://en.wikipedia.org/wiki/Rotation_matrix#Conversion_from_rotation_matrix_to_axis–angle
+// and https://en.wikipedia.org/wiki/Rotation_matrix#Non-standard_orientation_of_the_coordinate_system
+
+SSMatrix SSMatrix::rotation ( const SSVector &axis, double angle )
+{
+    double x = axis.x, y = -axis.y, z = axis.z; // -y makes these formulae right-handed!
+    double sina = sin ( angle ), cosa = cos ( angle ), omca = 1.0 - cosa;
+    double m00 = cosa + x * x * omca, m01 = x * y * omca - z * sina, m02 = x * z * omca + y * sina;
+    double m10 = y * x * omca + z * sina, m11 = cosa + y * y * omca, m12 = y * z * omca - x * sina;
+    double m20 = z * x * omca - y * sina, m21 = z * y * omca + x * sina, m22 = cosa + z * z * omca;
+    return SSMatrix ( m00, m01, m02, m10, m11, m12, m20, m21, m22 );
+}
+
+// Returns a matrix which represents this a rotation around a particular coordinate axis (0=X,1=Y,2=Z)
+// by an angle in radians. Rotation is counter-clockwise; coordinate frame is right-handed.
+// Does not modify this matrix; returns a transformed copy!
+
+SSMatrix SSMatrix::rotation ( int axis, double angle )
+{
+    double cosa = cos ( angle );
+    double sina = sin ( angle );
+    SSMatrix r = identity();
+
+    if ( axis == 0 )
+    {
+        r = SSMatrix ( 1.0, 0.0,  0.0,
+                       0.0, cosa, -sina,
+                       0.0, sina, cosa );
+    }
+    else if ( axis == 1 )
+    {
+        r = SSMatrix ( cosa, 0.0, -sina,
+                       0.0,  1.0, 0.0,
+                       sina, 0.0, cosa );
+    }
+    else if ( axis == 2 )
+    {
+        r = SSMatrix ( cosa, -sina, 0.0,
+                       sina,  cosa, 0.0,
+                       0.0,   0.0, 1.0 );
+    }
+    
+    return r;
 }
 
 // Returns copy of matrix with middle row negated.

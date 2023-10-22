@@ -349,7 +349,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
             else if ( p == kPluto )
                 lp = SSSpherical ( SSAngle::fromDegrees ( 132.993 ), SSAngle::fromDegrees ( -6.613 ) );
             
-            SSMatrix matrix = SSMatrix::rotation ( 2, 0, SSAngle::kHalfPi - lp.lat, 2, SSAngle::kHalfPi + lp.lon );
+            SSMatrix matrix = SSMatrix::rotations ( 2, 0, SSAngle::kHalfPi - lp.lat, 2, SSAngle::kHalfPi + lp.lon );
             _orbit.toPositionVelocity ( jed - lt, pos, vel );
             pos = matrix.multiply ( pos );
             vel = matrix.multiply ( vel );
@@ -1563,7 +1563,7 @@ SSMatrix SSPlanet::setPlanetographicMatrix ( double jed )
     double a0, d0, w, dw;
     
     rotationElements ( jed, a0, d0, w, dw );
-    _pmatrix = SSMatrix::rotation ( 3, 2, w, 0, SSAngle::kHalfPi - d0, 2, a0 + SSAngle::kHalfPi );
+    _pmatrix = SSMatrix::rotations ( 3, 2, w, 0, SSAngle::kHalfPi - d0, 2, a0 + SSAngle::kHalfPi );
     
     return _pmatrix;
 }

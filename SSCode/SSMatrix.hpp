@@ -25,14 +25,16 @@ struct SSMatrix
     double  determinant ( void );
     
     static SSMatrix identity ( void );
-    static SSMatrix rotation ( int n, ... );
-    
+    static SSMatrix rotation ( int axis, double angle );
+    static SSMatrix rotation ( const SSVector &axis, double angle );
+    static SSMatrix rotations ( int n, ... );
+    SSMatrix rotate ( int axis, double angle );
+
     SSMatrix negateMiddleRow ( void );
     SSMatrix negateMiddleCol ( void );
 
     SSVector multiply ( SSVector vec );
     SSMatrix multiply ( SSMatrix mat );
-    SSMatrix rotate ( int axis, double angle );
     
     SSVector operator * ( SSVector other ) { return multiply ( other ); }
     SSMatrix operator * ( SSMatrix other ) { return multiply ( other ); }
