@@ -172,9 +172,11 @@ SSMatrix SSMatrix::rotation ( const SSVector &axis, double angle )
     return SSMatrix ( m00, m01, m02, m10, m11, m12, m20, m21, m22 );
 }
 
-// Returns a matrix which represents this a rotation around a particular coordinate axis (0=X,1=Y,2=Z)
+// Returns a matrix which represents a rotation around a particular coordinate axis (0=X,1=Y,2=Z)
 // by an angle in radians. Rotation is counter-clockwise; coordinate frame is right-handed.
-// Does not modify this matrix; returns a transformed copy!
+// Note rotation ( 0, angle ) is equivalent to rotation ( { 1, 0, 0 }, angle );
+// Note rotation ( 1, angle ) is equivalent to rotation ( { 0, 1, 0 }, angle );
+// Note rotation ( 2, angle ) is equivalent to rotation ( { 0, 0, 1 }, angle );
 
 SSMatrix SSMatrix::rotation ( int axis, double angle )
 {
