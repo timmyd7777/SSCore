@@ -107,7 +107,7 @@ This list of nearby star common names was compiled primarily from:
 Tetra3.npz
 ----------
 
-This is a star pattern database for the Tetra3 plate solver, stored in compressed NumPy table format. The database contains 116537 patterns and 6043 stars, and can be used with fields of view from 90 to 10 degrees in width. It was compiled from the [5th Bright Star Catalog](http://tdc-www.harvard.edu/catalogs/bsc5.html) to magnitude 7 using the modified version of `tetra3.py` included in the **SSCode/Tetra3** directory. The arguments to the Tetra3 python database generator method were as follows:
+This is a star pattern database for our C++ implementation of the [Tetra3](https://github.com/esa/tetra3) plate solver, stored in compressed NumPy table format. The database contains 116,537 patterns and 6043 stars. It can be used with fields of view from 90 to 10 degrees in width. It was compiled from the [5th Bright Star Catalog](http://tdc-www.harvard.edu/catalogs/bsc5.html) to magnitude 7 using the modified python version of `tetra3.py` included in the **SSCode/Tetra3** directory. The arguments to the python Tetra3 database generator method were as follows:
 
 ```
 t3 = Tetra3()
