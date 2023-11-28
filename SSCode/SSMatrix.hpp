@@ -19,7 +19,6 @@ struct SSMatrix
     
     SSMatrix ( void );
     SSMatrix ( double m00, double m01, double m02, double m10, double m11, double m12, double m20, double m21, double m22 );
-    SSMatrix ( SSVector u, SSVector v );
     
     SSVector row ( int i );
     SSVector col ( int j );
@@ -47,6 +46,7 @@ struct SSMatrix
     
     SSVector operator * ( SSVector other ) { return multiply ( other ); }
     SSMatrix operator * ( SSMatrix other ) { return multiply ( other ); }
+    void operator *= ( SSMatrix other ) { *this = *this * other; }
 };
 
 #endif /* SSMatrix_hpp */

@@ -27,15 +27,6 @@ SSMatrix::SSMatrix ( double m00, double m01, double m02, double m10, double m11,
     this->m20 = m20; this->m21 = m21; this->m22 = m22;
 }
 
-// Constructs a 3x3 matrix from two orthogonal vectors (u,v)
-
-SSMatrix::SSMatrix ( SSVector u, SSVector v )
-{
-    m00 = u.x * v.x;    m01 = u.y * v.x;    m02 = u.z * v.x;
-    m10 = u.x * v.y;    m11 = u.y * v.y;    m12 = u.z * v.y;
-    m20 = u.x * v.z;    m21 = u.y * v.z;    m22 = u.z * v.z;
-}
-
 // Returns a vector whose elements are the i-th row of this matrix
 
 SSVector SSMatrix::row ( int i )
