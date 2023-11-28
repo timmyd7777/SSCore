@@ -27,6 +27,39 @@ SSMatrix::SSMatrix ( double m00, double m01, double m02, double m10, double m11,
     this->m20 = m20; this->m21 = m21; this->m22 = m22;
 }
 
+// Constructs a 3x3 matrix from two orthogonal vectors (u,v)
+
+SSMatrix::SSMatrix ( SSVector u, SSVector v )
+{
+    m00 = u.x * v.x;    m01 = u.y * v.x;    m02 = u.z * v.x;
+    m10 = u.x * v.y;    m11 = u.y * v.y;    m12 = u.z * v.y;
+    m20 = u.x * v.z;    m21 = u.y * v.z;    m22 = u.z * v.z;
+}
+
+// Returns a vector whose elements are the i-th row of this matrix
+
+SSVector SSMatrix::row ( int i )
+{
+    if ( i <= 0 )
+        return SSVector ( m00, m01, m02 );
+    else if ( i == 1 )
+        return SSVector ( m10, m11, m12 );
+    else
+        return SSVector ( m20, m21, m22 );
+}
+
+// Returns a vector whose elements are the j-th column of this matrix
+
+SSVector SSMatrix::col ( int j )
+{
+    if ( j <= 0 )
+        return SSVector ( m00, m10, m20 );
+    else if ( j == 1 )
+        return SSVector ( m01, m11, m21 );
+    else
+        return SSVector ( m02, m12, m22 );
+}
+
 // Returns a 3x3 identity matrix.
 
 SSMatrix SSMatrix::identity ( void )
@@ -83,6 +116,16 @@ double SSMatrix::determinant ( void )
                + m02 * ( m10 * m21 - m11 * m20 );
     
     return ( det );
+}
+
+// Returns the sum of this matrix and another 3x3 matrix
+// as another 3x3 matrix. Does not modify this matrix!
+
+SSMatrix SSMatrix::sum ( SSMatrix m )
+{
+    return SSMatrix ( m00 + m.m00, m01 + m.m01, m02 + m.m02,
+                      m10 + m.m10, m11 + m.m11, m12 + m.m12,
+                      m20 + m.m20, m21 + m.m21, m22 + m.m22 );
 }
 
 // Returns the product of this matrix and a 3-element vector

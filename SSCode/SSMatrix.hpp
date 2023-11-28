@@ -19,10 +19,14 @@ struct SSMatrix
     
     SSMatrix ( void );
     SSMatrix ( double m00, double m01, double m02, double m10, double m11, double m12, double m20, double m21, double m22 );
+    SSMatrix ( SSVector u, SSVector v );
+    
+    SSVector row ( int i );
+    SSVector col ( int j );
     
     SSMatrix transpose ( void );
     SSMatrix inverse ( void );
-    double  determinant ( void );
+    double   determinant ( void );
     
     static SSMatrix identity ( void );
     static SSMatrix rotation ( int axis, double angle );
@@ -33,8 +37,13 @@ struct SSMatrix
     SSMatrix negateMiddleRow ( void );
     SSMatrix negateMiddleCol ( void );
 
+    SSMatrix sum ( SSMatrix mat );
+    
     SSVector multiply ( SSVector vec );
     SSMatrix multiply ( SSMatrix mat );
+    
+    SSMatrix operator + ( SSMatrix other ) { return sum ( other ); }
+    void operator += ( SSMatrix other ) { *this = *this + other; }
     
     SSVector operator * ( SSVector other ) { return multiply ( other ); }
     SSMatrix operator * ( SSMatrix other ) { return multiply ( other ); }

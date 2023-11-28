@@ -12,6 +12,15 @@
 		4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87E2404EF0800BDD11C /* SSVector.cpp */; };
 		4703A8832404EF3800BDD11C /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8822404EF3800BDD11C /* SSMatrix.cpp */; };
 		4703A8882404EF7F00BDD11C /* SSTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8862404EF7F00BDD11C /* SSTime.cpp */; };
+		A304AA8B2B105BC9003E50AA /* SSTetraTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A304AA8A2B105BC9003E50AA /* SSTetraTest.cpp */; };
+		A304AA8C2B105BD6003E50AA /* SSAngle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87C2404EEEA00BDD11C /* SSAngle.cpp */; };
+		A304AA8D2B105BE0003E50AA /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87E2404EF0800BDD11C /* SSVector.cpp */; };
+		A304AA8E2B105BEC003E50AA /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8822404EF3800BDD11C /* SSMatrix.cpp */; };
+		A304AA8F2B105BF5003E50AA /* SSUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A35D2B4824293BF80092DEA5 /* SSUtilities.cpp */; };
+		A304AA972B105D33003E50AA /* svdcmp.c in Sources */ = {isa = PBXBuildFile; fileRef = A304AA912B105D33003E50AA /* svdcmp.c */; };
+		A304AA982B105D33003E50AA /* Tetra3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A304AA922B105D33003E50AA /* Tetra3.cpp */; };
+		A304AA992B105D33003E50AA /* cnpy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A304AA932B105D33003E50AA /* cnpy.cpp */; };
+		A304AA9B2B105F68003E50AA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A304AA9A2B105F68003E50AA /* libz.tbd */; };
 		A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
 		A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C3241EE07900197F8A /* SSPlanet.cpp */; };
 		A30545C8241EF45000197F8A /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
@@ -90,6 +99,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		A304AA812B105B6B003E50AA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		A328D72F2402DBFD00BCE781 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -121,6 +139,15 @@
 		4703A8822404EF3800BDD11C /* SSMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSMatrix.cpp; sourceTree = "<group>"; };
 		4703A8862404EF7F00BDD11C /* SSTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSTime.cpp; sourceTree = "<group>"; };
 		4703A8872404EF7F00BDD11C /* SSTime.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSTime.hpp; sourceTree = "<group>"; };
+		A304AA832B105B6B003E50AA /* SSTetraTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SSTetraTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A304AA8A2B105BC9003E50AA /* SSTetraTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSTetraTest.cpp; path = ../SSTetraTest.cpp; sourceTree = "<group>"; };
+		A304AA912B105D33003E50AA /* svdcmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = svdcmp.c; sourceTree = "<group>"; };
+		A304AA922B105D33003E50AA /* Tetra3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tetra3.cpp; sourceTree = "<group>"; };
+		A304AA932B105D33003E50AA /* cnpy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cnpy.cpp; sourceTree = "<group>"; };
+		A304AA942B105D33003E50AA /* Tetra3.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Tetra3.hpp; sourceTree = "<group>"; };
+		A304AA952B105D33003E50AA /* svdcmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svdcmp.h; sourceTree = "<group>"; };
+		A304AA962B105D33003E50AA /* cnpy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cnpy.h; sourceTree = "<group>"; };
+		A304AA9A2B105F68003E50AA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		A30545C0241EDBB400197F8A /* SSObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSObject.cpp; sourceTree = "<group>"; };
 		A30545C1241EDBB400197F8A /* SSObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSObject.hpp; sourceTree = "<group>"; };
 		A30545C3241EE07900197F8A /* SSPlanet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSPlanet.cpp; sourceTree = "<group>"; };
@@ -203,6 +230,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A304AA802B105B6B003E50AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A304AA9B2B105F68003E50AA /* libz.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A328D72E2402DBFD00BCE781 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -222,11 +257,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A304AA902B105D33003E50AA /* Tetra3 */ = {
+			isa = PBXGroup;
+			children = (
+				A304AA942B105D33003E50AA /* Tetra3.hpp */,
+				A304AA922B105D33003E50AA /* Tetra3.cpp */,
+				A304AA962B105D33003E50AA /* cnpy.h */,
+				A304AA932B105D33003E50AA /* cnpy.cpp */,
+				A304AA952B105D33003E50AA /* svdcmp.h */,
+				A304AA912B105D33003E50AA /* svdcmp.c */,
+			);
+			path = Tetra3;
+			sourceTree = "<group>";
+		};
 		A328D7282402DBFD00BCE781 = {
 			isa = PBXGroup;
 			children = (
 				A378CE9A243A482000F4B018 /* SSTest.cpp */,
 				A37E083F28D3995000489544 /* SSMountTest.cpp */,
+				A304AA8A2B105BC9003E50AA /* SSTetraTest.cpp */,
 				A328D7332402DBFD00BCE781 /* SSCode */,
 				A34D207F28D39E5C0005A5F1 /* Frameworks */,
 				A328D7322402DBFD00BCE781 /* Products */,
@@ -238,6 +287,7 @@
 			children = (
 				A328D7312402DBFD00BCE781 /* SSTest */,
 				A37E083828D3990400489544 /* SSMountTest */,
+				A304AA832B105B6B003E50AA /* SSTetraTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -315,6 +365,7 @@
 				A388CCDB24CF7EAB009EA2CA /* SSView.hpp */,
 				A37E084328D399B600489544 /* SSVPEphemeris.cpp */,
 				A37E084428D399B600489544 /* SSVPEphemeris.hpp */,
+				A304AA902B105D33003E50AA /* Tetra3 */,
 				A3C22CF624574695004CE083 /* VSOP2013 */,
 			);
 			name = SSCode;
@@ -324,6 +375,7 @@
 		A34D207F28D39E5C0005A5F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A304AA9A2B105F68003E50AA /* libz.tbd */,
 				A34D208028D39EAA0005A5F1 /* CoreFoundation.framework */,
 				A34D208228D39EB70005A5F1 /* IOKit.framework */,
 			);
@@ -354,6 +406,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A304AA822B105B6B003E50AA /* SSTetraTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A304AA892B105B6B003E50AA /* Build configuration list for PBXNativeTarget "SSTetraTest" */;
+			buildPhases = (
+				A304AA7F2B105B6B003E50AA /* Sources */,
+				A304AA802B105B6B003E50AA /* Frameworks */,
+				A304AA812B105B6B003E50AA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SSTetraTest;
+			productName = SSTetraTest;
+			productReference = A304AA832B105B6B003E50AA /* SSTetraTest */;
+			productType = "com.apple.product-type.tool";
+		};
 		A328D7302402DBFD00BCE781 /* SSTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A328D7382402DBFD00BCE781 /* Build configuration list for PBXNativeTarget "SSTest" */;
@@ -397,6 +466,9 @@
 				LastUpgradeCheck = 1120;
 				ORGANIZATIONNAME = "Southern Stars";
 				TargetAttributes = {
+					A304AA822B105B6B003E50AA = {
+						CreatedOnToolsVersion = 14.3;
+					};
 					A328D7302402DBFD00BCE781 = {
 						CreatedOnToolsVersion = 11.2.1;
 					};
@@ -420,11 +492,27 @@
 			targets = (
 				A328D7302402DBFD00BCE781 /* SSTest */,
 				A37E083728D3990400489544 /* SSMountTest */,
+				A304AA822B105B6B003E50AA /* SSTetraTest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A304AA7F2B105B6B003E50AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A304AA8E2B105BEC003E50AA /* SSMatrix.cpp in Sources */,
+				A304AA8F2B105BF5003E50AA /* SSUtilities.cpp in Sources */,
+				A304AA972B105D33003E50AA /* svdcmp.c in Sources */,
+				A304AA992B105D33003E50AA /* cnpy.cpp in Sources */,
+				A304AA8D2B105BE0003E50AA /* SSVector.cpp in Sources */,
+				A304AA982B105D33003E50AA /* Tetra3.cpp in Sources */,
+				A304AA8B2B105BC9003E50AA /* SSTetraTest.cpp in Sources */,
+				A304AA8C2B105BD6003E50AA /* SSAngle.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A328D72D2402DBFD00BCE781 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -520,6 +608,32 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		A304AA872B105B6B003E50AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3VXR2SZ857;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A304AA882B105B6B003E50AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 3VXR2SZ857;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		A328D7362402DBFD00BCE781 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -680,6 +794,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A304AA892B105B6B003E50AA /* Build configuration list for PBXNativeTarget "SSTetraTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A304AA872B105B6B003E50AA /* Debug */,
+				A304AA882B105B6B003E50AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A328D72C2402DBFD00BCE781 /* Build configuration list for PBXProject "SSTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

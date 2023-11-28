@@ -103,3 +103,12 @@ This list of nearby star common names was compiled primarily from:
 
 - Version 1.0 (27 Mar 2020): initial version
 - Version 1.1 (6 Apr 2020): Moved comments from CSV file header into this README.
+
+Tetra3.npz
+----------
+
+This is a star pattern database for the Tetra3 plate solver. It was compiled from the [5th Bright Star Catalog](http://tdc-www.harvard.edu/catalogs/bsc5.html) using the modified version of `tetra3.py` included in the **SSCode/Tetra3** directory. 
+
+**Revision History**
+
+- Version 1.0 (27 Nov 2023): initial version. 

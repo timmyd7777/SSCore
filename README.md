@@ -31,6 +31,7 @@ This directory contains the source code.  Here's an overview of the C++ classes 
 - **_SSMatrix:_** Represents a 3x3 matrix, with routines for performing matrix and vector-matrix arithmetic.
 - **_SSMoonEphemeris:_** Computes positions for the major moons of Mars, Jupiter, Saturn, Uranus, Neptune, and Pluto. For Earth's Moon, use SSJPLDEphemeris or SSPSEphemeris.
 - **_SSMount:_** This class implements communication with common amateur telescope mount controllers over serial port and TCP/IP sockets. Supported protocols include Meade LX-200/Autostar, Celestron NexStar, and SkyWatcher/Orion SynScan. 
+- **_SSMountModel:_** This class is a C++ wrapper around the multi-star telescope mount alignment model code originally developed by [Project Pluto](http://www.projectpluto.com). 
 - **_SSObject:_** Base class for all types of celestial objects (stars, planets, constellations, etc.) Also includes SSObjectArray, a class for storing a collection of objects and saving/loading them from CSV files, with built-in memory management.
 - **_SSOrbit:_** This class stores Keplerian orbital elements, computes position/velocity at a given time from them, and vice-versa.
 - **_SSPlanet:_** This subclass of SSObject represents all solar system objects (not just planets, but also moons, asteroids, comets, satellites, etc.)  Includes methods for computing solar system object positions, velocities, magnitudes, sizes, and rotational parameters.
@@ -53,6 +54,22 @@ JPL's DE ephemeris files are much faster than VSOP/ELP, but also much bulkier. J
 
 You can build a version of SSCore without any dependency on VSOP2013 or ELPMPP02. Just remove those source files, then `#define USE_VSOP_ELP 0` at the top of SSPlanet.cpp. The resulting code will use JPL DE438 when available, and fall back to Paul Schlyter's (fast, but not terribly accurate) formulae when DE438 is not available. You can also direct SSCore to use (or not to use) VSOP/ELP at runtime with SSPlanet::useVSOPELP().
 
+**Tetra3 Plate Solver**
+
+This work is a C++ implementation of the [ESA Tetra3](https://github.com/esa/tetra3) lost-in-space algorithm, derived from the original python. Currently, this translation only includes the solver. The catalogue generator and source centroids extractor in the original python are not yet ported to C++. Performance-wise, this C++ implementation is roughly 6-10x faster than the original python code, running on the same hardware.
+
+The original [Tetra algorithm](https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=3655&context=smallsat) was developed by Julian Brown et. al. at MIT. The [code repository](https://github.com/brownj4/Tetra) developed by the original authors contains a C version, but that does not compile or run correctly.
+
+Instead, I used Gustav Pettersson's [python3 version](https://github.com/esa/tetra3) as a starting point. It can create much larger databases, and Gustav provides excellent support.
+
+I used a slightly-modified version of Carl Rogers' [cnpy](https://github.com/rogersce/cnpy) libray to read the NumPy .npz files from C++. The piece missing from cnpy was the ability to read structured NumPy arrays; I added that. Note that cnpy will no longer be needed in this project, when the C++ version of Tetra3 can build its own pattern databases.
+
+The matrix singular value decomposition implementation came from [svdfit.c](https://www.ngs.noaa.gov/gps-toolbox/sp3intrp/svdfit.c), part of a NOAA [GPS Toolbox](https://www.ngs.noaa.gov/gps-toolbox/sp3intrp/). That implementation is a slightly modified version of the svdcmp() routine from the time-honored [Numerical Recipes in C](http://www.nrbook.com/) by W.H. Press, et. al. 
+
+The C++ implementation of the binomial cumulative distribution function at the top of `Tetra3.cpp` may have been written by [ChatGPT](https://chat.openai.com).
+
+The **SSCode/Tetra3** directory contains the python code (`tetra3.py`) from which this C++ implementation was derived. The latest official `tetra3.py` has diverged from this since I began the C++ implementation, and I modified the python to read Southern Stars CSV-formatted star catalogs (as present in the **SSData** folder). A Tetra3 pattern database generated with my modified `tetra3.py` is included in the **SSData/Stars** subdirectory. See the README.md file there for more information. 
+
 **Coding Style Standards**
 
 I comment copiously, especially function/method parameters and struct/class members. I use lots of whitespace, avoid TABs, and indent using four whitespaces. My braces use ANSI/ISO/BSD style, **_not_** K&R style. I start private member variable names with underscores. Raw pointer variable names start with p. Constants start with k.
@@ -65,7 +82,7 @@ SSData
 **SSData** is a collection of data on well-known astronomical objects, compiled and carefully vetted from a variety of modern astronomical catalogs and data sources.  It includes:
 
 - **_Solar System Objects:_** the major planets (including Pluto!) and their natural satellites, with orbital and physical characteristics from [JPL Solar System Dynamics.](https://ssd.jpl.nasa.gov). Also current asteroid and comet data from the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html), a selection of satellite TLE files from [CelesTrak](http://www.celestrak.com) and [N2YO](https://www.n2yo.com), and JPL's latest planetary and lunar [ephemeris](https://ssd.jpl.nasa.gov/?planet_eph_export).
-- **_Stars:_** the brightest and nearest stars, compiled from NASA's [SKY2000 Master Star Catalog](https://ui.adsabs.harvard.edu/abs/2015yCat.5145....0M/abstract), Hipparcos, [RECONS](http://www.recons.org/), and other sources; with official IAU [star names](http://www.pas.rochester.edu/~emamajek/WGSN/).
+- **_Stars:_** the brightest and nearest stars, compiled from NASA's [SKY2000 Master Star Catalog](https://ui.adsabs.harvard.edu/abs/2015yCat.5145....0M/abstract), Hipparcos, [RECONS](http://www.recons.org/), and other sources; with official IAU [star names](http://www.pas.rochester.edu/~emamajek/WGSN/). A pattern database for the Tetra3 plate solver is also included.
 - **_Deep Sky Objects:_** the Messier and Caldwell objects, with data from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/index_e.htm) catalogs, and enhanced using data from a few other sources.
 - **_Constellations:_** the 88 IAU-sanctioned constellations, including official IAU [boundary](https://watcheroftheskies.net/constellations/boundaries.html) and [shape](http://mkweb.bcgsc.ca/constellations/) data.
 
@@ -85,6 +102,8 @@ This directory contains a test program (SSTest.cpp), which hopefully serves as a
 
 **SSMountTest** is a simple test program for the SSMount telescope mount communication class, and its underlying SSSerial/SSSocket classes. SSMountTest can be compiled for MacOS, Windows, and Linux using the SSTest project (or Makefile) in the respective SSTeast directories for those platforms. SSMountTest.cpp does not build on iOS or Android, but the SSMount class works with socket communication on those mobile platforms.
 
+**SSTetraTest** is a test program for the C++ Tetra3 plate solver. It can be compiled for MacOS, Windows, and Linux. The Tetra3 test executable takes one command-line argument: the path to the `Tetra3.npz` pattern database. The C++ Tetra3 code compiles and runs on iOS and Android, but this test program does not yet support mobile platforms. 
+
 Version History
 ---------------
 
@@ -97,3 +116,4 @@ Version History
 - **Version 1.7** - 05 Jun 2021: Added color index, rotation period, albedo, taxonomy to SSPlanet; added JPL DASTCOM file import; added Tycho and Tycho-2 star catalog import. Compute binary star separation and position. Import General Catalog of Variable Stars, Washington Double Star catalog. SSHTM can now be sublcassed. Misc. bug fixes. 
 - **Version 1.8** - 21 Sep 2022: Added SSSerial, SSSocket, and SSMount for serial and socket-based communication with common amateur telescope mount controllers from Meade, Celestron, SkyWatcher, and Orion. 
 - **Version 1.81** - 6 Oct 2022: Added IPv6 support to SSSocket. Added SSHTTP for basic HTTP 1.1 requests. Added SSSyntaMount subclass of SSMount for direct communication with Synta/SkyWatcher mounts. 
+- **Version 1.9** - 27 Nov 2023: Added Tetra3 plate solver, test program, and pattern database. Added SSMountModel. Added code for importing GAIA DR3 and 10-pc sample. Misc warnings cleanup and minor fixes. 
