@@ -85,6 +85,8 @@ public:
     static constexpr double kLYPerParsec = kAUPerParsec / kAUPerLY;                 // Light years per parsec = 3.261563777179643
     static constexpr double kParsecPerLY = kAUPerLY / kAUPerParsec;                 // Parsecs per light year
 
+    // Default constructor initializes this SSCoordinates for current system time, at prime meridian, on equator, at sea level.
+    SSCoordinates ( void ) : SSCoordinates ( SSTime::fromSystem(), SSSpherical() ) { }
     SSCoordinates ( SSTime time, SSSpherical location );
     
     void setTime ( SSTime time );

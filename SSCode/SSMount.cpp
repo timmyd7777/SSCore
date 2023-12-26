@@ -829,7 +829,8 @@ SSMount::Error SSMount::getTime ( SSTime &time )
 
 SSMount::Error SSMount::getSite ( SSSpherical &site )
 {
-    return SSLocationFromIP ( site ) ? kSuccess : kTimedOut;
+    string zone;
+    return SSLocationFromIP ( site, zone ) ? kSuccess : kTimedOut;
 }
 
 // Converts spherical coordinates (ra,dec) in the fundamental (J2000 mean equatorial) frame

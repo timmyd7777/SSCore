@@ -37,7 +37,7 @@ struct SSTime;
 struct SSDate
 {
     SSCalendar calendar;   // calendar system: kGregorianJulian, kJewish, kIslamic, etc.
-    double zone;           // local time zone offset from UTC in hours east of Greenwich; wwst is negative!
+    double zone;           // local time zone offset from UTC in hours east of Greenwich; west is negative!
     int year;              // calendar year; note 0 = 1 BC, -1 = 2 BC, etc.
     short month;           // month; 1 = Jan, 2 = Feb, etc.
     short day;             // day of month, 1 to 31

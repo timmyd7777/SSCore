@@ -115,10 +115,12 @@ int main ( int argc, const char * argv[] )
     // Get current location from IP address - this tests SSHTTP API!
     
     SSSpherical here;
-    if ( SSLocationFromIP ( here ) )
+    string zone;
+    if ( SSLocationFromIP ( here, zone ) )
         cout << "SSLocationFromIP() returned"
              << " lon " << SSDegMinSec ( here.lon ).toString()
-             << " lat " << SSDegMinSec ( here.lat ).toString() << endl;
+             << " lat " << SSDegMinSec ( here.lat ).toString()
+             << " " << zone << endl;
     else
         cout << "SSLocationFromIP() failed!\n" << endl;
 

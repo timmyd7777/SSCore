@@ -1182,24 +1182,54 @@ void SSHTTP::setContentString ( const string &s )
     setContent ( &s[0], s.length() );
 }
 
-// Obtains geographic location from local IP address using SSHTTP API request
-// to free ip-api.com service. Runs synchronously on current thread; may block
-// for several seconds if no internet connection.
+// Obtains geographic location and time zone identifier (like "America/Los_Angeles")
+// from local IP address using SSHTTP API request to paid ipinfo.io service with API token.
+// Runs synchronously on current thread; may block for 1 second if no internet connection.
 // Returns true if successful or false on failure.
 
-bool SSLocationFromIP ( SSSpherical &loc )
+bool SSLocationFromIPInfo ( const string &token, SSSpherical &loc, string &timezone )
 {
-    SSHTTP request ( "http://ip-api.com/csv/?fields=lat,lon", 1000 );
-    request.get();
-    if ( request.getResponseCode() == SSHTTP::kOK )
+    SSHTTP request ( "http://ipinfo.io/loc?token=" + token, 1000 );
+    if ( request.get() == SSHTTP::kOK )
     {
         double lat = 0.0, lon = 0.0;
         if ( sscanf ( request.getContentString().c_str(), "%lf,%lf", &lat, &lon ) == 2 )
         {
             loc = SSSpherical ( SSAngle::fromDegrees ( lon ), SSAngle::fromDegrees ( lat ) );
+            request = SSHTTP ( "http://ipinfo.io/timezone?token=" + token, 1000 );
+            if ( request.get() == SSHTTP::kOK )
+            {
+                timezone = request.getContentString();
+                if ( timezone.back() == '\n' )
+                    timezone.erase ( timezone.begin() + timezone.length() - 1 );
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// Obtains geographic location and time zone identifier (like "America/Los_Angeles")
+// from local IP address using SSHTTP API request to free ip-api.com service.
+// Runs synchronously on current thread; may block for 1 second if no internet connection.
+// Returns true if successful or false on failure.
+
+bool SSLocationFromIP ( SSSpherical &loc, string &timezone )
+{
+    SSHTTP request ( "http://ip-api.com/csv/?fields=lat,lon,timezone", 1000 );
+    if ( request.get() == SSHTTP::kOK )
+    {
+        char tz[1024] = { 0 };
+        double lat = 0.0, lon = 0.0;
+        if ( sscanf ( request.getContentString().c_str(), "%lf,%lf,%s", &lat, &lon, tz ) == 3 )
+        {
+            loc = SSSpherical ( SSAngle::fromDegrees ( lon ), SSAngle::fromDegrees ( lat ) );
+            timezone = string ( tz );
             return true;
         }
     }
     
     return false;
 }
+

@@ -212,9 +212,10 @@ public:
     int post ( const void *postData, size_t postSize );
 };
 
-// Obtains geographic location from local IP address.
+// Obtains geographic location and time zone identifier (e.g. America/Los_Angeles) from local IP address.
 // Returns true if successful or false on failure.
 
-bool SSLocationFromIP ( SSSpherical &loc );
+bool SSLocationFromIP ( SSSpherical &loc, string &tz );
+bool SSLocationFromIPInfo ( const string &token, SSSpherical &loc, string &timezone );
 
 #endif /* SSSocket_hpp */
