@@ -45,7 +45,7 @@ Moons.csv
 
 This table of moon data in Southern Stars CSV format was adapted from JPL's ["Planetary Satellite Mean Orbital Parameters"](https://ssd.jpl.nasa.gov/?sat_elem) and from JPL's ["Planetary Satellite Physical Parameters"](https://ssd.jpl.nasa.gov/?sat_phys_par) table. Rotation periods are from the [2015 Report](https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint) of the IAU Working Group on Cartographic Coordinates and Rotational Elements. 
 
-Additional data for all confirmed moons of [Jupiter](https://en.wikipedia.org/wiki/Moons_of_Jupiter) and [Saturn](https://en.wikipedia.org/wiki/Moons_of_Saturn) as of 2023 were added from Wikipedia, and from Scott Sheppard's tables of satellite data for [Jupiter](https://sites.google.com/carnegiescience.edu/sheppard/moons/jupitermoons?authuser=0) and [Saturn](https://sites.google.com/carnegiescience.edu/sheppard/moons/saturnmoons?authuser=0), bringing the grand total to 216 solar system moons. 
+Additional data for all confirmed moons of [Jupiter](https://en.wikipedia.org/wiki/Moons_of_Jupiter) and [Saturn](https://en.wikipedia.org/wiki/Moons_of_Saturn) as of December 2023 were added from Wikipedia, and from Scott Sheppard's tables of satellite data for [Jupiter](https://sites.google.com/carnegiescience.edu/sheppard/moons/jupitermoons?authuser=0) and [Saturn](https://sites.google.com/carnegiescience.edu/sheppard/moons/saturnmoons?authuser=0), bringing the grand total to 290 solar system moons. 
 
 Columns are identical to Planets.csv, above.
 
@@ -59,6 +59,7 @@ The orbital inclinations, arguments, and nodes are referred to their Laplace Pla
 - Version 1.3 (16 May 2021): added rotation periods and albedos
 - Version 1.4 (9  Jan 2023): added data for all 177 natural satellites in the original JPL data tables.
 - Version 1.5 (17 Jan 2023): added data for 39 additional Jupiter and Saturn moons from Wikipedia and Scott Sheppard's tables.
+- Version 1.6 (27 Dec 2023): added data for 74 additional Jupiter and Saturn moons from Wikipedia and Scott Sheppard's tables, and corrected numerous errors in the previous version.
 
 Asteroids.txt
 -------------
