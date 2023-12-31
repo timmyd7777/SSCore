@@ -93,7 +93,7 @@ void SSView::setCenter ( SSAngle lon, SSAngle lat, SSAngle rot )
     _centerLat = lat;
     _centerRot = rot;
     
-    _matrix = SSMatrix::rotations ( 3, 2, -lon, 1, -lat, 0, rot );
+    _matrix = SSMatrix::rotations ( 3, 2, -lon, 1, -lat, 0, -rot );
 }
 
 // Sets spherical coordinates of the field of view center,
@@ -120,7 +120,7 @@ void SSView::setCenterMatrix ( SSMatrix matrix )
     
     _centerLon = cen.lon;
     _centerLat = cen.lat;
-    _centerRot = v0.positionAngle ( v2 );
+    _centerRot = v2.positionAngle ( v0 );
 }
 
 // Returns celestial coordinates of point at center of field of view
