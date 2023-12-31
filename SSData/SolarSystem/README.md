@@ -45,11 +45,12 @@ Moons.csv
 
 This table contains data for all of the Solar System's 290 confirmed moons as of December 2023. It was adapted from the following sources:
 
-- JPL's ["Planetary Satellite Mean Orbital Parameters"](https://ssd.jpl.nasa.gov/?sat_elem) and from JPL's ["Planetary Satellite Physical Parameters"](https://ssd.jpl.nasa.gov/?sat_phys_par) table. Rotation periods are from the [2015 Report](https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint) of the IAU Working Group on Cartographic Coordinates and Rotational Elements. 
-- Wikipedia articles for moons of [Jupiter](https://en.wikipedia.org/wiki/Moons_of_Jupiter), [Saturn](https://en.wikipedia.org/wiki/Moons_of_Saturn), [Uranus](https://en.wikipedia.org/wiki/Moons_of_Uranus), [Neptune](https://en.wikipedia.org/wiki/Moons_of_Neptune), and [Pluto](https://en.wikipedia.org/wiki/Moons_of_Pluto).
-- Scott Sheppard's tables of satellite data for [Jupiter](https://sites.google.com/carnegiescience.edu/sheppard/moons/jupitermoons?authuser=0), [Saturn](https://sites.google.com/carnegiescience.edu/sheppard/moons/saturnmoons?authuser=0), [Uranus](https://sites.google.com/carnegiescience.edu/sheppard/moons/uranusmoons?authuser=0), [Neptune](https://sites.google.com/carnegiescience.edu/sheppard/moons/neptunemoons?authuser=0), and [Pluto](https://sites.google.com/carnegiescience.edu/sheppard/moons/plutomoons?authuser=0). 
+- JPL's ["Planetary Satellite Mean Orbital Parameters"](https://ssd.jpl.nasa.gov/?sat_elem) and an older (March 2020) version of JPL's ["Planetary Satellite Physical Parameters"](https://ssd.jpl.nasa.gov/?sat_phys_par) table. Rotation periods are from the [2015 Report](https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint) of the IAU Working Group on Cartographic Coordinates and Rotational Elements. 
+- Wikipedia articles for moons of [Earth](https://en.wikipedia.org/wiki/Moon), [Mars](https://en.wikipedia.org/wiki/Moons_of_JupiterMars), [Jupiter](https://en.wikipedia.org/wiki/Moons_of_Jupiter), [Saturn](https://en.wikipedia.org/wiki/Moons_of_Saturn), [Uranus](https://en.wikipedia.org/wiki/Moons_of_Uranus), [Neptune](https://en.wikipedia.org/wiki/Moons_of_Neptune), and [Pluto](https://en.wikipedia.org/wiki/Moons_of_Pluto).
 
-Columns are identical to Planets.csv, above. The orbital inclinations, arguments, and nodes are referred to their Laplace Plane (essentially their primary planet's equatorial plane), except for Earth's Moon, and the irregular outer satellites of Jupiter, Saturn, Uranus, and Neptune. These moons' orbital elements are referred to the J2000 ecliptic. 
+Columns are identical to Planets.csv, above. The orbital inclinations, arguments, and nodes are referred to their Laplace plane (essentially their primary planet's equatorial plane), except for Earth's Moon, and the irregular outer satellites of Jupiter, Saturn, Uranus, and Neptune. These moons' orbital elements are referred to the J2000 ecliptic. 
+
+JPL's satellite orbit data contains two entries for Uranus's moon Puck; we used the data from the more recent solution. Orbit data for Saturn's B-ring shepherd moon S/2009 S1 was missing from the JPL data; we replaced with Wikipedia's values. 
 
 **Revision History**
 
@@ -61,6 +62,7 @@ Columns are identical to Planets.csv, above. The orbital inclinations, arguments
 - Version 1.5 (17 Jan 2023): added data for 39 additional Jupiter and Saturn moons from Wikipedia and Scott Sheppard's tables.
 - Version 1.6 (27 Dec 2023): added data for 74 additional Jupiter and Saturn moons from Wikipedia and Scott Sheppard's tables, and corrected numerous errors in the previous version.
 - Version 1.61 (30 Dec 2023): use Sheppard & Wikipedia as primary sources for all outer planet moons; use JPL data only for Earth's Moon, Phobos, Deimos, and albedos.
+- Version 1.62 (31 Dec 2023): use JPL orbit data and albedos for all moons except S/2009 S1; use Wikipedia physical data except albedo for all moons. 
 
 Asteroids.txt
 -------------
