@@ -552,7 +552,7 @@ void SSMountModel::encodersToCelestial ( double x, double y, SSAngle &azm, SSAng
 {
     double al = 0.0, az = 0.0;
     encoder_to_alt_az ( _m, x, y, &al, &az );
-    azm = SSAngle ( az );
+    azm = SSAngle ( mod2pi ( az ) );
     alt = SSAngle ( al );
 }
 

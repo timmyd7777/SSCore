@@ -243,3 +243,17 @@ SSAngle SSAngle::atan2Pi ( double y, double x )
 {
     return SSAngle ( atan2pi ( y, x ) );
 }
+
+// Converts an angle in radian to a sexagesimal string formatted as HH MM SS.SS (hours minutes seconds)
+
+string radToHMS ( double rad )
+{
+    return SSHourMinSec(radtodeg(rad) / 15.0).toString();
+}
+
+// Converts an angle in radians to a sexagesimal string formatted as +DD MM SS.S (degrees minutes seconds)
+
+string radToDMS ( double rad )
+{
+    return SSDegMinSec ( radtodeg ( rad ) ).toString();
+}

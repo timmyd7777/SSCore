@@ -211,7 +211,7 @@ void SSOrbit::solveKeplerEquation ( double jed, double &nu, double &r )
 
 void SSOrbit::toPositionVelocity ( double jed, SSVector &pos, SSVector &vel )
 {
-    double nu, r;
+    double nu = 0.0, r = 0.0;
     solveKeplerEquation ( jed, nu, r );
 
     double g = gravityConstant ( e, q, mm );

@@ -145,7 +145,7 @@ public:
     // Open and close serial or socket connection to mount
     
     virtual Error connect ( const string &path, uint16_t port );
-    virtual Error disconnect ( void );
+    Error disconnect ( void );
     
     // Send commands to mount and recieve replies
     

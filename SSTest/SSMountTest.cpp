@@ -119,8 +119,7 @@ int main ( int argc, const char * argv[] )
     if ( SSLocationFromIP ( here, zone ) )
         cout << "SSLocationFromIP() returned"
              << " lon " << SSDegMinSec ( here.lon ).toString()
-             << " lat " << SSDegMinSec ( here.lat ).toString()
-             << " " << zone << endl;
+             << " lat " << SSDegMinSec ( here.lat ).toString() << endl;
     else
         cout << "SSLocationFromIP() failed!\n" << endl;
 

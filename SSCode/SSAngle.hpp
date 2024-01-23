@@ -113,4 +113,9 @@ public:
     static SSAngle atan2Pi ( double y, double x );
 };
 
+// Convenience wrappers for radian angle to sexagesimal string conversions
+
+string radToHMS ( double rad );
+string radToDMS ( double rad );
+
 #endif /* SSAngle_hpp */

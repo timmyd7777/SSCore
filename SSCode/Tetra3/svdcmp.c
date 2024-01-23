@@ -34,7 +34,10 @@ double **dmatrix ( size_t m, size_t n )
     {
         u[i] = dvector ( n );
         if ( u[i] == NULL )
+        {
+            free_dmatrix ( u );
             return NULL;
+        }
     }
     
     return u;
@@ -63,8 +66,6 @@ void svdcmp( double **A, unsigned int M, unsigned int N, double *W, double **V )
        be filled up to square with zero rows.
     */
 
-    double *rv1 = dvector ( N );
-
     /* Householder reduction to bidiagonal form. */
     int NM;
     double C;
@@ -90,6 +91,8 @@ void svdcmp( double **A, unsigned int M, unsigned int N, double *W, double **V )
         fprintf( stderr, "You must augment A with extra zero rows.\n" );
         return;
     }
+
+    double *rv1 = dvector ( N );
 
     for( i = 0; i < N; ++i ) {
         l = i + 1;

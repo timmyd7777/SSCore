@@ -555,8 +555,10 @@ bool T3Database::saveOptimized ( const std::string &filename )
     
     // Write "Tetra3DB" tag
     
-    if ( fwrite ( tetra3_db_tag, 8, 1, fp ) != 1 )
+    if ( fwrite ( tetra3_db_tag, 8, 1, fp ) != 1 ) {
+        fclose ( fp );
         return false;
+    }
 
     // Write metadata
     
@@ -665,7 +667,7 @@ std::vector<T3Pattern> Tetra3::generatePatternsFromCentroids ( const std::vector
     // Iterate over centroids in order of brightness.
     // Break if there aren't enough centroids to make even one pattern
 
-    if ( star_centroids.size() < pattern_size )
+    if ( star_centroids.size() < pattern_size || pattern_size < 3)
         return patterns;
     
     int pattern_indices[pattern_size + 2];

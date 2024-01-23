@@ -158,8 +158,8 @@ string SSCity::toCSV ( void )
 
     csv += _timezone_name + ",";
     
-    size_t pos;
-    if ( ( pos = _admin1_name.find ( "," ) ) != string::npos ) {
+    size_t pos = _admin1_name.find ( "," );
+    if ( pos != string::npos ) {
         csv += "\"" + _admin1_name + "\",";
     } else {
         csv += _admin1_name + ",";

@@ -1542,7 +1542,7 @@ void SSTLE::sdp4 ( double tsince, SSVector &pos, SSVector &vel )
     {
         // Initialization
         
-        arg = argp.sdp4 = new sdp4_args;
+        arg = argp.sdp4 = new sdp4_args();
 
         // Recover original mean motion (xnodp) and
         // semimajor axis (aodp) from input elements.

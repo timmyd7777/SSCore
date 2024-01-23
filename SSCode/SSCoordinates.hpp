@@ -128,6 +128,11 @@ public:
     static SSMatrix getHorizonMatrix ( double lst, double lat );
     static SSMatrix getGalacticMatrix ( void );
 
+    SSVector    getNorthCelestialPoleVector ( void ) { return _equMat.row ( 2 ); }
+    SSVector    getNorthEclipticPoleVector ( void ) { return _eclMat.row ( 2 ); }
+    SSVector    getNorthGalacticPoleVector ( void ) { return _galMat.row ( 2 ); }
+    SSVector    getZenithVector ( void ) { return _horMat.row ( 2 ); }
+
     SSVector    transform ( SSFrame from, SSFrame to, SSVector vec );
     SSMatrix    transform ( SSFrame from, SSFrame to, SSMatrix mat );
     void        transform ( SSFrame from, SSFrame to, SSAngle &lon, SSAngle &lat );
