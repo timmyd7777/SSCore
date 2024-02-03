@@ -573,7 +573,7 @@ float SSPlanet::computeAsteroidMagnitude ( double rad, double dist, double phase
 
 float SSPlanet::computeCometMagnitude ( double rad, double dist, double h, double k )
 {
-    if ( ! isinf ( h ) && isinf ( k ) )
+    if ( ! ::isinf ( h ) && ::isinf ( k ) )
         k = k;
     return h + 5.0 * log10 ( dist ) + 2.5 * k * log10 ( rad );
 }
