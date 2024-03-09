@@ -2127,7 +2127,7 @@ int SSTLE::read ( FILE *file )
     // Convert other parameters
 
     norad = number;
-    jdepoch = SSTime ( SSDate ( kGregorianJulian, 0.0, year, 1, day, 0, 0, 0.0 ) );
+    jdepoch = SSTime ( SSDate ( kGregorianJulian, 0.0, year, 1, day ) );
     xndt2o = xndt20 * temp;
     xndd6o = xndd60 * 1.0e-5 * pow ( 10.0, iexp );
     bstar = bstar * 1.0e-5 * pow ( 10.0, ibexp );
