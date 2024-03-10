@@ -2168,6 +2168,56 @@ int SSTLE::read ( FILE *file )
     return ( 0 );
 }
 
+// Reads a TLE record in Celestrak CSV format from one line of an input stream (file).
+// Returns 0 if successful or a negative number of failure.
+
+int SSTLE::read_csv ( FILE *file )
+{
+    string buf = "";
+    SSDate epoch;
+    double temp = M_2PI / xmnpda / xmnpda;
+
+    // Read CSV line; parse fields
+    
+    if ( ! fgetline ( file, buf ) )
+        return ( -1 );
+
+    vector<string> csv = split_csv ( buf );
+    if ( csv.size() < 17 )
+        return -2;
+    
+    name = trim ( csv[0] );
+    desig = trim ( csv[1] );
+    if ( sscanf ( trim ( csv[2] ).c_str(), "%d-%hd-%hdT%hd:%hd:%lf",
+        &epoch.year, &epoch.month, &epoch.day, &epoch.hour, &epoch.min, &epoch.sec ) < 6 )
+        return -3;
+    
+    jdepoch = SSTime ( epoch );
+    xno = strtofloat64 ( csv[3] ) * M_2PI / xmnpda;
+    eo = strtofloat64 ( csv[4] );
+    xincl = degtorad ( strtofloat64 ( csv[5] ) );
+    xnodeo = degtorad ( strtofloat64 ( csv[6] ) );
+    omegao = degtorad ( strtofloat64 ( csv[7] ) );
+    xmo = degtorad ( strtofloat64 ( csv[8] ) );
+    norad = strtoint ( csv[11] );
+    bstar = strtofloat64 ( csv[14] );
+    xndt2o = strtofloat64 ( csv[15] ) * temp;
+    xndd6o = strtofloat64 ( csv[16] ); // * temp; ?? TODO: verify if we need * temp, also in read() method.
+
+    if ( norad < 1 || xno <= 0.0 )
+        return -4;
+    
+    // Does this TLE already have SGP orbit model arguments?
+    // If so delete them since they won't be valid after new are elements read.
+
+    delargs();
+    
+    // Select a deep-space vs. near-earth ephemeris
+    
+    deep = isdeep();
+    return ( 0 );
+}
+
 // Writes a TLE record to three lines of an output stream (file).
 // Returns 0 if successful or a negative number of failure.
 

@@ -29,10 +29,17 @@ int main ( int argc, const char *argv[] )
         return -1;
     }
     
-    // Read entries from TLE file; for each entry compute position and velocity for 1 day.
+    // Is file in CSV format? If not assume traditional TLE format.
+    // Read entries from TLE file until we fail.
+    bool csvformat = ( strcmp ( tlepath + strlen ( tlepath ) - 3, "csv" ) == 0 );
+
     SSTLE tle;
-    while ( tle.read ( tlefile ) == 0 )
+    while ( true )
     {
+        int result = csvformat ? tle.read_csv ( tlefile ) : tle.read ( tlefile );
+        if ( result != 0 )
+            break;
+        
         // Write TLE to standard output for verification
         if ( tle.write ( cout ) )
             cout << endl << endl;
@@ -44,7 +51,7 @@ int main ( int argc, const char *argv[] )
         {
             SSVector pos, vel;
             
-            if ( tle.isdeep() )
+            if ( tle.deep )
                 tle.sdp4 ( tsince, pos, vel );
             else
                 tle.sgp4 ( tsince, pos, vel );
