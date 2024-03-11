@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/timmyd/Desktop/testdata.txt"
+            argument = "/Users/timmyd/Desktop/celestrak/testdata.csv"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

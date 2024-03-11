@@ -25,6 +25,7 @@ struct SSTLE
     string name;        // Satellite Name, e.g. "ISS"
     string desig;       // International designation, e.g. "98067A"
     int    norad;       // NORAD tracking number, e.g. 25544
+    int    elset;       // element set number (max 999)
     double jdepoch;     // Epoch (as Julian Date) in Civil (UTC) time scale, not Dynamic time (TDT)
     double xndt2o;      // One half of first derivative of mean motion (radians/minute^2)
     double xndd6o;      // One sixth of second derivatibe of mean motion (radians/minute^3)
@@ -68,6 +69,8 @@ struct SSTLE
     bool isdeep ( void );
     void dodeep ( int ientry, struct deep_args *args );
     
+    static double kmper ( void );  // returns WGS72 Earth equatorial radius in kilometers
+
     // Methods to compute SGP4 orbit from position & velocity
     
     void rvel ( SSVector &pos, SSVector &vel );

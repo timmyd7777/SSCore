@@ -295,6 +295,14 @@ SSTLE::SSTLE ( const SSTLE &other )
     argp.sgp = nullptr;
 }
 
+// Returns WGS72 Earth equatorial radius in kilometers.
+// Use this to convert output of sgp(), sgp4(), sdp4() to km!
+
+double SSTLE::kmper ( void )
+{
+    return xkmper;
+}
+
 // Determines whether to use a deep-space (true) or near-Earth (false) ephemeris.
 // For satellites with orbit period > 225 minutesm use deep space ephemeris.
 
@@ -2114,6 +2122,7 @@ int SSTLE::read ( FILE *file )
     iexp = strtoint ( buf.substr ( 50, 2 ) );
     bstar = strtofloat64 ( buf.substr ( 53, 6 ) );
     ibexp = strtoint ( buf.substr ( 59, 2 ) );
+    elset = strtoint ( buf.substr ( 65, 3 ) );
     
     // Convert epoch to year and day of year
 
@@ -2129,7 +2138,7 @@ int SSTLE::read ( FILE *file )
     norad = number;
     jdepoch = SSTime ( SSDate ( kGregorianJulian, 0.0, year, 1, day ) );
     xndt2o = xndt20 * temp;
-    xndd6o = xndd60 * 1.0e-5 * pow ( 10.0, iexp );
+    xndd6o = xndd60 * 1.0e-5 * pow ( 10.0, iexp ) * temp / xmnpda;
     bstar = bstar * 1.0e-5 * pow ( 10.0, ibexp );
              
     // Third line must start with a '2'
@@ -2200,10 +2209,11 @@ int SSTLE::read_csv ( FILE *file )
     omegao = degtorad ( strtofloat64 ( csv[7] ) );
     xmo = degtorad ( strtofloat64 ( csv[8] ) );
     norad = strtoint ( csv[11] );
+    elset = strtoint ( csv[12] );
     bstar = strtofloat64 ( csv[14] );
     xndt2o = strtofloat64 ( csv[15] ) * temp;
-    xndd6o = strtofloat64 ( csv[16] ); // * temp; ?? TODO: verify if we need * temp, also in read() method.
-
+    xndd6o = strtofloat64 ( csv[16] ) * temp / xmnpda;
+    
     if ( norad < 1 || xno <= 0.0 )
         return -4;
     
@@ -2231,7 +2241,7 @@ int SSTLE::write ( ostream &file )
     double xm0 = radtodeg ( xmo );       // mean anomaly in degrees
     double xn0 = xmnpda * xno / M_2PI;   // mean motion in revolutions/day
     double xndt20 = xndt2o / temp;       // half of derivative of mean motion
-    double xndd60 = fabs ( xndd6o );     // one sixth of second derivative of mean motion
+    double xndd60 = fabs ( xndd6o ) * xmnpda / temp;    // one sixth of second derivative of mean motion
     double bstar0 = fabs ( bstar );      // BSTAR drag coefficient
     int iexp = 0, ibexp = 0;             // exponents
     
@@ -2255,12 +2265,22 @@ int SSTLE::write ( ostream &file )
     double day = jdepoch - SSTime ( SSDate ( kGregorianJulian, 0.0, date.year, 1, 0.0, 0, 0, 0.0 ) );
     double epoch = ( date.year % 100 ) * 1000.0 + day;
     
+    // International designator could be formatted as "1998-067A", if imported from CSV format.
+    // but classic TLE format requires designator formatted as "98067A", so abbreviate it.
+    string tledesig = desig;
+    if ( tledesig.length() > 6 )
+    {
+        tledesig = tledesig.substr ( 2, string::npos ); // elminate 2 leading characters
+        replaceAll ( tledesig, "-", "" );               // eliminate hyphens
+        tledesig = tledesig.substr ( 0, 6 );            // truncate to 6 characters no matter what
+    }
+    
     // format first line of orbital elements
     
-    string line1 = format ( "1 %05dU %-6s   %13.8f %c.%08.0f %+06.0f-%1d %+06.0f%+1d 0    00",
-             norad, desig.c_str(), epoch,
+    string line1 = format ( "1 %05dU %-6s   %13.8f %c.%08.0f %+06.0f-%1d %+06.0f%+1d 0  %03d0",
+             norad, tledesig.c_str(), epoch,
              xndt20 > 0 ? '+' : '-', fabs ( xndt20 * 1.0e8 ),
-             xndd60, -iexp, bstar0, ibexp );
+             xndd60, -iexp, bstar0, ibexp, clamp ( elset, 0, 999 ) );
     line1[69] = checksum ( line1 );
     
     // format second line of orbital element

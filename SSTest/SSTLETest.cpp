@@ -56,8 +56,8 @@ int main ( int argc, const char *argv[] )
             else
                 tle.sgp4 ( tsince, pos, vel );
             
-            pos *= SSCoordinates::kKmPerEarthRadii;
-            vel *= SSCoordinates::kKmPerEarthRadii / 60.0;
+            pos *= SSTLE::kmper();
+            vel *= SSTLE::kmper() / 60.0;
             
             printf ( "%6.1f %+9.3f %+9.3f %+9.3f %+9.6f %+9.6f %+9.6f %9.3f %9.6f\n",
                     tsince, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z, pos.magnitude(), vel.magnitude() );
