@@ -383,17 +383,31 @@ SSDate::SSDate ( SSTime time, SSCalendar cal )
 // Constructs date from string using the same format argument(s) as strptime().
 // Date will be filled with zeros if string not parsed sucessfully.
 
-SSDate::SSDate ( const string &fmt, const string &str ) : SSDate()
+SSDate::SSDate ( const string &fmt, const string &str, SSCalendar cal ) : SSDate()
 {
     parse ( fmt, str );
+    calendar = cal;
 }
 
 // Default constructor sets all members to zero.
 
 SSDate::SSDate ( void )
 {
-    year = month = day = sec = hour = min = sec = zone = 0;
+    year = month = day = hour = min = 0;
+    sec = zone = 0.0;
     calendar = kGregorian;
+}
+
+bool SSDate::operator==(const SSDate &other) const
+{
+    return (year == other.year &&
+            month == other.month &&
+            day == other.day &&
+            hour == other.hour &&
+            min == other.min &&
+            sec == other.sec &&
+            zone == other.zone &&
+            calendar == other.calendar);
 }
 
 // Returns an SSDate object representing the calendar date that corresponds
@@ -415,7 +429,7 @@ SSTime SSDate::toJulianDate ( void )
 // Converts date to a string using the same format argument(s) as strftime().
 // Not thread-safe!
 
-string SSDate::format ( const string &format )
+string SSDate::format ( const string &format ) const
 {
     char str[1024] = { 0 };
     struct tm time = { 0 };
@@ -489,6 +503,12 @@ bool SSDate::parse ( const string &fmt, const string &str )
     hour = time.tm_hour;
     min = time.tm_min;
     sec = time.tm_sec;
+
+#ifdef _MSC_VER
+    // TODO: set zone
+#else
+    zone = time.tm_gmtoff / 3600.0;
+#endif
     
     return true;
 }

@@ -223,6 +223,20 @@ SSAngle SSAngle::fromHours ( double hours )
     return SSAngle ( hours * kRadPerHour );
 }
 
+// Constructs an angle in radians from a string in hours/minutes/seconds formatted as HH MM SS.SS
+
+SSAngle SSAngle::fromHMS ( const string &hms )
+{
+    return SSAngle ( SSHourMinSec ( hms ) );
+}
+
+// Constructs an angle in radians from a string in degrees/minutes/seconds formatted as +DD MM SS.S
+
+SSAngle SSAngle::fromDMS ( const string &dms )
+{
+    return SSAngle ( SSDegMinSec ( dms ) );
+}
+
 // Reduces an angle in radians to the range 0 to kTwoPi.
 
 SSAngle SSAngle::mod2Pi ( void )

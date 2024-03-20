@@ -48,13 +48,15 @@ struct SSDate
     SSDate ( SSCalendar calendar, double zone, int year, short month, short day, short hour, short min, double sec );
     SSDate ( SSCalendar calendar, double zone, int year, short month, double dayf );
     SSDate ( SSTime time, SSCalendar calendar = kGregorianJulian );
-    SSDate ( const string &fmt, const string &str );
+    SSDate ( const string &fmt, const string &str, SSCalendar calendar = kGregorianJulian );
     SSDate ( void );
+
+    bool operator==(const SSDate &other) const;
     
     static SSDate fromJulianDate ( SSTime time, SSCalendar cal );
     SSTime toJulianDate ( void );
     
-    string format ( const string &fmt );
+    string format ( const string &fmt ) const;
     bool parse ( const string &fmt, const string &str );
 };
 

@@ -89,12 +89,16 @@ public:
     double toArcmin ( void ) { return _rad * kArcminPerRad; }
     double toDegrees ( void ) { return _rad * kDegPerRad; }
     double toHours ( void ) { return _rad * kHourPerRad; }
+    string toHMS ( void ) { return SSHourMinSec ( *this ).toString(); }
+    string toDMS ( void ) { return SSDegMinSec ( *this ).toString(); }
 
     static SSAngle fromArcsec ( double arcsec );
     static SSAngle fromArcmin ( double arcmin );
     static SSAngle fromDegrees ( double degrees );
     static SSAngle fromHours ( double hours );
- 
+    static SSAngle fromHMS ( const string &hms );
+    static SSAngle fromDMS ( const string &dms );
+
     operator double() const { return _rad; }
 
     SSAngle operator + ( double k ) { return SSAngle ( _rad + k ); }
