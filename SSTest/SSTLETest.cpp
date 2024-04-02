@@ -37,8 +37,10 @@ int main ( int argc, const char *argv[] )
     while ( true )
     {
         int result = csvformat ? tle.read_csv ( tlefile ) : tle.read ( tlefile );
-        if ( result != 0 )
+        if ( result == EOF )
             break;
+        else if ( result != 0 )
+            continue;
         
         // Write TLE to standard output for verification
         if ( tle.write ( cout ) )
