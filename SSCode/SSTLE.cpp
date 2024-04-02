@@ -2088,7 +2088,8 @@ void SSTLE::fromPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
 }
 
 // Reads a TLE record from three lines of an input stream (file).
-// Returns 0 if successful or a negative number of failure.
+// Returns 0 if successful, EOF (-1) at end of file,
+// or another negative number on failure to parse data.
 
 int SSTLE::read ( FILE *file )
 {
@@ -2102,17 +2103,17 @@ int SSTLE::read ( FILE *file )
     // Read first line; trim trailing whitespace; copy satellite name
     
     if ( ! fgetline ( file, buf ) )
-        return ( -1 );
+        return EOF;
 
     name = trim ( buf );
 
     // Read second line; must start with a '1'
     
     if ( ! fgetline ( file, buf ) )
-        return ( -2 );
+        return EOF;
     
     if ( buf[0] != '1' )
-        return ( -2 );
+        return -2;
     
     number = strtoint ( buf.substr ( 2, 5 ) );
     desig = trim ( buf.substr ( 9, 6 ) );
@@ -2144,10 +2145,10 @@ int SSTLE::read ( FILE *file )
     // Third line must start with a '2'
     
     if ( ! fgetline ( file, buf ) )
-        return ( -3 );
+        return EOF;
 
     if ( buf[0] != '2' )
-        return ( -3 );
+        return -3;
     
     number = strtoint ( buf.substr ( 2, 5 ) );
     xincl = strtofloat64 ( buf.substr ( 8, 8 ) );
@@ -2174,11 +2175,12 @@ int SSTLE::read ( FILE *file )
     // Select a deep-space vs. near-earth ephemeris
     
     deep = isdeep();
-    return ( 0 );
+    return 0;
 }
 
 // Reads a TLE record in Celestrak CSV format from one line of an input stream (file).
-// Returns 0 if successful or a negative number of failure.
+// Returns 0 if successful, EOF (-1) at end of file,
+// or another negative number on failure to parse data.
 
 int SSTLE::read_csv ( FILE *file )
 {
@@ -2189,7 +2191,7 @@ int SSTLE::read_csv ( FILE *file )
     // Read CSV line; parse fields
     
     if ( ! fgetline ( file, buf ) )
-        return ( -1 );
+        return EOF;
 
     vector<string> csv = split_csv ( buf );
     if ( csv.size() < 17 )
@@ -2225,7 +2227,7 @@ int SSTLE::read_csv ( FILE *file )
     // Select a deep-space vs. near-earth ephemeris
     
     deep = isdeep();
-    return ( 0 );
+    return 0;
 }
 
 // Writes a TLE record to three lines of an output stream (file).
@@ -2265,29 +2267,29 @@ int SSTLE::write ( ostream &file )
     double day = jdepoch - SSTime ( SSDate ( kGregorianJulian, 0.0, date.year, 1, 0.0, 0, 0, 0.0 ) );
     double epoch = ( date.year % 100 ) * 1000.0 + day;
     
-    // International designator could be formatted as "1998-067A", if imported from CSV format.
-    // but classic TLE format requires designator formatted as "98067A", so abbreviate it.
+    // International designator could be formatted as "1998-067AB", if imported from CSV format.
+    // but classic TLE format requires designator formatted as "98067AB", so abbreviate it.
     string tledesig = desig;
-    if ( tledesig.length() > 6 )
+    if ( tledesig.length() > 7 )
     {
         tledesig = tledesig.substr ( 2, string::npos ); // elminate 2 leading characters
         replaceAll ( tledesig, "-", "" );               // eliminate hyphens
-        tledesig = tledesig.substr ( 0, 6 );            // truncate to 6 characters no matter what
+        tledesig = tledesig.substr ( 0, 7 );            // truncate to 7 characters no matter what
     }
     
     // format first line of orbital elements
     
-    string line1 = format ( "1 %05dU %-6s   %13.8f %c.%08.0f %+06.0f-%1d %+06.0f%+1d 0  %03d0",
+    string line1 = format ( "1 %05dU %-7s  %13.8f %c.%08.0f %+06.0f-%1d %+06.0f%+1d 0  %03d0",
              norad, tledesig.c_str(), epoch,
              xndt20 > 0 ? '+' : '-', fabs ( xndt20 * 1.0e8 ),
              xndd60, -iexp, bstar0, ibexp, clamp ( elset, 0, 999 ) );
-    line1[69] = checksum ( line1 );
+    line1[68] = checksum ( line1 );
     
     // format second line of orbital element
     
     string line2 = format ( "2 %05d %08.4lf %08.4lf %07.0f %08.4lf %08.4lf %11.8lf    00",
             norad, xincl0, xnode0, e0, omega0, xm0, xn0 );
-    line2[69] = checksum ( line2 );
+    line2[68] = checksum ( line2 );
 
     // write to output stream
     
