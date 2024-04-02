@@ -105,6 +105,8 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 - **_brightest.txt_** is the [Brightestl](https://www.n2yo.com/tle2/1.txt) satellite list from [N2YO](https://www.n2yo.com)
 - **_mcnames.txt_** is Mike McCants' satellite [names file](https://www.prismnet.com/~mmccants/tles/mcnames.zip), which contains satellite size and magnitude information.
 - **_je9pel.csv_** is Mineo Wakita's amateur radio satellite [frequency file](http://www.ne.jp/asahi/hamradio/je9pel/satslist.csv), in CSV format.
+- **_testdata.csv_** is a selection of test satellites from celestrak.org, in CSV format.
+- **_testdata.txt_** is the same selection of satellites from celestrak.org, in TLE format.
 
 **Revision History**
 
@@ -112,6 +114,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 - Version 1.1 (11 May 2020): added Mineo Wakita JE9PEL satellite radio frequency file.
 - Version 1.2 (21 Mar 2021): updated with latest data from all sources; added n2yo "brightest" satellites.
 - Version 1.3 (10 Oct 2022): updated with latest data from all sources. 
+- Version 1.4 (2 Apr 2024): added test data from celestrak.org in new CSV and TLE format.
 
 Cities.csv
 ----------

@@ -2157,6 +2157,7 @@ int SSTLE::read ( FILE *file )
     omega0 = strtofloat64 ( buf.substr ( 34, 8 ) );
     xm0 = strtofloat64 ( buf.substr ( 43, 8 ) );
     xn0 = strtofloat64 ( buf.substr ( 52, 11 ) );
+    revno = strtoint ( buf.substr ( 63, 5 ) );
     
     // Convert other parameters
     
@@ -2212,6 +2213,7 @@ int SSTLE::read_csv ( FILE *file )
     xmo = degtorad ( strtofloat64 ( csv[8] ) );
     norad = strtoint ( csv[11] );
     elset = strtoint ( csv[12] );
+    revno = strtoint ( csv[13] );
     bstar = strtofloat64 ( csv[14] );
     xndt2o = strtofloat64 ( csv[15] ) * temp;
     xndd6o = strtofloat64 ( csv[16] ) * temp / xmnpda;
@@ -2279,16 +2281,18 @@ int SSTLE::write ( ostream &file )
     
     // format first line of orbital elements
     
-    string line1 = format ( "1 %05dU %-7s  %13.8f %c.%08.0f %+06.0f-%1d %+06.0f%+1d 0  %03d0",
+    string line1 = format ( "1 %05dU %-7s  %13.8f %c.%08.0f %c%05.0f%+1d %c%05.0f%+1d 0  %03d0",
              norad, tledesig.c_str(), epoch,
-             xndt20 > 0 ? '+' : '-', fabs ( xndt20 * 1.0e8 ),
-             xndd60, -iexp, bstar0, ibexp, clamp ( elset, 0, 999 ) );
+             xndt20 < 0 ? '-' : ' ', fabs ( xndt20 * 1.0e8 ),
+             xndd60 < 0 ? '-' : ' ', fabs ( xndd60 ), iexp,
+             bstar0 < 0 ? '-' : ' ', fabs ( bstar0 ), ibexp,
+             clamp ( elset, 0, 999 ) );
     line1[68] = checksum ( line1 );
     
     // format second line of orbital element
     
-    string line2 = format ( "2 %05d %08.4lf %08.4lf %07.0f %08.4lf %08.4lf %11.8lf    00",
-            norad, xincl0, xnode0, e0, omega0, xm0, xn0 );
+    string line2 = format ( "2 %05d %8.4lf %8.4lf %07.0f %8.4lf %8.4lf %11.8lf%5d0",
+            norad, xincl0, xnode0, e0, omega0, xm0, xn0, revno );
     line2[68] = checksum ( line2 );
 
     // write to output stream
