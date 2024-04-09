@@ -185,6 +185,18 @@ void replaceAll ( string& str, const std::string& from, const std::string& to)
     }
 }
 
+// Given a file path string reference, returns the filename component (after the last slash).
+// If the path contains no slash, the path is assumed to be a filename and is returned verbatim.
+
+string getFileName ( const string &path )
+{
+    size_t slash = path.find_last_of ( '/' );
+    if ( slash == string::npos )
+        return path;
+    else
+        return path.substr ( slash + 1, string::npos );
+}
+
 // Given a file path string and a file type extension (".jpg", ".png", ".tif", etc.)
 // returns file path changed to that extension. Input path string is not modified.
 
