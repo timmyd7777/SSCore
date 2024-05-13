@@ -516,7 +516,7 @@ bool SSDate::parse ( const string &fmt, const string &str )
 
 #ifndef _MSC_VER
     // for consistency with Windows, don't overwrite time zone unless fmt ends with "%z"
-    if ( endWith ( fmt, "%z" ) )
+    if ( endsWith ( fmt, "%z" ) )
         zone = time.tm_gmtoff / 3600.0;
 #endif
     
