@@ -463,9 +463,10 @@ string SSDate::format ( const string &format ) const
 }
 
 // Converts string to date using the same format argument(s) as strptime().
-// Overwrites all internal fields except time zone and calendar system.
+// Overwrites all internal fields except calendar system and timezone (unless fmt ends with "%z").
 // Returns true if string parsed successfully or false otherwise.
 // If the fmt string starts with "%Y", then any year will be parsed (including negative).
+// Time zone will not be parsed unless fmt string ends with "%z".
 // Otherwise, the input year is limited from 0 to 9999.
 
 bool SSDate::parse ( const string &fmt, const string &str )
@@ -487,6 +488,15 @@ bool SSDate::parse ( const string &fmt, const string &str )
     }
         
 #ifdef _MSC_VER
+    // %z is not supported in Microsoft's get_time(), so parse time zone independently.
+    // See comments regarding tm_gmtoff in SSDate.format() method above.
+    if ( endsWith ( fmt, "%z" ) )
+    {
+        static string fmt2 = fmt.substr(0, fmt.length() - 2);
+        fmtString = fmt2.c_str();
+        string zonestr = str.substr ( str.length() - 5, 3 );
+        zone = strtofloat64 ( zonestr );
+    }
     stringstream ss ( inputString );
     ss >> get_time ( &time, fmtString );
     if ( ss.fail() )
@@ -504,10 +514,10 @@ bool SSDate::parse ( const string &fmt, const string &str )
     min = time.tm_min;
     sec = time.tm_sec;
 
-#ifdef _MSC_VER
-    // TODO: set zone
-#else
-    zone = time.tm_gmtoff / 3600.0;
+#ifndef _MSC_VER
+    // for consistency with Windows, don't overwrite time zone unless fmt ends with "%z"
+    if ( endWith ( fmt, "%z" ) )
+        zone = time.tm_gmtoff / 3600.0;
 #endif
     
     return true;
