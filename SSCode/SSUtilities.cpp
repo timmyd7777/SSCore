@@ -33,12 +33,40 @@ string getcwd ( void )
     return string ( path );
 }
 
+bool setcwd ( const string &dir )
+{
+    return _chdir ( dir.c_str() ) == 0;
+}
+
 #else
 
 string getcwd(void)
 {
     char path[PATH_MAX] = { 0 };
     return ( getcwd ( path, PATH_MAX ) == NULL ? "" : string ( path ) );
+}
+
+bool setcwd ( const string &dir )
+{
+    return chdir ( dir.c_str() ) == 0;
+}
+
+bool isdir ( const string &path )
+{
+    struct stat st;
+    return stat ( path.c_str(), &st ) == 0 && S_ISDIR ( st.st_mode );
+}
+
+bool isfile ( const string &path )
+{
+    struct stat st;
+    return stat ( path.c_str(), &st ) == 0 && S_ISREG ( st.st_mode );
+}
+
+bool islink ( const string &path )
+{
+    struct stat st;
+    return stat ( path.c_str(), &st ) == 0 && S_ISLNK ( st.st_mode );
 }
 
 #endif
@@ -129,20 +157,24 @@ int compare ( const string &str1, const string &str2, size_t n, bool casesens )
     }
 }
 
-// Converts a string to lower case.
+// Returns a string converted to lower case. Does not modify the input string.
 
-void toLower ( string &str )
+string toLower ( const string &str )
 {
-    for ( char &c : str )
-        c = tolower ( c );
+    string lower;
+    for ( char c : str )
+        lower.push_back ( tolower ( c ) );
+    return lower;
 }
 
-// Converts a string to upper case.
+// Returns a string converted to upper case. Does not modify the input string.
 
-void toUpper ( string &str )
+string toUpper ( const string &str )
 {
-    for ( char &c : str )
-        c = toupper ( c );
+    string upper;
+    for ( char c : str )
+        upper.push_back ( toupper ( c ) );
+    return upper;
 }
 
 // Tests whether a string contains only numeric characters (digits, '-', '+', '.').
@@ -200,7 +232,7 @@ string getFileName ( const string &path )
 // Given a file path string and a file type extension (".jpg", ".png", ".tif", etc.)
 // returns file path changed to that extension. Input path string is not modified.
 
-string setFileExt ( string path, string ext )
+string setFileExt ( const string &path, const string &ext )
 {
     size_t dot = path.rfind ( "." );
     if ( dot == string::npos )
@@ -211,7 +243,7 @@ string setFileExt ( string path, string ext )
 
 // Returns file type extension (".jpg", ".png", ".tif", etc.) from a file path.
 
-string getFileExt ( string path )
+string getFileExt ( const string &path )
 {
     size_t dot = path.find_last_of ( '.' );
     if ( dot == string::npos )
@@ -224,13 +256,11 @@ string getFileExt ( string path )
 // returns true if the file path ends with any of the extensions or false otherwise.
 // File path is internally converted to lower case so extensions must be lowercase.
 
-bool hasFileExt ( string path, vector<string> exts )
+bool hasFileExt ( const string &path, const vector<string> &exts )
 {
-    for ( char &c : path )
-        c = tolower ( c );
-
-    for ( std::string &ext : exts )
-        if ( endsWith ( path, ext ) )
+    string lowerPath = toLower ( path );
+    for ( const std::string &ext : exts )
+        if ( endsWith ( lowerPath, ext ) )
             return true;
     
     return false;

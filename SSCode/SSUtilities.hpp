@@ -50,6 +50,11 @@ extern "C" FILE *android_fopen ( const char *fname, const char *mode );
 #define M_2PI (2*M_PI)
 
 string getcwd ( void );
+bool setcwd ( const string &dir );
+bool isdir ( const string &path );
+bool isfile ( const string &file );
+bool islink ( const string &file );
+
 bool fgetline ( FILE *infile, string &line );
 
 string trim ( string str );
@@ -60,8 +65,8 @@ vector<string> split_csv ( const string &csv );
 
 int compare ( const string &str1, const string &str2, size_t n, bool casesens = true );
 
-void toLower ( string &str );
-void toUpper ( string &str );
+string toLower ( const string &str );
+string toUpper ( const string &str );
 
 bool isNumeric ( const string &str );
 bool endsWith ( const string &str, const string &suffix );
@@ -69,9 +74,9 @@ bool startsWith ( const string &str, const string &prefix );
 void replaceAll ( string& str, const std::string& from, const std::string& to);
 
 string getFileName ( const string &path );
-string getFileExt ( string path );
-string setFileExt ( string path, string ext );
-bool hasFileExt ( string path, vector<string> exts );
+string getFileExt ( const string &path );
+string setFileExt ( const string &path, const string &ext );
+bool hasFileExt ( const string &path, const vector<string> &exts );
 
 int strtoint ( string str );
 int64_t strtoint64 ( string str );
