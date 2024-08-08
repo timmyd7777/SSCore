@@ -38,6 +38,10 @@ bool setcwd ( const string &dir )
     return _chdir ( dir.c_str() ) == 0;
 }
 
+#define S_ISDIR(st_mode) ( st_mode & _S_IFDIR )
+#define S_ISREG(st_mode) ( st_mode & _S_IFREG )
+#define S_ISLNK(st_mode) ( st_mode & 0 )   // _stat() function does not work with symlinks on Windows; see https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/stat-functions?view=msvc-170
+
 #else
 
 string getcwd(void)
@@ -50,6 +54,8 @@ bool setcwd ( const string &dir )
 {
     return chdir ( dir.c_str() ) == 0;
 }
+
+#endif
 
 bool isdir ( const string &path )
 {
@@ -68,8 +74,6 @@ bool islink ( const string &path )
     struct stat st;
     return stat ( path.c_str(), &st ) == 0 && S_ISLNK ( st.st_mode );
 }
-
-#endif
 
 // Reads into a C++ string (line) from a C FILE pointer (file) opened for reading in binary mode.
 // Handles lines endings in LF (Unix/Mac), CRLF (Windows), or CR (Classic MacOS). In all cases,
