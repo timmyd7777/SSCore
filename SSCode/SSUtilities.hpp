@@ -72,11 +72,14 @@ bool isNumeric ( const string &str );
 bool endsWith ( const string &str, const string &suffix );
 bool startsWith ( const string &str, const string &prefix );
 void replaceAll ( string& str, const std::string& from, const std::string& to);
+bool contains ( const string &haystack, const string &needle, bool casesens = true );
 
 string getFileName ( const string &path );
 string getFileExt ( const string &path );
 string setFileExt ( const string &path, const string &ext );
 bool hasFileExt ( const string &path, const vector<string> &exts );
+string appendPath ( const string &path, const string &name );
+int listDirectory ( const string &path, vector<string> &contents, bool prefixPath = false );
 
 int strtoint ( string str );
 int64_t strtoint64 ( string str );

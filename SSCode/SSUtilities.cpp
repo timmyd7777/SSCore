@@ -16,6 +16,7 @@
 #else
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <dirent.h>
 #include <errno.h>
 #include <unistd.h>
 #endif
@@ -221,6 +222,16 @@ void replaceAll ( string& str, const std::string& from, const std::string& to)
     }
 }
 
+// Tests whether a string (haystack) contains another string (needle).
+// If case sensitivity matters, pass true for (casesens).
+
+bool contains ( const string &haystack, const string &needle, bool casesens ) {
+    if ( casesens )
+        return haystack.find ( needle ) != string::npos;
+    else
+        return toUpper ( haystack ).find ( toUpper ( needle ) ) != string::npos;
+}
+
 // Given a file path string reference, returns the filename component (after the last slash).
 // If the path contains no slash, the path is assumed to be a filename and is returned verbatim.
 
@@ -269,6 +280,79 @@ bool hasFileExt ( const string &path, const vector<string> &exts )
     
     return false;
 }
+
+// Appends file name (name) to an input directory path (path).
+// Returns appended path string; input path is not modified.
+
+string appendPath ( const string &path, const string &name )
+{
+    string outPath = path;
+#ifdef _MSC_VER
+    if (outPath.back() != '\\')
+        outPath += "\\";
+#else
+    if ( outPath.back() != '/' )
+        outPath += "/";
+#endif
+    outPath += name;
+    return outPath;
+}
+
+// Lists names of all contents in a directory (dirPath), except the "." and ".." entries.
+// Content names are returned in the vector of string (contentPaths), sorted alphabetically.
+// Returns zero if successful or nonzero error code on failure.
+
+#ifdef _MSC_VER
+
+int listDirectory ( const string &dirPath, vector<string> &contentPaths, bool prefixPath )
+{
+    HANDLE hFind;
+    WIN32_FIND_DATA fileData;
+
+    hFind = FindFirstFile ( appendPath ( dirPath, "*" ).c_str(), &fileData );
+    if ( hFind == INVALID_HANDLE_VALUE )
+        return -2;
+
+    do
+    {
+        if ( strcmp ( fileData.cFileName, "." ) == 0 || strcmp ( fileData.cFileName, ".." ) == 0 )
+            continue;
+
+        contentPaths.push_back ( prefixPath ? appendPath ( dirPath, fileData.cFileName ) : fileData.cFileName );
+    }
+    while ( FindNextFile ( hFind, &fileData ) );
+    FindClose ( hFind );
+
+    sort ( contentPaths.begin(), contentPaths.end() );
+    return 0;
+}
+
+#else
+
+int listDirectory ( const string &dirPath, vector<string> &contentPaths, bool prefixPath )
+{
+    DIR *dir = opendir ( dirPath.c_str() );
+    if ( dir == NULL )
+        return -2;
+
+    while ( true )
+    {
+        struct dirent *entry = readdir ( dir );
+        if ( entry == NULL )
+            break;
+
+        if ( strcmp ( entry->d_name, "." ) == 0 || strcmp ( entry->d_name, ".." ) == 0 || strcmp ( entry->d_name, ".DS_Store") == 0 )
+            continue;
+
+        contentPaths.push_back ( prefixPath ? appendPath ( dirPath, entry->d_name ) : entry->d_name );
+    }
+
+    sort ( contentPaths.begin(), contentPaths.end() );
+    closedir ( dir );
+    return 0;
+}
+
+#endif
 
 // Splits a string into a vector of token strings separated by the specified delimiter.
 // Two adjacent delimiters generate an empty token string (unlike C's strtok()).
