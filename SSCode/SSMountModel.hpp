@@ -65,6 +65,8 @@ public:
     
     int numStars ( void ) { return _n_stars; }
     bool addStar ( double x, double y, SSAngle azm, SSAngle alt );
+    bool getStar ( int i, double &x, double &y, SSAngle &azm, SSAngle &alt );
+    bool setStar ( int i, double x, double y, SSAngle azm, SSAngle alt );
     bool delStar ( int i );
     void reset ( void );
     

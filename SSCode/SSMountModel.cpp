@@ -586,6 +586,40 @@ bool SSMountModel::addStar ( double x, double y, SSAngle azm, SSAngle alt )
     return true;
 }
 
+// Gets alignment star data for the ith star in this mount model's alignment star array.
+// Star's encoder position (x,y) corresponds to celestial coordinates (azm,alt).
+// Returns true if successful or false if alignment star index (i) is out of bounds.
+
+bool SSMountModel::getStar ( int i, double &x, double &y, SSAngle &azm, SSAngle &alt )
+{
+    if ( i < 0 || i >= _n_stars )
+        return false;
+
+    x = _x_stars[i];
+    y = _y_stars[i];
+    azm = SSAngle ( _azm_stars[i] );
+    alt = SSAngle ( _alt_stars[i] );
+
+    return true;
+}
+
+// Sets alignment star data for the ith star in this mount model's alignment star array.
+// Star's encoder position (x,y) corresponds to celestial coordinates (azm,alt).
+// Returns true if successful or false if alignment star index (i) is out of bounds.
+
+bool SSMountModel::setStar ( int i, double x, double y, SSAngle azm, SSAngle alt )
+{
+    if ( i < 0 || i >= _n_stars )
+        return false;
+
+    _x_stars[i] = x;
+    _y_stars[i] = y;
+    _azm_stars[i] = azm;
+    _alt_stars[i] = alt;
+
+    return true;
+}
+
 // Deletes alignment star at index i in the mount model's alignment star array.
 // The index must be 0 ... numStars() - 1.
 // Returns true if successful or false if the index is out of range.
