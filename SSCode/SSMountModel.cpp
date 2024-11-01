@@ -514,14 +514,11 @@ SSMountModel::SSMountModel ( double xres, double yres )
 {
     _xres = xres;
     _yres = yres;
-    _n_stars = 0;
+
+    reset();
     
     memset ( _m, 0, sizeof ( _m ) );
     memset ( _adjustable, false, MODEL_N_PARAMS );
-    memset ( _x_stars, 0, sizeof ( _x_stars ) );
-    memset ( _y_stars, 0, sizeof ( _y_stars ) );
-    memset ( _azm_stars, 0, sizeof ( _azm_stars ) );
-    memset ( _alt_stars, 0, sizeof ( _alt_stars ) );
     
     // Note MODEL_AZM_RATE and MODEL_ALT_RATE will be made
     // non-adjustable in align() if xres and yres are nonzero.
@@ -577,10 +574,10 @@ bool SSMountModel::addStar ( double x, double y, SSAngle azm, SSAngle alt )
     if ( _n_stars >= MODEL_N_STARS )
         return false;
     
-    _x_stars[ _n_stars ] = x;
-    _y_stars[ _n_stars ] = y;
-    _azm_stars[ _n_stars ] = azm;
-    _alt_stars[ _n_stars ] = alt;
+    _x_stars.push_back ( x );
+    _y_stars.push_back ( y );
+    _azm_stars.push_back ( azm );
+    _alt_stars.push_back ( alt );
     _n_stars++;
     
     return true;
@@ -630,14 +627,12 @@ bool SSMountModel::delStar ( int i )
     if ( i < 0 || i >= _n_stars )
         return false;
     
+    _x_stars.erase ( _x_stars.begin() + i );
+    _y_stars.erase ( _y_stars.begin() + i );
+    _azm_stars.erase ( _azm_stars.begin() + i );
+    _alt_stars.erase ( _alt_stars.begin() + i );
     _n_stars--;
-    memcpy ( &_x_stars[i], &_x_stars[i+1], _n_stars * sizeof ( double ) );
-    memcpy ( &_y_stars[i], &_y_stars[i+1], _n_stars * sizeof ( double ) );
-    memcpy ( &_azm_stars[i], &_azm_stars[i+1], _n_stars * sizeof ( double ) );
-    memcpy ( &_alt_stars[i], &_alt_stars[i+1], _n_stars * sizeof ( double ) );
 
-    _x_stars[_n_stars] = _x_stars[_n_stars] = 0.0;
-    _azm_stars[_n_stars] = _alt_stars[_n_stars] = 0.0;
     return true;
 }
 
@@ -645,11 +640,10 @@ bool SSMountModel::delStar ( int i )
 
 void SSMountModel::reset ( void )
 {
-    memset ( _x_stars, 0, sizeof ( _x_stars ) );
-    memset ( _y_stars, 0, sizeof ( _y_stars ) );
-    memset ( _azm_stars, 0, sizeof ( _azm_stars ) );
-    memset ( _alt_stars, 0, sizeof ( _alt_stars ) );
-    memset ( _m, 0, sizeof ( _m ) );
+    _x_stars.clear();
+    _y_stars.clear();
+    _azm_stars.clear();
+    _alt_stars.clear();
     _n_stars = 0;
 }
 
@@ -662,17 +656,8 @@ double SSMountModel::align ( void )
 
     if ( _xres && _yres )
     {
-        if ( _n_stars < 2 )
-        {
-            _m[MODEL_AZM_RATE] = 2.0 * PI / _xres;
-            _m[MODEL_ALT_RATE] = 2.0 * PI / _yres;
-        }
-        else
-        {
-            _m[MODEL_AZM_RATE] = correct_for_encoders ( _n_stars, _x_stars, _azm_stars, fabs ( _xres ) );
-            _m[MODEL_ALT_RATE] = correct_for_encoders ( _n_stars, _y_stars, _alt_stars, fabs ( _yres ) );
-        }
-        
+        _m[MODEL_AZM_RATE] = 2.0 * PI / _xres;
+        _m[MODEL_ALT_RATE] = 2.0 * PI / _yres;
         _adjustable[MODEL_AZM_RATE] = false;
         _adjustable[MODEL_ALT_RATE] = false;
     }
@@ -703,22 +688,11 @@ double SSMountModel::align ( void )
     if ( _n_stars < 2 )
         return 0;
     
-    // Initial model made
-    
-    for( int iter = 4; iter < MODEL_N_PARAMS; iter++)
-    {
-        char adjust[MODEL_N_PARAMS];
-        memcpy ( adjust, _adjustable, iter );
-        memset ( adjust + iter, 0, MODEL_N_PARAMS - iter );
-        improve_model ( _m, _n_stars, _x_stars, _y_stars, _alt_stars, _azm_stars, adjust );
-        improve_model ( _m, _n_stars, _x_stars, _y_stars, _alt_stars, _azm_stars, adjust );
-    }
-
     // Now do an iterative nonlinear least-squares best fit to find the
     // remaining model parameters (and improve the initial ones).
     
-    for ( int iter = 0; iter < 10; iter++ )
-        improve_model ( _m, _n_stars, _x_stars, _y_stars, _alt_stars, _azm_stars, _adjustable );
+    for ( int iter = 0; iter < 20; iter++ )
+        improve_model ( _m, _n_stars, &_x_stars[0], &_y_stars[0], &_alt_stars[0], &_azm_stars[0], _adjustable );
     
     // compute residuals in radians (not degrees) of individual alignment stars
     
@@ -760,3 +734,62 @@ bool SSMountModel::getResiduals ( int i, double &azm_resid, double &alt_resid )
     return true;
 }
 
+// Returns index of nearest reference star to the specified coordinates (point), and angular angular distance to that point
+// (nearestDistance). point.lon and .lat correspond to (HA,Dec) if mount is equatorial, or (Az,Alt) if mount is alt-azimuth in radians.
+// Range of model references to check against is specified by zero-based starting index (startRef) and number (numRefs).
+// Returns -1 and INFINITY if the mount model contains no references, or if the search range is empty.
+
+int SSMountModel::nearestStar ( SSSpherical point, SSAngle &nearestDistance, int startRef, int numRefs )
+{
+    nearestDistance = INFINITY;
+    int nearestIndex = -1;
+    int endIndex = min ( startRef + numRefs, _n_stars );
+    
+    for ( int i = startRef; i < endIndex; i++ )
+    {
+        double x = 0.0, y = 0.0;
+        SSAngle ang0, ang1, distance;
+        
+        if ( getStar ( i, x, y, ang0, ang1 ) )
+        {
+            distance = point.angularSeparation ( SSSpherical ( ang0, ang1 ) );
+            if ( distance < nearestDistance )
+            {
+                nearestDistance = distance;
+                nearestIndex = i;
+            }
+        }
+    }
+    
+    return nearestIndex;
+ }
+
+// Returns index of nearest reference star to the specified coordinates (point), and angular angular distance to that point
+// (nearestDistance). point.lon and .lat correspond to (HA,Dec) if mount is equatorial, or (Az,Alt) if mount is alt-azimuth in radians.
+// Range of model references to check against is specified by zero-based starting index (startRef) and number (numRefs).
+// Returns -1 and 0.0 if the mount model contains no references, or if the search range is empty.
+
+int SSMountModel::farthestStar ( SSSpherical point, SSAngle &farthestDistance, int startRef, int numRefs )
+{
+    farthestDistance = 0.0;
+    int farthestIndex = -1;
+    int endIndex = min(startRef + numRefs, _n_stars);
+    
+    for ( int i = startRef; i < endIndex; i++ )
+    {
+        double x = 0.0, y = 0.0;
+        SSAngle ang0, ang1, distance;
+         
+        if ( getStar ( i, x, y, ang0, ang1 ) )
+        {
+            distance = point.angularSeparation(SSSpherical(ang0, ang1));
+            if (distance > farthestDistance)
+            {
+                farthestDistance = distance;
+                farthestIndex = i;
+            }
+        }
+    }
+    
+    return farthestIndex;
+ }

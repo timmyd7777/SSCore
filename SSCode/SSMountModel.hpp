@@ -11,6 +11,7 @@
 #define SSMountModel_hpp
 
 #include "SSAngle.hpp"
+#include "SSVector.hpp"
 
 #define MODEL_ALT_RATE     0    // Altitude encoder rate [radians/step]
 #define MODEL_ALT_ZERO     1    // Altitude encoder zero point (radians)
@@ -30,7 +31,7 @@
 #define MODEL_WARPED_TBL_1 15   // Warped table 1
 #define MODEL_WARPED_TBL_2 16   // Warped table 2
 #define MODEL_N_PARAMS     17   // Maximum number of model parameters
-#define MODEL_N_STARS      20   // Maximum number of alignment stars
+#define MODEL_N_STARS      100   // Maximum number of alignment stars
 
 // Represents a model of a telescope mount's alignment with the celestial coordinate system.
 // Determined by best fit to a selection of reference stars.
@@ -46,10 +47,12 @@ protected:
     double _xres;                           // mount X (azimuth) axis encoder steps per revolution
     double _yres;                           // mount Y (altitude) axis encoder steps per revolution
     int _n_stars;                           // number of reference stars used for alignment
-    double _x_stars[MODEL_N_STARS];         // mount X (azimuth) axis encoder position of alignment stars
-    double _y_stars[MODEL_N_STARS];         // mount Y (altitude) axis encoder position of alignment stars
-    double _azm_stars[MODEL_N_STARS];       // azimuth angles of alignment stars [radians]
-    double _alt_stars[MODEL_N_STARS];       // altitude angles of alignment stars [radians]
+
+public:
+    vector<double> _x_stars;                // mount X (azimuth) axis encoder position of alignment stars
+    vector<double> _y_stars;                // mount Y (altitude) axis encoder position of alignment stars
+    vector<double> _azm_stars;              // azimuth angles of alignment stars [radians]
+    vector<double> _alt_stars;              // altitude angles of alignment stars [radians]
 
 public:
     
@@ -58,8 +61,9 @@ public:
     bool adjustable ( int param );
     void adjustable ( int param, bool adj );
     
-    double getParameter ( int param ) { return param >= 0 && param < MODEL_N_PARAMS ? _m[param] : 0.0; };
-    
+    double getParameter ( int param ) { return param >= 0 && param < MODEL_N_PARAMS ? _m[param] : 0.0; }
+    void setParameter ( int param, double value ) { if ( param >= 0 && param < MODEL_N_PARAMS ) _m[param] = value; }
+
     void encodersToCelestial ( double x, double y, SSAngle &azm, SSAngle &alt );
     void celestialToEncoders ( SSAngle azm, SSAngle alt, double &x, double &y );
     
@@ -72,6 +76,9 @@ public:
     
     double align ( void );
     bool getResiduals ( int i, double &azm_resid, double &alt_resid );
+    
+    int nearestStar ( SSSpherical point, SSAngle &nearestDistance, int startRef = 0, int numRefs = MODEL_N_STARS );
+    int farthestStar ( SSSpherical point, SSAngle &farthestDistance, int startRef = 0, int numRefs = MODEL_N_STARS );
 };
 
 #endif /* SSMountModel_hpp */
