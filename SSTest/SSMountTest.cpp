@@ -75,7 +75,7 @@ void TestMountModel ( void )
     // Create mount model with 8192-step encoders on both axes.
     // Then add alignment stars.
     
-    SSMountModel model ( 8192, 8192 );
+    SSMountModel model ( 8192, -8192 );
     for ( int i = 0; i < 20; i++ )
         model.addStar ( stars[i][0], stars[i][1], SSAngle::fromDegrees ( stars[i][3] ), SSAngle::fromDegrees ( stars[i][2] ) );
     
@@ -110,7 +110,8 @@ void TestMountModel ( void )
 
 int main ( int argc, const char * argv[] )
 {
-    // TestMountModel();
+    TestMountModel();
+    return 0;
     
     // Get current location from IP address - this tests SSHTTP API!
     
