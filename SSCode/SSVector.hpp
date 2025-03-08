@@ -92,4 +92,6 @@ struct SSVector
     SSSpherical toSphericalVelocity ( SSVector vvec );
 };
 
+double SSAngularSeparation ( double lon0, double lat0, double lon1, double lat1 );
+
 #endif /* SSVector_hpp */

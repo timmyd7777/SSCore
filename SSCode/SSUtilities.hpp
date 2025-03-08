@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <ctime>
+#include <cstdint>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -80,6 +81,8 @@ string setFileExt ( const string &path, const string &ext );
 bool hasFileExt ( const string &path, const vector<string> &exts );
 string appendPath ( const string &path, const string &name );
 int listDirectory ( const string &path, vector<string> &contents, bool prefixPath = false );
+int listWildcardFiles ( const string &pattern, vector<string> &paths );
+string sanitizeFilename ( const string &filename );
 
 int strtoint ( string str );
 int64_t strtoint64 ( string str );

@@ -363,3 +363,11 @@ SSSpherical SSVector::toSphericalVelocity ( SSVector vvec )
     }
 }
 
+// Returns angular separation in radians between two points in a spherical coordinate system.
+// The longitude and latitude of the points (lon0, lat0) and (lon1, lat1) are in radians.
+
+double SSAngularSeparation ( double lon0, double lat0, double lon1, double lat1 )
+{
+    SSSpherical sph0 ( lon0, lat0 ), sph1 ( lon1, lat1 );
+    return sph0.angularSeparation ( sph1 );
+}

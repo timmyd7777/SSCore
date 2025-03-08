@@ -14,7 +14,7 @@
 #include "SSVector.hpp"
 
 #define MODEL_ALT_RATE     0    // Altitude encoder rate [radians/step]
-#define MODEL_ALT_ZERO     1    // Altitude encoder zero point (radians)
+#define MODEL_ALT_ZERO     1    // Altitude encoder zero point [radians]
 #define MODEL_AZM_RATE     2    // Azimuth encoder rate [radians/step]
 #define MODEL_AZM_ZERO     3    // Azimuth encoder zero point [radians]
 #define MODEL_TILT1        4    // Tilt #1 [radians]

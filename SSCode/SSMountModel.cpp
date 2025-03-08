@@ -693,7 +693,16 @@ double SSMountModel::align ( void )
     
     for ( int iter = 0; iter < 20; iter++ )
         improve_model ( _m, _n_stars, &_x_stars[0], &_y_stars[0], &_alt_stars[0], &_azm_stars[0], _adjustable );
-    
+
+    // Reduce angles to the range -pi to +pi.
+
+    _m[MODEL_AZM_ZERO] = modpi ( _m[MODEL_AZM_ZERO] );
+    _m[MODEL_ALT_ZERO] = modpi ( _m[MODEL_ALT_ZERO] );
+    _m[MODEL_TILT1] = modpi ( _m[MODEL_TILT1] );
+    _m[MODEL_TILT2] = modpi ( _m[MODEL_TILT2] );
+    _m[MODEL_MISALIGN] = modpi ( _m[MODEL_MISALIGN] );
+    _m[MODEL_FLEXURE] = modpi ( _m[MODEL_FLEXURE] );
+
     // compute residuals in radians (not degrees) of individual alignment stars
     
     double rms_x = 0.0, rms_y = 0.0, rms_total = 0.0;
