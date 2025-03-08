@@ -27,6 +27,7 @@
 		A307FB09297A31E7003E30AD /* SSImportTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB07297A31E7003E30AD /* SSImportTLE.cpp */; };
 		A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */; };
 		A315D76E26370EEA00A2F317 /* SSImportGCVS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A315D76C26370EEA00A2F317 /* SSImportGCVS.cpp */; };
+		A318E1B12CD5785A00B6A67C /* MountSimulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A318E1B02CD5785A00B6A67C /* MountSimulator.cpp */; };
 		A31EBEA02457C231005C863E /* ELPMPP02.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A31EBE9E2457C231005C863E /* ELPMPP02.cpp */; };
 		A33E45B82438E7F900C15780 /* SSTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A33E45B62438E7F900C15780 /* SSTLE.cpp */; };
 		A34D208128D39EAA0005A5F1 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A34D208028D39EAA0005A5F1 /* CoreFoundation.framework */; };
@@ -77,7 +78,6 @@
 		A3783D5B2B9CE445007AD7E7 /* SSMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A8822404EF3800BDD11C /* SSMatrix.cpp */; };
 		A3783D5C2B9CE451007AD7E7 /* SSOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A358D99B24147D3E009078A6 /* SSOrbit.cpp */; };
 		A378CE9B243A482000F4B018 /* SSTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A378CE9A243A482000F4B018 /* SSTest.cpp */; };
-		A37E084028D3995000489544 /* SSMountTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A37E083F28D3995000489544 /* SSMountTest.cpp */; };
 		A37E084D28D399B600489544 /* SSSerial.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A37E084128D399B600489544 /* SSSerial.cpp */; };
 		A37E084E28D399B600489544 /* SSVPEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A37E084328D399B600489544 /* SSVPEphemeris.cpp */; };
 		A37E084F28D399B600489544 /* SSSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A37E084528D399B600489544 /* SSSocket.cpp */; };
@@ -177,6 +177,7 @@
 		A30C7A4924251E96004FEF82 /* SSIdentifier.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSIdentifier.hpp; sourceTree = "<group>"; };
 		A315D76C26370EEA00A2F317 /* SSImportGCVS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportGCVS.cpp; sourceTree = "<group>"; };
 		A315D76D26370EEA00A2F317 /* SSImportGCVS.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSImportGCVS.hpp; sourceTree = "<group>"; };
+		A318E1B02CD5785A00B6A67C /* MountSimulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MountSimulator.cpp; path = ../MountSimulator.cpp; sourceTree = SOURCE_ROOT; };
 		A31EBE9E2457C231005C863E /* ELPMPP02.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ELPMPP02.cpp; sourceTree = "<group>"; };
 		A31EBE9F2457C231005C863E /* ELPMPP02.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ELPMPP02.hpp; sourceTree = "<group>"; };
 		A328D7312402DBFD00BCE781 /* SSTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SSTest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -302,6 +303,7 @@
 				A3783D482B9CD8E4007AD7E7 /* SSTLETest.cpp */,
 				A378CE9A243A482000F4B018 /* SSTest.cpp */,
 				A37E083F28D3995000489544 /* SSMountTest.cpp */,
+				A318E1B02CD5785A00B6A67C /* MountSimulator.cpp */,
 				A304AA8A2B105BC9003E50AA /* SSTetraTest.cpp */,
 				A328D7332402DBFD00BCE781 /* SSCode */,
 				A34D207F28D39E5C0005A5F1 /* Frameworks */,
@@ -653,9 +655,9 @@
 				A34D208E28D39FD90005A5F1 /* SSMoonEphemeris.cpp in Sources */,
 				A37E085128D399B600489544 /* SSImportJPL.cpp in Sources */,
 				A34D209228D3A01E0005A5F1 /* SSOrbit.cpp in Sources */,
+				A318E1B12CD5785A00B6A67C /* MountSimulator.cpp in Sources */,
 				A34D209128D3A0100005A5F1 /* SSTime.cpp in Sources */,
 				A34D209528D3A04B0005A5F1 /* VSOP2013p6.cpp in Sources */,
-				A37E084028D3995000489544 /* SSMountTest.cpp in Sources */,
 				A34D208F28D39FE90005A5F1 /* SSTLE.cpp in Sources */,
 				A34D208B28D39FA80005A5F1 /* SSCoordinates.cpp in Sources */,
 				A34D209E28D3A04B0005A5F1 /* VSOP2013p9.cpp in Sources */,
