@@ -362,11 +362,26 @@ int listDirectory ( const string &dirPath, vector<string> &contentPaths, bool pr
 // "/dev/ttyS0", "/dev/ttyS1", "/dev/ttyS2", "/dev/ttyUSB0", "/dev/ttyUSB1", etc.
 // If the pattern string is "/dev/ttyS?", then the following files would match:
 // "/dev/ttyS0", "/dev/ttyS1", "/dev/ttyS2", but not "/dev/ttyUSB0", "/dev/ttyUSB1".
-// A Microsoft Windows version could be implemented with FindFirstFile(), FindNextFile():
+// Microsoft Windows implemented with FindFirstFile(), FindNextFile() is not yet tested as of 2025-03-08!
 // See https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilea
 
 int listWildcardFiles ( const string &pattern, vector<string> &paths )
 {
+#ifdef _MSC_VER
+    WIN32_FIND_DATAA findData;
+    HANDLE hFind = FindFirstFileA ( pattern.c_str(), &findData );
+    if ( hFind == INVALID_HANDLE_VALUE )
+        return 0;
+    
+    do
+    {
+        paths.push_back ( string ( findData.cFileName ) );
+    }
+    while ( FindNextFileA ( hFind, &findData ) );
+    
+    FindClose ( hFind );
+    return paths.size();
+#else
     glob_t glob_result;
 
     if ( glob (pattern.c_str(), 0, nullptr, &glob_result ) != 0 )
@@ -377,6 +392,7 @@ int listWildcardFiles ( const string &pattern, vector<string> &paths )
 
     globfree (&glob_result);
     return paths.size();
+#endif
 }
 
 // Returns a sanitized version of a string (filename) that contains no filesystem-forbidden characters.
