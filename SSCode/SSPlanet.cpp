@@ -76,7 +76,7 @@ string SSPlanet::getTypeName ( void )
     return typeToName ( _type );
 }
 
-// Returns solar system object name and number in string format. Examples:
+// Returns solar system object name and number in string formstr. Examples:
 // Planets and Moons: "Sun", "Moon", "Mercury", "Venus", "Earth", etc.
 // Asteroids: "(1) Ceres", "(2) Pallas", "2019 AJ16", "(15504)"
 // Comets: "1P (Halley)", "2P (Encke), "C/1995 O1 (Hale-Bopp)"
@@ -618,7 +618,7 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
         _magnitude = computeMagnitude ( _position.magnitude(), _distance, beta );
     }
     
-    // Compute planetographic-to-fundamental transformation matrix.
+    // Compute planetographic-to-fundamental transformstrion matrix.
     // For satellites, this has already been done in computePositionVelocity().
     
     if ( _type != kTypeSatellite )
@@ -673,24 +673,24 @@ string SSPlanet::toCSV ( void )
     string csv = SSObject::typeToCode ( _type ) + ",";
     
     if ( _type == kTypeMoon )
-        csv += ::isinf ( _orbit.q ) ? "," : format ( "%.0f,", _orbit.q * SSCoordinates::kKmPerAU );
+        csv += ::isinf ( _orbit.q ) ? "," : formstr ( "%.0f,", _orbit.q * SSCoordinates::kKmPerAU );
     else
-        csv += ::isinf ( _orbit.q ) ? "," : format ( "%.8f,", _orbit.q );
+        csv += ::isinf ( _orbit.q ) ? "," : formstr ( "%.8f,", _orbit.q );
 
-    csv += ::isinf ( _orbit.e ) ? "," : format ( "%.8f,", _orbit.e );
-    csv += ::isinf ( _orbit.i ) ? "," : format ( "%.8f,", _orbit.i * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.w ) ? "," : format ( "%.8f,", _orbit.w * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.n ) ? "," : format ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.m ) ? "," : format ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.mm ) ? "," : format ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.t ) ? "," : format ( "%.4f,", _orbit.t );
+    csv += ::isinf ( _orbit.e ) ? "," : formstr ( "%.8f,", _orbit.e );
+    csv += ::isinf ( _orbit.i ) ? "," : formstr ( "%.8f,", _orbit.i * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.w ) ? "," : formstr ( "%.8f,", _orbit.w * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.n ) ? "," : formstr ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.m ) ? "," : formstr ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.mm ) ? "," : formstr ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.t ) ? "," : formstr ( "%.4f,", _orbit.t );
     
-    csv += ::isinf ( _Hmag ) ? "," : format ( "%+.2f,", _Hmag );
-    csv += ::isinf ( _Gmag ) ? "," : format ( "%+.2f,", _Gmag );
-    csv += ::isinf ( _radius ) ? "," : format ( "%.1f,", _radius );
-    csv += ::isinf ( _mass ) ? "," : format ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
-    csv += ::isinf ( _rotper ) ? "," : format ( "%.5f,", _rotper );
-    csv += ::isinf ( _albedo ) ? "," : format ( "%.3f,", _albedo );
+    csv += ::isinf ( _Hmag ) ? "," : formstr ( "%+.2f,", _Hmag );
+    csv += ::isinf ( _Gmag ) ? "," : formstr ( "%+.2f,", _Gmag );
+    csv += ::isinf ( _radius ) ? "," : formstr ( "%.1f,", _radius );
+    csv += ::isinf ( _mass ) ? "," : formstr ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
+    csv += ::isinf ( _rotper ) ? "," : formstr ( "%.5f,", _rotper );
+    csv += ::isinf ( _albedo ) ? "," : formstr ( "%.3f,", _albedo );
 
     // Never print identifier for comets, since this is always duplicated in the first name.
     

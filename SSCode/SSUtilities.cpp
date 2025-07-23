@@ -121,7 +121,7 @@ string trim ( string str )
 
 // Returns C++ string constructed from printf()-style input arguments.
 
-string format ( const char *fmt, ... )
+string formstr ( const char *fmt, ... )
 {
     char buf[1024] = { 0 };
 
@@ -926,7 +926,7 @@ string urlEncode ( const string &src )
         else if ( c == ' ' )
             dst += '+';
         else
-            dst += format ( "%%%02X", c );
+            dst += formstr ( "%%%02X", c );
     }
         
     return dst;

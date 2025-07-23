@@ -59,7 +59,7 @@ bool islink ( const string &file );
 bool fgetline ( FILE *infile, string &line );
 
 string trim ( string str );
-string format ( const char *fmt, ... );
+string formstr ( const char *fmt, ... );
 vector<string> split ( string str, string delim );
 vector<string> tokenize ( string str, string delim );
 vector<string> split_csv ( const string &csv );

@@ -142,7 +142,7 @@ void VSOP2013::printSeries ( ostream &out, const vector<VSOP2013Series> &planet 
             if ( it >= 0 )
                 out << "} }," << endl;   // close preceding terms
 
-            out << format ( "{ %3d, %3d, %3d, %3d, {\n", ser.ip, ser.iv, ser.it, nt );
+            out << formstr ( "{ %3d, %3d, %3d, %3d, {\n", ser.ip, ser.iv, ser.it, nt );
             it = ser.it;
         }
         
@@ -153,11 +153,11 @@ void VSOP2013::printSeries ( ostream &out, const vector<VSOP2013Series> &planet 
             out << "{ ";
             for ( int i = 0; i < 17; i++ )
             {
-                out << format ( "%3hd, ", term.iphi[i] );
+                out << formstr ( "%3hd, ", term.iphi[i] );
             }
             
-            out << format ( "%+.15e, ", term.s );
-            out << format ( "%+.15e }", term.c );
+            out << formstr ( "%+.15e, ", term.s );
+            out << formstr ( "%+.15e }", term.c );
             
             if ( k == ser.terms.size() - 1 )
                 out << "\n";

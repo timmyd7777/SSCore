@@ -1089,7 +1089,7 @@ string SSStar::formatSpectrum ( int spectype, int lumclass )
     return spectrum;
 }
 
-// Returns information for the given spectral type and luminosity class;
+// Returns informstrion for the given spectral type and luminosity class;
 // values that cannot be determined will be INFINITY.
 
 SSStar::SpecInfo SSStar::spectralClassInfo ( int spectype, int lumclass )
@@ -1280,14 +1280,14 @@ string SSStar::toCSV1 ( void )
     csv += ra.toString() + ",";
     csv += dec.toString() + ",";
     
-    csv += ::isnan ( motion.lon ) || ::isinf ( motion.lon ) ? "," : format ( "%+.5f,", ( motion.lon / 15.0 ).toArcsec() );
-    csv += ::isnan ( motion.lat ) || ::isinf ( motion.lat ) ? "," : format ( "%+.4f,", motion.lat.toArcsec() );
+    csv += ::isnan ( motion.lon ) || ::isinf ( motion.lon ) ? "," : formstr ( "%+.5f,", ( motion.lon / 15.0 ).toArcsec() );
+    csv += ::isnan ( motion.lat ) || ::isinf ( motion.lat ) ? "," : formstr ( "%+.4f,", motion.lat.toArcsec() );
     
-    csv += ::isinf ( _Vmag ) ? "," : format ( "%+.2f,", _Vmag );
-    csv += ::isinf ( _Bmag ) ? "," : format ( "%+.2f,", _Bmag );
+    csv += ::isinf ( _Vmag ) ? "," : formstr ( "%+.2f,", _Vmag );
+    csv += ::isinf ( _Bmag ) ? "," : formstr ( "%+.2f,", _Bmag );
     
-    csv += ::isinf ( distance ) ? "," : format ( "%.3E,", distance * SSCoordinates::kParsecPerLY );
-    csv += ::isinf ( _radvel ) ? "," : format ( "%+.1f,", _radvel * SSCoordinates::kLightKmPerSec );
+    csv += ::isinf ( distance ) ? "," : formstr ( "%.3E,", distance * SSCoordinates::kParsecPerLY );
+    csv += ::isinf ( _radvel ) ? "," : formstr ( "%+.1f,", _radvel * SSCoordinates::kLightKmPerSec );
     
     // If spectrum contains a comma, put it in quotes.
     
@@ -1345,10 +1345,10 @@ string SSDoubleStar::toCSVD ( void )
     // If components contains a comma, put them in quotes.
 
     csv += _comps.find ( "," ) == string::npos ? _comps + "," : "\"" + _comps + "\",";
-    csv += ::isinf ( _magDelta ) ? "," : format ( "%+.2f,", _magDelta );
-    csv += ::isinf ( _sep ) ? "," : format ( "%.1f,", _sep * SSAngle::kArcsecPerRad );
-    csv += ::isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
-    csv += ::isinf ( _PAyr ) ? "," : format ( "%.2f,", _PAyr );
+    csv += ::isinf ( _magDelta ) ? "," : formstr ( "%+.2f,", _magDelta );
+    csv += ::isinf ( _sep ) ? "," : formstr ( "%.1f,", _sep * SSAngle::kArcsecPerRad );
+    csv += ::isinf ( _PA ) ? "," : formstr ( "%.1f,", _PA * SSAngle::kDegPerRad );
+    csv += ::isinf ( _PAyr ) ? "," : formstr ( "%.2f,", _PAyr );
 
     if ( _pOrbit == nullptr )
         return csv + ",,,,,,,";
@@ -1356,16 +1356,16 @@ string SSDoubleStar::toCSVD ( void )
     SSSpherical coords = getFundamentalCoords();
     SSOrbit orbit = getOrbit ( coords.lon, coords.lat );
     
-    csv += format ( "%.4f,", SSTime ( orbit.t ).toJulianYear() );
-    csv += format ( "%.4f,", orbit.semiMajorAxis() );
-    csv += format ( "%.4f,", orbit.e );
-    csv += format ( "%.2f,", radtodeg ( orbit.i ) );
-    csv += format ( "%.2f,", radtodeg ( orbit.w ) );
-    csv += format ( "%.2f,", radtodeg ( orbit.n ) );
+    csv += formstr ( "%.4f,", SSTime ( orbit.t ).toJulianYear() );
+    csv += formstr ( "%.4f,", orbit.semiMajorAxis() );
+    csv += formstr ( "%.4f,", orbit.e );
+    csv += formstr ( "%.2f,", radtodeg ( orbit.i ) );
+    csv += formstr ( "%.2f,", radtodeg ( orbit.w ) );
+    csv += formstr ( "%.2f,", radtodeg ( orbit.n ) );
     if ( orbit.mm == 0.0 )
         csv += ",";
     else
-        csv += format ( "%.6f,", ( SSAngle::kTwoPi / orbit.mm ) / SSTime::kDaysPerJulianYear );
+        csv += formstr ( "%.6f,", ( SSAngle::kTwoPi / orbit.mm ) / SSTime::kDaysPerJulianYear );
 
     return csv;
 }
@@ -1387,10 +1387,10 @@ string SSVariableStar::toCSVV ( void )
     // If variable type contains a comma, put it in quotes.
 
     csv += _varType.find ( "," ) == string::npos ? _varType + "," : "\"" + _varType + "\",";
-    csv += ::isinf ( _varMinMag ) ? "," : format ( "%+.2f,", _varMinMag );
-    csv += ::isinf ( _varMaxMag ) ? "," : format ( "%+.2f,", _varMaxMag );
-    csv += ::isinf ( _varPeriod ) ? "," : format ( "%.2f,", _varPeriod );
-    csv += ::isinf ( _varEpoch )  ? "," : format ( "%.2f,", _varEpoch );
+    csv += ::isinf ( _varMinMag ) ? "," : formstr ( "%+.2f,", _varMinMag );
+    csv += ::isinf ( _varMaxMag ) ? "," : formstr ( "%+.2f,", _varMaxMag );
+    csv += ::isinf ( _varPeriod ) ? "," : formstr ( "%.2f,", _varPeriod );
+    csv += ::isinf ( _varEpoch )  ? "," : formstr ( "%.2f,", _varEpoch );
 
     return csv;
 }
@@ -1417,9 +1417,9 @@ string SSDeepSky::toCSVDS ( void )
 {
     string csv = "";
 
-    csv += ::isinf ( _majAxis ) ? "," : format ( "%.2f,", _majAxis * SSAngle::kArcminPerRad );
-    csv += ::isinf ( _minAxis ) ? "," : format ( "%.2f,", _minAxis * SSAngle::kArcminPerRad );
-    csv += ::isinf ( _PA ) ? "," : format ( "%.1f,", _PA * SSAngle::kDegPerRad );
+    csv += ::isinf ( _majAxis ) ? "," : formstr ( "%.2f,", _majAxis * SSAngle::kArcminPerRad );
+    csv += ::isinf ( _minAxis ) ? "," : formstr ( "%.2f,", _minAxis * SSAngle::kArcminPerRad );
+    csv += ::isinf ( _PA ) ? "," : formstr ( "%.1f,", _PA * SSAngle::kDegPerRad );
 
     return csv;
 }
@@ -1435,7 +1435,7 @@ string SSDeepSky::toCSV ( void )
         return toCSV1() + toCSVDS() + toCSV2();
 }
 
-// Allocates a new SSStar and initializes it from a CSV-formatted string.
+// Allocates a new SSStar and initializes it from a CSV-formstrted string.
 // Returns nullptr on error (invalid CSV string, heap allocation failure, etc.)
 
 SSObjectPtr SSStar::fromCSV ( string csv )

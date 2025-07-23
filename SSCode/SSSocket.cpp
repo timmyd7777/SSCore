@@ -986,11 +986,11 @@ int SSHTTP::sendRequestHeader ( size_t postSize )
     
     string header;
     if ( postSize > 0 && ! _contType.empty() )
-        header = format ( "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n", _path.c_str(), _host.c_str(), postSize, _contType.c_str() );
+        header = formstr ( "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n", _path.c_str(), _host.c_str(), postSize, _contType.c_str() );
     else if ( postSize > 0 )
-        header = format ( "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Length: %ld\r\n\r\n", _path.c_str(), _host.c_str(), postSize );
+        header = formstr ( "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Length: %ld\r\n\r\n", _path.c_str(), _host.c_str(), postSize );
     else
-        header = format ( "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", _path.c_str(), _host.c_str() );
+        header = formstr ( "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", _path.c_str(), _host.c_str() );
 
     // Sender header to the server via socket
 

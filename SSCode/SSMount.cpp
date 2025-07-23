@@ -1039,14 +1039,14 @@ SSMount::Error SSCelestronMount::connect ( const string &path, uint16_t port )
     {
         int ver[3] = { 0 };
         if ( sscanf ( output, "%2x%2x%2x", &ver[0], &ver[1], &ver[2] ) == 3 )
-            _version = format ( "%d.%d.%d", ver[0], ver[1], ver[2] );
+            _version = formstr ( "%d.%d.%d", ver[0], ver[1], ver[2] );
     }
     else
     {
         // NexStar hand controller firmware version < 4.0 MAY be a StarSense hand controller,
         // or it may not - Celestron started renumbering StarSense HC firmware versions at 1.0!
         
-        _version = format ( "%d.%d", output[0], output[1] );
+        _version = formstr ( "%d.%d", output[0], output[1] );
         if ( _version.compare ( "4.0" ) < 0 )
         {
             // If controller responds to this platform query, it's a StarSense.  We'll
@@ -1056,7 +1056,7 @@ SSMount::Error SSCelestronMount::connect ( const string &path, uint16_t port )
             
             err = command ( "v#", 0, output, 3, '#' );
             if ( err == kSuccess )
-                _version = format ( "1%d.%d", output[0], output[1] );
+                _version = formstr ( "1%d.%d", output[0], output[1] );
         }
     }
     
@@ -1141,7 +1141,7 @@ SSMount::Error SSCelestronMount::slew ( SSAngle ra, SSAngle dec )
     unsigned int hexRA  = ra  * 4294967296.0 / SSAngle::kTwoPi;
     int          hexDec = dec * 4294967296.0 / SSAngle::kTwoPi;
     
-    string input = format ( "r%08X,%08X", hexRA, hexDec ), output;
+    string input = formstr ( "r%08X,%08X", hexRA, hexDec ), output;
     Error err = command ( input, output, 1, '#', 5000 );
     if ( err )
         return err;
@@ -1292,7 +1292,7 @@ SSMount::Error SSCelestronMount::sync ( SSAngle ra, SSAngle dec )
     unsigned int hexRA  = ra  * 4294967296.0 / SSAngle::kTwoPi;
     int          hexDec = dec * 4294967296.0 / SSAngle::kTwoPi;
     
-    string input = format ( "s%08X,%08X", hexRA, hexDec ), output;
+    string input = formstr ( "s%08X,%08X", hexRA, hexDec ), output;
     Error err = command ( input, output, 1, '#' );
     
     return err;
@@ -1501,7 +1501,7 @@ SSMount::Error SSMeadeMount::setTargetRADec ( SSAngle ra, SSAngle dec )
     
     // Set slew target right ascension in high-precision format
     
-    string output, input = format ( ":Sr%02hd:%02hd:%02.0f#", hms.hour, hms.min, min ( hms.sec, 59.0 ) );
+    string output, input = formstr ( ":Sr%02hd:%02hd:%02.0f#", hms.hour, hms.min, min ( hms.sec, 59.0 ) );
     Error err = command ( input, output, 1, '#' );
     if ( err )
         return err;
@@ -1511,7 +1511,7 @@ SSMount::Error SSMeadeMount::setTargetRADec ( SSAngle ra, SSAngle dec )
     
     // Set slew target declination in high-precision format
 
-    input = format ( ":Sd%c%02hd:%02hd:%02.0f#", dms.sign, dms.deg, dms.min, min ( dms.sec, 59.0 ) );
+    input = formstr ( ":Sd%c%02hd:%02hd:%02.0f#", dms.sign, dms.deg, dms.min, min ( dms.sec, 59.0 ) );
     err = command ( input, output, 1, '#' );
     if ( err )
         return err;
@@ -1672,7 +1672,7 @@ SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
     // So, send longitude from 0 - 360 degrees and force positive.
 
     SSDegMinSec lon ( SSAngle ( mod2pi ( -site.lon ) ) );
-    string input = format ( ":Sg%03hd*%02hd#", lon.deg, lon.min ), output;
+    string input = formstr ( ":Sg%03hd*%02hd#", lon.deg, lon.min ), output;
     Error err = command ( input, output, 1, 0 );
     if ( err )
         return err;
@@ -1683,7 +1683,7 @@ SSMount::Error SSMeadeMount::setSite ( SSSpherical site )
     // Send latitude.
 
     SSDegMinSec lat ( site.lat );
-    input = format ( ":St%c%02hd*%02hd#", lat.sign, lat.deg, lat.min );
+    input = formstr ( ":St%c%02hd*%02hd#", lat.sign, lat.deg, lat.min );
     err = command ( input, output, 1, 0 );
     if ( err )
         return err;
@@ -1705,7 +1705,7 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
 {
     // Send time zone in hours west of UTC
     
-    string input = format ( ":SG%+03.0f#", -time.zone ), output;
+    string input = formstr ( ":SG%+03.0f#", -time.zone ), output;
     Error err = command ( input, output, 1, 0 );
     if ( err )
         return err;
@@ -1716,7 +1716,7 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
     // Send local time
     
     SSDate date ( time );
-    input = format ( ":SL%02hd:%02hd:%02.0f#", date.hour, date.min, min ( date.sec, 59.0 ) );
+    input = formstr ( ":SL%02hd:%02hd:%02.0f#", date.hour, date.min, min ( date.sec, 59.0 ) );
     err = command ( input, output, 1, 0 );
     if ( err )
         return err;
@@ -1728,7 +1728,7 @@ SSMount::Error SSMeadeMount::setTime ( SSTime time )
     // The first is: "Updating planetary data#" followed by a second string of 30 spaces terminated by ’#’
     // The string outputs follow almost immediately from the ETX, but after a long pause on the LX-200.
     
-    input = format ( ":SC%02hd/%02.0f/%02d#", date.month, floor ( date.day ), date.year % 100 );
+    input = formstr ( ":SC%02hd/%02.0f/%02d#", date.month, floor ( date.day ), date.year % 100 );
     err = command ( input, output, 33, '#', 10000 );
     if ( err )
         return err;
@@ -1908,7 +1908,7 @@ SSMount::Error SSSyntaMount::motorCommand ( int axis, char cmd, string indata, s
     // so the command will be echoed before the response.
     // If we see this, keep reading to get the real response.
     
-    string output, input = format ( ":%c%d%s\r", cmd, axis + 1, indata.c_str() );
+    string output, input = formstr ( ":%c%d%s\r", cmd, axis + 1, indata.c_str() );
     Error err = command ( input, output, 10, '\r' );
     if ( err == kSuccess && output.compare ( input ) == 0 )
         err = command ( "", output, 10, '\r' );
@@ -2087,7 +2087,7 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     // Set motion mode
     
     string outdata;
-    err = motorCommand ( axis, 'G', format ( "%d%d", highspeed ? 3 : 1, forward ? 0 : 1 ), outdata );
+    err = motorCommand ( axis, 'G', formstr ( "%d%d", highspeed ? 3 : 1, forward ? 0 : 1 ), outdata );
     if ( err )
         return err;
     
@@ -2101,7 +2101,7 @@ SSMount::Error SSSyntaMount::mcAxisSlew ( int axis, double speed )
     if ( speedInt < 6 )
         speedInt = 6;
 
-    string data = format ( "%06X", speedInt );
+    string data = formstr ( "%06X", speedInt );
     err = motorCommand ( axis, 'I', data, outdata );
     if ( err )
         return err;
@@ -2149,19 +2149,19 @@ SSMount::Error SSSyntaMount::mcAxisSlewTo ( int axis, double targetPosition )
     // Set motion mode
     
     string outdata;
-    err = motorCommand ( axis, 'G', format ( "%d%d", highspeed ? 0 : 2, forward ? 0 : 1 ), outdata );
+    err = motorCommand ( axis, 'G', formstr ( "%d%d", highspeed ? 0 : 2, forward ? 0 : 1 ), outdata );
     if ( err )
         return err;
 
     // Set GoTo target increment
     
-    err = motorCommand ( axis, 'H', format ( "%06X", steps ), outdata );
+    err = motorCommand ( axis, 'H', formstr ( "%06X", steps ), outdata );
     if ( err )
         return err;
     
     // Set break point increment
     
-    err = motorCommand ( axis, 'M', format ( "%06X", _breakSteps[axis] ), outdata );
+    err = motorCommand ( axis, 'M', formstr ( "%06X", _breakSteps[axis] ), outdata );
     if ( err )
         return err;
     
@@ -2211,7 +2211,7 @@ SSMount::Error SSSyntaMount::mcSetAxisPosition ( int axis, SSAngle rad )
 {
     string response;
     int iPosition = angleToStep ( axis, rad ) + 0x00800000;
-    Error err = motorCommand ( axis, 'E', format ( "%06X", iPosition ), response );
+    Error err = motorCommand ( axis, 'E', formstr ( "%06X", iPosition ), response );
     return err;
 }
 
@@ -2514,9 +2514,9 @@ SSMount::Error SSCelestronAUXMount::connect ( const string &path, uint16_t port 
         // Parse both 2- and 4-byte respobses to the version command.
         
         if ( len == 2 )
-            _version += format ( "%d.%d", data[0], data[1] );
+            _version += formstr ( "%d.%d", data[0], data[1] );
         else if ( len == 4 )
-            _version += format ( "%d.%d.%d", data[0], data[1], 256 * (int) data[2] + data[3] );
+            _version += formstr ( "%d.%d.%d", data[0], data[1], 256 * (int) data[2] + data[3] );
         else
             return kInvalidOutput;
         

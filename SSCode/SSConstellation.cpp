@@ -83,10 +83,10 @@ string SSConstellation::toCSV ( void )
     double dec = radtodeg ( center.lat );
     double area = radtodeg ( radtodeg ( _area ) );
     
-    csv += ::isinf ( ra ) ? "," : format ( "%.7f,", ra );
-    csv += ::isinf ( dec ) ? "," : format ( "%+.6f,", dec );
-    csv += ::isinf ( area ) ? "," : format ( "%.2f,", area );
-    csv += _rank < 1 ? "," : format ( "%d,", _rank );
+    csv += ::isinf ( ra ) ? "," : formstr ( "%.7f,", ra );
+    csv += ::isinf ( dec ) ? "," : formstr ( "%+.6f,", dec );
+    csv += ::isinf ( area ) ? "," : formstr ( "%.2f,", area );
+    csv += _rank < 1 ? "," : formstr ( "%d,", _rank );
     
     for ( int i = 0; i < _names.size(); i++ )
         csv += _names[i] + ",";

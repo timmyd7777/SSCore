@@ -64,7 +64,7 @@ string SSDegMinSec::toString ( void )
     if ( sec >= 59.95 )
         return SSDegMinSec ( toDegrees() + ( sign == '-' ? -0.05 : 0.05 ) / 3600.0 ).toString();
     else
-        return ::format ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
+        return formstr ( "%c%02hd %02hd %04.1f", sign, deg, min, sec );
 }
 
 // Converts an angle in degrees, minutes, seconds to a string with printf()-style format.
@@ -78,13 +78,13 @@ string SSDegMinSec::format ( const string &fmt )
     {
         size_t n = count ( fmt.begin(), fmt.end(), '%' );
         if ( n == 4 )
-            return ::format ( fmt.c_str(), sign, deg, min, sec );
+            return formstr ( fmt.c_str(), sign, deg, min, sec );
         else if ( n == 3 )
-            return ::format ( fmt.c_str(), deg, min, sec );
+            return formstr ( fmt.c_str(), deg, min, sec );
         else if ( n == 2 )
-            return ::format ( fmt.c_str(), deg, min + sec / 60.0 );
+            return formstr ( fmt.c_str(), deg, min + sec / 60.0 );
         else if ( n == 1 )
-            return ::format ( fmt.c_str(), deg + min / 60.0 + sec / 3600.0 );
+            return formstr ( fmt.c_str(), deg + min / 60.0 + sec / 3600.0 );
         else
             return toString();
     }
@@ -142,7 +142,7 @@ string SSHourMinSec::toString ( void )
     if ( sec >= 59.995 )
         return SSHourMinSec ( mod24h ( toHours() + 0.005 / 3600.0 ) ).toString();
     else
-        return ::format ( "%02hd %02hd %05.2f", hour, min, sec );
+        return formstr ( "%02hd %02hd %05.2f", hour, min, sec );
 }
 
 // Converts an angle in hours, minutes, seconds to a string with printf()-style format.
@@ -156,11 +156,11 @@ string SSHourMinSec::format ( const string &fmt )
     {
         size_t n = count ( fmt.begin(), fmt.end(), '%' );
         if ( n == 3 )
-            return ::format ( fmt.c_str(), hour, min, sec );
+            return formstr ( fmt.c_str(), hour, min, sec );
         else if ( n == 2 )
-            return ::format ( fmt.c_str(), hour, min + sec / 60.0 );
+            return formstr ( fmt.c_str(), hour, min + sec / 60.0 );
         else if ( n == 1 )
-            return ::format ( fmt.c_str(), hour + min / 60.0 + sec / 3600.0 );
+            return formstr ( fmt.c_str(), hour + min / 60.0 + sec / 3600.0 );
         else
             return toString();
     }

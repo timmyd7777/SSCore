@@ -377,9 +377,9 @@ string dm_to_string ( uint64_t dm )
         suffix = 's';
 
     if ( suffix > 0 )
-        return format ( "%c%02d %d%c", (int) sign, (int) zone, (int) num, (int) suffix );
+        return formstr ( "%c%02d %d%c", (int) sign, (int) zone, (int) num, (int) suffix );
     else
-        return format ( "%c%02d %d", (int) sign, (int) zone, (int) num );
+        return formstr ( "%c%02d %d", (int) sign, (int) zone, (int) num );
 }
 
 string tyc_to_string ( uint64_t tyc )
@@ -388,7 +388,7 @@ string tyc_to_string ( uint64_t tyc )
     uint64_t n = ( tyc - r * 1000000 ) / 10;
     uint64_t c = ( tyc - r * 1000000 - n * 10 );
     
-    return format ( "%04d-%04d-%d", (int) r, (int) n, (int) c );
+    return formstr ( "%04d-%04d-%d", (int) r, (int) n, (int) c );
 }
 
 uint64_t string_to_tyc ( string str )
@@ -413,9 +413,9 @@ string gj_to_string ( uint64_t gj )
     string comps = compvec[ c ];
 
     if ( d % 10 == 0 )
-        return format ( "%d", (int) d / 10 ) + comps;
+        return formstr ( "%d", (int) d / 10 ) + comps;
     else
-        return format ( "%.1f", d / 10.0 ) + comps;
+        return formstr ( "%.1f", d / 10.0 ) + comps;
 }
 
 uint64_t string_to_gj ( string str )
@@ -435,7 +435,7 @@ string glp_to_string ( uint64_t glp )
     uint64_t r = glp / 1000;
     uint64_t n = ( glp - r * 1000 );
     
-    return format ( "%d-%d", (int) r, (int) n );
+    return formstr ( "%d-%d", (int) r, (int) n );
 }
 
 uint64_t string_to_glp ( string str )
@@ -479,7 +479,7 @@ string wds_to_string ( uint64_t wds )
     else
         sign = '-';
 
-    return format ( "%05d%c%04d", (int) ra, (int) sign, (int) dec );
+    return formstr ( "%05d%c%04d", (int) ra, (int) sign, (int) dec );
 }
 
 uint64_t string_to_ngcic ( string str )
@@ -508,9 +508,9 @@ string ngcic_to_string ( uint64_t ngcic )
     uint64_t ext = ngcic - num * 10;
     
     if ( ext > 0 )
-        return format ( "%d%c", (int) num, (int) ext + 'A' - 1 );
+        return formstr ( "%d%c", (int) num, (int) ext + 'A' - 1 );
     else
-        return format ( "%d", (int) num );
+        return formstr ( "%d", (int) num );
 }
 
 uint64_t string_to_pngpk ( string str )
@@ -553,9 +553,9 @@ string pngpk_to_string ( uint64_t pngpk, SSCatalog cat )
         sign = '-';
     
     if ( cat == kCatPNG )
-        return format ( "%05.1f%c%04.1f", londec / 10.0, sign, latdec / 10.0 );
+        return formstr ( "%05.1f%c%04.1f", londec / 10.0, sign, latdec / 10.0 );
     else // kCatPK
-        return format ( "%03.0f%c%04.1f", londec / 10.0, sign, latdec / 10.0 );
+        return formstr ( "%03.0f%c%04.1f", londec / 10.0, sign, latdec / 10.0 );
 }
 
 SSIdentifier::SSIdentifier ( void )

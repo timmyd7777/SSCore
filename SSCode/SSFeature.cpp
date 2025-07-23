@@ -111,9 +111,9 @@ string SSFeature::toCSV ( void )
     csv += "\"" + _names[0] + "\",";
     csv += "\"" + _names[1] + "\",";
     csv += "\"" + _target + "\",";
-    csv += format ( "%.2f", _diameter ) + ",";
-    csv += format ( "%.5f", _lat ) + ",";
-    csv += format ( "%.5f", _lon ) + ",";
+    csv += formstr ( "%.2f", _diameter ) + ",";
+    csv += formstr ( "%.5f", _lat ) + ",";
+    csv += formstr ( "%.5f", _lon ) + ",";
     csv += _type_code + ",";
     csv += "\"" + _origin + "\",";
 
@@ -146,8 +146,8 @@ string SSCity::toCSV ( void )
     
     csv += _names[0] + ",";
     csv += _names[1] + ",";
-    csv += format ( "%.5f,", _lat );
-    csv += format ( "%.5f,", _lon );
+    csv += formstr ( "%.5f,", _lat );
+    csv += formstr ( "%.5f,", _lon );
     csv += _country_code + ",";
     csv += _admin1_code + ",";
     csv += to_string( _population ) + ",";
@@ -168,9 +168,9 @@ string SSCity::toCSV ( void )
     csv += _daylight_saving ? "1," : "0,";
 
     if ( int (_timezone_raw_offset * 100 ) % 10 != 0 ) {
-        csv += format ( "%.2f", _timezone_raw_offset );
+        csv += formstr ( "%.2f", _timezone_raw_offset );
     } else {
-        csv += format ( "%.1f", _timezone_raw_offset );
+        csv += formstr ( "%.1f", _timezone_raw_offset );
     }
 
     return csv;

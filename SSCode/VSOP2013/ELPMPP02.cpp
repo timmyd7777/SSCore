@@ -4627,13 +4627,13 @@ void ELPMPP02::printMainSeries ( ostream &out, const ELPMainSeries &ser )
         out << "_dist_main";
 
     int nt = (int) ser.terms.size() / TRUNC_FACTOR;
-    out << format ( " = { %d, %d, {\n", ser.iv, nt );
+    out << formstr ( " = { %d, %d, {\n", ser.iv, nt );
 
     for ( int k = 0; k < nt; k++ )
     {
         const ELPMainTerm &term = ser.terms[k];
         
-        out << format ( "{ %3d, %3d, %3d, %3d, %13.5f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f }",
+        out << formstr ( "{ %3d, %3d, %3d, %3d, %13.5f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f }",
                        term.i[0], term.i[1], term.i[2], term.i[3], term.a,
                        term.b[0], term.b[1], term.b[2], term.b[3], term.b[4], term.b[5] );
 
@@ -4666,20 +4666,20 @@ void ELPMPP02::printPertSeries ( ostream &out, const vector<ELPPertSeries> &pert
         const ELPPertSeries &ser = pert[k];
         
         int nt = (int) ser.terms.size() / TRUNC_FACTOR;
-        out << format ( "{ %d, %d, %d, {\n", ser.iv, ser.it, nt );
+        out << formstr ( "{ %d, %d, %d, {\n", ser.iv, ser.it, nt );
 
         for ( int i = 0; i < nt; i++ )
         {
             const ELPPertTerm &term = ser.terms[i];
             
-            out << format ( "{ %+.12e, %+.12e, ", term.s, term.c );
+            out << formstr ( "{ %+.12e, %+.12e, ", term.s, term.c );
             for ( int j = 0; j < 12; j++ )
-                out << format ( "%3d, ", term.i[j] );
+                out << formstr ( "%3d, ", term.i[j] );
             
             if ( i < nt - 1 )
-                out << format ( "%3d },\n", term.i[12] );
+                out << formstr ( "%3d },\n", term.i[12] );
             else
-                out << format ( "%3d }\n", term.i[12] );
+                out << formstr ( "%3d }\n", term.i[12] );
         }
         
         if ( k < pert.size() - 1 )

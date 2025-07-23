@@ -2281,7 +2281,7 @@ int SSTLE::write ( ostream &file )
     
     // format first line of orbital elements
     
-    string line1 = format ( "1 %05dU %-7s  %13.8f %c.%08.0f %c%05.0f%+1d %c%05.0f%+1d 0  %03d0",
+    string line1 = formstr ( "1 %05dU %-7s  %13.8f %c.%08.0f %c%05.0f%+1d %c%05.0f%+1d 0  %03d0",
              norad, tledesig.c_str(), epoch,
              xndt20 < 0 ? '-' : ' ', fabs ( xndt20 * 1.0e8 ),
              xndd60 < 0 ? '-' : ' ', fabs ( xndd60 ), iexp,
@@ -2291,7 +2291,7 @@ int SSTLE::write ( ostream &file )
     
     // format second line of orbital element
     
-    string line2 = format ( "2 %05d %8.4lf %8.4lf %07.0f %8.4lf %8.4lf %11.8lf%5d0",
+    string line2 = formstr ( "2 %05d %8.4lf %8.4lf %07.0f %8.4lf %8.4lf %11.8lf%5d0",
             norad, xincl0, xnode0, e0, omega0, xm0, xn0, revno );
     line2[68] = checksum ( line2 );
 
