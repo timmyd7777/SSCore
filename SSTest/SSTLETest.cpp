@@ -18,7 +18,7 @@ int main ( int argc, const char *argv[] )
     }
     else
     {
-        strlcpy ( tlepath, argv[1], sizeof ( tlepath ) );
+        strncpy ( tlepath, argv[1], sizeof ( tlepath ) );
     }
     
     // Open TLE file; exit on failure.

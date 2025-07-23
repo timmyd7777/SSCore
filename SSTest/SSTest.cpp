@@ -65,15 +65,15 @@ void TestTime ( void )
     SSTime now = SSTime::fromSystem();
     SSDate date = now;
 
-    cout << "Current local date is " << format ( "%04hd-%02hd-%0hd", date.year, date.month, date.day ) << endl;
-    cout << "Current local time is " << format ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
-    cout << "Current local time is " << format ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
-    cout << "Current Julian Date is " << format ( "%.6f", now.jd ) << endl;
+    cout << "Current local date is " << formstr ( "%04hd-%02hd-%0hd", date.year, date.month, date.day ) << endl;
+    cout << "Current local time is " << formstr ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
+    cout << "Current local time is " << formstr ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
+    cout << "Current Julian Date is " << formstr ( "%.6f", now.jd ) << endl;
 
     cout << "Current working directory is " << getcwd() << endl << endl;
 
     cout << "Before is "
-         << format("%04hd-%02hd-%02.0f %02hd:%02hd:%04.1f",
+         << formstr("%04hd-%02hd-%02.0f %02hd:%02hd:%04.1f",
               date.year,
               date.month,
               floor(date.day),
@@ -84,7 +84,7 @@ void TestTime ( void )
     SSTime time2 = date;
     SSDate date2 = time2;
     cout << "After is "
-         << format("%04hd-%02hd-%02.0f %02hd:%02hd:%04.1f",
+         << formstr("%04hd-%02hd-%02.0f %02hd:%02hd:%04.1f",
               date2.year,
               date2.month,
               floor(date2.day),
@@ -183,9 +183,9 @@ void TestSatellites ( string inputDir, string outputDir )
 
         tle.toPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
 
-        cout << format ( "JD %.6f  ", tle.jdepoch + 10.0 );
-        cout << format ( "pos %+10.3f %+10.3f %+10.3f  ", pos.x, pos.y, pos.z );
-        cout << format ( "vel %+7.3f %+7.3f %+7.3f",   vel.x, vel.y, vel.z ) << endl;
+        cout << formstr ( "JD %.6f  ", tle.jdepoch + 10.0 );
+        cout << formstr ( "pos %+10.3f %+10.3f %+10.3f  ", pos.x, pos.y, pos.z );
+        cout << formstr ( "vel %+7.3f %+7.3f %+7.3f",   vel.x, vel.y, vel.z ) << endl;
 
         SSTLE tle1 = tle;
         tle1.fromPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
@@ -332,9 +332,9 @@ void TestJPLDEphemeris ( string inputDir )
     for ( int id = 0; id <= 10; id++ )
     {
         jpldeph.compute ( id, jed, true, pos, vel );
-        cout << format ( "obj %2d  ", id );
-        cout << format ( "pos %+12.8f %+12.8f %+12.8f  ", pos.x, pos.y, pos.z );
-        cout << format ( "vel %+11.8f %+11.8f %+11.8f", vel.x, vel.y, vel.z ) << endl;
+        cout << formstr ( "obj %2d  ", id );
+        cout << formstr ( "pos %+12.8f %+12.8f %+12.8f  ", pos.x, pos.y, pos.z );
+        cout << formstr ( "vel %+11.8f %+11.8f %+11.8f", vel.x, vel.y, vel.z ) << endl;
     }
     
     jpldeph.close();
@@ -358,25 +358,25 @@ void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
         if ( isinf ( sunpass.rising.time ) )
             cout << "Sunrise:  none" << endl;
         else
-            cout << "Sunrise:  " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.rising.azm * SSAngle::kDegPerRad ) << endl;
+            cout << "Sunrise:  " << date.format ( "%H:%M:%S" ) << formstr ( " @ %.1f°", sunpass.rising.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( sunpass.setting.time );
         if ( isinf ( sunpass.setting.time ) )
             cout << "Sunset:   none" << endl;
         else
-            cout << "Sunset:   " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", sunpass.setting.azm * SSAngle::kDegPerRad ) << endl;
+            cout << "Sunset:   " << date.format ( "%H:%M:%S" ) << formstr ( " @ %.1f°", sunpass.setting.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( moonpass.rising.time );
         if ( isinf ( moonpass.rising.time ) )
             cout << "Moonrise: none" << endl;
         else
-            cout << "Moonrise: " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", moonpass.rising.azm * SSAngle::kDegPerRad ) << endl;
+            cout << "Moonrise: " << date.format ( "%H:%M:%S" ) << formstr ( " @ %.1f°", moonpass.rising.azm * SSAngle::kDegPerRad ) << endl;
 
         date = SSDate ( moonpass.setting.time );
         if ( isinf ( moonpass.setting.time ) )
             cout << "Moonset:  none" << endl << endl;
         else
-            cout << "Moonset:  " << date.format ( "%H:%M:%S" ) << format ( " @ %.1f°", moonpass.setting.azm * SSAngle::kDegPerRad ) << endl << endl;
+            cout << "Moonset:  " << date.format ( "%H:%M:%S" ) << formstr ( " @ %.1f°", moonpass.setting.azm * SSAngle::kDegPerRad ) << endl << endl;
 
         SSTime time = SSEvent::nextMoonPhase ( now, pSun, pMoon, SSEvent::kNewMoon );
         date = SSDate ( time );
@@ -434,13 +434,13 @@ void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
         for ( i = 0; i < numpasses; i++ )
         {
             SSDate date = SSDate ( passes[i].rising.time );
-            cout << format ( "Rise:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].rising.azm * SSAngle::kDegPerRad ) << endl;
+            cout << formstr ( "Rise:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].rising.azm * SSAngle::kDegPerRad ) << endl;
 
             date = SSDate ( passes[i].transit.time );
-            cout << format ( "Peak:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].transit.alt * SSAngle::kDegPerRad ) << endl;
+            cout << formstr ( "Peak:  %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].transit.alt * SSAngle::kDegPerRad ) << endl;
 
             date = SSDate ( passes[i].setting.time );
-            cout << format ( "Set:   %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].setting.azm * SSAngle::kDegPerRad ) << endl << endl;
+            cout << formstr ( "Set:   %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].setting.azm * SSAngle::kDegPerRad ) << endl << endl;
         }
     }
 }
@@ -476,12 +476,12 @@ void TestEphemeris ( string inputDir, string outputDir )
     SSSpherical here = { SSAngle ( SSDegMinSec ( '-', 122, 25, 09.9 ) ), SSAngle ( SSDegMinSec ( '+', 37, 46, 29.7 ) ), 0.026 };
     SSCoordinates coords ( now, here );
     
-    cout << format ( "Test Date: %04d/%02hd/%02hd", date.year, date.month, date.day ) << endl;
-    cout << format ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
-    cout << format ( "Test Zone: %+.1f hours", date.zone ) << endl;
-    cout << format ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;
-    cout << format ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
-    cout << format ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
+    cout << formstr ( "Test Date: %04d/%02hd/%02hd", date.year, date.month, date.day ) << endl;
+    cout << formstr ( "Test Time: %02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
+    cout << formstr ( "Test Zone: %+.1f hours", date.zone ) << endl;
+    cout << formstr ( "Test Longitude: %s", SSDegMinSec ( here.lon ).toString().c_str() ) << endl;
+    cout << formstr ( "Test Latitude:  %s", SSDegMinSec ( here.lat ).toString().c_str() ) << endl;
+    cout << formstr ( "Test Altitude:  %.0f m", here.rad * 1000.0 ) << endl << endl;
 
     coords.setAberration ( true );
     coords.setLightTime ( true );
@@ -521,11 +521,11 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << "Dec:  " << dec.format ( "%c%02hd° %02hd' %04.1f\"" ) << endl;
         cout << "Con:  " << con << endl;
         if ( dist > 0.1 )
-            cout << "Dist: " << format ( "%.6f AU", dist ) << endl;
+            cout << "Dist: " << formstr ( "%.6f AU", dist ) << endl;
         else
-            cout << "Dist: " << format ( "%.0f km", dist * coords.kKmPerAU ) << endl;
-        cout << "Mag:  " << format ( "%+.2f", mag ) << endl;
-        cout << "Illum: " << format ( "%.1f%%", p->illumination() * 100.0 ) << endl;
+            cout << "Dist: " << formstr ( "%.0f km", dist * coords.kKmPerAU ) << endl;
+        cout << "Mag:  " << formstr ( "%+.2f", mag ) << endl;
+        cout << "Illum: " << formstr ( "%.1f%%", p->illumination() * 100.0 ) << endl;
         
         // For moons, print RA (X) and Dec (Y) offset in arcsec from primary planet.
         
@@ -536,7 +536,7 @@ void TestEphemeris ( string inputDir, string outputDir )
             primaryDir = coords.transform ( kFundamental, kEquatorial, primaryDir );
             double x = modpi ( dir.lon - primaryDir.lon ) * SSAngle::kArcsecPerRad * cos ( primaryDir.lat );
             double y = modpi ( dir.lat - primaryDir.lat ) * SSAngle::kArcsecPerRad;
-            cout << format ( "X: %+.1f\" Y: %+.1f\"", x, y ) << endl;
+            cout << formstr ( "X: %+.1f\" Y: %+.1f\"", x, y ) << endl;
         }
         
         cout << endl;
@@ -582,8 +582,8 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << "RA:   " << ra.toString() << endl;
         cout << "Dec:  " << dec.toString() << endl;
         cout << "Con:  " << con << endl;
-        cout << "Dist: " << format ( "%.3f pc", dist ) << endl;
-        cout << "Mag:  " << format ( "%+.2f", mag ) << endl << endl;
+        cout << "Dist: " << formstr ( "%.3f pc", dist ) << endl;
+        cout << "Mag:  " << formstr ( "%+.2f", mag ) << endl << endl;
     }
 }
 
@@ -604,12 +604,12 @@ void TestELPMPP02 ( const string &datadir )
     {
         SSVector pos, vel;
         double jed = testjd[i];
-        cout << format ( "JD %.1f", jed ) << endl;
+        cout << formstr ( "JD %.1f", jed ) << endl;
         elp.computePositionVelocity ( jed, pos, vel );
         pos *= SSCoordinates::kKmPerAU;
         vel *= SSCoordinates::kKmPerAU;
-        cout << format ( "moon pos: %+13.5f  %+13.5f  %+13.5f km  ", pos.x, pos.y, pos.z );
-        cout << format ( "vel: %+13.5f  %+13.5f  %+13.5f km/day", vel.x, vel.y, vel.z ) << endl;
+        cout << formstr ( "moon pos: %+13.5f  %+13.5f  %+13.5f km  ", pos.x, pos.y, pos.z );
+        cout << formstr ( "vel: %+13.5f  %+13.5f  %+13.5f km/day", vel.x, vel.y, vel.z ) << endl;
     }
     
     cout << endl;
@@ -640,12 +640,12 @@ void TestVSOP2013 ( const string &datadir )
     {
         SSVector pos, vel;
         
-        cout << format ( "JD %.1f\n", jed );
+        cout << formstr ( "JD %.1f\n", jed );
         for ( int iplanet = 1; iplanet <= 9; iplanet++ )
         {
             vsop2013.computePositionVelocity ( iplanet, jed, pos, vel );
-            cout << format ( "planet %d pos: %+14.10f  %+14.10f  %+14.10f AU  ", iplanet, pos.x, pos.y, pos.z );
-            cout << format ( "vel: %+13.10f  %+13.10f  %+13.10f AU/day", vel.x, vel.y, vel.z ) << endl;
+            cout << formstr ( "planet %d pos: %+14.10f  %+14.10f  %+14.10f AU  ", iplanet, pos.x, pos.y, pos.z );
+            cout << formstr ( "vel: %+13.10f  %+13.10f  %+13.10f AU/day", vel.x, vel.y, vel.z ) << endl;
         }
     }
     
