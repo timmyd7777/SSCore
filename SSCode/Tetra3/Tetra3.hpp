@@ -139,6 +139,8 @@ struct T3Options
     float match_radius;             // Maximum distance to a star to be considered a match as a fraction of the image field of view.
     float match_threshold;          // Maximum allowed mismatch probability to consider a tested pattern a valid match.
     uint8_t num_threads;            // Number of parallel threads to run; if zero, run synchronously on current thread.
+    bool check_all_patterns;        // If true, check all patterns in the image and return the best match, i.e. with lowest false match probability (below match_threshold)
+                                    // if false, return after finding the first pattern which matches with a false-match probability below match_threshold; much faster but more likely to give false solutions.
 };
 
 // Results of an attempt to solve a set of sources.
@@ -163,6 +165,7 @@ struct T3Results
     
     bool imageXYtoRADec ( float x, float y, float width, float height, double &ra, double &dec );
     bool raDectoImageXY ( double ra, double dec, float width, float height, float &x, float &y );
+    void setRotationMatrix ( double ra, double dec, double roll );
 };
 
 // Contains a Tetra3 database of patterns and stars, and associated metadata.
@@ -223,6 +226,7 @@ public:
     bool loadOptimized ( const std::string &path, bool loadPatterns = false );
     bool saveOptimized ( const std::string &path );
     bool isLoaded ( void ) { return loaded; }
+    void combineDatabase ( const T3Database &other );
     
     T3PatternVectors getStarPatternVectors ( const T3Pattern &pattern );
     size_t getStarPatternVectors ( const std::vector<T3Pattern> &patterns, std::vector<T3PatternVectors> &pattern_vectors );
@@ -239,7 +243,7 @@ private:
     std::vector<SSVector> computeVectors ( const std::vector<T3Source> &sources, float fov, float width, float height );
     std::vector<T3Pattern> generatePatternsFromCentroids ( const std::vector<T3Source> &sources, int pattern_size );
     SSMatrix findRotationMatrix ( const std::vector<SSVector> &image_vectors, const std::vector<SSVector> &catalog_vectors );
-    std::vector<SSVector> getNearbyStarVectors ( const SSVector &vector, double radius, int max_stars );
+    std::vector<SSVector> getNearbyStarVectors ( const SSVector &vector, double radius );
 
 public:
     

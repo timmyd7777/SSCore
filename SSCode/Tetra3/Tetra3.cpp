@@ -189,6 +189,16 @@ bool T3Results::raDectoImageXY ( double ra, double dec, float width, float heigh
     return true;
 }
 
+void T3Results::setRotationMatrix ( double ra, double dec, double roll )
+{
+    this->ra = radtodeg ( ra );
+    this->dec = radtodeg ( dec );
+    this->roll = radtodeg ( roll );
+    this->rmat = SSMatrix::rotations ( 3, 0, fabs ( roll ), 1, dec, 2, ra );
+    if ( roll < 0.0 )
+        this->rmat.negateMiddleRow();
+}
+
 void T3Database::addPattern ( const T3Pattern &pat )
 {
     // retrieve the vectors of the stars in the pattern
@@ -416,6 +426,55 @@ bool T3Database::loadFromNumPy ( const std::string &path )
     optimize();
     loaded = true;
     return true;
+}
+
+// Combines another Tetra database into this database.
+void T3Database::combineDatabase ( const T3Database &other )
+{
+    // Update field of view limits
+    if ( other.max_fov > max_fov )
+        max_fov = other.max_fov;
+    if ( other.min_fov < min_fov )
+        min_fov = other.min_fov;
+    
+    // Update RA range
+    if ( other.range_ra[0] < range_ra[0] )
+        range_ra[0] = other.range_ra[0];
+    if ( other.range_ra[1] > range_ra[1] )
+        range_ra[1] = other.range_ra[1];
+    
+    // Update Dec range
+    if ( other.range_dec[0] < range_dec[0] )
+        range_dec[0] = other.range_dec[0];
+    if ( other.range_dec[1] > range_dec[1] )
+        range_dec[1] = other.range_dec[1];
+    
+    // Add stars from other database
+    int ssize = stars.size();
+    for ( int i = 0; i < other.stars.size(); i++ )
+        addStar ( other.stars[i] );
+    
+    // Save copy of patterns in this database. Enlarge pattern index to hold patterns from this and other database.
+    vector<T3Pattern> oldPatterns = patterns;
+    newPatterns ( patterns.size() + other.patterns.size() );
+    
+    // Clear this database's pattern vector, then restore saved patterns from this database to new index locations.
+    patterns.clear();
+    for ( int i = 0; i < oldPatterns.size(); i++ )
+        addPattern ( patterns[i] );
+    
+    // Add patterns from other database, with star indices updated
+    for ( int i = 0; i < other.patterns.size(); i++ )
+    {
+        T3Pattern pat = other.patterns[i];
+        for ( int s = 0; s < 4; s++ )
+            pat.stars[s] += ssize;
+        addPattern ( pat );
+    }
+    
+    // update star and pattern counts
+    nstars = stars.size();
+    npatterns = patterns.size();
 }
 
 // Optimizes database loaded from python tetra NumPy .npz format.
@@ -735,7 +794,7 @@ SSMatrix Tetra3::findRotationMatrix ( const std::vector<SSVector> &image_vectors
 
 // Get stars within radius radians of the vector.
 
-std::vector<SSVector> Tetra3::getNearbyStarVectors ( const SSVector &vector, double radius, int max_stars )
+std::vector<SSVector> Tetra3::getNearbyStarVectors ( const SSVector &vector, double radius )
 {
     std::vector<SSVector> nearby_star_vectors;
     
@@ -746,8 +805,6 @@ std::vector<SSVector> Tetra3::getNearbyStarVectors ( const SSVector &vector, dou
         SSVector star_vector ( star.xyz[0], star.xyz[1], star.xyz[2] );
         if ( star_vector.dotProduct ( vector ) > cosrad )
             nearby_star_vectors.push_back ( star_vector );
-        if ( nearby_star_vectors.size() >= max_stars )
-            break;
     }
     
     return nearby_star_vectors;
@@ -825,9 +882,12 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
             for ( int j = i + 1; j < pattern_sources.size(); j++ )
                 pattern_largest_distance = std::max ( pattern_largest_distance, pattern_sources[i].distance ( pattern_sources[j] ) );
     
+    vector<T3Results> all_results;  // vector of all possible matching solutions
+    mutex all_results_mtx;          // for managing concurrent access to all_results from multiple threads
+    
     // This internal lambda function does the real work. It tests a single pattern of four sources in the input image
     // and returns true if the pattern results in a sucessful solution. It can be called in parallel, by multiple threads.
-    
+
     auto solveFromPattern = [&] ( const T3Pattern &pattern ) -> bool
     {
         std::vector<T3Source> image_centroids;
@@ -923,25 +983,33 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
                 
                 SSVector image_center_vector = rotation_matrix.col ( 0 );
                 double fov_diagonal_rad = fov * hypot ( width, height ) / width / 2.0;
-                std::vector<SSVector> nearby_star_vectors = getNearbyStarVectors ( image_center_vector, fov_diagonal_rad, db.verification_stars_per_fov );
+                std::vector<SSVector> nearby_star_vectors = getNearbyStarVectors ( image_center_vector, fov_diagonal_rad );
                 
-                // Match the nearby star vectors to the proposed measured star vectors
+                // Match the nearby star vectors to the proposed measured source vectors
                 
-                double cosrad = cos ( args.match_radius * fov );
+                double match_sep = args.match_radius * fov;
+                std::vector<double> match_separations ( rotated_star_vectors.size() );
                 std::vector<SSVector> match_image_sources, match_catalog_stars;
+
+                // for each star in the source image, find the closest catalog star
+                
                 for ( int i = 0; i < rotated_star_vectors.size(); i++ )
                 {
-                    int sum = 0, jmatch = 0;
+                    int jmatch = 0;
+                    match_separations[i] = M_PI;
                     for ( int j = 0; j < nearby_star_vectors.size(); j++ )
                     {
-                        if ( nearby_star_vectors[j].dotProduct ( rotated_star_vectors[i] ) > cosrad )
+                        double sep = nearby_star_vectors[j].angularSeparation( rotated_star_vectors[i] );
+                        if ( sep < match_sep && sep < match_separations[i] )
                         {
-                            sum++;
+                            match_separations[i] = sep;
                             jmatch = j;
                         }
                     }
                 
-                    if ( sum == 1 )
+                    // If angular spearation from image source to closest catalog star is less than threshold, we have a match!
+                    
+                    if ( match_separations[i] < match_sep )
                     {
                         match_image_sources.push_back ( all_star_vectors[i] );
                         match_catalog_stars.push_back ( nearby_star_vectors[jmatch] );
@@ -980,37 +1048,51 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
                     double dec = atan2 ( rotation_matrix.m20, hypot ( rotation_matrix.m21, rotation_matrix.m22 ) );
                     double roll = atan2pi ( rotation_matrix.m21, rotation_matrix.m22 );
 
-                    results.ra  = radtodeg ( ra );
-                    results.dec = radtodeg ( dec );
-                    results.roll = radtodeg ( roll ) * ( det < 0 ? -1 : 1 );
-                    results.fov = radtodeg ( fov );
-                    results.matches = match_image_sources.size();
-                    results.prob = prob_mismatch;
-                    results.rmse = radtodeg ( residual ) * 3600.0;   // arcseconds
-                    results.rmat = rotation_matrix;
-                    return true;
+                    T3Results result;
+                    result.ra  = radtodeg ( ra );
+                    result.dec = radtodeg ( dec );
+                    result.roll = radtodeg ( roll ) * ( det < 0 ? -1 : 1 );
+                    result.fov = radtodeg ( fov );
+                    result.matches = match_image_sources.size();
+                    result.prob = prob_mismatch;
+                    result.rmse = radtodeg ( residual ) * 3600.0;   // arcseconds
+                    result.rmat = rotation_matrix;
+
+                    // We found a solution with a false-metch probability below our required threshold.
+                    // Add it to the vector of all possible solutions; multiple threads may do this; use mutex to manage access.
+                    
+                    all_results_mtx.lock();
+                    all_results.push_back ( result );
+                    all_results_mtx.unlock();
+                    
+                    // If we're not checking all patterns in the input image source list, we accept the first solution,
+                    // so we're done. Otherwise, we'll exhaustively search for more solutions among all patterns in the image.
+                    
+                    if ( ! args.check_all_patterns )
+                        return true;
                 }
             }
         }
         
-        return false;
+        // We've now searched every pattern in the input image souce list for a solution with false-match
+        // probability below the required threhold. Return true if we found any, false if we found none.
+        
+        return all_results.size() > 0;
     };
     
     // This lambda processes part of vector of patterns, so the entire vector of patterns can be
     // divided among multiple threads that process them in parallel.
     // The "solved" flag indicates when one thread has solved successfully. At that point, all threads can exit.
     
-    std::atomic_bool solved = false;
-    auto solveFromPatterns = [&] ( const std::vector<T3Pattern> &patterns, int start, int step ) -> bool
+    auto solveFromPatterns = [&] ( const std::vector<T3Pattern> &patterns, int start, int step )
     {
-        for ( size_t i = start; i < patterns.size() && solved == false; i += step )
+        for ( size_t i = start; i < patterns.size(); i += step )
         {
             std::this_thread::yield();
-            if ( solveFromPattern ( patterns[i] ) )
-                solved = true;
+            solveFromPattern ( patterns[i] );
+            if ( ! args.check_all_patterns && all_results.size() > 0 )
+                break;
         }
-        
-        return solved;
     };
     
     // If no threading specified, process all patterns found in the image synchronously.
@@ -1019,7 +1101,7 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
     std::chrono::time_point t0_solve = std::chrono::high_resolution_clock::now();
     if ( args.num_threads == 0 )
     {
-        solved = solveFromPatterns ( image_patterns, 0, 1 );
+        solveFromPatterns ( image_patterns, 0, 1 );
     }
     else
     {
@@ -1031,6 +1113,16 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
             threads[i].join();
     }
     
+    // Now find the solution with the lowest probability of being a false match
+    bool solved = all_results.size() > 0;
+    if ( solved )
+    {
+        results = all_results[0];
+        for ( int i = 1; i < all_results.size(); i++ )
+            if ( all_results[i].prob < results.prob )
+                results = all_results[i];
+    }
+
     // Solved or failed in this time
     std::chrono::duration<double> t_solve = std::chrono::high_resolution_clock::now() - t0_solve;
     results.t_solve = t_solve.count() * 1000.0;
