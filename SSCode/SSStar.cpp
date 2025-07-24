@@ -1089,7 +1089,7 @@ string SSStar::formatSpectrum ( int spectype, int lumclass )
     return spectrum;
 }
 
-// Returns informstrion for the given spectral type and luminosity class;
+// Returns information for the given spectral type and luminosity class;
 // values that cannot be determined will be INFINITY.
 
 SSStar::SpecInfo SSStar::spectralClassInfo ( int spectype, int lumclass )
@@ -1435,7 +1435,7 @@ string SSDeepSky::toCSV ( void )
         return toCSV1() + toCSVDS() + toCSV2();
 }
 
-// Allocates a new SSStar and initializes it from a CSV-formstrted string.
+// Allocates a new SSStar and initializes it from a CSV-formatted string.
 // Returns nullptr on error (invalid CSV string, heap allocation failure, etc.)
 
 SSObjectPtr SSStar::fromCSV ( string csv )

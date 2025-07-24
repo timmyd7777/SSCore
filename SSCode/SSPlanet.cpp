@@ -76,7 +76,7 @@ string SSPlanet::getTypeName ( void )
     return typeToName ( _type );
 }
 
-// Returns solar system object name and number in string formstr. Examples:
+// Returns solar system object name and number in string format. Examples:
 // Planets and Moons: "Sun", "Moon", "Mercury", "Venus", "Earth", etc.
 // Asteroids: "(1) Ceres", "(2) Pallas", "2019 AJ16", "(15504)"
 // Comets: "1P (Halley)", "2P (Encke), "C/1995 O1 (Hale-Bopp)"
@@ -618,7 +618,7 @@ void SSPlanet::computeEphemeris ( SSCoordinates &coords )
         _magnitude = computeMagnitude ( _position.magnitude(), _distance, beta );
     }
     
-    // Compute planetographic-to-fundamental transformstrion matrix.
+    // Compute planetographic-to-fundamental transformation matrix.
     // For satellites, this has already been done in computePositionVelocity().
     
     if ( _type != kTypeSatellite )
