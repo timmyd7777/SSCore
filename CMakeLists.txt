@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-message(status "CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}")
+message(STATUS "CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}")
 set(SOURCEDIR "${CMAKE_CURRENT_LIST_DIR}/SSCode")
 set(SOURCEMAINDIR "${CMAKE_CURRENT_LIST_DIR}/SSTest/")
 
@@ -148,22 +148,22 @@ target_link_libraries(sstletest PRIVATE sscore)
 # ------------------------------------------------------------------
 
 add_custom_target(run
-    COMMAND sstest ../../SSData .
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/sstest ${CMAKE_CURRENT_LIST_DIR}/SSData .
     DEPENDS sstest
 )
 
 add_custom_target(runmount
-    COMMAND sudo ssmounttest
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ssmounttest
     DEPENDS ssmounttest
 )
 
 add_custom_target(runtetra
-    COMMAND sstetratest ../../SSData/Stars/Tetra3.npz
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/sstetratest ${CMAKE_CURRENT_LIST_DIR}/SSData/Stars/Tetra3.npz
     DEPENDS sstetratest
 )
 
 add_custom_target(runtle
-    COMMAND sstletest ../../SSData/SolarSystem/Satellites/brightest.txt
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/sstletest ${CMAKE_CURRENT_LIST_DIR}/SSData/SolarSystem/Satellites/brightest.txt
     DEPENDS sstletest
 )
-
+message( STATUS "CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
