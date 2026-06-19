@@ -47,7 +47,7 @@ SSHTM::SSHTM ( const vector<float> &magLevels, const string &rootpath )
     _magLevels = magLevels;
     
     _rootpath = rootpath;
-    if ( _rootpath[ _rootpath.length() - 1 ] != '/' )
+    if ( _rootpath.length() > 0 && _rootpath.back() != '/' )
         _rootpath += '/';
 }
 

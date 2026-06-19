@@ -446,6 +446,9 @@ extern string cleanHIPNameString ( string str );
 
 static string strip_component ( string &name )
 {
+    if ( name.length() < 1 )
+        return name;
+    
     char c = name.back();
     if ( c == 'A' || c == 'B' || c == 'C' || c == 'D' )
         name.erase ( name.length() - 1 );
@@ -638,7 +641,7 @@ int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames,
         // If this star has a double star component string, look for a matching WDS star and get its primary component.
         // First search the ORB6 binary orbit stars; if that fails, search the larger WDS catalog.
         
-        char comp = fields[41].back();
+        char comp = fields[41].length() > 0 ? fields[41].back() : 0;
         if ( comp < 'A' || comp > 'D' )
             comp = 0;
         char primComp = 0;
