@@ -72,6 +72,17 @@ For binary stars with orbits, the **_Comp_** field contains two characters: firs
 - Version 3.0 (9 Feb 2023): Added identifiers, positions, motions, and distances fom GAIA DR3.
 - Version 3.1 (11 Feb 2023): Keep original SKY2000 positions to preserve double stars. Use identifiers, motions, radial velocities, and parallaxes fom GAIA DR3.
 
+SKY2000.csv
+-----------
+
+This is the entire NASA [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145), updated just like **Brightest.csv** with data from the other star catalogs described above. It contains all 299,160 stars from SKY2000.
+
+The column format is identical to that of **Brightest.csv**, above.
+
+**Revision History**
+
+- Version 1.0 (23 Jun 2026): initial version
+
 Nearest.csv
 -----------
 
@@ -79,7 +90,7 @@ This list of the 377 nearest stars is primarily based on data from [The 10-parse
 
 Missing names, identifiers, and magnitudes were added from the [Gliese-Jahreiss Catalog of Nearby Stars](https://heasarc.gsfc.nasa.gov/W3Browse/star-catalog/cns3.html) 3rd Edition, the [RECONS](http://www.recons.org/TOP100.posted.htm) list of 160 nearest stars, cross-referenced with [this list](http://www.ieti.org/articles/crossref.pdf) by Gerald Nordley, and NASA's [SKY2000 Master Star Catalog](https://cdsarc.unistra.fr/ftp/V/145). Binary star orbital data was added from the [Sixth Catalog of Orbits of Visual Binary Stars](http://www.astro.gsu.edu/wds/orb6.html). Double star identifiers and data were added from the [Washington Double Star Catalog](http://www.astro.gsu.edu/wds/). Variable star data was added from the [General Catalogue of Variable Stars version 5.1](http://www.sai.msu.su/gcvs/gcvs/intr.htm). 
 
-The column format is identical to that of **Stars.csv**, above. The preferred order for the catalog identifiers and names is: Bayer or GCVS, Flamsteed, GJ, HD, DM, HIP, then common names. 
+The column format is identical to that of **Brightest.csv**, above. The preferred order for the catalog identifiers and names is: Bayer or GCVS, Flamsteed, GJ, HD, DM, HIP, then common names. 
 
 **Revision History**
 
