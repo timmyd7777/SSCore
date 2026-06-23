@@ -108,3 +108,24 @@ This deep sky object name list is based primarily on Wolfgang Steinicke's NGC-IC
 **Revision History**
 
 - Version 1.0 (27 Mar 2020): initial version
+
+MilkyWay.csv
+------------
+
+This file was adapted from original data provided by Charles Turner in 2002. Turner's data was based on digitizations of Milky Way boundaries in modern star atlases. The original author of these Milky Way boundaries is unclear, but is probably [Wil Tirion](https://www.wil-tirion.com/wil-tirion.com/Homepage.html) based on comparisons with the Milky Way in many Tirion star atlases.
+
+This boundary data divides the Milky Way into 85 regions, including the Large and Small Magellanic Clouds, and the Coalsack dark nebula. Each region is a polygon defined by a set of points. Each point may be an edge, or an inner polygon-closing point. Use all points to draw a region as a filled polygon. Use only the edge points to draw an outline of the Milky Way (no fill).
+
+Region 83 is the SMC, 84 is the LMC, and 85 is the Coalsack. 
+
+The column format is RA, Dec, Region, Edge:
+
+- **_RA_** is J2000 right ascension in decimal degrees
+- **_Dec_** is J2000 declination in decimal egrees
+- **_Region_** is Milky Way region number
+- **_Edge_** is 1 if this is a Milky Way boundary edge point, or 0 if this is an internal polygon-closing point.
+
+**Revision History**
+
+- Version 1.0 (23 June 2026): initial version
+
