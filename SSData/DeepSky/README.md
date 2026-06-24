@@ -97,6 +97,19 @@ The column format is identical to that of **Messer.csv**, above.
 - Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 - Version 1.2.1 (19 June 2020): Added dimensions of C99 (Coalsack) from Wikipedia.
 
+MCNGCIC.csv
+-----------
+
+This file is the Messier and Caldwell catalogs above, supplemented with all other NGC and IC objects from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/index_e.htm). This combined catalog contains 13,033 entries.
+
+NGC-IC objects which are duplicates of other objects are discarded; instead, the other object receives an additional NGC or IC identifier: that of the duplicate. Nonexistent NGC-IC objects have type "NO" in the first column. The goal is to have every NGC-IC entry represented once, but not more than once. This catalog adds distances, proper motions, and radial velocities from other catalogs for open and globulars clusters and planetary nebulae, as described above for **Messier.csv**.
+
+The column format is identical to that of **Messer.csv**, above.
+
+**Revision History**
+
+- Version 1.0 (23 Jun 2026): initial version
+
 Names.csv
 ---------
 
@@ -112,7 +125,7 @@ This deep sky object name list is based primarily on Wolfgang Steinicke's NGC-IC
 MilkyWay.csv
 ------------
 
-This file was adapted from original data provided by Charles Turner in 2002. Turner's data was based on digitizations of Milky Way boundaries in modern star atlases. The original author of these Milky Way boundaries is unclear, but is probably [Wil Tirion](https://www.wil-tirion.com/wil-tirion.com/Homepage.html) based on comparisons with the Milky Way in many Tirion star atlases.
+This file was adapted from original data provided by Charles Turner in 2002, used in the venerable [Voyager](https://www.carinasoft.com/voyager.html) desktop planetarium. Turner's data was based on digitizations of Milky Way boundaries in modern star atlases. The original author of these Milky Way boundaries is unclear, but is probably [Wil Tirion](https://www.wil-tirion.com/wil-tirion.com/Homepage.html) based on comparisons with the Milky Way in many Tirion star atlases.
 
 This boundary data divides the Milky Way into 85 regions, including the Large and Small Magellanic Clouds, and the Coalsack dark nebula. Each region is a polygon defined by a set of points. Each point may be an edge, or an inner polygon-closing point. Use all points to draw a region as a filled polygon. Use only the edge points to draw an outline of the Milky Way (no fill).
 
