@@ -19,6 +19,7 @@ See the SolarSystem README for the locations of the source files.
 import csv
 
 POPULATION_MIN = 100000
+INCLUDE_CAPITALS = 1  # if 1, include country capital cities regardless of population
 
 TYPE_CODE = 'CT'
 
@@ -66,8 +67,11 @@ def readFile(path, delimiter, columns=None):
 
 def getCities():
     cities1000 = readFile(CITIES_PATH, '\t', cities1000_cols)
-    cities1000 = [city for city in cities1000 if int(city['population']) >= POPULATION_MIN]
+    cities1000 = [city for city in cities1000 if int(city['population']) >= POPULATION_MIN
+                   or (INCLUDE_CAPITALS and city['feature code'] == 'PPLC')]
     print('FILTERED CITIES ON POPULATION >=', POPULATION_MIN)
+    if INCLUDE_CAPITALS:
+        print('INCLUDING COUNTRY CAPITALS (PPLC) REGARDLESS OF POPULATION')
     print('NUMBER OF CITIES: ', len(cities1000))
     return cities1000
 

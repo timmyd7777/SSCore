@@ -1,3 +1,4 @@
+CT,Andorra la Vella,Andorra la Vella,42.50779,1.52109,AD,07,20430,,Europe/Andorra,Andorra la Vella,1,1.0
 CT,Ras Al Khaimah City,Ras Al Khaimah City,25.78953,55.9432,AE,05,351943,,Asia/Dubai,Imarat Ra's al Khaymah,0,4.0
 CT,Dubai,Dubai,25.07725,55.30927,AE,03,2956587,,Asia/Dubai,Dubai,0,4.0
 CT,Sharjah,Sharjah,25.33737,55.41206,AE,06,1324473,,Asia/Dubai,Sharjah,0,4.0
@@ -14,6 +15,8 @@ CT,Ghazni,Ghazni,33.55391,68.42096,AF,08,141000,,Asia/Kabul,Ghazni,0,4.5
 CT,Gardez,Gardez,33.59744,69.22592,AF,36,103601,,Asia/Kabul,Paktia,0,4.5
 CT,Balkh,Balkh,36.75635,66.8972,AF,30,114883,,Asia/Kabul,Balkh,0,4.5
 CT,Baghlān,Baghlan,36.13068,68.70829,AF,03,108449,,Asia/Kabul,Baghlan,0,4.5
+CT,Saint John’s,Saint John's,17.12096,-61.84329,AG,04,24226,,America/Antigua,Saint John,0,-4.0
+CT,The Valley,The Valley,18.21704,-63.05783,AI,11205396,2035,7,America/Anguilla,The Valley,0,-4.0
 CT,Elbasan,Elbasan,41.1125,20.08222,AL,43,100903,,Europe/Tirane,Elbasan,1,1.0
 CT,Tirana,Tirana,41.3275,19.81889,AL,50,374801,,Europe/Tirane,Tirana,1,1.0
 CT,Durrës,Durres,41.32355,19.45469,AL,42,122034,,Europe/Tirane,Durres,1,1.0
@@ -66,6 +69,7 @@ CT,Bahía Blanca,Bahia Blanca,-38.71959,-62.27243,AR,01,276546,,America/Argentin
 CT,Balvanera,Balvanera,-34.61032,-58.39766,AR,07,152198,,America/Argentina/Buenos_Aires,Buenos Aires F.D.,0,-3.0
 CT,San Miguel,San Miguel,-34.54335,-58.71229,AR,01,157532,,America/Argentina/Buenos_Aires,Buenos Aires,0,-3.0
 CT,José C. Paz,Jose C. Paz,-34.51541,-58.76813,AR,01,230208,,America/Argentina/Buenos_Aires,Buenos Aires,0,-3.0
+CT,Pago Pago,Pago Pago,-14.27806,-170.7025,AS,010,11500,2,Pacific/Pago_Pago,Eastern District,0,-11.0
 CT,Vienna,Vienna,48.20849,16.37208,AT,09,1691468,171,Europe/Vienna,Vienna,1,1.0
 CT,Simmering,Simmering,48.18333,16.43333,AT,09,101420,,Europe/Vienna,Vienna,1,1.0
 CT,Salzburg,Salzburg,47.79941,13.04399,AT,05,153377,424,Europe/Vienna,Salzburg,1,1.0
@@ -95,6 +99,8 @@ CT,Cairns,Cairns,-16.92366,145.76613,AU,04,153075,,Australia/Brisbane,Queensland
 CT,Brisbane,Brisbane,-27.46794,153.02809,AU,04,2189878,,Australia/Brisbane,Queensland,0,10.0
 CT,Bendigo,Bendigo,-36.75818,144.28024,AU,07,100617,,Australia/Melbourne,Victoria,1,10.0
 CT,Logan City,Logan City,-27.63917,153.10944,AU,04,282673,,Australia/Brisbane,Queensland,0,10.0
+CT,Oranjestad,Oranjestad,12.52398,-70.02703,AW,00,29998,5,America/Aruba,,0,-4.0
+CT,Mariehamn,Mariehamn,60.09726,19.93481,AX,211,10682,,Europe/Mariehamn,Mariehamns stad,1,2.0
 CT,Lankaran,Lankaran,38.75428,48.85062,AZ,29,240300,,Asia/Baku,Lankaran,0,4.0
 CT,Yevlakh,Yevlakh,40.61832,47.15014,AZ,68,127400,,Asia/Baku,Yevlax City,0,4.0
 CT,Sumqayıt,Sumqayit,40.58972,49.66861,AZ,54,265150,,Asia/Baku,Sumqayit,0,4.0
@@ -105,6 +111,7 @@ CT,Tuzla,Tuzla,44.53842,18.66709,BA,01,142486,,Europe/Sarajevo,Federation of B&H
 CT,Sarajevo,Sarajevo,43.84864,18.35644,BA,01,696731,,Europe/Sarajevo,Federation of B&H,1,1.0
 CT,Mostar,Mostar,43.34333,17.80806,BA,01,104518,,Europe/Sarajevo,Federation of B&H,1,1.0
 CT,Banja Luka,Banja Luka,44.77842,17.19386,BA,02,221106,,Europe/Sarajevo,Srpska,1,1.0
+CT,Bridgetown,Bridgetown,13.10732,-59.62021,BB,08,98511,,America/Barbados,Saint Michael,0,-4.0
 CT,Tungi,Tungi,23.89154,90.40232,BD,81,337579,,Asia/Dhaka,Dhaka,0,6.0
 CT,Sylhet,Sylhet,24.89904,91.87198,BD,86,237000,,Asia/Dhaka,Sylhet,0,6.0
 CT,Jamālpur,Jamalpur,24.91965,89.94812,BD,H,167900,,Asia/Dhaka,Mymensingh Division,0,6.0
@@ -161,6 +168,7 @@ CT,Pleven,Pleven,43.41667,24.61667,BG,50,118675,,Europe/Sofia,Pleven,1,2.0
 CT,Burgas,Burgas,42.50606,27.46781,BG,39,195966,,Europe/Sofia,Burgas,1,2.0
 CT,Manama,Manama,26.22787,50.58565,BH,16,147074,,Asia/Bahrain,Manama,0,3.0
 CT,Bujumbura,Bujumbura,-3.38193,29.36142,BI,24,331700,,Africa/Bujumbura,Bujumbura Mairie,0,2.0
+CT,Gitega,Gitega,-3.42708,29.92463,BI,13,41000,,Africa/Bujumbura,Gitega,0,2.0
 CT,Porto-Novo,Porto-Novo,6.49646,2.60359,BJ,16,234168,,Africa/Porto-Novo,Oueme,0,1.0
 CT,Parakou,Parakou,9.33716,2.63031,BJ,10,163753,,Africa/Porto-Novo,Borgou,0,1.0
 CT,Kandi,Kandi,11.13417,2.93861,BJ,07,109701,,Africa/Porto-Novo,Alibori,0,1.0
@@ -168,6 +176,9 @@ CT,Djougou,Djougou,9.70853,1.66598,BJ,13,237040,,Africa/Porto-Novo,Donga,0,1.0
 CT,Cotonou,Cotonou,6.36536,2.41833,BJ,14,780000,,Africa/Porto-Novo,Littoral,0,1.0
 CT,Bohicon,Bohicon,7.17826,2.0667,BJ,18,125092,,Africa/Porto-Novo,Zou,0,1.0
 CT,Abomey-Calavi,Abomey-Calavi,6.44852,2.35566,BJ,09,385755,,Africa/Porto-Novo,Atlantique,0,1.0
+CT,Gustavia,Gustavia,17.89618,-62.84978,BL,00,5988,,America/St_Barthelemy,,0,-4.0
+CT,Hamilton,Hamilton,32.2949,-64.78303,BM,03,902,,Atlantic/Bermuda,Hamilton city,1,-4.0
+CT,Bandar Seri Begawan,Bandar Seri Begawan,4.89035,114.94006,BN,02,64409,,Asia/Brunei,Brunei-Muara District,0,8.0
 CT,Tarija,Tarija,-21.53549,-64.72956,BO,09,159269,,America/La_Paz,Tarija,0,-4.0
 CT,Sucre,Sucre,-19.03332,-65.26274,BO,01,224838,,America/La_Paz,Chuquisaca,0,-4.0
 CT,Santa Cruz de la Sierra,Santa Cruz de la Sierra,-17.78629,-63.18117,BO,08,1364389,,America/La_Paz,Santa Cruz,0,-4.0
@@ -176,6 +187,7 @@ CT,Potosí,Potosi,-19.58361,-65.75306,BO,07,141251,,America/La_Paz,Potosi,0,-4.0
 CT,Oruro,Oruro,-17.98333,-67.15,BO,05,208684,,America/La_Paz,Oruro,0,-4.0
 CT,La Paz,La Paz,-16.5,-68.15,BO,04,812799,,America/La_Paz,La Paz,0,-4.0
 CT,Cochabamba,Cochabamba,-17.3895,-66.1568,BO,02,900414,,America/La_Paz,Cochabamba,0,-4.0
+CT,Kralendijk,Kralendijk,12.15,-68.26667,BQ,BO,3081,,America/Kralendijk,Bonaire,0,-4.0
 CT,Vitória de Santo Antão,Vitoria de Santo Antao,-8.11806,-35.29139,BR,30,107383,,America/Recife,Pernambuco,0,-3.0
 CT,Timon,Timon,-5.09417,-42.83667,BR,13,124427,,America/Fortaleza,Maranhao,0,-3.0
 CT,Teresina,Teresina,-5.08917,-42.80194,BR,20,744512,,America/Fortaleza,Piaui,0,-3.0
@@ -408,6 +420,7 @@ CT,Simões Filho,Simoes Filho,-12.78444,-38.40389,BR,05,116662,,America/Bahia,Ba
 CT,Sinop,Sinop,-11.86417,-55.5025,BR,14,116013,,America/Cuiaba,Mato Grosso,0,-4.0
 CT,Planaltina,Planaltina,-15.61791,-47.64874,BR,07,189412,1000,America/Sao_Paulo,Federal District,0,-3.0
 CT,Nassau,Nassau,25.05823,-77.34306,BS,23,227940,,America/Nassau,New Providence,1,-5.0
+CT,Thimphu,Thimphu,27.46609,89.64191,BT,20,98676,2320,Asia/Thimphu,Thimphu,0,6.0
 CT,Gaborone,Gaborone,-24.65451,25.90859,BW,14,208411,,Africa/Gaborone,Gaborone,0,2.0
 CT,Vitebsk,Vitebsk,55.1904,30.2049,BY,07,342700,,Europe/Minsk,Vitebsk,0,3.0
 CT,Salihorsk,Salihorsk,52.7876,27.5415,BY,05,101614,,Europe/Minsk,Minsk,0,3.0
@@ -424,6 +437,7 @@ CT,Brest,Brest,52.09755,23.68775,BY,01,300715,,Europe/Minsk,Brest,0,3.0
 CT,Barysaw,Barysaw,54.2279,28.505,BY,05,143919,,Europe/Minsk,Minsk,0,3.0
 CT,Baranovichi,Baranovichi,53.1327,26.0139,BY,01,168772,,Europe/Minsk,Brest,0,3.0
 CT,Babruysk,Babruysk,53.1384,29.2214,BY,06,220517,,Europe/Minsk,Mogilev,0,3.0
+CT,Belmopan,Belmopan,17.25,-88.76667,BZ,02,13381,,America/Belize,Cayo,0,-6.0
 CT,Abbotsford,Abbotsford,49.05798,-122.25257,CA,02,151683,,America/Vancouver,British Columbia,1,-8.0
 CT,Barrie,Barrie,44.40011,-79.66634,CA,08,182041,,America/Toronto,Ontario,1,-5.0
 CT,Brampton,Brampton,43.68341,-79.76633,CA,08,433806,,America/Toronto,Ontario,1,-5.0
@@ -475,6 +489,7 @@ CT,Lévis,Levis,46.80326,-71.17793,CA,10,126396,,America/Blanc-Sablon,Quebec,0,-
 CT,Sydney,Sydney,46.1351,-60.1831,CA,07,105968,,America/Glace_Bay,Nova Scotia,1,-4.0
 CT,Okanagan,Okanagan,50.36386,-119.34997,CA,02,297601,,America/Vancouver,British Columbia,1,-8.0
 CT,Ladner,Ladner,49.08938,-123.08241,CA,02,200000,1,America/Vancouver,British Columbia,1,-8.0
+CT,West Island,West Island,-12.15681,96.82251,CC,,120,,Indian/Cocos,,0,6.5
 CT,Uvira,Uvira,-3.39534,29.13779,CD,12,170391,,Africa/Lubumbashi,South Kivu,0,2.0
 CT,Tshikapa,Tshikapa,-6.41621,20.79995,CD,18,267462,,Africa/Lubumbashi,Kasai,0,2.0
 CT,Mwene-Ditu,Mwene-Ditu,-7.00906,23.45278,CD,21,189177,,Africa/Lubumbashi,Lomami,0,2.0
@@ -523,6 +538,7 @@ CT,Anyama,Anyama,5.49462,-4.05183,CI,93,100653,,Africa/Abidjan,Abidjan,0,0.0
 CT,Abobo,Abobo,5.41613,-4.0159,CI,93,900000,,Africa/Abidjan,Abidjan,0,0.0
 CT,Abidjan,Abidjan,5.35444,-4.00167,CI,93,3677115,,Africa/Abidjan,Abidjan,0,0.0
 CT,Abengourou,Abengourou,6.72972,-3.49639,CI,94,104020,,Africa/Abidjan,Comoe,0,0.0
+CT,Avarua,Avarua,-21.2075,-159.77545,CK,11695425,13373,,Pacific/Rarotonga,Rarotonga,0,-10.0
 CT,Viña del Mar,Vina del Mar,-33.02457,-71.55183,CL,01,294551,,America/Santiago,Valparaiso,1,-4.0
 CT,Valparaíso,Valparaiso,-33.036,-71.62963,CL,01,282448,,America/Santiago,Valparaiso,1,-4.0
 CT,Valdivia,Valdivia,-39.81422,-73.24589,CL,17,133419,,America/Santiago,Los Rios Region,1,-4.0
@@ -1060,6 +1076,7 @@ CT,Boyeros,Boyeros,23.0072,-82.4017,CU,02,188593,,America/Havana,Havana,1,-5.0
 CT,Diez de Octubre,Diez de Octubre,23.0881,-82.3597,CU,02,227293,,America/Havana,Havana,1,-5.0
 CT,Praia,Praia,14.93152,-23.51254,CV,14,113364,0,Atlantic/Cape_Verde,Praia,0,-1.0
 CT,Willemstad,Willemstad,12.1084,-68.93354,CW,,125000,,America/Curacao,,0,-4.0
+CT,Flying Fish Cove,Flying Fish Cove,-10.42172,105.67912,CX,00,500,,Indian/Christmas,,0,7.0
 CT,Nicosia,Nicosia,35.17531,33.3642,CY,04,200452,,Asia/Nicosia,Nicosia,1,2.0
 CT,Limassol,Limassol,34.68406,33.03794,CY,05,154000,,Asia/Nicosia,Limassol,1,2.0
 CT,Prague,Prague,50.08804,14.42076,CZ,52,1165581,,Europe/Prague,Hlavni mesto Praha,1,1.0
@@ -1171,6 +1188,7 @@ CT,Odense,Odense,55.39594,10.38831,DK,21,145931,,Europe/Copenhagen,South Denmark
 CT,Copenhagen,Copenhagen,55.67594,12.56553,DK,17,1153615,,Europe/Copenhagen,Capital Region,1,1.0
 CT,Århus,Arhus,56.15674,10.21076,DK,18,237551,,Europe/Copenhagen,Central Jutland,1,1.0
 CT,Aalborg,Aalborg,57.048,9.9187,DK,19,122219,,Europe/Copenhagen,North Denmark,1,1.0
+CT,Roseau,Roseau,15.30174,-61.38808,DM,04,16571,,America/Dominica,Saint George,0,-4.0
 CT,Santo Domingo,Santo Domingo,18.47186,-69.89232,DO,34,2201941,,America/Santo_Domingo,Nacional,0,-4.0
 CT,Santiago de los Caballeros,Santiago de los Caballeros,19.4517,-70.69703,DO,25,1200000,,America/Santo_Domingo,Santiago,0,-4.0
 CT,San Pedro de Macorís,San Pedro de Macoris,18.4539,-69.30864,DO,24,217899,,America/Santo_Domingo,San Pedro de Macoris,0,-4.0
@@ -1389,6 +1407,10 @@ CT,Tampere,Tampere,61.49911,23.78712,FI,06,202687,,Europe/Helsinki,Pirkanmaa,1,2
 CT,Oulu,Oulu,65.01236,25.46816,FI,17,128618,,Europe/Helsinki,North Ostrobothnia,1,2.0
 CT,Helsinki,Helsinki,60.16952,24.93545,FI,01,558457,,Europe/Helsinki,Uusimaa,1,2.0
 CT,Espoo,Espoo,60.2052,24.6522,FI,01,256760,,Europe/Helsinki,Uusimaa,1,2.0
+CT,Suva,Suva,-18.14161,178.44149,FJ,01,77366,,Pacific/Fiji,Central,1,12.0
+CT,Stanley,Stanley,-51.69382,-57.85701,FK,00,2213,,Atlantic/Stanley,,0,-3.0
+CT,Palikir - National Government Center,Palikir - National Government Center,6.92477,158.16109,FM,02,0,90,Pacific/Pohnpei,Pohnpei,0,11.0
+CT,Tórshavn,Torshavn,62.00973,-6.77164,FO,ST,13200,,Atlantic/Faroe,Streymoy,1,0.0
 CT,Villeurbanne,Villeurbanne,45.76601,4.8795,FR,84,131445,,Europe/Paris,Auvergne-Rhone-Alpes,1,1.0
 CT,Tours,Tours,47.39484,0.70398,FR,24,141621,,Europe/Paris,Centre,1,1.0
 CT,Toulouse,Toulouse,43.60426,1.44367,FR,76,433055,,Europe/Paris,Occitanie,1,1.0
@@ -1528,9 +1550,12 @@ CT,Telford,Telford,52.67659,-2.44926,GB,ENG,147980,,Europe/London,England,1,0.0
 CT,Becontree,Becontree,51.5529,0.129,GB,ENG,100000,,Europe/London,England,1,0.0
 CT,Mendip,Mendip,51.2372,-2.6266,GB,ENG,110000,,Europe/London,England,1,0.0
 CT,Archway,Archway,51.56733,-0.13415,GB,ENG,215667,,Europe/London,England,1,0.0
+CT,Saint George's,Saint George's,12.05288,-61.75226,GD,03,7500,6,America/Grenada,Saint George,0,-4.0
 CT,Tbilisi,Tbilisi,41.69411,44.83368,GE,51,1049498,,Asia/Tbilisi,T'bilisi,0,4.0
 CT,Kutaisi,Kutaisi,42.26791,42.69459,GE,66,178338,,Asia/Tbilisi,Imereti,0,4.0
 CT,Batumi,Batumi,41.64228,41.63392,GE,04,121806,,Asia/Tbilisi,Ajaria,0,4.0
+CT,Cayenne,Cayenne,4.93333,-52.33333,GF,GF,61550,,America/Cayenne,Guyane,0,-3.0
+CT,Saint Peter Port,Saint Peter Port,49.45981,-2.53527,GG,6417228,16488,,Europe/Guernsey,St Peter Port,1,0.0
 CT,Teshi Old Town,Teshi Old Town,5.58365,-0.10722,GH,01,144013,,Africa/Accra,Greater Accra,0,0.0
 CT,Tema,Tema,5.6698,-0.01657,GH,01,155782,,Africa/Accra,Greater Accra,0,0.0
 CT,Tamale,Tamale,9.40079,-0.8393,GH,06,360579,,Africa/Accra,Northern,0,0.0
@@ -1542,12 +1567,16 @@ CT,Kumasi,Kumasi,6.68848,-1.62443,GH,02,1468609,,Africa/Accra,Ashanti,0,0.0
 CT,Cape Coast,Cape Coast,5.10535,-1.2466,GH,04,143015,,Africa/Accra,Central,0,0.0
 CT,Atsiaman,Atsiaman,5.69775,-0.32824,GH,01,202932,,Africa/Accra,Greater Accra,0,0.0
 CT,Accra,Accra,5.55602,-0.1969,GH,01,1963264,,Africa/Accra,Greater Accra,0,0.0
+CT,Gibraltar,Gibraltar,36.14474,-5.35257,GI,00,26544,,Europe/Gibraltar,,1,1.0
+CT,Nuuk,Nuuk,64.18347,-51.72157,GL,07,14798,5,America/Godthab,Sermersooq,1,-3.0
 CT,Serekunda,Serekunda,13.43833,-16.67806,GM,01,340000,,Africa/Banjul,Banjul,0,0.0
+CT,Banjul,Banjul,13.45274,-16.57803,GM,01,34589,,Africa/Banjul,Banjul,0,0.0
 CT,Nzérékoré,Nzerekore,7.75624,-8.8179,GN,N,132728,,Africa/Conakry,Nzerekore,0,0.0
 CT,Kindia,Kindia,10.05692,-12.86576,GN,D,117062,,Africa/Conakry,Kindia,0,0.0
 CT,Kankan,Kankan,10.38542,-9.30568,GN,K,114009,,Africa/Conakry,Kankan,0,0.0
 CT,Conakry,Conakry,9.53795,-13.67729,GN,04,1767200,,Africa/Conakry,Conakry,0,0.0
 CT,Camayenne,Camayenne,9.535,-13.68778,GN,04,1871242,,Africa/Conakry,Conakry,0,0.0
+CT,Basse-Terre,Basse-Terre,15.99714,-61.73214,GP,GP,11472,,America/Guadeloupe,Guadeloupe,0,-4.0
 CT,Malabo,Malabo,3.75578,8.78166,GQ,04,155963,,Africa/Malabo,Bioko Norte,0,1.0
 CT,Bata,Bata,1.86391,9.76582,GQ,08,173046,,Africa/Malabo,Litoral,0,1.0
 CT,Piraeus,Piraeus,37.94203,23.64619,GR,ESYE31,163688,,Europe/Athens,Attica,1,2.0
@@ -1558,6 +1587,7 @@ CT,Kallithéa,Kallithea,37.95,23.7,GR,ESYE31,100641,,Europe/Athens,Attica,1,2.0
 CT,Irákleion,Irakleion,35.32787,25.14341,GR,ESYE43,137154,,Europe/Athens,Crete,1,2.0
 CT,Athens,Athens,37.98376,23.72784,GR,ESYE31,664046,70,Europe/Athens,Attica,1,2.0
 CT,Thessaloníki,Thessaloniki,40.64361,22.93086,GR,ESYE12,354290,,Europe/Athens,Central Macedonia,1,2.0
+CT,Grytviken,Grytviken,-54.28111,-36.5092,GS,00,2,,Atlantic/South_Georgia,,0,-2.0
 CT,Villa Nueva,Villa Nueva,14.52512,-90.58544,GT,07,406830,,America/Guatemala,Guatemala,0,-6.0
 CT,Villa Canales,Villa Canales,14.48285,-90.53425,GT,07,122194,,America/Guatemala,Guatemala,0,-6.0
 CT,San Juan Sacatepéquez,San Juan Sacatepequez,14.71889,-90.64417,GT,07,136886,,America/Guatemala,Guatemala,0,-6.0
@@ -1566,6 +1596,7 @@ CT,Petapa,Petapa,14.50189,-90.56196,GT,07,141455,,America/Guatemala,Guatemala,0,
 CT,Mixco,Mixco,14.63077,-90.60711,GT,07,473080,,America/Guatemala,Guatemala,0,-6.0
 CT,Escuintla,Escuintla,14.3009,-90.78581,GT,06,103165,,America/Guatemala,Escuintla,0,-6.0
 CT,Guatemala City,Guatemala City,14.64072,-90.51327,GT,07,994938,,America/Guatemala,Guatemala,0,-6.0
+CT,Hagåtña,Hagatna,13.47567,144.74886,GU,AN,1051,3,Pacific/Guam,Hagatna,0,10.0
 CT,Bissau,Bissau,11.86357,-15.59767,GW,11,388028,,Africa/Bissau,Bissau,0,0.0
 CT,Georgetown,Georgetown,6.80448,-58.15527,GY,12,235017,,America/Guyana,Demerara-Mahaica,0,-4.0
 CT,Tsuen Wan,Tsuen Wan,22.37137,114.11329,HK,NTW,288728,,Asia/Hong_Kong,Tsuen Wan,0,8.0
@@ -1756,6 +1787,7 @@ CT,Bat Yam,Bat Yam,32.02379,34.75185,IL,05,128979,,Asia/Jerusalem,Tel Aviv,1,2.0
 CT,Ashkelon,Ashkelon,31.66926,34.57149,IL,01,105995,,Asia/Jerusalem,Southern District,1,2.0
 CT,Ashdod,Ashdod,31.79213,34.64966,IL,01,224656,,Asia/Jerusalem,Southern District,1,2.0
 CT,West Jerusalem,West Jerusalem,31.78199,35.21961,IL,06,400000,,Asia/Jerusalem,Jerusalem,1,2.0
+CT,Douglas,Douglas,54.15,-4.48333,IM,9782170,26218,,Europe/Isle_of_Man,Douglas,1,0.0
 CT,Yelahanka,Yelahanka,13.10073,77.59632,IN,19,116447,,Asia/Kolkata,Karnataka,0,5.5
 CT,Yavatmāl,Yavatmal,20.39324,78.13201,IN,16,128175,,Asia/Kolkata,Maharashtra,0,5.5
 CT,Yamunānagar,Yamunanagar,30.12796,77.28371,IN,10,208931,,Asia/Kolkata,Haryana,0,5.5
@@ -2329,6 +2361,7 @@ CT,Bologna,Bologna,44.49381,11.33875,IT,05,366133,54,Europe/Rome,Emilia-Romagna,
 CT,Bergamo,Bergamo,45.69601,9.66721,IT,09,114162,249,Europe/Rome,Lombardy,1,1.0
 CT,Bari,Bari,41.12066,16.86982,IT,13,277387,5,Europe/Rome,Apulia,1,1.0
 CT,Acilia-Castel Fusano-Ostia Antica,Acilia-Castel Fusano-Ostia Antica,41.76337,12.33078,IT,07,129362,,Europe/Rome,Latium,1,1.0
+CT,Saint Helier,Saint Helier,49.18804,-2.10491,JE,3237864,28000,,Europe/Jersey,St Helier,1,0.0
 CT,Spanish Town,Spanish Town,17.99107,-76.95742,JM,10,145018,,America/Jamaica,Saint Catherine,0,-5.0
 CT,Portmore,Portmore,17.95032,-76.88215,JM,10,102861,,America/Jamaica,Saint Catherine,0,-5.0
 CT,New Kingston,New Kingston,18.00747,-76.78319,JM,08,583958,,America/Jamaica,St. Andrew,0,-5.0
@@ -2557,6 +2590,9 @@ CT,Takeo,Takeo,10.99081,104.78498,KH,19,843931,,Asia/Phnom_Penh,Takeo,0,7.0
 CT,Siem Reap,Siem Reap,13.36179,103.86056,KH,24,139458,,Asia/Phnom_Penh,Siem Reap,0,7.0
 CT,Sihanoukville,Sihanoukville,10.60932,103.52958,KH,28,156691,,Asia/Phnom_Penh,Preah Sihanouk,0,7.0
 CT,Battambang,Battambang,13.10271,103.19822,KH,29,150444,,Asia/Phnom_Penh,Battambang,0,7.0
+CT,Tarawa,Tarawa,1.3278,172.97696,KI,01,40311,,Pacific/Tarawa,Gilbert Islands,0,12.0
+CT,Moroni,Moroni,-11.70216,43.25506,KM,02,42872,,Indian/Comoro,Grande Comore,0,3.0
+CT,Basseterre,Basseterre,17.2955,-62.72499,KN,03,12920,-22,America/St_Kitts,Saint George Basseterre,0,-4.0
 CT,Wŏnsan,Wonsan,39.15278,127.44361,KP,09,329207,,Asia/Pyongyang,Kangwon-do,0,9.0
 CT,Sunch’ŏn,Sunch'on,39.43167,125.93278,KP,15,437000,,Asia/Pyongyang,South Pyongan,0,9.0
 CT,Songnim,Songnim,38.75417,125.645,KP,07,152425,,Asia/Pyongyang,Hwanghae-bukto,0,9.0
@@ -2623,8 +2659,10 @@ CT,Sejong,Sejong,36.59245,127.29223,KR,22,230327,,Asia/Seoul,Sejong-si,0,9.0
 CT,Jeongeup,Jeongeup,35.60004,126.91699,KR,03,139876,,Asia/Seoul,Jeollabuk-do,0,9.0
 CT,Ḩawallī,Hawalli,29.33278,48.02861,KW,08,164212,,Asia/Kuwait,Hawalli,0,3.0
 CT,As Sālimīyah,As Salimiyah,29.33389,48.07611,KW,08,147649,,Asia/Kuwait,Hawalli,0,3.0
+CT,Kuwait City,Kuwait City,29.36972,47.97833,KW,02,60064,,Asia/Kuwait,Al Asimah,0,3.0
 CT,Al Aḩmadī,Al Ahmadi,29.07694,48.08389,KW,04,637411,,Asia/Kuwait,Al Ahmadi,0,3.0
 CT,Şabāḩ as Sālim,Sabah as Salim,29.25722,48.05722,KW,09,139163,,Asia/Kuwait,Mubarak al Kabir,0,3.0
+CT,George Town,George Town,19.2866,-81.37436,KY,10346796,29370,,America/Cayman,George Town,0,-5.0
 CT,Zhanaozen,Zhanaozen,43.34116,52.86192,KZ,09,103598,,Asia/Aqtau,Mangghystau,0,5.0
 CT,Oral,Oral,51.23333,51.36667,KZ,07,200000,,Asia/Oral,Batys Qazaqstan,0,5.0
 CT,Karagandy,Karagandy,49.80187,73.10211,KZ,12,451800,,Asia/Almaty,Karaganda,0,6.0
@@ -2654,6 +2692,8 @@ CT,Sidon,Sidon,33.55751,35.37148,LB,06,163554,,Asia/Beirut,South Governorate,1,2
 CT,Ra’s Bayrūt,Ra's Bayrut,33.9,35.48333,LB,04,1251739,,Asia/Beirut,Beyrouth,1,2.0
 CT,Beirut,Beirut,33.89332,35.50157,LB,04,1916100,,Asia/Beirut,Beyrouth,1,2.0
 CT,Nabatîyé et Tahta,Nabatiye et Tahta,33.37889,35.48389,LB,07,120000,,Asia/Beirut,Nabatiye,1,2.0
+CT,Castries,Castries,13.9957,-61.00614,LC,03,20000,,America/St_Lucia,Castries,0,-4.0
+CT,Vaduz,Vaduz,47.14151,9.52154,LI,11,5197,,Europe/Vaduz,Vaduz,1,1.0
 CT,Trincomalee,Trincomalee,8.5778,81.2289,LK,37,108420,,Asia/Colombo,Eastern Province,0,5.5
 CT,Pita Kotte,Pita Kotte,6.8905,79.9015,LK,36,118179,,Asia/Colombo,Western,0,5.5
 CT,Negombo,Negombo,7.2083,79.8358,LK,36,137223,,Asia/Colombo,Western,0,5.5
@@ -2671,6 +2711,7 @@ CT,Šiauliai,Siauliai,55.93333,23.31667,LT,61,130587,,Europe/Vilnius,Siauliai,1,
 CT,Panevėžys,Panevezys,55.73333,24.35,LT,60,117395,,Europe/Vilnius,Panevezys,1,2.0
 CT,Klaipėda,Klaipeda,55.7068,21.13912,LT,58,192307,,Europe/Vilnius,Klaipeda County,1,2.0
 CT,Kaunas,Kaunas,54.90272,23.90961,LT,57,374643,,Europe/Vilnius,Kaunas,1,2.0
+CT,Luxembourg,Luxembourg,49.61167,6.13,LU,LU,76684,,Europe/Luxembourg,Luxembourg,1,1.0
 CT,Riga,Riga,56.946,24.10589,LV,25,742572,,Europe/Riga,Riga,1,2.0
 CT,Daugavpils,Daugavpils,55.88333,26.53333,LV,07,111564,,Europe/Riga,Daugavpils municipality,1,2.0
 CT,Tobruk,Tobruk,32.08963,23.95385,LY,79,121052,,Africa/Tripoli,Al Butnan,0,2.0
@@ -2716,17 +2757,20 @@ CT,Khemisset,Khemisset,33.82404,-6.06627,MA,04,106991,,Africa/Casablanca,Rabat-S
 CT,Al Hoceïma,Al Hoceima,35.25165,-3.93723,MA,01,395644,,Africa/Casablanca,Tanger-Tetouan-Al Hoceima,0,0.0
 CT,Agadir,Agadir,30.42018,-9.59815,MA,09,698310,,Africa/Casablanca,Souss-Massa,0,0.0
 CT,Salé Al Jadida,Sale Al Jadida,33.99722,-6.74047,MA,04,200000,,Africa/Casablanca,Rabat-Sale-Kenitra,0,0.0
+CT,Monaco,Monaco,43.73333,7.41667,MC,00,32965,,Europe/Monaco,Municipality of Monaco,1,1.0
 CT,Tiraspol,Tiraspol,46.84274,29.62909,MD,58,157000,,Europe/Chisinau,Transnistria,1,2.0
 CT,Chisinau,Chisinau,47.00556,28.8575,MD,57,635994,,Europe/Chisinau,Chisinau Municipality,1,2.0
 CT,Bender,Bender,46.83156,29.47769,MD,62,110175,,Europe/Chisinau,Bender Municipality,1,2.0
 CT,Bălţi,Balti,47.76314,27.92932,MD,60,125000,,Europe/Chisinau,Balti,1,2.0
 CT,Podgorica,Podgorica,42.44111,19.26361,ME,16,236852,,Europe/Podgorica,Podgorica,1,1.0
+CT,Marigot,Marigot,18.06819,-63.08302,MF,00,5700,,America/Marigot,,0,-4.0
 CT,Toamasina,Toamasina,-18.1492,49.40234,MG,31,206373,,Indian/Antananarivo,Atsinanana,0,3.0
 CT,Toliara,Toliara,-23.35,43.66667,MG,51,115319,,Indian/Antananarivo,Atsimo-Andrefana,0,3.0
 CT,Mahajanga,Mahajanga,-15.71667,46.31667,MG,41,154657,,Indian/Antananarivo,Boeny,0,3.0
 CT,Fianarantsoa,Fianarantsoa,-21.45267,47.08569,MG,21,167227,,Indian/Antananarivo,Upper Matsiatra,0,3.0
 CT,Antsirabe,Antsirabe,-19.86586,47.03333,MG,12,186253,,Indian/Antananarivo,Vakinankaratra,0,3.0
 CT,Antananarivo,Antananarivo,-18.91368,47.53613,MG,11,1391433,,Indian/Antananarivo,Analamanga,0,3.0
+CT,Majuro,Majuro,7.08971,171.38027,MH,190,25400,,Pacific/Majuro,Majuro Atoll,0,12.0
 CT,Skopje,Skopje,41.99646,21.43141,MK,F6,474889,,Europe/Skopje,Grad Skopje,1,1.0
 CT,Sikasso,Sikasso,11.31755,-5.66654,ML,06,144786,,Africa/Bamako,Sikasso,0,0.0
 CT,Mopti,Mopti,14.4843,-4.18296,ML,04,108456,,Africa/Bamako,Mopti,0,0.0
@@ -2755,7 +2799,11 @@ CT,Nay Pyi Taw,Nay Pyi Taw,19.745,96.12972,MM,18,925000,,Asia/Yangon,Nay Pyi Taw
 CT,Kyain Seikgyi Township,Kyain Seikgyi Township,15.82288,98.25257,MM,05,246065,17,Asia/Yangon,Kayin,0,6.5
 CT,Ulan Bator,Ulan Bator,47.90771,106.88324,MN,20,844818,,Asia/Ulaanbaatar,Ulaanbaatar,0,8.0
 CT,Macau,Macau,22.20056,113.54611,MO,02,520400,,Asia/Macau,,0,8.0
+CT,Saipan,Saipan,15.21233,145.7545,MP,110,48220,5,Pacific/Saipan,Saipan,0,10.0
+CT,Fort-de-France,Fort-de-France,14.60365,-61.07418,MQ,MQ,89995,,America/Martinique,Martinique,0,-4.0
 CT,Nouakchott,Nouakchott,18.08581,-15.9785,MR,,661400,,Africa/Nouakchott,,0,0.0
+CT,Plymouth,Plymouth,16.70555,-62.21292,MS,01,0,,America/Montserrat,Saint Anthony,0,-4.0
+CT,Valletta,Valletta,35.89968,14.5148,MT,60,6794,,Europe/Malta,Valletta,1,1.0
 CT,Vacoas,Vacoas,-20.29806,57.47833,MU,17,110000,,Indian/Mauritius,Plaines Wilhems,0,4.0
 CT,Port Louis,Port Louis,-20.16194,57.49889,MU,18,155226,,Indian/Mauritius,Port Louis,0,4.0
 CT,Beau Bassin-Rose Hill,Beau Bassin-Rose Hill,-20.23325,57.46609,MU,17,111355,,Indian/Mauritius,Plaines Wilhems,0,4.0
@@ -2950,10 +2998,12 @@ CT,Lichinga,Lichinga,-13.31278,35.24056,MZ,07,109839,,Africa/Maputo,Niassa,0,2.0
 CT,Chimoio,Chimoio,-19.11639,33.48333,MZ,10,256936,,Africa/Maputo,Manica,0,2.0
 CT,Beira,Beira,-19.84361,34.83889,MZ,05,530604,,Africa/Maputo,Sofala,0,2.0
 CT,Windhoek,Windhoek,-22.55941,17.08323,NA,21,268132,,Africa/Windhoek,Khomas,0,1.0
+CT,Nouméa,Noumea,-22.27407,166.44884,NC,02,93060,,Pacific/Noumea,South Province,0,11.0
 CT,Zinder,Zinder,13.80716,8.9881,NE,07,191424,,Africa/Niamey,Zinder,0,1.0
 CT,Niamey,Niamey,13.51366,2.1098,NE,08,774235,,Africa/Niamey,Niamey,0,1.0
 CT,Maradi,Maradi,13.5,7.10174,NE,04,163487,,Africa/Niamey,Maradi,0,1.0
 CT,Agadez,Agadez,16.97333,7.99111,NE,01,124324,,Africa/Niamey,Agadez,0,1.0
+CT,Kingston,Kingston,-29.05459,167.96628,NF,00,880,,Pacific/Norfolk,,1,11.0
 CT,Zaria,Zaria,11.11128,7.7227,NG,23,975153,,Africa/Lagos,Kaduna,0,1.0
 CT,Warri,Warri,5.51737,5.75006,NG,36,536023,,Africa/Lagos,Delta,0,1.0
 CT,Uyo,Uyo,5.05127,7.9335,NG,21,436606,,Africa/Lagos,Akwa Ibom,0,1.0
@@ -3082,6 +3132,8 @@ CT,Dharān,Dharan,26.81436,87.27972,NP,1,108600,,Asia/Kathmandu,Province 1,0,5.7
 CT,Birgañj,Birganj,27.01709,84.8808,NP,2,133238,,Asia/Kathmandu,Province 2,0,5.75
 CT,Biratnagar,Biratnagar,26.45505,87.27007,NP,1,182324,,Asia/Kathmandu,Province 1,0,5.75
 CT,Bharatpur,Bharatpur,27.6768,84.43589,NP,3,107157,,Asia/Kathmandu,Province 3,0,5.75
+CT,Yaren,Yaren,-0.55085,166.9252,NR,14,1100,5,Pacific/Nauru,Yaren,0,12.0
+CT,Alofi,Alofi,-19.05451,-169.91768,NU,00,624,,Pacific/Niue,,0,-11.0
 CT,Wellington,Wellington,-41.28664,174.77557,NZ,G2,381900,,Pacific/Auckland,Wellington,1,12.0
 CT,North Shore,North Shore,-36.8,174.75,NZ,E7,207865,,Pacific/Auckland,Auckland,1,12.0
 CT,Manukau City,Manukau City,-36.99282,174.87986,NZ,E7,362000,,Pacific/Auckland,Auckland,1,12.0
@@ -3126,6 +3178,7 @@ CT,Arequipa,Arequipa,-16.39889,-71.535,PE,04,841130,,America/Lima,Arequipa,0,-5.
 CT,Santa Anita - Los Ficus,Santa Anita - Los Ficus,-12.05048,-76.97335,PE,15,184614,,America/Lima,Lima region,0,-5.0
 CT,San Martin,San Martin,-5.18591,-80.66927,PE,20,130000,,America/Lima,Piura,0,-5.0
 CT,San Francisco De Borja,San Francisco De Borja,-12.08911,-76.99876,PE,15,105076,,America/Lima,Lima region,0,-5.0
+CT,Papeete,Papeete,-17.53733,-149.5665,PF,01,26357,,Pacific/Tahiti,Iles du Vent,0,-10.0
 CT,Port Moresby,Port Moresby,-9.47723,147.15089,PG,20,283733,,Pacific/Port_Moresby,National Capital,0,10.0
 CT,Zamboanga,Zamboanga,6.91028,122.07389,PH,09,457623,,Asia/Manila,Zamboanga Peninsula,0,8.0
 CT,Urdaneta,Urdaneta,15.97611,120.57111,PH,01,101037,,Asia/Manila,Ilocos,0,8.0
@@ -3337,6 +3390,8 @@ CT,Bydgoszcz,Bydgoszcz,53.1235,18.00762,PL,73,366452,,Europe/Warsaw,Kujawsko-Pom
 CT,Bielsko-Biala,Bielsko-Biala,49.82245,19.04686,PL,83,176515,330,Europe/Warsaw,Silesia,1,1.0
 CT,Ursynów,Ursynow,52.15051,21.05041,PL,78,147676,,Europe/Warsaw,Mazovia,1,1.0
 CT,Praga Południe,Praga Poludnie,52.24424,21.08545,PL,78,187845,,Europe/Warsaw,Mazovia,1,1.0
+CT,Saint-Pierre,Saint-Pierre,46.77914,-56.1773,PM,97502,6200,,America/Miquelon,Saint-Pierre,1,-3.0
+CT,Adamstown,Adamstown,-25.06597,-130.10147,PN,,46,,Pacific/Pitcairn,,0,-8.0
 CT,Bayamón,Bayamon,18.39856,-66.15572,PR,021,203499,16,America/Puerto_Rico,Bayamon,0,-4.0
 CT,Carolina,Carolina,18.38078,-65.95739,PR,031,170404,16,America/Puerto_Rico,Carolina,0,-4.0
 CT,Ponce,Ponce,18.01031,-66.62398,PR,113,152634,15,America/Puerto_Rico,Ponce,0,-4.0
@@ -3356,6 +3411,7 @@ CT,Amadora,Amadora,38.75382,-9.23083,PT,14,178858,,Europe/Lisbon,Lisbon,1,0.0
 CT,Porto,Porto,41.14961,-8.61099,PT,17,249633,,Europe/Lisbon,Porto,1,0.0
 CT,Coimbra,Coimbra,40.20564,-8.41955,PT,07,106582,,Europe/Lisbon,Coimbra,1,0.0
 CT,Braga,Braga,41.55032,-8.42005,PT,04,121394,,Europe/Lisbon,Braga,1,0.0
+CT,Ngerulmud,Ngerulmud,7.50077,134.6238,PW,07,0,,Pacific/Palau,Melekeok,0,9.0
 CT,San Lorenzo,San Lorenzo,-25.33968,-57.50879,PY,06,227876,,America/Asuncion,Central,1,-4.0
 CT,Lambaré,Lambare,-25.34682,-57.60647,PY,06,126377,,America/Asuncion,Central,1,-4.0
 CT,Fernando de la Mora,Fernando de la Mora,-25.3386,-57.52167,PY,06,120167,,America/Asuncion,Central,1,-4.0
@@ -3641,6 +3697,8 @@ CT,Al Hufūf,Al Hufuf,25.36467,49.58764,SA,06,293179,,Asia/Riyadh,Eastern Provin
 CT,Dammam,Dammam,26.43442,50.10326,SA,06,768602,,Asia/Riyadh,Eastern Province,0,3.0
 CT,Abha,Abha,18.21639,42.50528,SA,11,210886,,Asia/Riyadh,'Asir Region,0,3.0
 CT,Sabt Alalayah,Sabt Alalayah,19.5773,41.96357,SA,11,100000,2800,Asia/Riyadh,'Asir Region,0,3.0
+CT,Honiara,Honiara,-9.43333,159.95,SB,14,56298,,Pacific/Guadalcanal,Honiara,0,11.0
+CT,Victoria,Victoria,-4.62001,55.45501,SC,26,22881,,Indian/Mahe,English River,0,4.0
 CT,Wad Medani,Wad Medani,14.40118,33.51989,SD,38,332714,,Africa/Khartoum,Al Jazirah,0,2.0
 CT,Omdurman,Omdurman,15.64453,32.47773,SD,29,1200000,,Africa/Khartoum,Khartoum,0,2.0
 CT,Singa,Singa,13.1483,33.93117,SD,58,250000,,Africa/Khartoum,Sinnar,0,2.0
@@ -3674,12 +3732,15 @@ CT,Helsingborg,Helsingborg,56.04673,12.69437,SE,27,104250,,Europe/Stockholm,Skan
 CT,Göteborg,Goeteborg,57.70716,11.96679,SE,28,572799,,Europe/Stockholm,Vaestra Goetaland,1,1.0
 CT,Singapore,Singapore,1.28967,103.85007,SG,01,3547809,,Asia/Singapore,,0,8.0
 CT,Woodlands,Woodlands,1.43801,103.78877,SG,03,252530,,Asia/Singapore,,0,8.0
+CT,Jamestown,Jamestown,-15.93872,-5.71675,SH,02,637,10,Atlantic/St_Helena,Saint Helena,0,0.0
 CT,Ljubljana,Ljubljana,46.05108,14.50513,SI,61,272220,,Europe/Ljubljana,Ljubljana,1,1.0
+CT,Longyearbyen,Longyearbyen,78.22334,15.64689,SJ,21,2060,,Arctic/Longyearbyen,Svalbard,1,1.0
 CT,Košice,Kosice,48.71395,21.25808,SK,03,236563,,Europe/Bratislava,Kosicky kraj,1,1.0
 CT,Bratislava,Bratislava,48.14816,17.10674,SK,02,423737,,Europe/Bratislava,Bratislava,1,1.0
 CT,Kenema,Kenema,7.87687,-11.19025,SL,01,143137,,Africa/Freetown,Eastern Province,0,0.0
 CT,Freetown,Freetown,8.48714,-13.2356,SL,04,802639,,Africa/Freetown,Western Area,0,0.0
 CT,Bo,Bo,7.96472,-11.73833,SL,03,174354,,Africa/Freetown,Southern Province,0,0.0
+CT,San Marino,San Marino,43.93667,12.44639,SM,07,4500,,Europe/San_Marino,San Marino,1,1.0
 CT,Ziguinchor,Ziguinchor,12.56801,-16.27326,SN,12,159778,,Africa/Dakar,Ziguinchor,0,0.0
 CT,Touba,Touba,14.85,-15.88333,SN,03,529176,,Africa/Dakar,Diourbel,0,0.0
 CT,Tiébo,Tiebo,14.63333,-16.23333,SN,03,100289,,Africa/Dakar,Diourbel,0,0.0
@@ -3701,6 +3762,7 @@ CT,Winejok,Winejok,9.01222,27.57081,SS,05,300000,,Africa/Juba,Northern Bahr al G
 CT,Wau,Wau,7.70111,27.98972,SS,09,127384,,Africa/Juba,Western Bahr al Ghazal,0,3.0
 CT,Malakal,Malakal,9.53342,31.66049,SS,07,160765,,Africa/Juba,Upper Nile,0,3.0
 CT,Juba,Juba,4.85165,31.58247,SS,01,450000,,Africa/Juba,Central Equatoria,0,3.0
+CT,São Tomé,Sao Tome,0.33654,6.72732,ST,02,53300,,Africa/Sao_Tome,Sao Tome Island,0,0.0
 CT,Soyapango,Soyapango,13.71024,-89.13989,SV,10,329708,,America/El_Salvador,San Salvador,0,-6.0
 CT,Santa Ana,Santa Ana,13.99417,-89.55972,SV,11,176661,,America/El_Salvador,Santa Ana,0,-6.0
 CT,San Salvador,San Salvador,13.68935,-89.18718,SV,10,525990,,America/El_Salvador,San Salvador,0,-6.0
@@ -3708,6 +3770,7 @@ CT,San Miguel,San Miguel,13.48333,-88.18333,SV,09,161880,,America/El_Salvador,Sa
 CT,Santa Tecla,Santa Tecla,13.67694,-89.27972,SV,05,124694,,America/El_Salvador,La Libertad,0,-6.0
 CT,Mejicanos,Mejicanos,13.72397,-89.188,SV,10,160317,,America/El_Salvador,San Salvador,0,-6.0
 CT,Apopa,Apopa,13.80722,-89.17917,SV,10,112158,,America/El_Salvador,San Salvador,0,-6.0
+CT,Philipsburg,Philipsburg,18.026,-63.04582,SX,,1400,,America/Lower_Princes,,0,-4.0
 CT,Idlib,Idlib,35.93062,36.63393,SY,12,128840,,Asia/Damascus,Idlib,1,2.0
 CT,Homs,Homs,34.72682,36.72339,SY,11,775404,,Asia/Damascus,Homs,1,2.0
 CT,Ḩamāh,Hamah,35.13179,36.75783,SY,10,460602,,Asia/Damascus,Hama,1,2.0
@@ -3718,10 +3781,13 @@ CT,Deir ez-Zor,Deir ez-Zor,35.33588,40.14084,SY,07,242565,,Asia/Damascus,Deir ez
 CT,Ar Raqqah,Ar Raqqah,35.95283,39.00788,SY,04,177636,,Asia/Damascus,Ar-Raqqah,1,2.0
 CT,Latakia,Latakia,35.53168,35.79011,SY,02,340181,,Asia/Damascus,Latakia,1,2.0
 CT,Al Bāb,Al Bab,36.37051,37.5157,SY,09,130745,,Asia/Damascus,Aleppo,1,2.0
+CT,Mbabane,Mbabane,-26.31667,31.13333,SZ,01,76218,,Africa/Mbabane,Hhohho,0,2.0
 CT,Manzini,Manzini,-26.49884,31.38004,SZ,03,110537,,Africa/Mbabane,Manzini,0,2.0
+CT,Cockburn Town,Cockburn Town,21.46122,-71.14188,TC,00,3720,,America/Grand_Turk,,1,-5.0
 CT,Sarh,Sarh,9.14555,18.38331,TD,17,102528,,Africa/Ndjamena,Moyen-Chari,0,1.0
 CT,N'Djamena,N'Djamena,12.10672,15.0444,TD,21,721081,,Africa/Ndjamena,N'Djamena,0,1.0
 CT,Moundou,Moundou,8.57437,16.07722,TD,08,135167,,Africa/Ndjamena,Logone Occidental,0,1.0
+CT,Port-aux-Français,Port-aux-Francais,-49.34916,70.21937,TF,03,45,,Indian/Kerguelen,Kerguelen,0,5.0
 CT,Sokodé,Sokode,8.98333,1.13333,TG,22,117811,,Africa/Lome,Centrale,0,0.0
 CT,Lomé,Lome,6.12874,1.22154,TG,24,749700,,Africa/Lome,Maritime,0,0.0
 CT,Kara,Kara,9.55111,1.18611,TG,23,104207,,Africa/Lome,Kara,0,0.0
@@ -3758,6 +3824,7 @@ CT,Sfax,Sfax,34.74056,10.76028,TN,32,277278,,Africa/Tunis,Safaqis,0,1.0
 CT,Gabès,Gabes,33.88146,10.0982,TN,29,110075,,Africa/Tunis,Qabis,0,1.0
 CT,Bizerte,Bizerte,37.27442,9.87391,TN,18,115268,,Africa/Tunis,Banzart,0,1.0
 CT,Kairouan,Kairouan,35.6781,10.09633,TN,03,119794,,Africa/Tunis,Kairouan,0,1.0
+CT,Nuku‘alofa,Nuku'alofa,-21.13938,-175.2018,TO,02,22400,,Pacific/Tongatapu,Tongatapu,0,13.0
 CT,Viranşehir,Viransehir,37.22349,39.75519,TR,63,154163,,Europe/Istanbul,Sanliurfa,0,3.0
 CT,Van,Van,38.49457,43.38323,TR,65,371713,,Europe/Istanbul,Van,0,3.0
 CT,Uşak,Usak,38.67351,29.4058,TR,64,152862,,Europe/Istanbul,Usak,0,3.0
@@ -3841,6 +3908,8 @@ CT,Sancaktepe,Sancaktepe,41.00244,29.23187,TR,34,241000,,Europe/Istanbul,Istanbu
 CT,Karabağlar,Karabaglar,38.37396,27.1352,TR,35,458000,,Europe/Istanbul,Izmir,0,3.0
 CT,Muratpaşa,Muratpasa,36.89157,30.76498,TR,07,450000,,Europe/Istanbul,Antalya,0,3.0
 CT,Merkezefendi,Merkezefendi,37.80544,29.04236,TR,20,280341,354,Europe/Istanbul,Denizli,0,3.0
+CT,Port of Spain,Port of Spain,10.66668,-61.51889,TT,05,49031,,America/Port_of_Spain,Port of Spain,0,-4.0
+CT,Funafuti,Funafuti,-8.52425,179.19417,TV,FUN,4492,,Pacific/Funafuti,Funafuti,0,12.0
 CT,Douliu,Douliu,23.70944,120.54333,TW,04,104723,,Asia/Taipei,Taiwan,0,8.0
 CT,Yuanlin,Yuanlin,23.95671,120.57608,TW,04,124725,,Asia/Taipei,Taiwan,0,8.0
 CT,Taipei,Taipei,25.04776,121.53185,TW,04,7871900,,Asia/Taipei,Taiwan,0,8.0
@@ -4284,6 +4353,8 @@ CT,Fergana,Fergana,40.38421,71.78432,UZ,03,164322,,Asia/Tashkent,Fergana,0,5.0
 CT,Chirchiq,Chirchiq,41.46889,69.58222,UZ,14,167842,,Asia/Tashkent,Toshkent,0,5.0
 CT,Angren,Angren,41.01667,70.14361,UZ,14,126957,,Asia/Tashkent,Toshkent,0,5.0
 CT,Andijon,Andijon,40.78206,72.34424,UZ,01,318419,,Asia/Tashkent,Andijon,0,5.0
+CT,Vatican City,Vatican City,41.90268,12.45414,VA,,829,55,Europe/Vatican,,1,1.0
+CT,Kingstown,Kingstown,13.15527,-61.22742,VC,04,24518,,America/St_Vincent,Saint George,0,-4.0
 CT,Anaco,Anaco,9.42958,-64.46428,VE,02,117596,,America/Caracas,Anzoategui,0,-4.0
 CT,Alto Barinas,Alto Barinas,8.5931,-70.2261,VE,05,284289,,America/Caracas,Barinas,0,-4.0
 CT,Valencia,Valencia,10.16202,-68.00765,VE,07,1385083,,America/Caracas,Carabobo,0,-4.0
@@ -4327,6 +4398,8 @@ CT,Barinas,Barinas,8.62261,-70.20749,VE,05,353442,,America/Caracas,Barinas,0,-4.
 CT,Barcelona,Barcelona,10.13625,-64.68618,VE,02,424795,,America/Caracas,Anzoategui,0,-4.0
 CT,Acarigua,Acarigua,9.55451,-69.19564,VE,18,143704,,America/Caracas,Portuguesa,0,-4.0
 CT,Maturín,Maturin,9.74569,-63.18323,VE,16,410972,,America/Caracas,Monagas,0,-4.0
+CT,Road Town,Road Town,18.42693,-64.62079,VG,00,8449,9,America/Tortola,,0,-4.0
+CT,Charlotte Amalie,Charlotte Amalie,18.3419,-64.9307,VI,030,20000,6,America/St_Thomas,Saint Thomas Island,0,-4.0
 CT,Yên Vinh,Yen Vinh,18.66667,105.66667,VN,58,107082,,Asia/Bangkok,Nghe An,0,7.0
 CT,Vũng Tàu,Vung Tau,10.34599,107.08426,VN,45,209683,,Asia/Ho_Chi_Minh,Ba Ria-Vung Tau,0,7.0
 CT,Vĩnh Long,Vinh Long,10.25369,105.9722,VN,69,103314,,Asia/Ho_Chi_Minh,Vinh Long,0,7.0
@@ -4364,6 +4437,9 @@ CT,Bảo Lộc,Bao Loc,11.54798,107.80772,VN,23,151915,,Asia/Ho_Chi_Minh,Lam Don
 CT,Bạc Liêu,Bac Lieu,9.29414,105.72776,VN,73,107911,,Asia/Ho_Chi_Minh,Bac Lieu,0,7.0
 CT,Thị Xã Phú Mỹ,Thi Xa Phu My,10.56815,107.12999,VN,45,221030,,Asia/Ho_Chi_Minh,Ba Ria-Vung Tau,0,7.0
 CT,Quận Đức Thịnh,Quan GJuc Thinh,10.30989,105.73855,VN,09,132000,,Asia/Ho_Chi_Minh,Dong Thap,0,7.0
+CT,Port-Vila,Port-Vila,-17.73648,168.31366,VU,18,35901,,Pacific/Efate,Shefa,0,11.0
+CT,Mata-Utu,Mata-Utu,-13.28163,-176.17453,WF,98613,1200,,Pacific/Wallis,Uvea,0,12.0
+CT,Apia,Apia,-13.83333,-171.76666,WS,10,40407,,Pacific/Apia,Tuamasaga,1,13.0
 CT,Prizren,Prizren,42.21389,20.73972,XK,10097361,171464,,Europe/Belgrade,Prizren,1,1.0
 CT,Pristina,Pristina,42.67272,21.16688,XK,10097360,550000,,Europe/Belgrade,Pristina,1,1.0
 CT,Mitrovicë,Mitrovice,42.88333,20.86667,XK,10097358,107045,,Europe/Belgrade,Mitrovica,1,1.0
@@ -4374,6 +4450,7 @@ CT,Dhamār,Dhamar,14.54274,44.40514,YE,11,160114,,Asia/Aden,Dhamar,0,3.0
 CT,Mukalla,Mukalla,14.54248,49.12424,YE,04,258132,,Asia/Aden,Muhafazat Hadramaout,0,3.0
 CT,Al Ḩudaydah,Al Hudaydah,14.79781,42.95452,YE,08,617871,,Asia/Aden,Al Hudaydah,0,3.0
 CT,Aden,Aden,12.77944,45.03667,YE,02,550602,,Asia/Aden,Aden,0,3.0
+CT,Mamoudzou,Mamoudzou,-12.78234,45.22878,YT,97611,54831,,Indian/Mayotte,Mamoudzou,0,3.0
 CT,Roodepoort,Roodepoort,-26.1625,27.8725,ZA,06,225000,,Africa/Johannesburg,Gauteng,0,2.0
 CT,Witbank,Witbank,-25.87133,29.23323,ZA,07,262491,,Africa/Johannesburg,Mpumalanga,0,2.0
 CT,Westonaria,Westonaria,-26.31905,27.6486,ZA,06,156831,,Africa/Johannesburg,Gauteng,0,2.0

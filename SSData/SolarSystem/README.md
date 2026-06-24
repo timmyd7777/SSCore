@@ -119,7 +119,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 Cities.csv
 ----------
 
-The file contains data about cities on Earth, downloaded from the [GeoNames](http://download.geonames.org/export/dump/cities1000.zip) geographical database.  Using additional data on [daylight saving time observation](http://download.geonames.org/export/dump/timeZones.txt) and [admin1 code mapping](http://download.geonames.org/export/dump/admin1CodesASCII.txt), two additional columns (admin1_name, daylight_saving) are appended to the file.  Only cities with population at least 100,000 are present.  The columns are:
+The file contains data about cities on Earth, downloaded from the [GeoNames](http://download.geonames.org/export/dump/cities1000.zip) geographical database.  Using additional data on [daylight saving time observation](http://download.geonames.org/export/dump/timeZones.txt) and [admin1 code mapping](http://download.geonames.org/export/dump/admin1CodesASCII.txt), two additional columns (admin1_name, daylight_saving) are appended to the file.  All cities with population at least 100,000 and/or country capitals are present.  The columns are:
 
 - **_Type_** (CT) means city
 - **_name_**:  name of geographical point (utf8) varchar(200)
@@ -141,6 +141,7 @@ Except for the last two columns, the column description is copied from the [GeoN
 
 - Version 1.0 (10 Nov 2020): initial checkin.
 - Version 1.1 (24 Nov 2020): added type column.
+- Version 1.2 (23 Jun 2026): added country capitals.
 
 Features.csv
 ------------
