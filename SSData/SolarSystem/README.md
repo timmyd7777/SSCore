@@ -63,6 +63,7 @@ JPL's satellite orbit data contains two entries for Uranus's moon Puck; we used 
 - Version 1.6 (27 Dec 2023): added data for 74 additional Jupiter and Saturn moons from Wikipedia and Scott Sheppard's tables, and corrected numerous errors in the previous version.
 - Version 1.61 (30 Dec 2023): use Sheppard & Wikipedia as primary sources for all outer planet moons; use JPL data only for Earth's Moon, Phobos, Deimos, and albedos.
 - Version 1.62 (31 Dec 2023): use JPL orbit data and albedos for all moons except S/2009 S1; use Wikipedia physical data except albedo for all moons. 
+- version 1.7 (27 Jun 2026): correct absolute magnitudes for Pluto's moons (they were incorrectly entered as apparent magnitudes previously). Add column headers.
 
 Asteroids.txt
 -------------
