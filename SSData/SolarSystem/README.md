@@ -10,11 +10,13 @@ _Tim DeBenedictis (timd@southernstars.com), 2 Apr 2020_
 Planets.csv
 -----------
 
-This table of data on the Sun, the major planets, and Pluto is in Southern Stars CSV format was adapted from Table 1 in this paper by E.M. Standish (JPL Solar System Dynamics), ["Keplerian Elements for Approximate Positions of the Major Planets"](https://ssd.jpl.nasa.gov/txt/p_elem_t1.txt) and from JPL's ["Planets and Pluto: Physical Characteristics"](https://ssd.jpl.nasa.gov/?planet_phys_par) table.  Data for the Sun is from NASA's ["Sun Fact Sheet"](https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html).
+This table contains data on the Sun, the major planets, and the officially recognized dwarf planets, in Southern Stars CSV format. It was adapted from Table 1 in the original paper by E.M. Standish, [Approximate Positions of the Planets](https://ssd.jpl.nasa.gov/planets/approx_pos.html), and from JPL's [Planetary Physical Parameters](https://ssd.jpl.nasa.gov/?planet_phys_par) table. Data for the Sun is from NASA's [Sun Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html). Orbital data for dwarf planets Ceres, Eris, Makemake, and Haumea was extracted from [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/).
 
-Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, RotPer, Albedo, ID, Name
+All orbital elements in this table are referenced against the J2000 ecliptic.
 
-- **_Type_** (PL) means planet
+Columns are: Type, q, e, i, w, N, M, n, wrate, Nrate, RA, Dec, Epoch, H, G, Radius, Mass, RotPer, Albedo, ID, Name
+
+- **_Type_** is object type; PL = planet, MN = moon
 - **_q_** is perihelion distance (AU)
 - **_e_** is eccentricity
 - **_i_** is inclination (deg)
@@ -22,6 +24,10 @@ Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, RotPer, Albed
 - **_N_** is longitude of ascending node (deg)
 - **_M_** is mean anomaly (deg)
 - **_n_** is mean motion (deg/day)
+- **_wrate_** is rate of argument of perihelion (deg/year) where 1 year = 365.25 days
+- **_Nrate_** is rate of longitude of ascending node (deg/year) where 1 year = 365.35 days
+- **_RA_** is J2000 Right Ascension of north pole of reference plane (deg)
+- **_Dec_** is J2000 Declination of north pole of reference plane (deg)
 - **_Epoch_** is epoch of orbital elements (Julian Ephemeris Date)
 - **_H_** is absolute visual magnitude (i.e., V at 1.0 AU distance and 100% illumination)
 - **_G_** is magnitude phase parameter
@@ -29,7 +35,7 @@ Columns are: Type, q, e, i, w, N, M, n, Epoch, H, G, Radius, Mass, RotPer, Albed
 - **_Mass_** is planetary mass (kg)
 - **_RotPer_** is sidereal rotation period (days); negative if retrograde
 - **_Albedo_** is geometric albedo
-- **_ID_** is JPL NAIF ID
+- **_ID_** is JPL NAIF ID, or asteroid number for dwarf planets Ceres, Eris, Makemake, Haumea
 - **_Name_** is planet name
 
 Empty fields indicate unknown or missing values.
@@ -39,18 +45,21 @@ Empty fields indicate unknown or missing values.
 - Version 1.0 (31 Mar 2020): initial version
 - Version 1.1 (10 Apr 2021): added planetary masses
 - Version 1.2 (16 May 2021): added rotation periods and albedos
+- Version 2.0 (30 Jun 2026): added dwarf planets, column headers, rates of motion for argument of perihelion and longitude of ascending node; added J2000 RA and Dec of reference plane.
 
 Moons.csv
 ---------
 
-This table contains data for all of the Solar System's 290 confirmed moons as of December 2023. It was adapted from the following sources:
+This table contains data for all of the Solar System's 460 confirmed moons as of June 2026. It was adapted from the following sources:
 
-- JPL's ["Planetary Satellite Mean Orbital Parameters"](https://ssd.jpl.nasa.gov/?sat_elem) and an older (March 2020) version of JPL's ["Planetary Satellite Physical Parameters"](https://ssd.jpl.nasa.gov/?sat_phys_par) table. Rotation periods are from the [2015 Report](https://astrogeology.usgs.gov/search/map/Docs/WGCCRE/WGCCRE2015reprint) of the IAU Working Group on Cartographic Coordinates and Rotational Elements. 
+- JPL's [Planetary Satellite Mean Elements](https://ssd.jpl.nasa.gov/?sat_elem) and [Planetary Satellite Physical Parameters](https://ssd.jpl.nasa.gov/?sat_phys_par) tables. Data for the major moons was taken from older (March 2020) versions of these sources, which are more complete and accurate than the current versions. 
 - Wikipedia articles for moons of [Earth](https://en.wikipedia.org/wiki/Moon), [Mars](https://en.wikipedia.org/wiki/Moons_of_JupiterMars), [Jupiter](https://en.wikipedia.org/wiki/Moons_of_Jupiter), [Saturn](https://en.wikipedia.org/wiki/Moons_of_Saturn), [Uranus](https://en.wikipedia.org/wiki/Moons_of_Uranus), [Neptune](https://en.wikipedia.org/wiki/Moons_of_Neptune), and [Pluto](https://en.wikipedia.org/wiki/Moons_of_Pluto).
 
-Columns are identical to Planets.csv, above. The orbital inclinations, arguments, and nodes are referred to their Laplace plane (essentially their primary planet's equatorial plane), except for Earth's Moon, and the irregular outer satellites of Jupiter, Saturn, Uranus, and Neptune. These moons' orbital elements are referred to the J2000 ecliptic. 
+The orbital inclinations, arguments, and nodes for most moons are refererenced againt their Laplace plane (essentially their primary planet's equatorial plane), except for Earth's Moon, and the irregular outer satellites of Jupiter, Saturn, Uranus, and Neptune. These moons' orbital elements are referred to the J2000 ecliptic. For all moons, the J2000 RA and Dec of the pole of the reference plane is now provided, along with precession rates for the node and periapse around that pole.
 
 JPL's satellite orbit data contains two entries for Uranus's moon Puck; we used the data from the more recent solution. Orbit data for Saturn's B-ring shepherd moon S/2009 S1 was missing from the JPL data; we replaced with Wikipedia's values. 
+
+Columns are identical to Planets.csv, above. 
 
 **Revision History**
 
@@ -64,6 +73,7 @@ JPL's satellite orbit data contains two entries for Uranus's moon Puck; we used 
 - Version 1.61 (30 Dec 2023): use Sheppard & Wikipedia as primary sources for all outer planet moons; use JPL data only for Earth's Moon, Phobos, Deimos, and albedos.
 - Version 1.62 (31 Dec 2023): use JPL orbit data and albedos for all moons except S/2009 S1; use Wikipedia physical data except albedo for all moons. 
 - version 1.7 (27 Jun 2026): correct absolute magnitudes for Pluto's moons (they were incorrectly entered as apparent magnitudes previously). Add column headers.
+- Version 2.0 (30 Jun 2026): added 170 new moons discovered since 2023, rates of motion for argument of perihelion and longitude of ascending node; added J2000 RA and Dec of reference plane.
 
 Asteroids.txt
 -------------
