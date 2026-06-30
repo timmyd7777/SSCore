@@ -683,8 +683,12 @@ string SSPlanet::toCSV ( void )
     csv += ::isinf ( _orbit.n ) ? "," : formstr ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
     csv += ::isinf ( _orbit.m ) ? "," : formstr ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
     csv += ::isinf ( _orbit.mm ) ? "," : formstr ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.wrate ) ? "," : formstr ( "%.8f,", _orbit.wrate * SSAngle::kDegPerRad * 365.25 );
+    csv += ::isinf ( _orbit.nrate ) ? "," : formstr ( "%.8f,", _orbit.nrate * SSAngle::kDegPerRad * 365.25 );
+    csv += ::isinf ( _orbit.polera ) ? "," : formstr ( "%.8f,", _orbit.polera * SSAngle::kDegPerRad );
+    csv += ::isinf ( _orbit.poledec ) ? "," : formstr ( "%.8f,", _orbit.poledec * SSAngle::kDegPerRad );
     csv += ::isinf ( _orbit.t ) ? "," : formstr ( "%.4f,", _orbit.t );
-    
+
     csv += ::isinf ( _Hmag ) ? "," : formstr ( "%+.2f,", _Hmag );
     csv += ::isinf ( _Gmag ) ? "," : formstr ( "%+.2f,", _Gmag );
     csv += ::isinf ( _radius ) ? "," : formstr ( "%.1f,", _radius );
@@ -709,7 +713,7 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     vector<string> fields = split ( csv, "," );
     
     SSObjectType type = SSObject::codeToType ( fields[0] );
-    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 17 )
+    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 21 )
         return nullptr;
     
     SSOrbit orbit;
@@ -721,26 +725,30 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     orbit.n = fields[5].empty() ? INFINITY : strtofloat64 ( fields[5] ) * SSAngle::kRadPerDeg;
     orbit.m = fields[6].empty() ? INFINITY : strtofloat64 ( fields[6] ) * SSAngle::kRadPerDeg;
     orbit.mm = fields[7].empty() ? INFINITY : strtofloat64 ( fields[7] ) * SSAngle::kRadPerDeg;
-    orbit.t = fields[8].empty() ? INFINITY : strtofloat64 ( fields[8] );
+    orbit.wrate = fields[8].empty() ? INFINITY : strtofloat64 ( fields[8] ) * SSAngle::kRadPerDeg / 365.25;
+    orbit.nrate = fields[9].empty() ? INFINITY : strtofloat64 ( fields[9] ) * SSAngle::kRadPerDeg / 365.25;
+    orbit.polera = fields[10].empty() ? INFINITY : strtofloat64 ( fields[10] ) * SSAngle::kRadPerDeg;
+    orbit.poledec = fields[11].empty() ? INFINITY : strtofloat64 ( fields[11] ) * SSAngle::kRadPerDeg;
+    orbit.t = fields[12].empty() ? INFINITY : strtofloat64 ( fields[12] );
 
     if ( orbit.q > 1000.0 )
         orbit.q /= SSCoordinates::kKmPerAU;
     
-    float h = fields[9].empty() ? INFINITY : strtofloat ( fields[9] );
-    float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
-    float r = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
-    float m = fields[12].empty() ? INFINITY : strtofloat ( fields[12] );
-    float p = fields[13].empty() ? INFINITY : strtofloat ( fields[13] );
-    float a = fields[14].empty() ? INFINITY : strtofloat ( fields[14] );
+    float h = fields[13].empty() ? INFINITY : strtofloat ( fields[13] );
+    float g = fields[14].empty() ? INFINITY : strtofloat ( fields[14] );
+    float r = fields[15].empty() ? INFINITY : strtofloat ( fields[15] );
+    float m = fields[16].empty() ? INFINITY : strtofloat ( fields[16] );
+    float p = fields[17].empty() ? INFINITY : strtofloat ( fields[17] );
+    float a = fields[18].empty() ? INFINITY : strtofloat ( fields[18] );
 
     SSIdentifier ident;
     if ( type == kTypePlanet || type == kTypeMoon )
-        ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[15] ) );
+        ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[19] ) );
     else
-        ident = SSIdentifier::fromString ( fields[15] );
+        ident = SSIdentifier::fromString ( fields[19] );
 
     vector<string> names;
-    for ( int i = 16; i < fields.size(); i++ )
+    for ( int i = 20; i < fields.size(); i++ )
         names.push_back ( trim ( fields[i] ) );
     
 	SSObjectPtr pObject = SSNewObject ( type );

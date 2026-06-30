@@ -26,6 +26,10 @@ struct SSOrbit
     double n;        // longitude of ascending node in radians
     double m;        // mean anomaly at epoch in radians
     double mm;       // mean motion, radians per day
+    double wrate;    // rate of precession of argument of periapse in radians per day
+    double nrate;    // rate of precession of longiude of ascending node in radians per day
+    double polera;   // J2000 mean right ascension of pole of reference plane in radians
+    double poledec;  // J2000 mean declination of pole of reference plane in radians
 
     static constexpr double kGravity = 6.67259e-20;                 // Newtonian gravitational constant for mass in kilograms, time in seconds, distance in kilometers [km^3 / kg / sec^2] (JPL)
     static constexpr double kGaussGravHelio = 0.01720209895;        // Gaussian gravitational constant for heliocentric orbits with time in days and distance in AU
