@@ -62,6 +62,8 @@ void exportCatalog ( SSObjectVec &objects, SSCatalog cat, int first, int last )
 
 void TestTime ( void )
 {
+    cout << "Testing Time and Julian Date...\n";
+    
     SSTime now = SSTime::fromSystem();
     SSDate date = now;
 
@@ -69,8 +71,6 @@ void TestTime ( void )
     cout << "Current local time is " << formstr ( "%02hd:%02hd:%04.1f", date.hour, date.min, date.sec ) << endl;
     cout << "Current local time is " << formstr ( "%+.2f", date.zone ) << " hours east of UTC" << endl;
     cout << "Current Julian Date is " << formstr ( "%.6f", now.jd ) << endl;
-
-    cout << "Current working directory is " << getcwd() << endl << endl;
 
     cout << "Before is "
          << formstr("%04hd-%02hd-%02.0f %02hd:%02hd:%04.1f",
@@ -92,13 +92,17 @@ void TestTime ( void )
               date2.min,
               date2.sec)
          << endl;
+    
+    cout << endl;
 };
 
 void TestCalendars ( void )
 {
-    double step = 36522;
-    double start = SSTime::kJ2000 + 0.5 - step * 10;
-    double stop = SSTime::kJ2000 + 0.5 + step * 10;
+    cout << "Testing Calendar Conversions...\n";
+    
+    double step = 36525;
+    double start = SSTime::kJ2000 + 0.5 - step * 1;
+    double stop = SSTime::kJ2000 + 0.5 + step * 1;
     
     int year;
     short month;
@@ -153,10 +157,14 @@ void TestCalendars ( void )
         double jd1 = SSTime::IndianToJD ( year, month, day );
         printf ( " = JD %10.1f\n", jd1 );
     }
+    
+    cout << endl;
 }
 
 void TestSatellites ( string inputDir, string outputDir )
 {
+    cout << "Testing Satellites and TLE import/export...\n";
+    
     string filename = inputDir + "/SolarSystem/Satellites/visual.txt";
     FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
@@ -173,42 +181,63 @@ void TestSatellites ( string inputDir, string outputDir )
         return;
     }
     
+    // Read all TLEs from input file and write to output; display errors
+
+    int nsat = 0;
     SSTLE tle;
-    
     while ( tle.read ( file ) == 0 )
     {
-        tle.write ( cout );
- 
-        SSVector pos, vel;
+        if ( tle.write ( outfile ) == 0 )
+        {
+            nsat++;
+        }
+        else
+        {
+            cout << "Can't write TLE to output file!\n";
+            tle.write ( cout );
+        }
+    }
+    
+    cout << "Exported " << nsat << " TLEs to ExportedSatellites.txt";
+    
+    // For last satellite, erite TLE to console, then compute and display position and velocity 10 days after epoch
+    
+    tle.write ( cout );
+    SSVector pos, vel;
+    tle.toPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
 
-        tle.toPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
+    cout << formstr ( "JD %.6f  ", tle.jdepoch + 10.0 );
+    cout << formstr ( "pos %+10.3f %+10.3f %+10.3f  ", pos.x, pos.y, pos.z );
+    cout << formstr ( "vel %+7.3f %+7.3f %+7.3f",   vel.x, vel.y, vel.z ) << endl;
 
-        cout << formstr ( "JD %.6f  ", tle.jdepoch + 10.0 );
-        cout << formstr ( "pos %+10.3f %+10.3f %+10.3f  ", pos.x, pos.y, pos.z );
-        cout << formstr ( "vel %+7.3f %+7.3f %+7.3f",   vel.x, vel.y, vel.z ) << endl;
-
-        SSTLE tle1 = tle;
-        tle1.fromPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
-        
-        SSTLE tle2 = tle1;
-        tle1.toPositionVelocity ( tle1.jdepoch - 10.0, pos, vel );
-        tle2.fromPositionVelocity ( tle1.jdepoch - 10.0, pos, vel );
-        tle2.write ( cout );
-        tle2.write ( outfile );
-     }
+    // Recompute TLE from position and velocity, write recomputed TLE to console.
+    
+    SSTLE tle1 = tle;
+    tle1.fromPositionVelocity ( tle.jdepoch + 10.0, pos, vel );
+    tle1.write ( cout );
+    
+    cout << endl;
 }
 
 void TestSolarSystem ( string inputDir, string outputDir )
 {
+    cout << "Testing Solar System data rimport/export...\n";
+    
     SSObjectVec planets;
     int numPlanets = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Planets.csv", planets );
     cout << "Imported " << numPlanets << " major planets" << endl;
-    numPlanets = SSExportObjectsToCSV ( "", planets );
     
     SSObjectVec moons;
     int numMoons = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", moons );
     cout << "Imported " << numMoons << " natural satellites" << endl;
-    numPlanets = SSExportObjectsToCSV ( "", moons );
+
+    SSObjectVec comets;
+    int numComets = SSImportMPCComets ( inputDir + "/SolarSystem/Comets.txt", comets );
+    cout << "Imported " << numComets << " MPC comets" << endl;
+
+    SSObjectVec asteroids;
+    int numAsteroids = SSImportMPCAsteroids ( inputDir + "/SolarSystem/Asteroids.txt", asteroids );
+    cout << "Imported " << numAsteroids << " MPC asteroids" << endl;
 
     SSObjectVec features;
     int numFeatures = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Features.csv", features );
@@ -222,35 +251,34 @@ void TestSolarSystem ( string inputDir, string outputDir )
     int numCities = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Cities.csv", cities );
     cout << "Imported " << numCities << " cities" << endl;
 
-    SSObjectVec comets;
-    int numComets = SSImportMPCComets ( inputDir + "/SolarSystem/Comets.txt", comets );
-    cout << "Imported " << numComets << " MPC comets" << endl;
-
-    SSObjectVec asteroids;
-    int numAsteroids = SSImportMPCAsteroids ( inputDir + "/SolarSystem/Asteroids.txt", asteroids );
-    cout << "Imported " << numAsteroids << " MPC asteroids" << endl;
-
     if ( ! outputDir.empty() )
     {
+        numPlanets = SSExportObjectsToCSV ( outputDir + "/ExportedPlanets.csv", planets );
+        cout << "Exported " << numPlanets << " planets to " << outputDir + "/ExportedPlanets.csv" << endl;
+
         numMoons = SSExportObjectsToCSV ( outputDir + "/ExportedMoons.csv", moons );
         cout << "Exported " << numMoons << " natural satellites to " << outputDir + "/ExportedMoons.csv" << endl;
-
-        numFeatures = SSExportObjectsToCSV ( outputDir + "/ExportedFeatures.csv", features );
-        cout << "Exported " << numFeatures << " non-Earth planetary surface features to " << outputDir + "/ExportedFeatures.csv" << endl;
-
-        numCities = SSExportObjectsToCSV ( outputDir + "/ExportedCities.csv", cities );
-        cout << "Exported " << numCities << " cities to " << outputDir + "/ExportedCities.csv" << endl;
 
         numComets = SSExportObjectsToCSV ( outputDir + "/ExportedComets.csv", comets );
         cout << "Exported " << numComets << " MPC comets to " << outputDir + "/ExportedComets.csv" << endl;
 
         numAsteroids = SSExportObjectsToCSV ( outputDir + "/ExportedAsteroids.csv", asteroids );
         cout << "Exported " << numAsteroids << " MPC asteroids to " << outputDir + "/ExportedAsteroids.csv" << endl;
+
+        numFeatures = SSExportObjectsToCSV ( outputDir + "/ExportedFeatures.csv", features );
+        cout << "Exported " << numFeatures << " non-Earth planetary surface features to " << outputDir + "/ExportedFeatures.csv" << endl;
+
+        numCities = SSExportObjectsToCSV ( outputDir + "/ExportedCities.csv", cities );
+        cout << "Exported " << numCities << " cities to " << outputDir + "/ExportedCities.csv" << endl;
     }
+    
+    cout << endl;
 }
 
 void TestConstellations ( string inputDir, string outputDir )
 {
+    cout << "Testing Constellation data import/export...\n";
+    
     SSObjectVec constellations;
     
     int numCons = SSImportConstellations ( inputDir + "/Constellations/Constellations.csv", constellations );
@@ -267,10 +295,13 @@ void TestConstellations ( string inputDir, string outputDir )
         numCons = SSExportObjectsToCSV ( outputDir + "/ExportedConstellations.csv", constellations );
         cout << "Exported " << numCons << " constellations to " << outputDir + "/ExportedConstellations.csv" << endl;
     }
+    
+    cout << endl;
 }
 
 void TestStars ( string inputDir, string outputDir )
 {
+    cout << "Testing Star data import/export...\n";
     SSObjectVec nearest, brightest;
     
     int numStars = SSImportObjectsFromCSV ( inputDir + "/Stars/Nearest.csv", nearest );
@@ -287,10 +318,13 @@ void TestStars ( string inputDir, string outputDir )
         numStars = SSExportObjectsToCSV ( outputDir + "/ExportedBrightStars.csv", brightest );
         cout << "Exported " << numStars << " bright stars to " << outputDir + "/ExportedBrightStars.csv" << endl;
     }
+    
+    cout << endl;
 }
 
 void TestDeepSky ( string inputDir, string outputDir )
 {
+    cout << "Testing Deep Sky Object data import/export...\n";
     SSObjectVec messier, caldwell;
     
     int numObjs = SSImportObjectsFromCSV ( inputDir + "/DeepSky/Messier.csv", messier );
@@ -307,10 +341,13 @@ void TestDeepSky ( string inputDir, string outputDir )
         numObjs = SSExportObjectsToCSV ( outputDir + "/ExportedCaldwell.csv", caldwell );
         cout << "Exported " << numObjs << " Caldwell objects to " << outputDir + "/ExportedCaldwell.csv" << endl;
     }
+    
+    cout << endl;
 }
 
 void TestJPLDEphemeris ( string inputDir )
 {
+    cout << "Testing JPL DE Ephemeris...\n";
     SSJPLDEphemeris jpldeph;
     
     string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
@@ -338,10 +375,12 @@ void TestJPLDEphemeris ( string inputDir )
     }
     
     jpldeph.close();
+    cout << endl;
 }
 
 void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
 {
+    cout << "Testing Event Computation...\n";
     SSTime now = coords.getTime();
     
     // Compute Sun/Moon rise/transit/set circumstances
@@ -443,10 +482,13 @@ void TestEvents ( SSCoordinates coords, SSObjectVec &solsys )
             cout << formstr ( "Set:   %02hd:%02hd:%02.0f @ %.1f°", date.hour, date.min, date.sec, passes[i].setting.azm * SSAngle::kDegPerRad ) << endl << endl;
         }
     }
+    
+    cout << endl;
 }
 
 void TestEphemeris ( string inputDir, string outputDir )
 {
+    cout << "Testing Solar System Ephemeris...\n";
     SSObjectVec solsys;
     
     SSPlanet::useVSOPELP ( false );
@@ -585,10 +627,12 @@ void TestEphemeris ( string inputDir, string outputDir )
         cout << "Dist: " << formstr ( "%.3f pc", dist ) << endl;
         cout << "Mag:  " << formstr ( "%+.2f", mag ) << endl << endl;
     }
+    cout << endl;
 }
 
 void TestELPMPP02 ( const string &datadir )
 {
+    cout << "Testing ELPMPP02 Lunar Ephemeris...\n";
     ELPMPP02 elp;
 
 #if ! ELPMPP02_EMBED_SERIES
@@ -617,6 +661,7 @@ void TestELPMPP02 ( const string &datadir )
 
 void TestVSOP2013 ( const string &datadir )
 {
+    cout << "Testing VSOP2013 Planetary Ephemeris...\n";
     VSOP2013 vsop2013;
 
 #if ! VSOP2013_EMBED_SERIES
@@ -654,11 +699,13 @@ void TestVSOP2013 ( const string &datadir )
 
 void TestPrecession ( void )
 {
+    printf ( "Testing precession matrix for JDE 1219339.078000\n" );
     SSMatrix p = SSCoordinates::getPrecessionMatrix ( 1219339.078000 );
     
     printf ( "%+.12f %+.12f %+.12f\n", p.m00, p.m01, p.m02 );
     printf ( "%+.12f %+.12f %+.12f\n", p.m10, p.m11, p.m12 );
     printf ( "%+.12f %+.12f %+.12f\n", p.m20, p.m21, p.m22 );
+    printf ( "\n" );
 }
 
 // Android redirects stdout & stderr output to /dev/null. This uses Android logging functions to send
@@ -748,6 +795,8 @@ int main ( int argc, const char *argv[] )
     string inpath ( argv[1] );
     string outpath ( argv[2] );
     
+    cout << "Current working directory is " << getcwd() << endl << endl;
+
     TestTime();
     TestCalendars();
     TestELPMPP02 ( "/Users/timmyd/Projects/SouthernStars/Projects/Astro Code/ELPMPP02/Chapront/" );
