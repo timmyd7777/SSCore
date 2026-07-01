@@ -89,7 +89,7 @@ bool fgetline ( FILE *file, string &line )
     while ( true )
     {
         if ( fread ( &c, 1, 1, file ) != 1 )
-            return false;
+            return line.empty() ? false : true;
         
         if ( c == '\n' )
             return true;
