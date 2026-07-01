@@ -21,16 +21,19 @@ double kcoskdeg ( double k, double deg )
     return SSAngle::kRadPerDeg * k * cos ( k * deg * SSAngle::kRadPerDeg );
 }
 
-// Constructs an orbit with default values of zero.
+// Constructs an orbit with default values of zero; the reference plane is the J2000 ecliptic,
+// so the reference plane pole is the J2000 RA and Dec of the north ecliptic pole.
 
 SSOrbit::SSOrbit ( void )
 {
-    t = q = e = i = w = n = m = mm = 0.0;
+    t = q = e = i = w = n = m = mm = wrate = nrate = 0.0;
+    polera = degtorad ( 270.0 );
+    poledec = degtorad ( 90.0 - 90.0 - 23.439291 );
 }
 
 // Constructs an orbit from the specified set of Keplerian elements.
 
-SSOrbit::SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm )
+SSOrbit::SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm, double wrate, double nrate, double polera, double poledec )
 {
     this->t = t;
     this->q = q;
@@ -40,6 +43,10 @@ SSOrbit::SSOrbit ( double t, double q, double e, double i, double w, double n, d
     this->n = n;
     this->m = m;
     this->mm = mm;
+    this->wrate = wrate;
+    this->nrate = nrate;
+    this->polera = polera;
+    this->poledec = poledec;
 }
 
 // Computes mean motion of an object in a Keplerian orbit in radians per time unit
@@ -222,13 +229,16 @@ void SSOrbit::toPositionVelocity ( double jed, SSVector &pos, SSVector &vel )
     double dnu = h / ( r * r );
     double dr = h * e * sin ( nu ) / p;
     
-    double u = w + nu;
+    double wnow = isinf ( wrate ) ? w : w + wrate * ( jed - t );
+    double nnow = isinf ( nrate ) ? n : n + nrate * ( jed - t );
+
+    double u = wnow + nu;
     double cu = cos ( u );
     double su = sin ( u );
     double ci = cos ( i );
     double si = sin ( i );
-    double cn = cos ( n );
-    double sn = sin ( n );
+    double cn = cos ( nnow );
+    double sn = sin ( nnow );
 
     pos.x = r * ( cu * cn - su * ci * sn );
     pos.y = r * ( cu * sn + su * ci * cn );
@@ -242,6 +252,8 @@ void SSOrbit::toPositionVelocity ( double jed, SSVector &pos, SSVector &vel )
 // Computes and returns Keplerian orbital elements from position and velocity vectors.
 // Orbit inclination (i), argument (w), node (n) computed relative to same frame as input
 // position and velocity vectors. Gaussian gravitational constant is g.
+// This method assumes a perfect Keplerian two-body orbit, which does not precess,
+// so precession of perihelion and ascending node are not computed here.
 
 SSOrbit SSOrbit::fromPositionVelocity ( double jde, SSVector pos, SSVector vel, double g )
 {
@@ -368,51 +380,6 @@ SSOrbit SSOrbit::transform ( SSMatrix &m )
     return orbit;
 }
 
-// Constructs Mercury's heliocentric orbital elements at a specific Julian Ephemeris Date (jde)
-// referred to the J2000 ecliptic.  Only valid for years from -3000 to +3000.
-// For 1800 - 2100, positions predicted using this orbit are accurate to about 1 arcminute;
-// outside that interval, accuracy is about 10 arcminutes.  Based on formulae from
-// E. M. Standish, "Keplerian Elements for Approximate Positions of the Major Planets",
-// Solar System Dynamics Group, JPL/Caltech, https://ssd.jpl.nasa.gov/?planet_pos
-// Formulae have been clamped to give plausible results over an unlimited timespan.
-
-SSOrbit SSOrbit::getMercuryOrbit ( double jde )
-{
-    double t = ( jde - SSTime::kJ2000 ) / 36525.0;
-    double l, p, a, e, i, n, mm;
-    
-    if ( t >= -2.0 && t < 1.0 )
-    {
-        a  =      0.38709927 +      0.00000037 * t;
-        e  =      0.20563593 +      0.00001906 * t;
-        i  =      7.00497902 -      0.00594749 * t;
-        l  =    252.25032350 + 149472.67411175 * t;
-        p  =     77.45779628 +      0.16047689 * t;
-        n  =     48.33076593 -      0.12534081 * t;
-        mm = 149472.67411175 -      0.16047689;
-    }
-    else
-    {
-        double c = clamp ( t, -30.0, 30.0 );
-        a  =      0.3870943;
-        e  =      0.20563651 +      0.00002123 * c;
-        i  =      7.00559432 -      0.00590158 * c;
-        l  =    252.25166724 + 149472.67486623 * t;
-        p  =     77.45771895 +      0.15940013 * t;
-        n  =     48.33961819 -      0.12214182 * t;
-        mm = 149472.67486623 -      0.15940013;
-    }
-    
-    return SSOrbit ( jde,
-                     a * ( 1.0 - e ),
-                     e,
-                     SSAngle::fromDegrees ( i ),
-                     SSAngle::fromDegrees ( p - n ).mod2Pi(),
-                     SSAngle::fromDegrees ( n ),
-                     SSAngle::fromDegrees ( l - p ).mod2Pi(),
-                     SSAngle::fromDegrees ( mm / 36525.0 ) );
-}
-
 // Computes array of points outlining orbit, starting at true anomaly nu0 in radians.
 
 void SSOrbit::computePoints ( double nu0, int npoints, vector<SSVector> &points )
@@ -456,6 +423,51 @@ void SSOrbit::computePoints ( double nu0, int npoints, vector<SSVector> &points 
         
         points.push_back ( SSVector ( x, y, z ) );
     }
+}
+
+// Constructs Mercury's heliocentric orbital elements at a specific Julian Ephemeris Date (jde)
+// referred to the J2000 ecliptic.  Only valid for years from -3000 to +3000.
+// For 1800 - 2100, positions predicted using this orbit are accurate to about 1 arcminute;
+// outside that interval, accuracy is about 10 arcminutes.  Based on formulae from
+// E. M. Standish, "Keplerian Elements for Approximate Positions of the Major Planets",
+// Solar System Dynamics Group, JPL/Caltech, https://ssd.jpl.nasa.gov/?planet_pos
+// Formulae have been clamped to give plausible results over an unlimited timespan.
+
+SSOrbit SSOrbit::getMercuryOrbit ( double jde )
+{
+    double t = ( jde - SSTime::kJ2000 ) / 36525.0;
+    double l, p, a, e, i, n, mm;
+    
+    if ( t >= -2.0 && t < 1.0 )
+    {
+        a  =      0.38709927 +      0.00000037 * t;
+        e  =      0.20563593 +      0.00001906 * t;
+        i  =      7.00497902 -      0.00594749 * t;
+        l  =    252.25032350 + 149472.67411175 * t;
+        p  =     77.45779628 +      0.16047689 * t;
+        n  =     48.33076593 -      0.12534081 * t;
+        mm = 149472.67411175 -      0.16047689;
+    }
+    else
+    {
+        double c = clamp ( t, -30.0, 30.0 );
+        a  =      0.3870943;
+        e  =      0.20563651 +      0.00002123 * c;
+        i  =      7.00559432 -      0.00590158 * c;
+        l  =    252.25166724 + 149472.67486623 * t;
+        p  =     77.45771895 +      0.15940013 * t;
+        n  =     48.33961819 -      0.12214182 * t;
+        mm = 149472.67486623 -      0.15940013;
+    }
+    
+    return SSOrbit ( jde,
+                     a * ( 1.0 - e ),
+                     e,
+                     SSAngle::fromDegrees ( i ),
+                     SSAngle::fromDegrees ( p - n ).mod2Pi(),
+                     SSAngle::fromDegrees ( n ),
+                     SSAngle::fromDegrees ( l - p ).mod2Pi(),
+                     SSAngle::fromDegrees ( mm / 36525.0 ) );
 }
 
 // Constructs Venus's orbital elements at a specific Julian Ephemeris Date (jde)

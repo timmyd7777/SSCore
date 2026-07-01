@@ -13,7 +13,7 @@
 #include "SSMatrix.hpp"
 
 // Stores Keplerian orbital elements, solves Kepler's equation, and computes position/velocity
-// at a given time; also computes orbit from position & velocity.
+// at a given time; also computes orbit from position & velocity. Orbits may precess around a pole.
 // For heliocentric orbits, the reference plane is usually the J2000 ecliptic, and periapse distance is measured in AU.
 
 struct SSOrbit
@@ -36,7 +36,7 @@ struct SSOrbit
     static constexpr double kGaussGravGeo = 0.0743669161;           // Gaussian gravitational constant for geocentric orbits with time in minutes and distance in Earth-radii
     
     SSOrbit ( void );
-    SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm );
+    SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm, double wrate = 0.0, double nrate = 0.0, double polera = degtorad ( 270.0 ), double poledec = degtorad ( 90.0 - 23.439291 ) );
 
     static double meanMotion ( double e, double q, double g = kGaussGravHelio );
     static double periapseDistance ( double e, double mm, double g = kGaussGravHelio );
