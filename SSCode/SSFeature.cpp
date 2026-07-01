@@ -43,10 +43,13 @@ SSObjectPtr SSFeature::fromCSV ( string csv )
     if ( csv.size() == 0 )
         return nullptr;
 
-    // split string into comma-delimited fields,
+    // split string into comma-delimited fields, Eliminate without fields or header lines.
     // remove leading & trailing whitespace/line breaks from each field.
     
     vector<string> fields = split_csv ( csv );
+    if ( fields.size() < 1 || strncmp ( fields[0].c_str(), "Type", 4 ) == 0 )
+        return nullptr;
+
     for ( int i = 0; i < fields.size(); i++ )
         fields[i] = trim ( fields[i] );
     

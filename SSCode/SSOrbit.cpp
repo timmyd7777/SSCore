@@ -377,7 +377,26 @@ SSOrbit SSOrbit::transform ( SSMatrix &m )
     orbit.n = atan2pi ( sn, cn );
     orbit.w = atan2pi ( sw, cw );
     
+    // Transform the pole of the reference plane
+    
+    SSVector pole ( SSSpherical ( polera, poledec ) );
+    pole = m * pole;
+    SSSpherical spole ( pole );
+    orbit.polera = spole.lon;
+    orbit.poledec = spole.lat;
+
     return orbit;
+}
+
+// Returns rotation matrix which transforms an XYZ vector from the orbit's reference frame
+// (defined by its J2000 RA/Dec pole coordinates) to the J2000 mean equatorial frame.
+
+SSMatrix SSOrbit::getMatrix ( void )
+{
+    double n = SSAngle::kHalfPi + polera;
+    double j = SSAngle::kHalfPi - poledec;
+    
+    return SSMatrix::rotations ( 2, 0, j, 2, n );
 }
 
 // Computes array of points outlining orbit, starting at true anomaly nu0 in radians.

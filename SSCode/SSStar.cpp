@@ -1447,6 +1447,11 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     for ( int i = 0; i < fields.size(); i++ )
         fields[i] = trim ( fields[i] );
     
+    // Eliminate lines without any fields, or header lines
+    
+    if ( fields.size() < 1 || strncmp ( fields[0].c_str(), "Type", 4) == 0 )
+        return nullptr;
+    
     SSObjectType type = SSObject::codeToType ( fields[0] );
     if ( type < kTypeStar || type > kTypeGalaxy )
         if ( type != kTypeNonexistent )

@@ -51,10 +51,14 @@ SSConstellationPtr SSGetConstellationPtr ( SSObjectPtr ptr )
 
 SSObjectPtr SSConstellation::fromCSV ( string csv )
 {
-    vector<string> fields = split ( csv, "," );
+    // split line into comma-delimited fields. Eliminate lines with insufficient fields or header lines.
     
+    vector<string> fields = split ( csv, "," );
+    if ( fields.size() < 8 || strncmp ( fields[0].c_str(), "Type", 4) == 0 )
+        return nullptr;
+
     SSObjectType type = SSObject::codeToType ( fields[0] );
-    if ( type < kTypeConstellation || type > kTypeAsterism || fields.size() < 8 )
+    if ( type < kTypeConstellation || type > kTypeAsterism )
         return nullptr;
     
 	SSObjectPtr pObject = SSNewObject ( type );

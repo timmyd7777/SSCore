@@ -710,10 +710,14 @@ string SSPlanet::toCSV ( void )
 
 SSObjectPtr SSPlanet::fromCSV ( string csv )
 {
-    vector<string> fields = split ( csv, "," );
+    // Split string into fields. Eliminate lines with insufficient fields, or header lines
     
+    vector<string> fields = split ( csv, "," );
+    if ( fields.size() < 21 || strncmp ( fields[0].c_str(), "Type", 4) == 0 )
+        return nullptr;
+
     SSObjectType type = SSObject::codeToType ( fields[0] );
-    if ( type < kTypePlanet || type > kTypeComet || fields.size() < 21 )
+    if ( type < kTypePlanet || type > kTypeComet )
         return nullptr;
     
     SSOrbit orbit;
