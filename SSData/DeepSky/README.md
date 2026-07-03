@@ -158,7 +158,7 @@ The second file, **Index.csv**, contains the catalog number(s) of the object whi
 - **_Contour_** is contour number
 - **_IDs_** are the catalog number(s) of the object which the contour represents, separated by semicolons
 
-For example, contour 96 represents NGC 2237, 2238, and 2239 (the Rosette Nebula). Most contours only represent a single catalog number.
+For example, contour 96 represents NGC 2237, 2238, and 2239 (the Rosette Nebula). Most contours only represent a single catalog number. Note that some objects have multiple contours. For example, M 42 (the Orion Nebula) has two contours, which represent the bright inner region, and fainter surrounding extended nebulosity.
 
 **Revision History**
 
