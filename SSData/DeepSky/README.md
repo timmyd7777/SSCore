@@ -145,7 +145,7 @@ The column format is RA, Dec, Region, Edge:
 Nebula Contours
 ---------------
 
-The **Nebulae** folder contains two files adapted from original data developed by Charles Turner in 2002, also used in Voyager. Turner digitized the contours of 127 bright and dark nebulae drawn on printed star atlases. The original author of those nabula contours is unclear, but they closely resemble the contours drawn by Wil Tirion (in e.g. Sky Atlas 2000).
+The **Nebulae** folder contains two files adapted from original data provided by Charles Turner in 2002, also used in Voyager. Turner digitized the contours of 127 bright and dark nebulae drawn on printed star atlases. The original author of those nebula contours is unclear, but they closely resemble the contours drawn by Wil Tirion (in e.g. Sky Atlas 2000).
 
 The first file, **Contours.csv**, contains the points which make up each of the 127 nebula contours. Its column format is RA, Dec, Region:
 
@@ -153,10 +153,10 @@ The first file, **Contours.csv**, contains the points which make up each of the 
 - **_Dec_** is J2000 declination in decimal egrees
 - **_Contour_** is contour number
 
-The second file, **Index.csv**, contains the catalog numbers of the object(s) which each contour represents. Its column format is Countour, IDs:
+The second file, **Index.csv**, contains the catalog number(s) of the object which each contour represents. Its column format is Countour, IDs:
 
 - **_Contour_** is contour number
-- **_IDs_** are the catalog number(s) of the object(s) which the contour represents, separated by semicolons
+- **_IDs_** are the catalog number(s) of the object which the contour represents, separated by semicolons
 
 For example, contour 96 represents NGC 2237, 2238, and 2239 (the Rosette Nebula). Most contours only represent a single catalog number.
 
