@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "../../../../../../../SSData ."
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData ."
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
