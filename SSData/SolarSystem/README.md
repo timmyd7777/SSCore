@@ -50,7 +50,7 @@ Empty fields indicate unknown or missing values.
 Moons.csv
 ---------
 
-This table contains data for all of the Solar System's 460 confirmed moons as of June 2026. It was adapted from the following sources:
+This table contains data for all of the Solar System's 461 confirmed moons as of June 2026. It was adapted from the following sources:
 
 - JPL's [Planetary Satellite Mean Elements](https://ssd.jpl.nasa.gov/?sat_elem) and [Planetary Satellite Physical Parameters](https://ssd.jpl.nasa.gov/?sat_phys_par) tables. Data for the major moons was taken from older (March 2020) versions of these sources, which are more complete and accurate than the current versions. 
 - Wikipedia articles for moons of [Earth](https://en.wikipedia.org/wiki/Moon), [Mars](https://en.wikipedia.org/wiki/Moons_of_JupiterMars), [Jupiter](https://en.wikipedia.org/wiki/Moons_of_Jupiter), [Saturn](https://en.wikipedia.org/wiki/Moons_of_Saturn), [Uranus](https://en.wikipedia.org/wiki/Moons_of_Uranus), [Neptune](https://en.wikipedia.org/wiki/Moons_of_Neptune), and [Pluto](https://en.wikipedia.org/wiki/Moons_of_Pluto).
@@ -73,7 +73,8 @@ Columns are identical to Planets.csv, above.
 - Version 1.61 (30 Dec 2023): use Sheppard & Wikipedia as primary sources for all outer planet moons; use JPL data only for Earth's Moon, Phobos, Deimos, and albedos.
 - Version 1.62 (31 Dec 2023): use JPL orbit data and albedos for all moons except S/2009 S1; use Wikipedia physical data except albedo for all moons. 
 - version 1.7 (27 Jun 2026): correct absolute magnitudes for Pluto's moons (they were incorrectly entered as apparent magnitudes previously). Add column headers.
-- Version 2.0 (30 Jun 2026): added 170 new moons discovered since 2023, rates of motion for argument of perihelion and longitude of ascending node; added J2000 RA and Dec of reference plane.
+- Version 2.0 (30 Jun 2026): added 171 new moons discovered since 2023, rates of motion for argument of perihelion and longitude of ascending node; added J2000 RA and Dec of reference plane.
+- Version 2.01 (8 Jul 2026): corrected rates of ascending node and mean motion for moons with inclination < 90 deg.
 
 Asteroids.txt
 -------------
