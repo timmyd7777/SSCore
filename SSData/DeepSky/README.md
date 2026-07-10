@@ -33,7 +33,7 @@ A few object-specific edits were made:
 
 The column format is:
 
-Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Type, Maj, Min, PA, Ident1, Ident2, Ident3, Common1, Common2
+Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Type, Maj, Min, PA, IDs, Names
 
 - **_Type_** is object type: open cluster (OC), globular cluster (GC), bright nebula (BN), dark nebula (DN), planetary nebula (PN), galaxy (GX)
 - **_RA_** is J2000 right ascension
@@ -48,8 +48,8 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Type, Maj, Min, PA, Ident1, Ident2, 
 - **_Maj_** is apparent ellipse major axis in arcminutes.
 - **_Min_** is apparent ellipse minor axis in aarcminutes.
 - **_PA_** is position angle of major axis from North in degrees.
-- **_Ident1, Ident2, etc._** are catalog identifiers in preferred order: Messier, Caldwell, NGC, IC
-- **_Common1, Common2, etc._** are the objects common name(s), if any.
+- **_IDs** are semicolon-delimited catalog identifiers in preferred order: Messier; Caldwell; NGC; IC
+- **_Names_** are the object's semicolon-delimited common name(s), if any.
 
 Empty fields indicate unknown or missing values.
 
@@ -60,6 +60,7 @@ Empty fields indicate unknown or missing values.
 - Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 - Version 1.2.1 (18 Jun 2020): added 90 arcmin size to M 24 from Wikipedia.
 - Version 1.2.2 (12 Aug 2020): correct coordinates for M 20 from Wikipedia.
+- Version 2.0 (9 Jul 2026): add column headers, combine IDs and Names into semicolon-delimited columns; fix distance to M42 and M43.
 
 Caldwell.csv
 ------------
