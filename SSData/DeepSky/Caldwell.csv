@@ -1,4 +1,4 @@
-Type,RA,Dec,pmRA,pmDec,V,B,Dist,RV,Morph,Maj,Min,PA,IDs,Names
+Type,RA,Dec,pmRA,pmDec,V,B,Dist,RV,Morph,Maj,Min,PA,IDs,Names,
 OC,00 47 30.00,+85 15 30.0,-0.00017,+0.0002,+8.10,,1.714E+03,-42.3,II2r,15.00,,,C 1;NGC 188,,
 PN,00 13 01.00,+72 31 21.0,,,+12.30,+10.70,8.700E+02,,PN,1.23,,,C 2;NGC 40;PK 120+09.1;PNG 120.0+09.8,Bow Tie Nebula,
 GX,12 16 43.30,+69 27 49.0,,,+9.60,+10.10,4.260E+06,,SBdm,21.90,7.20,162.0,C 3;NGC 4236;PGC 39346;UGC 7306,,
