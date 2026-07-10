@@ -111,6 +111,7 @@ The column format is identical to that of **Messer.csv**, above.
 **Revision History**
 
 - Version 1.0 (23 Jun 2026): initial version
+- Version 2.0 (9 Jul 2026): Added column headers, combined IDs and Names into semicolon-delimited columns; fixed distance to M42 and M43; removed duplicate SMC entry.
 
 Names.csv
 ---------
