@@ -10,7 +10,7 @@ _Tim DeBenedictis (timd@southernstars.com), 6 Apr 2020_
 Messier.csv
 -----------
 
-This Messier catalog is primarily based on data from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/index_e.htm), with additions from the following catalogs:
+This Messier catalog is primarily based on data from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/ngcic/ngcic_e.htm), with additions from the following catalogs:
 
 - **_Open clusters:_** added proper motions, distances, radial velocities from Wilton Dias' catalog of [Open Clusters and Galactic Structure](https://wilton.unifei.edu.br/ocdb/clusters.txt).
 - **_Globular clusters:_** added distances, radial velocities, spectral types from William Harris' catalog of [Globular Clusters in the Milky Way](http://physwww.mcmaster.ca/~harris/mwgc.dat).
@@ -23,7 +23,7 @@ A few object-specific edits were made:
 - M 16 (Eagle Nebula): changed type from OC to BN.
 - M 20 (Trifid Nebula): obtained RA and Dec from Wikipedia.
 - M 24 (Sagittarius Star Cloud): added 3.0 kpc distance and 90 arcmin size from Wikipedia.
-- M 40 (Winnecke 4): added data from Wikipedia for A component.
+- M 40 (Winnecke 4): added data from Wikipedia for A and B components.
 - M 42 (Orion Nebula): distance 412 pc from Wikipedia.
 - M 43 (Orion Nebula): distance 412 pc from Wikipedia.
 - M 45 (Pleiades): data added from Wilton Dias Open Cluster catalog, with V magnitude +1.6 from Wikipedia.
@@ -102,7 +102,7 @@ The column format is identical to that of **Messer.csv**, above.
 MCNGCIC.csv
 -----------
 
-This file is the Messier and Caldwell catalogs above, supplemented with all other NGC and IC objects from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/index_e.htm). This combined catalog contains 13,033 entries.
+This file is the Messier and Caldwell catalogs above, supplemented with all other NGC and IC objects from Wolfgang Steinicke's [Revised NGC and IC](http://www.klima-luft.de/steinicke/ngcic/ngcic_e.htm). This combined catalog contains 13,033 entries.
 
 NGC-IC objects which are duplicates of other objects are discarded; instead, the other object receives an additional NGC or IC identifier: that of the duplicate. Nonexistent NGC-IC objects have type "NO" in the first column. The goal is to have every NGC-IC entry represented once, but not more than once. This catalog adds distances, proper motions, and radial velocities from other catalogs for open and globulars clusters and planetary nebulae, as described above for **Messier.csv**.
 
@@ -111,7 +111,7 @@ The column format is identical to that of **Messer.csv**, above.
 **Revision History**
 
 - Version 1.0 (23 Jun 2026): initial version
-- Version 2.0 (9 Jul 2026): Added column headers, combined IDs and Names into semicolon-delimited columns; fixed distance to M42 and M43; removed duplicate SMC entry.
+- Version 2.0 (9 Jul 2026): Added column headers, combined IDs and Names into semicolon-delimited columns; fixed distance to M42 and M43; removed duplicate SMC entry. Based on Steinicke's latest (8 Feb 2026) data.
 
 Names.csv
 ---------
