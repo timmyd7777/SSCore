@@ -24,7 +24,7 @@ HIP and additional Bayer latin identifiers were added from Hipparcos, and GJ num
 
 The column format is:
 
-Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year, T, a, e, i, w, n, P], [Vtype, Vmin, Vmax, Vper, Vepoch], Ident1, Ident2, Ident3..., Common1, Common2...
+Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, Comp, Delta, Sep, PA, Year, T, a, e, i, w, n, P, Vtype, Vmin, Vmax, Vper, Vepoch, IDs, Names
 
 - **_Type_** is object type: single star (SS), double star (DS), variable star (VS), double variable star (DV)
 - **_RA_** is J2000 right ascension
@@ -53,11 +53,8 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Spec, [Comp, Delta, Sep, PA, Year, T
 - **_Vmax_** is maximum (faintest) magnitude 
 - **_Vper_** is variability period in days
 - **_Vepoch_** is variability epoch as Julian Date
-- **_Ident1, Ident2, etc._** are catalog identifiers in preferred order: Bayer, Flamsteed, GCVS, HR, HD, SAO, BD, CD, CP, WDS
-- **_Common1, Common2, etc._** are star common names.
-
-Fields **_[Comp ... P]_** are only present for star types DS and DV. 
-Fields **_[Vtype ... Vepoch]_** are only present for object types VS and DV. 
+- **_IDs_** are semicolon-delimited catalog identifiers in preferred order: Bayer; Flamsteed; GCVS; HR; HD; SAO; BD; CD; CP; WDS
+- **_Names_** are semicolon-delimited star common names.
 
 Empty fields indicate unknown or missing values. 
 
@@ -71,6 +68,7 @@ For binary stars with orbits, the **_Comp_** field contains two characters: firs
 - Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS, a few nearby star proper names.
 - Version 3.0 (9 Feb 2023): Added identifiers, positions, motions, and distances fom GAIA DR3.
 - Version 3.1 (11 Feb 2023): Keep original SKY2000 positions to preserve double stars. Use identifiers, motions, radial velocities, and parallaxes fom GAIA DR3.
+- Version 2.0 (9 Jul 2026): Add column headers, consolidate IDs and Names into single semicolon-delimited columns.
 
 SKY2000.csv
 -----------
