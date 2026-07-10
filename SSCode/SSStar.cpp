@@ -1302,20 +1302,27 @@ string SSStar::toCSV2 ( void )
 {
     string csv = "";
     
-    for ( int i = 0; i < _idents.size(); i++ )
-        csv += _idents[i].toString() + ",";
+    if ( _idents.empty() )
+        csv += ",";
+    else
+        for ( int i = 0; i < _idents.size(); i++ )
+            csv += _idents[i].toString() + ( i < _idents.size() - 1 ? ";" : "," );
     
-    for ( int i = 0; i < _names.size(); i++ )
-        csv += _names[i] + ",";
+    if ( _names.empty() )
+        csv += ",";
+    else
+        for ( int i = 0; i < _names.size(); i++ )
+            csv += _names[i] + ( i < _names.size() - 1 ? ";" : "," );
 
     return csv;
 }
 
-// Returns CSV string including base star data plus names and identifiers.
+// Returns CSV string including base star data, double star data including orbit,
+// variable star data, plus names and identifiers.
 
 string SSStar::toCSV ( void )
 {
-    return toCSV1() + toCSV2();
+    return toCSV1() + toCSVD() + toCSVV() + toCSV2();
 }
 
 // Stores orbital elements (orbit) referenced to sky plane centered at (ra,dec),
@@ -1370,15 +1377,15 @@ string SSDoubleStar::toCSVD ( void )
     return csv;
 }
 
-// Returns CSV string including base star data, double-star data,
-// plus names and identifiers. Overrides SSStar::toCSV().
+// Stub for writing single stars to CSV (which have no double star data or orbit data)
 
-string SSDoubleStar::toCSV ( void )
+string SSStar::toCSVD ( void )
 {
-    return toCSV1() + toCSVD() + toCSV2();
+    return ",,,,,,,,,,,,";
 }
 
 // Returns CSV string from variable-star data (but not SStar base class).
+// Overrides SSStar::toCSVV()
 
 string SSVariableStar::toCSVV ( void )
 {
@@ -1395,26 +1402,20 @@ string SSVariableStar::toCSVV ( void )
     return csv;
 }
 
-// Returns CSV string including base star data, variable-star data, plus names and identifiers.
-// Overrides SSStar::toCSV().
+// Stub for writing single stars to CSV (which have no variable star data or orbit data)
 
-string SSVariableStar::toCSV ( void )
+string SSStar::toCSVV ( void )
 {
-    return toCSV1() + toCSVV() + toCSV2();
-}
-
-// Returns CSV string including base star data, double-star data, variable-star data,
-// plus names and identifiers.  Overrides SSStar::toCSV().
-
-string SSDoubleVariableStar::toCSV ( void )
-{
-    return toCSV1() + toCSVD() + toCSVV() + toCSV2();
+    return ",,,,,";
 }
 
 // Returns CSV string from deep sky object data (but not SStar base class).
 
 string SSDeepSky::toCSVDS ( void )
 {
+    if ( _type == kTypeStar )
+        return ",,,";
+    
     string csv = "";
 
     csv += ::isinf ( _majAxis ) ? "," : formstr ( "%.2f,", _majAxis * SSAngle::kArcminPerRad );
@@ -1426,13 +1427,11 @@ string SSDeepSky::toCSVDS ( void )
 
 // Returns CSV string including base star data, double-star data,
 // plus names and identifiers. Overrides SSStar::toCSV().
+// Overrides SSStar::toCSV()
 
 string SSDeepSky::toCSV ( void )
 {
-    if ( _type == kTypeStar )
-        return toCSV1() + toCSV2();
-    else
-        return toCSV1() + toCSVDS() + toCSV2();
+    return toCSV1() + toCSVDS() + toCSV2();
 }
 
 // Allocates a new SSStar and initializes it from a CSV-formatted string.
@@ -1447,9 +1446,9 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     for ( int i = 0; i < fields.size(); i++ )
         fields[i] = trim ( fields[i] );
     
-    // Eliminate lines without any fields, or header lines
+    // Eliminate lines with insifficient fields, or header lines
     
-    if ( fields.size() < 1 || strncmp ( fields[0].c_str(), "Type", 4) == 0 )
+    if ( fields.size() < 10 || strncmp ( fields[0].c_str(), "Type", 4) == 0 )
         return nullptr;
     
     SSObjectType type = SSObject::codeToType ( fields[0] );
@@ -1461,19 +1460,42 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     // Verify that we have the required number if fiels and return if not.
     
     int fid = 0;
-    if ( type == kTypeStar )
-        fid = 10;
-    else if ( type == kTypeDoubleStar )
-        fid = 22;
-    else if ( type == kTypeVariableStar )
-        fid = 15;
-    else if ( type == kTypeDoubleVariableStar )
+    if ( type >= kTypeStar && type <= kTypeDoubleVariableStar )
         fid = 27;
-    else
+    else if ( ( type >= kTypeOpenCluster && type <= kTypeGalaxy ) || type == kTypeNonexistent )
         fid = 13;
     
-    if ( fields.size() < fid )
+    SSObjectPtr pObject = nullptr;
+    SSStarPtr pStar = nullptr;
+    SSDoubleStarPtr pDoubleStar = nullptr;
+    SSVariableStarPtr pVariableStar = nullptr;
+    SSDeepSkyPtr pDeepSkyObject = nullptr;
+    
+    // Allocate storage for the object based on the object type.
+    // Special case: stars with 13 or 14 fields are actually deep sky objects.
+    // Examples: M 40 and many NGC-IC objects which are actually stars.
+    
+    if ( type == kTypeStar && fields.size() >= 14 && fields.size() <= 16 )
+    {
+        pDeepSkyObject = new SSDeepSky ( type );
+        pObject = pStar = pDeepSkyObject;
+        fid = 13;
+    }
+    else if ( fields.size() > fid )
+    {
+        pObject = SSNewObject ( type );
+        pStar = SSGetStarPtr ( pObject );
+        pDoubleStar = SSGetDoubleStarPtr ( pObject );
+        pVariableStar = SSGetVariableStarPtr ( pObject );
+        pDeepSkyObject = SSGetDeepSkyPtr ( pObject );
+    }
+    
+    // Insufficient fields for the object type, or allocation failed
+    
+    if ( pStar == nullptr )
         return nullptr;
+
+    // Read common parameters from first 10 fields
     
     SSHourMinSec ra ( fields[1] );
     SSDegMinSec dec ( fields[2] );
@@ -1488,33 +1510,8 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     float radvel = fields[8].empty() ? INFINITY : strtofloat ( fields[8] ) / SSCoordinates::kLightKmPerSec;
     string spec = trim ( fields[9] );
     
-    // For remaining fields, attempt to parse an identifier.
-    // If we succeed, add it to the identifier vector; otherwise add it to the name vector.
+    // Store common parameters
     
-    vector<string> names;
-    vector<SSIdentifier> idents;
-    
-    for ( int i = fid; i < fields.size(); i++ )
-    {
-        if ( fields[i].empty() )
-            continue;
-        
-        SSIdentifier ident = SSIdentifier::fromString ( fields[i] );
-        if ( ident )
-            idents.push_back ( ident );
-        else
-            names.push_back ( fields[i] );
-    }
-    
-    SSObjectPtr pObject = SSNewObject ( type );
-    SSStarPtr pStar = SSGetStarPtr ( pObject );
-    SSDoubleStarPtr pDoubleStar = SSGetDoubleStarPtr ( pObject );
-    SSVariableStarPtr pVariableStar = SSGetVariableStarPtr ( pObject );
-    SSDeepSkyPtr pDeepSkyObject = SSGetDeepSkyPtr ( pObject );
-
-    if ( pStar == nullptr )
-        return nullptr;
-
     SSSpherical coords ( ra, dec, dist );
     SSSpherical motion ( pmRA, pmDec, radvel );
     
@@ -1522,8 +1519,8 @@ SSObjectPtr SSStar::fromCSV ( string csv )
     pStar->setVMagnitude ( vmag );
     pStar->setBMagnitude ( bmag );
     pStar->setSpectralType ( spec );
-    pStar->setIdentifiers( idents );
-    pStar->setNames ( names );
+    
+    // Store double star data if we have a double star
     
     if ( pDoubleStar )
     {
@@ -1538,6 +1535,8 @@ SSObjectPtr SSStar::fromCSV ( string csv )
         pDoubleStar->setSeparation ( sep );
         pDoubleStar->setPositionAngle ( pa );
         pDoubleStar->setPositionAngleYear ( year );
+        
+        // Store binary star orbit data if we have a binary star
         
         if ( fields[15].length() && fields[16].length() && fields[17].length() )
         {
@@ -1556,9 +1555,11 @@ SSObjectPtr SSStar::fromCSV ( string csv )
         }
     }
     
+    // Store variable star data if we have a variable star
+    
     if ( pVariableStar )
     {
-        int fv = ( type == kTypeVariableStar ) ? 10 : 22;
+        int fv = 22;
             
         string vtype = fields[fv];
         float vmin = fields[fv+1].empty() ? INFINITY : strtofloat ( fields[fv+1] );
@@ -1573,6 +1574,8 @@ SSObjectPtr SSStar::fromCSV ( string csv )
         pVariableStar->setEpoch ( vep );
     }
     
+    // Store deep sky object data if we have a deep sky object
+    
     if ( pDeepSkyObject )
     {
         float major = fields[10].empty() ? INFINITY : strtofloat ( fields[10] ) / SSAngle::kArcminPerRad;
@@ -1584,6 +1587,41 @@ SSObjectPtr SSStar::fromCSV ( string csv )
         pDeepSkyObject->setPositionAngle ( pa );
     }
     
+    // Parse semicolon-delimited identifiers from the ID field and add to the identifier vector
+    
+    vector<SSIdentifier> ids;
+    vector<string> idents = split ( fields[fid], ";" );
+    for ( int i = 0; i < idents.size(); i++ )
+    {
+        trim ( idents[i] );
+        if ( idents[i].empty() )
+            continue;
+        
+        SSIdentifier id = SSIdentifier::fromString ( idents[i] );
+        if ( id )
+            ids.push_back ( id );
+    }
+    
+    // If common names column is present, parse semicolon-delimited names
+    // from the name field. Remove empty names.
+
+    vector<string> names;
+    if ( fields.size() > fid + 1 )
+    {
+        names = split ( fields[fid+1], ";" );
+        for ( int i = 0; i < names.size(); i++ )
+        {
+            trim ( names[i] );
+            if ( names[i].empty() )
+                names.erase ( names.begin() + i );
+        }
+    }
+
+    // Store identifiers and names
+    
+    pStar->setIdentifiers( ids );
+    pStar->setNames ( names );
+
     return ( pObject );
 }
 

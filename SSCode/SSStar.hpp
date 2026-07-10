@@ -43,6 +43,8 @@ protected:
     SSStar ( SSObjectType type ); // constructs a star with a specific type code
     string toCSV1 ( void );       // returns CSV string from base data (excluding names and identifiers).
     string toCSV2 ( void );       // returns CSV string from names and identifiers (excluding base data).
+    virtual string toCSVD ( void );       // returns CSV string containing empty double star and orbit data.
+    virtual string toCSVV ( void );       // returns CSV string containing empty variable star data.
 
 public:
     
@@ -211,7 +213,6 @@ public:
     void cloneOrbit ( void ) { _pOrbit = _pOrbit ? new SSOrbit ( *_pOrbit ) : nullptr; }
     
     void computeEphemeris ( SSCoordinates &coords );
-    virtual string toCSV ( void );
 };
 
 // This subclass of SSStar stores data for variable stars
@@ -244,8 +245,6 @@ public:
     float getMinimumMagnitude ( void ) { return _varMinMag; }
     double getPeriod ( void ) { return _varPeriod; }
     double getEpoch ( void ) { return _varEpoch; }
-    
-    virtual string toCSV ( void );
 };
 
 // This subclass of SSStar inherits from both SSDoubleStar and SSVariableStar,
@@ -254,10 +253,7 @@ public:
 class SSDoubleVariableStar : public SSDoubleStar, public SSVariableStar
 {
 public:
-    
     SSDoubleVariableStar ( void );
-
-    virtual string toCSV ( void );
 };
 
 // This subclass of SSStar stores data for star clusters, nebulae, and galaxies.

@@ -594,7 +594,8 @@ int SSImport10pcSample ( const string &filename, SSIdentifierNameMap &starNames,
         // Finally add common names to individual stars
         
         vector<string> commonNames = SSIdentifiersToNames ( idents, starNames );
-        names.insert ( names.end(), commonNames.begin(), commonNames.end() );
+        for ( const string &commonName : commonNames )
+            SSAddCommonName( commonName, names );
 
         // Look for a matching CNS3 star with the same GJ identifier.
         // If we find one, add its L, LP, G identifiers; V and B magnitudes,
