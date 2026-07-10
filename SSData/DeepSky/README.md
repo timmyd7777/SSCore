@@ -33,7 +33,7 @@ A few object-specific edits were made:
 
 The column format is:
 
-Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Type, Maj, Min, PA, IDs, Names
+Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Morph, Maj, Min, PA, IDs, Names
 
 - **_Type_** is object type: open cluster (OC), globular cluster (GC), bright nebula (BN), dark nebula (DN), planetary nebula (PN), galaxy (GX)
 - **_RA_** is J2000 right ascension
@@ -44,11 +44,11 @@ Type, RA, Dec, pmRA, pmDec, V, B, Dist, RV, Type, Maj, Min, PA, IDs, Names
 - **_B_** is Johnson Blue magnitude
 - **_Dist_** is distance in parsecs
 - **_RV_** is radial velocity in km/sec
-- **_Type_** is galaxy morphological type, or cluster type.
+- **_Morph_** is galaxy morphological type, or cluster type.
 - **_Maj_** is apparent ellipse major axis in arcminutes.
 - **_Min_** is apparent ellipse minor axis in aarcminutes.
 - **_PA_** is position angle of major axis from North in degrees.
-- **_IDs** are semicolon-delimited catalog identifiers in preferred order: Messier; Caldwell; NGC; IC
+- **_IDs__** are semicolon-delimited catalog identifiers in preferred order: Messier; Caldwell; NGC; IC
 - **_Names_** are the object's semicolon-delimited common name(s), if any.
 
 Empty fields indicate unknown or missing values.
