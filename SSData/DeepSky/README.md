@@ -97,6 +97,7 @@ The column format is identical to that of **Messer.csv**, above.
 - Version 1.1 (30 Mar 2020): corrected erroneous proper motions for open clusters with RV; added LMC and SMC.
 - Version 1.2 (6 Apr 2020): Moved comments from CSV file header into this README.
 - Version 1.2.1 (19 June 2020): Added dimensions of C99 (Coalsack) from Wikipedia.
+- Version 2.0 (9 Jul 2026): Added column headers, combined IDs and Names into semicolon-delimited columns
 
 MCNGCIC.csv
 -----------
