@@ -99,6 +99,20 @@ The column format is identical to that of **Brightest.csv**, above. The preferre
 - Version 2.0 (4 May 2021): Added binary star orbital data from WDS, variable star data from GCVS. Fixed a few common names assigned to the wrong stars.
 - Version 3.0 (9 Feb 2023): Complete rework based on the 10-parsec sample described above.
 - Version 3.1 (11 Feb 2023): Add missing Giclas (G), Luyten (L), Luyten-Palomar (LP) identifiers and B, V magnitudes from CNS3. Add WDS identifiers.
+- Version 4.0 (10 Jul 2026): Update to match new format of other stars files with names and IDs consolidated into single columns. No change to underlying data.
+
+Doubles.csv
+-----------
+
+This list of 154 double and multiple stars was compiled mainly from the 133 "showpiece" double stars listed on pages 12-21 of the [Cambridge Double Star Atlas](https://www.cambridge.org/core/books/cambridge-double-star-atlas/100A341AD9CBDC27F0156A055D412CF9). An additional 21 double stars were added from the articles [Fun with double stars](https://astronomy.com/observing/get-to-know-the-night-sky/2006/12/fun-with-double-and-variable-stars) in [Astronomy](https://astronomy.com/) magazine, and [Pretty Double Stars for Everyone]("https://skyandtelescope.org/observing/celestial-objects-to-watch/pretty-double-stars-for-everyone/") and [Southern Double Star Gems](https://skyandtelescope.org/observing/celestial-objects-to-watch/southern-double-star-gems/) in [Sky & Telescope](https://skyandtelescope.org/) magazine.
+
+All of these stars are contained in **SKY2000.csv** and all but one (HD 37013) are contained in **Brightest.csv**. Only the primary component of each multiple star system is listed.
+
+The column format is identical to that of **Brightest.csv** and **SKY2000.csv**, above. 
+
+**Revision History**
+
+- Version 1.0 (11 Jul 2026): initial version.
 
 Names.csv
 ---------
