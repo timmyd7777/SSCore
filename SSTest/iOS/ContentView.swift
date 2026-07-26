@@ -151,13 +151,13 @@ func test ( ) -> String
     str.append ( String ( format:"Ecliptic lon:%.3f° lat:%+.3f°\n", ecl.lon * kSSDegPerRad, ecl.lat * kSSDegPerRad ) )
     str.append ( String ( format:"Galactic lon:%.3f° lat:%+.3f°\n", gal.lon * kSSDegPerRad, gal.lat * kSSDegPerRad ) )
 
-    // get path to DE438 file within SSData folder within main bundle
-    // open DE438.  If succesful, compute and display Earth's barycentric position & velocity
-    
-    var path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/DE438/1950_2050.438" )
+    // get path to DE442 file within SSData folder within main bundle
+    // open DE442.  If succesful, compute and display Earth's barycentric position & velocity
+
+    var path = Bundle.main.bundlePath.appending ( "/SSData/SolarSystem/DE442/1950_2050.442" )
     if CSSJPLDEphemerisOpen ( ( path as NSString ).utf8String )
     {
-        str.append ( "Opened DE438 ephemeris file.\n" )
+        str.append ( "Opened DE442 ephemeris file.\n" )
         let jed0 = CSSJPLDEphemerisGetStartJED()
         let jed1 = CSSJPLDEphemerisGetStopJED()
         str.append ( String ( format:"JED %.1f to %.1f\n", jed0, jed1 ) )
@@ -176,7 +176,7 @@ func test ( ) -> String
     }
     else
     {
-        str.append ( "Failed to open DE438 ephemeris file.\n" )
+        str.append ( "Failed to open DE442 ephemeris file.\n" )
     }
     
     // Open and read bright stars csv data file into object array in memory.

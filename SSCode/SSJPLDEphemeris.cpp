@@ -35,12 +35,12 @@
 /*#define DENUM 421*/
 /*#define DENUM 422*/
 /*#define DENUM 430*/
-#define DENUM 431
+#define DENUM 442
 
 
 #if   DENUM==200
 #define KSIZE 1652
-#elif DENUM==403 || DENUM==405 || DENUM==421 || DENUM==422 || DENUM==430 || DENUM==431
+#elif DENUM==403 || DENUM==405 || DENUM==421 || DENUM==422 || DENUM==430 || DENUM==431 || DENUM==440 || DENUM==441 || DENUM==442
 #define KSIZE 2036
 #elif DENUM==404 || DENUM==406
 #define KSIZE 1456

@@ -96,16 +96,17 @@ This table of comet data in MPC Export Format is a copy of the Minor Planet Cent
 Version 1.0 (2 Apr 2020): initial version
 Version 1.1 (21 Mar 2021): updated with latest data from MPC
 
-DE438
+DE442
 -----
 
-This directory contains the [JPL DE438](ftp://ssd.jpl.nasa.gov/pub/eph/planets/ascii/de438/) planetary and lunar ephemeris, converted from ASCII to binary format using Bill Gray's [asc2eph](https://github.com/Bill-Gray/jpl_eph) utility (see documentation from [Project Pluto](https://www.projectpluto.com/jpl_eph.htm#asc2eph).).  The binary files are in little-endian (Intel/ARM) byte order.
+This directory contains the [JPL DE442](https://ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de442/) planetary and lunar ephemeris, converted from ASCII to binary format using Bill Gray's [asc2eph](https://github.com/Bill-Gray/jpl_eph) utility (see documentation from [Project Pluto](https://www.projectpluto.com/jpl_eph.htm#asc2eph).).  The binary files are in little-endian (Intel/ARM) byte order.
 
-There are two files here.  The larger, **1550_2650.438**, is about 103 MB in size and covers the entire thousand-year DE438 timespan.  The smaller file, **1950_2040.438**, is a 9.4 MB subset which convers the years 1950 to 2050 - the entire space age!
+There are two files here.  The larger, **1550_2650.442**, is about 103 MB in size and covers the entire thousand-year DE442 timespan.  The smaller file, **1950_2050.442**, is a 9.4 MB subset which covers the years 1950 to 2050 - the entire space age!
 
 **Revision History**
 
 - Version 1.0 (3 Apr 2020): initial commit.
+- Version 2.0 (26 Jul 2026): update from DE438 to DE442
 
 Satellites
 ----------

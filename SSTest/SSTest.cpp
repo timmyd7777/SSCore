@@ -350,7 +350,7 @@ void TestJPLDEphemeris ( string inputDir )
     cout << "Testing JPL DE Ephemeris...\n";
     SSJPLDEphemeris jpldeph;
     
-    string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
+    string ephemFile = inputDir + "/SolarSystem/DE442/1950_2050.442";
     if ( ! jpldeph.open ( ephemFile ) )
     {
         cout << "Failed to open " << ephemFile << endl;
@@ -492,11 +492,11 @@ void TestEphemeris ( string inputDir, string outputDir )
     SSObjectVec solsys;
     
     SSPlanet::useVSOPELP ( false );
-    string ephemFile = inputDir + "/SolarSystem/DE438/1950_2050.438";
+    string ephemFile = inputDir + "/SolarSystem/DE442/1950_2050.442";
     if ( SSJPLDEphemeris::open ( ephemFile ) )
-        cout << "Successfully opened JPL DE438 ephemeris file." << endl;
+        cout << "Successfully opened JPL DE442 ephemeris file." << endl;
     else
-        cout << "Failed to open JPL DE438 ephemeris file " << ephemFile << endl;
+        cout << "Failed to open JPL DE442 ephemeris file " << ephemFile << endl;
 
     SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Planets.csv", solsys );
     SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", solsys );

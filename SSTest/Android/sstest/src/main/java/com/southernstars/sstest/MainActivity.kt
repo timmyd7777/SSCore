@@ -159,10 +159,10 @@ class MainActivity : AppCompatActivity() {
 
         // Open JPL ephemeris file.  if successful, compute Earth's current position and velocity.
 
-        val path = "SSData/SolarSystem/DE438/1950_2050.438"
+        val path = "SSData/SolarSystem/DE442/1950_2050.442"
         if ( JSSJPLDEphemeris.open ( path ) )
         {
-            str += "Opened DE438 ephemeris file.\n"
+            str += "Opened DE442 ephemeris file.\n"
             val jed0 = JSSJPLDEphemeris.getStartJED()
             val jed1 = JSSJPLDEphemeris.getStopJED()
             str += "JED %.1f to %.1f\n".format ( jed0, jed1 )
@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity() {
         }
         else
         {
-            str += "Failed to open DE438 ephemeris file.\n"
+            str += "Failed to open DE442 ephemeris file.\n"
         }
 
         // Open and read bright stars csv data file into object array in memory.
