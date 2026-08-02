@@ -2087,6 +2087,42 @@ void SSTLE::fromPositionVelocity ( double jd, SSVector &pos, SSVector &vel )
     jdepoch = jd;
 }
 
+// Decodes an Alpha-5 satellite number string (columns 2-7 of TLE lines).
+// Standard 5-digit numbers (1-99999) pass through unchanged.
+// Alpha-5 replaces the first digit with A-Z (excluding I,O) to encode 100000-339999.
+
+static int decodeAlpha5 ( const string &s )
+{
+    if ( s.empty() )
+        return 0;
+    char c = s[0];
+    if ( c >= 'A' && c <= 'Z' )
+    {
+        int val = c - 'A' + 10;
+        if ( c >= 'J' ) val--;   // skip I
+        if ( c >= 'P' ) val--;   // skip O
+        return val * 10000 + strtoint ( s.substr ( 1 ) );
+    }
+    return strtoint ( s );
+}
+
+// Encodes a NORAD catalog number as a 5-character Alpha-5 string.
+// Numbers 1-99999 are formatted as zero-padded 5-digit integers.
+// Numbers 100000-339999 use Alpha-5: first character is A-Z (excluding I,O).
+// See https://www.space-track.org/documentation#tle-alpha5
+
+static string encodeAlpha5 ( int norad )
+{
+    if ( norad < 100000 )
+        return formstr ( "%05d", norad );
+    int prefix = norad / 10000;      // 10-33
+    int suffix = norad % 10000;
+    char c = 'A' + prefix - 10;
+    if ( c >= 'I' ) c++;             // skip I
+    if ( c >= 'O' ) c++;             // skip O
+    return formstr ( "%c%04d", c, suffix );
+}
+
 // Reads a TLE record from three lines of an input stream (file).
 // Returns 0 if successful, EOF (-1) at end of file,
 // or another negative number on failure to parse data.
@@ -2115,7 +2151,7 @@ int SSTLE::read ( FILE *file )
     if ( buf[0] != '1' )
         return -2;
     
-    number = strtoint ( buf.substr ( 2, 5 ) );
+    number = decodeAlpha5 ( trim ( buf.substr ( 2, 5 ) ) );
     desig = trim ( buf.substr ( 9, 6 ) );
     epoch = strtofloat64 ( buf.substr ( 18, 14 ) );
     xndt20 = strtofloat64 ( buf.substr ( 33, 10 ) );
@@ -2150,7 +2186,7 @@ int SSTLE::read ( FILE *file )
     if ( buf[0] != '2' )
         return -3;
     
-    number = strtoint ( buf.substr ( 2, 5 ) );
+    number = decodeAlpha5 ( trim ( buf.substr ( 2, 5 ) ) );
     xincl = strtofloat64 ( buf.substr ( 8, 8 ) );
     xnode0 = strtofloat64 ( buf.substr ( 17, 8 ) );
     e0 = strtofloat64 ( buf.substr ( 26, 7 ) );
@@ -2281,18 +2317,19 @@ int SSTLE::write ( ostream &file )
     
     // format first line of orbital elements
     
-    string line1 = formstr ( "1 %05dU %-7s  %13.8f %c.%08.0f %c%05.0f%+1d %c%05.0f%+1d 0  %03d0",
-             norad, tledesig.c_str(), epoch,
+    string satnum = encodeAlpha5 ( norad );
+    string line1 = formstr ( "1 %sU %-7s  %13.8f %c.%08.0f %c%05.0f%+1d %c%05.0f%+1d 0  %03d0",
+             satnum.c_str(), tledesig.c_str(), epoch,
              xndt20 < 0 ? '-' : ' ', fabs ( xndt20 * 1.0e8 ),
              xndd60 < 0 ? '-' : ' ', fabs ( xndd60 ), iexp,
              bstar0 < 0 ? '-' : ' ', fabs ( bstar0 ), ibexp,
              clamp ( elset, 0, 999 ) );
     line1[68] = checksum ( line1 );
-    
+
     // format second line of orbital element
-    
-    string line2 = formstr ( "2 %05d %8.4lf %8.4lf %07.0f %8.4lf %8.4lf %11.8lf%5d0",
-            norad, xincl0, xnode0, e0, omega0, xm0, xn0, revno );
+
+    string line2 = formstr ( "2 %s %8.4lf %8.4lf %07.0f %8.4lf %8.4lf %11.8lf%5d0",
+            satnum.c_str(), xincl0, xnode0, e0, omega0, xm0, xn0, revno );
     line2[68] = checksum ( line2 );
 
     // write to output stream
