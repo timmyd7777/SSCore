@@ -6,9 +6,55 @@
 #include <iostream>
 #include "SSCoordinates.hpp"
 #include "SSTLE.hpp"
+#include "SSImportTLE.hpp"
+
+void TestSCOREData ( const string &scorepath )
+{
+    SCOREDataVec observations;
+    SCOREMagnitudeMap magnitudes;
+
+    int nobs = SSImportSCOREData ( scorepath, observations );
+    if ( nobs == 0 )
+    {
+        cout << "Can't import SCORE data from " << scorepath << endl;
+        return;
+    }
+
+    cout << "Imported " << nobs << " SCORE observations." << endl;
+
+    int nsat = SCOREDataToStandardMagnitudes ( observations, magnitudes );
+    if ( nsat == 0 )
+    {
+        cout << "Can't derive SCORE standard magnitudes." << endl;
+        return;
+    }
+
+    cout << "Derived standard magnitudes for " << nsat << " satellites." << endl << endl;
+    
+    printf ( "%6s  %-24s  %6s  %4s  %6s\n", "NORAD", "Name", "StdMag", "MAD", "NObs" );
+
+    for ( auto &item : magnitudes )
+    {
+        int norad = item.first;
+        SCOREMagnitude &mag = item.second;
+        printf ( "%6d  %-24.24s  %+6.2f  %4.2f  %6d\n",
+                 mag.norad,
+                 mag.name.c_str(),
+                 mag.mag,
+                 mag.mad,
+                 mag.nobs );
+    }
+
+    cout << endl;
+}
 
 int main ( int argc, const char *argv[] )
 {
+    // If a second input file is supplied, treat it as the SCORE CSV file.
+
+    if ( argc > 2 )
+        TestSCOREData ( argv[2] );
+    
     // Get path to input TLE file from user, if not presetn in first command-line argument.
     char tlepath[256] = { 0 };
     if ( argc < 2 )

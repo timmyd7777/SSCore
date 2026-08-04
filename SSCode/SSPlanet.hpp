@@ -286,7 +286,8 @@ public:
     virtual void  computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     virtual float computeMagnitude ( double rad, double dist, double phase );
     static  float computeSatelliteMagnitude ( double dist, double phase, double stdmag );
-    
+    static  float computeStandardMagnitude ( double dist, double phase, double appmag );
+
     vector<FreqData> getRadioFrequencies ( void ) { return _freqData; }
     string getSourceCountry ( void ) { return _sourceCountry; }
     string getLaunchSite ( void ) { return _launchSite; }

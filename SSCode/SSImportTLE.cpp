@@ -337,3 +337,183 @@ int SSImportN2Data ( const string &filename, SSObjectVec &satellites )
     
     return n;
 }
+
+// Import all SCORE observations from CSV file.
+// The enum below defines the columns in the SCORE CSV file.
+
+enum
+{
+    kSatelliteName                  = 0,
+    kNORADCatID                     = 1,
+    kObservationTimeUTC             = 2,
+    kObservationTimeUncertaintySec  = 3,
+    kApparentMagnitude              = 4,
+    kMagnitudeUncertainty           = 5,
+    kObserverLatitudeDeg            = 6,
+    kObserverLongitudeDeg           = 7,
+    kObserverAltitudeM              = 8,
+    kLimitingMagnitude              = 9,
+    kInstrument                     = 10,
+    kObservingMode                  = 11,
+    kObservingFilter                = 12,
+    kObserverORCID                  = 13,
+    kSatelliteRADeg                 = 14,
+    kSatelliteDecDeg                = 15,
+    kSigma2RA                       = 16,
+    kSigmaRASigmaDec                = 17,
+    kSigma2Dec                      = 18,
+    kRangeKm                        = 19,
+    kRangeUncertaintyKm             = 20,
+    kRangeRateKmPerSec              = 21,
+    kRangeRateUncertaintyKmPerSec   = 22,
+    kComments                       = 23,
+    kDataArchiveLink                = 24,
+    kMPCCode                        = 25,
+    kSatCheckerRADeg                = 26,
+    kSatCheckerDecDeg               = 27,
+    kSatCheckerRangeKm              = 28,
+    kSatCheckerRangeRateKmPerSec    = 29,
+    kSatCheckerDDecDegPerSec        = 30,
+    kSatCheckerDRACosDecDegPerSec   = 31,
+    kSatCheckerPhaseAngleDeg        = 32,
+    kSatCheckerAltitudeDeg          = 33,
+    kSatCheckerAzimuthDeg           = 34,
+    kSatCheckerSatelliteAltitudeKm  = 35,
+    kSatCheckerSolarElevationDeg    = 36,
+    kSatCheckerSolarAzimuthDeg      = 37,
+    kIlluminated                    = 38,
+    kInternationalDesignator        = 39,
+    kPotentiallyDiscrepant          = 40
+};
+
+int SSImportSCOREData ( const string &filename, SCOREDataVec &data )
+{
+    ifstream file ( filename );
+    if ( ! file )
+        return 0;
+
+    string line;
+
+    // Skip CSV header.
+    if ( ! getline ( file, line ) )
+        return 0;
+
+    while ( getline ( file, line ) )
+    {
+        vector<string> fields = split_csv ( line );
+
+        if ( fields.size() < 41 )
+            continue;
+
+        SCOREData score;
+
+        score.name      = fields[kSatelliteName];
+        score.norad     = strtoint ( fields[kNORADCatID] );
+        score.time      = SSTime ( SSDate ( "%Y-%m-%dT%H:%M:%S", fields[kObservationTimeUTC] ) );
+        score.time_err  = strtofloat64 ( fields[kObservationTimeUncertaintySec] ) / SSTime::kSecondsPerDay;
+        score.mag       = fields[kApparentMagnitude].empty() ? INFINITY : strtofloat ( fields[kApparentMagnitude] );
+        score.mag_err   = fields[kMagnitudeUncertainty].empty() ? 0.0 : strtofloat ( fields[kMagnitudeUncertainty] );
+        score.lon       = degtorad ( strtofloat64 ( fields[kObserverLongitudeDeg] ) );
+        score.lat       = degtorad ( strtofloat64 ( fields[kObserverLatitudeDeg] ) );
+        score.alt       = strtofloat ( fields[kObserverAltitudeM] ) / 1000.0;
+        score.filter    = fields[kObservingFilter];
+        score.ra        = degtorad ( strtofloat64 ( fields[kSatelliteRADeg] ) );
+        score.ra_err    = degtorad ( sqrt ( strtofloat64 ( fields[kSigma2RA] ) ) );
+        score.dec       = degtorad ( strtofloat ( fields[kSatelliteDecDeg] ) );
+        score.dec_err   = degtorad ( sqrt ( strtofloat ( fields[kSigma2Dec] ) ) );
+        score.range     = strtofloat ( fields[kRangeKm] );
+        score.range_err = strtofloat ( fields[kRangeUncertaintyKm] );
+
+        // Reject observations with missing NORAD ID, observer location, or satellite astrometry or range.
+        // A coordinate pair of exactly (0,0) is extraordinarily unlikely for observer location or satellite position.
+
+        if ( score.norad > 0 && score.time > SSTime::kJ2000 && ! ( score.lon == 0.0 && score.lat == 0.0 ) && ! ( score.ra == 0.0 && score.dec == 0.0 ) && score.range > 0.0 )
+            data.push_back ( score );
+    }
+
+    return (int) data.size();
+}
+
+// Reduce SCORE observations to McCants standard magnitudes.
+
+int SCOREDataToStandardMagnitudes ( const SCOREDataVec &data, SCOREMagnitudeMap &magnitudes )
+{
+    map<int,vector<float>> mags;
+    map<int,string> names;
+    
+    for ( auto &obs : data )
+    {
+        if ( ! isfinite ( obs.mag ) )
+            continue;
+
+        // Computes the Sun-satellite-observer phase angle for one SCORE observation.
+        // SCORE right ascension and declination are in the fundamental J2000 frame.
+        // Observation range is in kilometers. Returned phase angle is in radians.
+
+        SSTime time ( obs.time );
+        SSSpherical location ( obs.lon, obs.lat, obs.alt );
+        SSCoordinates coords ( time, location );
+
+        SSVector direction = SSSpherical ( obs.ra, obs.dec );
+        double range = obs.range / SSCoordinates::kKmPerAU;
+        SSVector position = coords.getObserverPosition() + direction * range;
+
+        double phase = SSPlanet::phaseAngle ( position, direction );
+        float stdmag = SSSatellite::computeStandardMagnitude ( obs.range, phase, obs.mag );
+        if ( ! isfinite ( stdmag ) )
+            continue;
+        
+        mags[obs.norad].push_back ( stdmag );
+        if ( names[obs.norad].empty() && ! obs.name.empty() )
+            names[obs.norad] = obs.name;
+    }
+
+    for ( auto &it : mags )
+    {
+        vector<float> &v = it.second;
+        sort ( v.begin(), v.end() );
+        
+        SCOREMagnitude m;
+        m.name = names[it.first];
+        m.norad = it.first;
+        m.nobs = (int) v.size();
+        m.mag = median ( v.data(), v.size() );
+        m.mad = mad ( v.data(), v.size(), m.mag );
+        magnitudes[it.first] = m;
+    }
+
+    return (int) magnitudes.size();
+}
+
+// Import SCORE standard magnitudes into satellite objects.
+
+int SSImportSCOREData ( const string &filename, SSObjectVec &objects )
+{
+    SCOREDataVec observations;
+    SCOREMagnitudeMap magnitudes;
+
+    if ( SSImportSCOREData ( filename, observations ) == 0 )
+        return 0;
+
+    if ( SCOREDataToStandardMagnitudes ( observations, magnitudes ) == 0 )
+        return 0;
+
+    int n = 0;
+
+    for ( int i = 0; i < objects.size(); i++ )
+    {
+        SSSatellite *pSat = SSGetSatellitePtr ( objects[i] );
+        if ( pSat == nullptr )
+            continue;
+
+        int norad = pSat->getTLE().norad;
+        auto it = magnitudes.find ( norad );
+        if ( it == magnitudes.end() )
+            continue;
+
+        pSat->setHMagnitude ( it->second.mag );
+        n++;
+    }
+
+    return n;
+}

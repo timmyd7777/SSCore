@@ -992,3 +992,174 @@ int mkdir_p(const char *dir, mode_t mode)
     else
         return 0;
 }
+
+// Returns minimum value of array of n elements of type T (int, float, double, whatever).
+// Returns zero if the array is empty.
+
+template <class T>
+T min ( const T *pData, size_t n )
+{
+    if ( n == 0 )
+        return T(0);
+
+    T minimum = pData[0];
+    for ( size_t i = 1; i < n; i++ )
+        if ( pData[i] < minimum )
+            minimum = pData[i];
+
+    return minimum;
+}
+
+// Returns maximum value of array of n elements of type T (int, float, double, whatever).
+// Returns zero if the array is empty.
+
+template <class T>
+T max ( const T *pData, size_t n )
+{
+    if ( n == 0 )
+        return T(0);
+
+    T maximum = pData[0];
+    for ( size_t i = 1; i < n; i++ )
+        if ( pData[i] > maximum )
+            maximum = pData[i];
+
+    return maximum;
+}
+
+// Returns arithmetic mean of array of n elements of type T (int, float, double, whatever).
+// Returns zero if the array is empty.
+
+template <class T>
+T mean ( const T *pData, size_t n )
+{
+    if ( n == 0 )
+        return T(0);
+
+    double sum = 0.0;
+
+    for ( size_t i = 0; i < n; i++ )
+        sum += pData[i];
+
+    return T ( sum / n );
+}
+
+// Returns standard deviation of array n elements of type T (int, float, double, whatever),
+// given the arithmetic mean value (avg) of that array. Returns zero if the array is empty.
+
+template <class T>
+T stdev ( const T *pData, size_t n, T avg )
+{
+    if ( n < 2 )
+        return T(0);
+
+    double sum2 = 0.0;
+    for ( size_t i = 0; i < n; i++ )
+    {
+        double d = pData[i] - avg;
+        sum2 += d * d;
+    }
+
+    return T ( sqrt ( sum2 / ( n - 1 ) ) );
+}
+
+// Returns median value of sorted array of n elements of type T (int, float, double, whatever).
+// or zero if the array is empty.
+
+template <class T>
+T median ( const T *pData, size_t n )
+{
+    if ( n == 0 )
+        return T(0);
+
+    if ( n & 1 )
+        return pData[n / 2];
+
+    return ( pData[n / 2 - 1] + pData[n / 2] ) / T(2);
+}
+
+// Returns median absolute deviation (MAD) of an array of n elements of type T ((int, float, double, whatever)
+// from the specified median (med), or zero if the array is empty.
+
+template <class T>
+T mad ( const T *pData, size_t n, T med )
+{
+    if ( n == 0 )
+        return T(0);
+
+    // Use a temporary vector internally because the absolute deviations must be sorted.
+    vector<T> dev ( n );
+    for ( size_t i = 0; i < n; i++ )
+        dev[i] = fabs ( pData[i] - med );
+
+    sort ( dev.begin(), dev.end() );
+    return median ( dev.data(), n );
+}
+
+// Explicit template instantiations.
+
+template int8_t   min ( const int8_t   *, size_t );
+template uint8_t  min ( const uint8_t  *, size_t );
+template int16_t  min ( const int16_t  *, size_t );
+template uint16_t min ( const uint16_t *, size_t );
+template int32_t  min ( const int32_t  *, size_t );
+template uint32_t min ( const uint32_t *, size_t );
+template int64_t  min ( const int64_t  *, size_t );
+template uint64_t min ( const uint64_t *, size_t );
+template float    min ( const float    *, size_t );
+template double   min ( const double   *, size_t );
+
+template int8_t   max ( const int8_t   *, size_t );
+template uint8_t  max ( const uint8_t  *, size_t );
+template int16_t  max ( const int16_t  *, size_t );
+template uint16_t max ( const uint16_t *, size_t );
+template int32_t  max ( const int32_t  *, size_t );
+template uint32_t max ( const uint32_t *, size_t );
+template int64_t  max ( const int64_t  *, size_t );
+template uint64_t max ( const uint64_t *, size_t );
+template float    max ( const float    *, size_t );
+template double   max ( const double   *, size_t );
+
+template int8_t   mean ( const int8_t   *, size_t );
+template uint8_t  mean ( const uint8_t  *, size_t );
+template int16_t  mean ( const int16_t  *, size_t );
+template uint16_t mean ( const uint16_t *, size_t );
+template int32_t  mean ( const int32_t  *, size_t );
+template uint32_t mean ( const uint32_t *, size_t );
+template int64_t  mean ( const int64_t  *, size_t );
+template uint64_t mean ( const uint64_t *, size_t );
+template float    mean ( const float    *, size_t );
+template double   mean ( const double   *, size_t );
+
+template int8_t   stdev ( const int8_t   *, size_t, int8_t );
+template uint8_t  stdev ( const uint8_t  *, size_t, uint8_t );
+template int16_t  stdev ( const int16_t  *, size_t, int16_t );
+template uint16_t stdev ( const uint16_t *, size_t, uint16_t );
+template int32_t  stdev ( const int32_t  *, size_t, int32_t );
+template uint32_t stdev ( const uint32_t *, size_t, uint32_t );
+template int64_t  stdev ( const int64_t  *, size_t, int64_t );
+template uint64_t stdev ( const uint64_t *, size_t, uint64_t );
+template float    stdev ( const float    *, size_t, float );
+template double   stdev ( const double   *, size_t, double );
+
+template int8_t   median ( const int8_t   *, size_t );
+template uint8_t  median ( const uint8_t  *, size_t );
+template int16_t  median ( const int16_t  *, size_t );
+template uint16_t median ( const uint16_t *, size_t );
+template int32_t  median ( const int32_t  *, size_t );
+template uint32_t median ( const uint32_t *, size_t );
+template int64_t  median ( const int64_t  *, size_t );
+template uint64_t median ( const uint64_t *, size_t );
+template float    median ( const float    *, size_t );
+template double   median ( const double   *, size_t );
+
+template int8_t   mad ( const int8_t   *, size_t, int8_t );
+template uint8_t  mad ( const uint8_t  *, size_t, uint8_t );
+template int16_t  mad ( const int16_t  *, size_t, int16_t );
+template uint16_t mad ( const uint16_t *, size_t, uint16_t );
+template int32_t  mad ( const int32_t  *, size_t, int32_t );
+template uint32_t mad ( const uint32_t *, size_t, uint32_t );
+template int64_t  mad ( const int64_t  *, size_t, int64_t );
+template uint64_t mad ( const uint64_t *, size_t, uint64_t );
+template float    mad ( const float    *, size_t, float );
+template double   mad ( const double   *, size_t, double );

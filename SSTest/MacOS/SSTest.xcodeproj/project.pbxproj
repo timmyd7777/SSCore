@@ -29,6 +29,17 @@
 		A315D76E26370EEA00A2F317 /* SSImportGCVS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A315D76C26370EEA00A2F317 /* SSImportGCVS.cpp */; };
 		A318E1B12CD5785A00B6A67C /* MountSimulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A318E1B02CD5785A00B6A67C /* MountSimulator.cpp */; };
 		A31EBEA02457C231005C863E /* ELPMPP02.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A31EBE9E2457C231005C863E /* ELPMPP02.cpp */; };
+		A33DE0F1302175FF0055EB20 /* SSImportTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB07297A31E7003E30AD /* SSImportTLE.cpp */; };
+		A33DE0F2302176220055EB20 /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C3241EE07900197F8A /* SSPlanet.cpp */; };
+		A33DE0F3302176290055EB20 /* SSCoordinates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A36F9196240979770038FE04 /* SSCoordinates.cpp */; };
+		A33DE0F43021763B0055EB20 /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */; };
+		A33DE0F5302176670055EB20 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */; };
+		A33DE0F6302176720055EB20 /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
+		A33DE0F7302176840055EB20 /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
+		A33DE0F8302176980055EB20 /* SSFeature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27706A4A2565BC5E003C221A /* SSFeature.cpp */; };
+		A33DE0F9302176AD0055EB20 /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */; };
+		A33DE0FA302176C60055EB20 /* SSJPLDEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A358CF10243779F200B39D5C /* SSJPLDEphemeris.cpp */; };
+		A33DE0FB302176D20055EB20 /* SSMoonEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3848E972450E9CD0085973F /* SSMoonEphemeris.cpp */; };
 		A33E45B82438E7F900C15780 /* SSTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A33E45B62438E7F900C15780 /* SSTLE.cpp */; };
 		A34D208128D39EAA0005A5F1 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A34D208028D39EAA0005A5F1 /* CoreFoundation.framework */; };
 		A34D208328D39EB70005A5F1 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A34D208228D39EB70005A5F1 /* IOKit.framework */; };
@@ -618,13 +629,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A33DE0FA302176C60055EB20 /* SSJPLDEphemeris.cpp in Sources */,
+				A33DE0F8302176980055EB20 /* SSFeature.cpp in Sources */,
 				A3783D5A2B9CE126007AD7E7 /* SSTime.cpp in Sources */,
+				A33DE0FB302176D20055EB20 /* SSMoonEphemeris.cpp in Sources */,
+				A33DE0F9302176AD0055EB20 /* SSConstellation.cpp in Sources */,
+				A33DE0F2302176220055EB20 /* SSPlanet.cpp in Sources */,
+				A33DE0F6302176720055EB20 /* SSObject.cpp in Sources */,
+				A33DE0F3302176290055EB20 /* SSCoordinates.cpp in Sources */,
 				A3E524A42B9D051500F012B3 /* SSAngle.cpp in Sources */,
 				A3783D572B9CE01F007AD7E7 /* SSVector.cpp in Sources */,
 				A3783D5C2B9CE451007AD7E7 /* SSOrbit.cpp in Sources */,
+				A33DE0F43021763B0055EB20 /* SSIdentifier.cpp in Sources */,
 				A3783D5B2B9CE445007AD7E7 /* SSMatrix.cpp in Sources */,
+				A33DE0F7302176840055EB20 /* SSStar.cpp in Sources */,
 				A3783D552B9CD9B3007AD7E7 /* SSTLETest.cpp in Sources */,
 				A3783D582B9CE0A9007AD7E7 /* SSUtilities.cpp in Sources */,
+				A33DE0F1302175FF0055EB20 /* SSImportTLE.cpp in Sources */,
+				A33DE0F5302176670055EB20 /* SSPSEphemeris.cpp in Sources */,
 				A3783D562B9CE001007AD7E7 /* SSTLE.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -840,6 +862,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"USE_VSOP_ELP=0",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -855,6 +881,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = "USE_VSOP_ELP=0";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";

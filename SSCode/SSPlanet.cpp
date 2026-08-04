@@ -795,17 +795,34 @@ SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )
 // Computes satellite visual magnitude.
 // Satellite's distance from observer (dist) is in kilometers.
 // Satellite's phase angle (phase) is in radians.
-// Standard magnitude is at 1000 km range, and 50% illumination.
+// Standard magnitude (stdmag) is at 1000 km range, and 50% illumination.
 // Formula from http://www.prismnet.com/~mmccants/tles/mccdesc.html
+// The constant 15.75 = 5 * log10 (1000) - 2.5 * log10 (0.5) = 15.7526
+// Returns INFINITY if the satellite is completely unilluminated.
 
 float SSSatellite::computeSatelliteMagnitude ( double dist, double phase, double stdmag )
 {
-    double mag = INFINITY;
-    
-    if ( phase < M_PI )
-        mag = stdmag - 15.75 + 2.5 * log10 ( dist * dist / ( ( 1.0 + cos ( phase ) ) / 2.0 ) );
-    
-    return mag;
+    if ( phase >= M_PI )
+        return INFINITY;
+
+    double illum = SSPlanet::illumination ( phase );
+    return stdmag - 15.75 + 2.5 * log10 ( dist * dist / illum );
+}
+
+// Computes the McCants standard magnitude from satellite apparent magnitude.
+// This is the exact inverse of computeSatelliteMagnitude().
+// Observer-to-satellite range (dist) is in kilometers.
+// Sun-satellite-observer phase angle (phase) is in radians.
+// Observed satellite magnitude (appmag) is visual/apparent.
+// Returns McCants standard magnitude, or INFINITY if satellite is not illuminated.
+
+float SSSatellite::computeStandardMagnitude ( double dist, double phase, double appmag )
+{
+    if ( phase >= M_PI )
+        return INFINITY;
+
+    double illum = SSPlanet::illumination ( phase );
+    return appmag + 15.75 - 2.5 * log10 ( dist * dist / illum );
 }
 
 // Computes this satellite's magnitude using above formula.

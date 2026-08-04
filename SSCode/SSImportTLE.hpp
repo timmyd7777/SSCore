@@ -51,7 +51,50 @@ struct N2Data
 
 typedef map<int,N2Data> N2DataMap;
 
+// One observation from the IAU SCORE (Satellite Constellation Observation Repository)
+// CSV database: https://score.cps.iau.org/download
+
+struct SCOREData
+{
+    string  name = "";            // Satellite name
+    int     norad = 0;            // NORAD satellite catalog number
+    double  time = 0.0;           // Julian date of observation in UTC
+    double  time_err = 0.0;       // time uncertainty in days
+    float   mag = INFINITY;       // observed satellite magnitude
+    float   mag_err = 0.0;        // uncertainty in observed satellite magnitude
+    double  lon = 0.0;            // observer longitude in radians, east positive
+    double  lat = 0.0;            // observer latitude in radians, north positive
+    double  alt = 0.0;            // observer altitude above WGS84 ellipsoid, kilometers
+    string  filter = "";          // photometric filter ("V", "R", etc.)
+    double  ra = 0.0;             // observed satellite J2000 right ascension. radians
+    double  ra_err = 0.0;         // uncertainty in RA, radians
+    double  dec = 0.0;            // observed satellite J2000 declination in radians
+    double  dec_err = 0.0;        // uncertainty in Dec, radians
+    double  range = 0.0;          // observed satellite distance in kilometers
+    double  range_err = 0.0;      // uncertainty in observed satellite distance in kilometers
+};
+
+typedef vector<SCOREData> SCOREDataVec;
+
+// Reduced McCants standard magnitude for one satellite.
+
+struct SCOREMagnitude
+{
+    string name = "";           // Satellite name
+    int    norad = 0;           // NORAD satellite catalog number
+    float  mag = INFINITY;      // median McCants standard magnitude
+    float  max = INFINITY;      // maximum 
+    float  mad = 0.0;           // median absolute deviation (magnitudes)
+    int    nobs = 0;            // number of observations
+};
+
+typedef map<int,SCOREMagnitude> SCOREMagnitudeMap;
+
 int SSImportN2Data ( const string &path, N2DataMap &n2data );
 int SSImportN2Data ( const string &path, SSObjectVec &satellites );
+
+int SSImportSCOREData ( const string &filename, SCOREDataVec &data );
+int SCOREDataToStandardMagnitudes ( const SCOREDataVec &data, SCOREMagnitudeMap &magnitudes );
+int SSImportSCOREData ( const string &filename, SSObjectVec &objects );
 
 #endif /* SSPlanet_hpp */

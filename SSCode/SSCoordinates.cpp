@@ -24,13 +24,13 @@ SSCoordinates::SSCoordinates ( SSTime time, SSSpherical loc )
     _lat = loc.lat;
     _alt = loc.rad;
     
-    setTime ( time );
-    
     _starParallax = true;
     _starMotion = true;
     _aberration = true;
     _lighttime = true;
     _dynamictime = true;
+    
+    setTime ( time );
 }
 
 // Changes this coordinate transformation object's Julian Date (time) and recomputes
