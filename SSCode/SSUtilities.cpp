@@ -519,6 +519,19 @@ vector<string> split_csv ( const string &csv )
     return fields;
 }
 
+// Escapes a string for use as a CSV field.
+// If the string contains commas, quotes, CR or LF, it is enclosed in double quotes,
+// and embedded double quotes are doubled.
+
+string escape_csv ( string str )
+{
+    if ( str.find_first_of ( ",\"\r\n" ) == string::npos )
+        return str;
+
+    replaceAll ( str, "\"", "\"\"" );
+    return "\"" + str + "\"";
+}
+
 // Converts string to 32-bit signed integer.
 // Avoids throwing exceptions, unlike stoi().
 // Returns zero if string cannot be converted.

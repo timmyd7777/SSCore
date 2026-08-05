@@ -257,46 +257,135 @@ class SSSatellite : public SSPlanet
 {
 public:
     
+    // N2YO satellite category identifiers
+    // See https://www.n2yo.com/api/
+
+    enum Category
+    {
+        kNone                  =  0,    // Missing/unknown category assignment
+        kBrightest             =  1,    // Brightest
+        kISS                   =  2,    // International Space Station
+        kWeather               =  3,    // Weather
+        kNOAA                  =  4,    // NOAA
+        kGOES                  =  5,    // GOES
+        kEarthResources        =  6,    // Earth Resources
+        kSearchAndRescue       =  7,    // Search & Rescue
+        kDisaster              =  8,    // Disaster Monitoring
+        kTDRS                  =  9,    // Tracking and Data Relay Satellite System (TDRSS)
+        kGeostationary         = 10,    // Geostationary
+        kIntelsat              = 11,    // Intelsat
+        kGorizont              = 12,    // Gorizont
+        kRaduga                = 13,    // Raduga
+        kMolniya               = 14,    // Molniya
+        kIridium               = 15,    // Iridium
+        kOrbcomm               = 16,    // Orbcomm
+        kGlobalstar            = 17,    // Globalstar
+        kAmateur               = 18,    // Amateur Radio
+        kExperimental          = 19,    // Experimental
+        kGPSOps                = 20,    // GPS Operational
+        kGlonassOps            = 21,    // GLONASS Operational
+        kGalileo               = 22,    // Galileo
+        kSBAS                  = 23,    // Satellite-Based Augmentation System (SBAS)
+        kNNSS                  = 24,    // Navy Navigation Satellite System (NNSS)
+        kMusson                = 25,    // Russian LEO Navigation
+        kScience               = 26,    // Space & Earth Science
+        kGeodetic              = 27,    // Geodetic
+        kEngineering           = 28,    // Engineering
+        kEducation             = 29,    // Education
+        kMilitary              = 30,    // Military
+        kRadar                 = 31,    // Radar Calibration
+        kCubeSat               = 32,    // CubeSats
+        kSiriusXM              = 33,    // XM & Sirius
+        kTV                    = 34,    // Television
+        kBeiDou                = 35,    // BeiDou Navigation
+        kYaogan                = 36,    // Yaogan
+        kWestford              = 37,    // Westford Needles
+        kParus                 = 38,    // Parus
+        kStrela                = 39,    // Strela
+        kGonets                = 40,    // Gonets
+        kTsiklon               = 41,    // Tsiklon
+        kTsikada               = 42,    // Tsikada
+        kO3b                   = 43,    // O3b
+        kTselina               = 44,    // Tselina
+        kCelestis              = 45,    // Celestis
+        kIRNSS                 = 46,    // Indian Regional Navigation Satellite System (IRNSS / NavIC)
+        kQZSS                  = 47,    // Quasi-Zenith Satellite System (QZSS)
+        kFlock                 = 48,    // Planet Flock
+        kLemur                 = 49,    // Spire Lemur
+        kGPS                   = 50,    // GPS Constellation
+        kGlonass               = 51,    // GLONASS Constellation
+        kStarlink              = 52,    // Starlink Constellation
+        kOneWeb                = 53,    // OneWeb Constellation
+        kChineseStation        = 54,    // Chinese Space Station
+        kQianfan               = 55,    // Qianfan (Thousand Sails)
+        kKuiper                = 56,    // Kuiper (AKA Leo) Constallation, not to be confused with LEO
+        kGeeSAT                = 57,    // GeeSAT
+        kJunk                  = 58,    // Space junk / debris
+        kARGOS                 = 59,    // ARGOS Data Collection System
+        kEutelsat              = 60,    // Eutelsat
+        kHulianwang            = 61,    // Hulianwang Constellation
+        kSatNOGS               = 62,    // SatNOGS
+        kGEOProtectedZone      = 63     // GEO Protected Zone    };
+    };
+    
     struct FreqData
     {
-        int    norad;             // NORAD tracking number
-        string name;              // satellite name
-        string uplink;            // uplink frequency(ies), MHz
-        string downlink;          // downlink frequency(ies), MHz
-        string beacon;            // beacon frequency, MHz
-        string mode;              // modulation scheme and rate, if known
-        string callsign;          // callsign
-        string status;            // current status
+        int    norad = 0;             // NORAD tracking number
+        string name;                  // satellite name
+        string uplink;                // uplink frequency(ies), MHz
+        string downlink;              // downlink frequency(ies), MHz
+        string beacon;                // beacon frequency, MHz
+        string mode;                  // modulation scheme and rate, if known
+        string callsign;              // callsign
+        string status;                // current status
     };
 
 protected:
     
-    SSTLE   _tle;               // current orbit from Two-Line-Element data
-    string  _sourceCountry;     // source country code
-    string  _launchSite;        // launch side code
-    float   _launchDate;        // launch date [Julian Date]; infinity if unknown
-    vector<FreqData> _freqData; // frequency data for radio tranmitter(s)
-    
+    SSTLE   _tle;                     // current orbit from Two-Line-Element data
+    string  _sourceCountry;           // source country code
+    string  _launchSite;              // launch side code
+    string  _description;             // informative description
+    float   _launchDate = INFINITY;   // launch date [JD]; infinity if unknown
+    float   _decayDate = INFINITY;    // re-entry date (JD); infinity if unknonwn
+    vector<Category> _categories;     // Categories to which this satellite belongs
+    vector<FreqData> _frequencies;    // frequency data for radio transmitter(s)
+
 public:
     
     SSSatellite ( SSTLE &tle );
     
+    void setTLE ( const SSTLE &tle );
     SSTLE getTLE ( void ) { return _tle; }
-
+    
     virtual void  computePositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     virtual float computeMagnitude ( double rad, double dist, double phase );
     static  float computeSatelliteMagnitude ( double dist, double phase, double stdmag );
     static  float computeStandardMagnitude ( double dist, double phase, double appmag );
 
-    vector<FreqData> getRadioFrequencies ( void ) { return _freqData; }
     string getSourceCountry ( void ) { return _sourceCountry; }
     string getLaunchSite ( void ) { return _launchSite; }
     double getLaunchDate ( void ) { return _launchDate; }
+    double getDecayDate ( void ) { return _decayDate; }
+    string getDescription ( void ) { return _description; }
+    vector<Category> getCategories ( void ) { return _categories; }
+    vector<FreqData> getRadioFrequencies ( void ) { return _frequencies; }
 
-    void setRadioFrequencies ( const vector<FreqData> &freqs ) { _freqData = freqs; }
+    void addCategory ( Category c );
+    bool hasCategory ( Category c );
+    
     void setSourceCountry ( string source ) { _sourceCountry = source; }
     void setLaunchSite ( string site ) { _launchSite = site; }
     void setLaunchDate ( double jd ) { _launchDate = jd; }
+    void setDecayDate ( double jd ) { _decayDate = jd; }
+    void setDescription ( const string &description ) { _description = description; }
+    void setCategories ( const vector<Category> &categories ) { _categories = categories; }
+    void setRadioFrequencies ( const vector<FreqData> &freqs ) { _frequencies = freqs; }
+
+    // imports/exports from/to CSV-format text string
+    
+    static SSObjectPtr fromCSV ( string csv );
+    string toCSV ( void );
 };
 
 // convenient aliases for pointers to various subclasses of SSPlanet

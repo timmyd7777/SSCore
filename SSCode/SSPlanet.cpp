@@ -777,19 +777,236 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
 
 SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )
 {
+    setTLE ( tle );
+    
+    _launchDate = _decayDate = INFINITY;
+    _launchSite = _sourceCountry = _description = "";
+}
+
+// Replaces this satellite's Two-Line Element orbit set and updates related fields
+
+void SSSatellite::setTLE ( const SSTLE &tle )
+{
     _tle = tle;
 
+    _names.clear();
     _names.push_back ( tle.name );
     _names.push_back ( tle.desig );
-    
     _id = SSIdentifier ( kCatNORADSat, tle.norad );
     
     _orbit = tle.toOrbit ( 0.0 );
     _orbit.q *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
     _orbit.mm *= SSTime::kMinutesPerDay;
+}
+
+// Adds a category (c) if it is not already present in this SSSatellite's category list
+// unless c == kNone (0).
+
+void SSSatellite::addCategory ( SSSatellite::Category c )
+{
+    if ( c != Category::kNone )
+        if ( find ( _categories.begin(), _categories.end(), c ) == _categories.end() )
+            _categories.push_back ( c );
+}
+
+// Returns true if this satellite belongs to the specified category.
+
+bool SSSatellite::hasCategory ( Category c )
+{
+    return find ( _categories.begin(), _categories.end(), c ) != _categories.end();
+}
+
+// Returns satellite data in master catalog CSV format.
+// The first 17 fields are identical to CelesTrak CSV TLE format.
+
+string SSSatellite::toCSV ( void )
+{
+    string csv = _tle.toCSV() + ",";
+
+    // Standard magnitude and source.
+
+    csv += isfinite ( _Hmag ) ? formstr ( "%+.2f,", _Hmag ) : ",";
+    csv += ",";       // MAG_SRC
+
+    // Standard magnitude and source.
+
+    csv += isfinite ( _Hmag ) ? formstr ( "%+.2f,", _Hmag ) : ",";
+    csv += ",";       // MAG_SRC
+
+    // Physical diameter in meters. SSPlanet stores physical radius in kilometers.
+
+    csv += isfinite ( _radius ) && _radius > 0.0 ? formstr ( "%.2f,", 2.0 * _radius * 1000.0 ) : ",";
+    csv += ",";       // DIAMETER_SRC
     
-    _launchDate = INFINITY;
-    _launchSite = _sourceCountry = "";
+    // Source country, launch site, launch date, and decay date.
+
+    csv += _sourceCountry.empty() ? "," : _sourceCountry + ",";
+    csv += _launchSite.empty() ? "," : _launchSite + ",";
+    csv += isfinite ( _launchDate ) ? SSDate ( _launchDate ).format ( "%Y-%m-%d" ) + "," : ",";
+    csv += isfinite ( _decayDate ) ? SSDate ( _decayDate ).format ( "%Y-%m-%d" ) + "," : ",";
+
+    // Combine multiple radio-frequency records using semicolons.
+
+    string uplink;
+    string downlink;
+    string beacon;
+    string mode;
+    string callsign;
+    string status;
+
+    for ( size_t i = 0; i < _frequencies.size(); i++ )
+    {
+        if ( i > 0 )
+        {
+            uplink   += ";";
+            downlink += ";";
+            beacon   += ";";
+            mode     += ";";
+            callsign += ";";
+            status   += ";";
+        }
+
+        uplink   += _frequencies[i].uplink;
+        downlink += _frequencies[i].downlink;
+        beacon   += _frequencies[i].beacon;
+        mode     += _frequencies[i].mode;
+        callsign += _frequencies[i].callsign;
+        status   += _frequencies[i].status;
+    }
+
+    csv += uplink.empty() ? "," : uplink + ",";
+    csv += downlink.empty() ? "," : downlink + ",";
+    csv += beacon.empty() ? "," : beacon + ",";
+    csv += mode.empty() ? "," : mode + ",";
+    csv += callsign.empty() ? "," : callsign + ",";
+    csv += status.empty() ? "," : status + ",";
+
+    // Encode categories as semicolon-separated N2YO category numbers.
+
+    for ( size_t i = 0; i < _categories.size(); i++ )
+    {
+        if ( i > 0 )
+            csv += ";";
+        csv += formstr ( "%d", (int) _categories[i] );
+    }
+    csv += ",";
+
+    // Description is the only field expected to require CSV escaping.
+
+    csv += escape_csv ( _description );
+    return csv;
+}
+
+// Allocates a new SSSatellite and initializes it from a master-catalog
+// CSV-formatted string. Returns nullptr on invalid input or allocation failure.
+
+SSObjectPtr SSSatellite::fromCSV ( string csv )
+{
+    vector<string> fields = split_csv ( csv );
+
+    // 17 CelesTrak TLE fields plus 16 extended satellite fields.
+
+    if ( fields.size() < 33 || fields[0] == "OBJECT_NAME" )
+        return nullptr;
+
+    // Parse the CelesTrak-compatible TLE portion.
+
+    SSTLE tle;
+    if ( tle.fromCSV ( csv ) != 0 )
+        return nullptr;
+
+    SSSatellite *pSat = new SSSatellite ( tle );
+    if ( pSat == nullptr )
+        return nullptr;
+
+    // Standard magnitude and source.
+
+    pSat->_Hmag = fields[17].empty() ? INFINITY : strtofloat ( fields[17] );
+
+    // fields[18] = MAG_SRC; not currently stored.
+
+    // Physical diameter is stored as radius in kilometers by SSPlanet.
+
+    pSat->_radius = fields[19].empty() ? 0.0 : strtofloat64 ( fields[19] ) / 2000.0;
+
+    // fields[20] = DIAMETER_SRC; not currently stored.
+
+    pSat->_sourceCountry = fields[21];
+    pSat->_launchSite = fields[22];
+    pSat->_launchDate = fields[23].empty() ? INFINITY : double ( SSTime ( SSDate ( "%Y-%m-%d", fields[23] ) ) );
+    pSat->_decayDate = fields[24].empty() ? INFINITY : double ( SSTime ( SSDate ( "%Y-%m-%d", fields[24] ) ) );
+
+    // Radio frequency data. Multiple records are encoded by separating
+    // corresponding values in each field with semicolons.
+
+    vector<string> uplinks   = split ( fields[25], ";" );
+    vector<string> downlinks = split ( fields[26], ";" );
+    vector<string> beacons   = split ( fields[27], ";" );
+    vector<string> modes     = split ( fields[28], ";" );
+    vector<string> callsigns = split ( fields[29], ";" );
+    vector<string> statuses  = split ( fields[30], ";" );
+
+    size_t nfreq = uplinks.size();
+
+    if ( downlinks.size() > nfreq )
+        nfreq = downlinks.size();
+
+    if ( beacons.size() > nfreq )
+        nfreq = beacons.size();
+
+    if ( modes.size() > nfreq )
+        nfreq = modes.size();
+
+    if ( callsigns.size() > nfreq )
+        nfreq = callsigns.size();
+
+    if ( statuses.size() > nfreq )
+        nfreq = statuses.size();
+
+    bool haveFreq = ! fields[25].empty()
+                 || ! fields[26].empty()
+                 || ! fields[27].empty()
+                 || ! fields[28].empty()
+                 || ! fields[29].empty()
+                 || ! fields[30].empty();
+
+    if ( haveFreq )
+    {
+        for ( size_t i = 0; i < nfreq; i++ )
+        {
+            FreqData freq;
+            
+            freq.norad    = tle.norad;
+            freq.name     = tle.name;
+            freq.uplink   = i < uplinks.size()   ? uplinks[i]   : "";
+            freq.downlink = i < downlinks.size() ? downlinks[i] : "";
+            freq.beacon   = i < beacons.size()   ? beacons[i]   : "";
+            freq.mode     = i < modes.size()     ? modes[i]     : "";
+            freq.callsign = i < callsigns.size() ? callsigns[i] : "";
+            freq.status   = i < statuses.size()  ? statuses[i]  : "";
+            
+            pSat->_frequencies.push_back ( freq );
+        }
+    }
+
+    // N2YO categories are encoded as semicolon-separated integer IDs.
+
+    if ( ! fields[31].empty() )
+    {
+        vector<string> categories = split ( fields[31], ";" );
+        for ( string field : categories )
+        {
+            int category = strtoint ( field );
+            if ( category >= kBrightest && category <= kGeeSAT )
+                pSat->_categories.push_back ( Category ( category ) );
+        }
+    }
+
+    // split_csv() has already removed surrounding quotes and restored
+    // embedded doubled quotation marks.
+
+    pSat->_description = fields[32];
+    return SSObjectPtr ( pSat );
 }
 
 // Computes satellite visual magnitude.

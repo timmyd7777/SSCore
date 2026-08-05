@@ -194,6 +194,9 @@ int SSImportSatelliteFrequencyData ( const string &filename, SatFreqMap &freqmap
         freqvec.push_back ( freq );
     }
     
+    if ( ! freqvec.empty() )
+        freqmap.insert ( { freqvec[0].norad, freqvec } );
+    
     // Return number of frequencies read from file.  File will close automatically.
 
     return nFreqs;
@@ -317,7 +320,7 @@ int SSImportN2Data ( const string &filename, SSObjectVec &satellites )
         if ( pSat == nullptr )
             continue;
         
-        // Get satellite's NORAD number. Look for McName record with same number.
+        // Get satellite's NORAD number. Look for N2Data record with same number.
         // If we find one, copy McName magnitude and size into satellite.
         
         int norad = pSat->getTLE().norad;
@@ -329,6 +332,7 @@ int SSImportN2Data ( const string &filename, SSObjectVec &satellites )
             pSat->setSourceCountry ( data.source );
             pSat->setLaunchSite ( data.launch_site );
             pSat->setLaunchDate ( data.launch_date );
+            pSat->setDecayDate ( data.decay_date );
             n++;
         }
     }

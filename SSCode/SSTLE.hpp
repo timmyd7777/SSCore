@@ -55,10 +55,13 @@ struct SSTLE
     // Read from/write to input/output stream.
     
     int read ( FILE *file );
-    int read_csv ( FILE *file );
     int write ( ostream &file );
-    void delargs ( void );
+    int read_csv ( FILE *file );
     
+    int fromCSV ( const string &csv );
+    string toCSV ( void );
+
+    void delargs ( void );
     static char checksum ( string &line );
     
     // Orbit models
@@ -80,7 +83,7 @@ struct SSTLE
     void toPositionVelocity ( double jd, SSVector &pos, SSVector &vel );
     void fromPositionVelocity ( double jd, SSVector &pos, SSVector &vel );
     
-    SSOrbit toOrbit ( double tsince );
+    SSOrbit toOrbit ( double tsince ) const;
 };
 
 #endif /* SSTLE_hpp */

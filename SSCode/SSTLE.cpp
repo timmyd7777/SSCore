@@ -2215,48 +2215,45 @@ int SSTLE::read ( FILE *file )
     return 0;
 }
 
-// Reads a TLE record in Celestrak CSV format from one line of an input stream (file).
-// Returns 0 if successful, EOF (-1) at end of file,
-// or another negative number on failure to parse data.
+// Reads CelesTrak CSV TLE data from a string.
+// Returns 0 on success or a negative error code on failure.
 
-int SSTLE::read_csv ( FILE *file )
+int SSTLE::fromCSV ( const string &str )
 {
-    string buf = "";
-    SSDate epoch;
-    double temp = M_2PI / xmnpda / xmnpda;
-
-    // Read CSV line; parse fields
-    
-    if ( ! fgetline ( file, buf ) )
-        return EOF;
-
-    vector<string> csv = split_csv ( buf );
+    vector<string> csv = split_csv ( str );
     if ( csv.size() < 17 )
         return -2;
-    
+
+    // Reject the CelesTrak header line.
+
+    if ( trim ( csv[0] ) == "OBJECT_NAME" )
+        return -2;
+
+    SSDate epoch;
+    double temp = M_2PI / xmnpda / xmnpda;
     name = trim ( csv[0] );
     desig = trim ( csv[1] );
     if ( sscanf ( trim ( csv[2] ).c_str(), "%d-%hd-%hdT%hd:%hd:%lf",
         &epoch.year, &epoch.month, &epoch.day, &epoch.hour, &epoch.min, &epoch.sec ) < 6 )
         return -3;
-    
+
     jdepoch = SSTime ( epoch );
-    xno = strtofloat64 ( csv[3] ) * M_2PI / xmnpda;
-    eo = strtofloat64 ( csv[4] );
-    xincl = degtorad ( strtofloat64 ( csv[5] ) );
-    xnodeo = degtorad ( strtofloat64 ( csv[6] ) );
-    omegao = degtorad ( strtofloat64 ( csv[7] ) );
-    xmo = degtorad ( strtofloat64 ( csv[8] ) );
-    norad = strtoint ( csv[11] );
-    elset = strtoint ( csv[12] );
-    revno = strtoint ( csv[13] );
-    bstar = strtofloat64 ( csv[14] );
-    xndt2o = strtofloat64 ( csv[15] ) * temp;
-    xndd6o = strtofloat64 ( csv[16] ) * temp / xmnpda;
-    
+    xno     = strtofloat64 ( csv[3] ) * M_2PI / xmnpda;
+    eo      = strtofloat64 ( csv[4] );
+    xincl   = degtorad ( strtofloat64 ( csv[5] ) );
+    xnodeo  = degtorad ( strtofloat64 ( csv[6] ) );
+    omegao  = degtorad ( strtofloat64 ( csv[7] ) );
+    xmo     = degtorad ( strtofloat64 ( csv[8] ) );
+    norad   = strtoint ( csv[11] );
+    elset   = strtoint ( csv[12] );
+    revno   = strtoint ( csv[13] );
+    bstar   = strtofloat64 ( csv[14] );
+    xndt2o  = strtofloat64 ( csv[15] ) * temp;
+    xndd6o  = strtofloat64 ( csv[16] ) * temp / xmnpda;
+
     if ( norad < 1 || xno <= 0.0 )
         return -4;
-    
+
     // Does this TLE already have SGP orbit model arguments?
     // If so delete them since they won't be valid after new are elements read.
 
@@ -2266,6 +2263,75 @@ int SSTLE::read_csv ( FILE *file )
     
     deep = isdeep();
     return 0;
+}
+
+// Reads a TLE record in Celestrak CSV format from one line of an input stream (file).
+// Returns 0 if successful, EOF (-1) at end of file, or negative error code on failure.
+
+int SSTLE::read_csv ( FILE *file )
+{
+    string line;
+    if ( ! fgetline ( file, line ) )
+        return EOF;
+    return fromCSV ( line );
+}
+
+// Converts TLE data to CelesTrak CSV format and returns as a string.
+
+string SSTLE::toCSV ( void )
+{
+    double temp            = M_2PI / xmnpda / xmnpda;
+    double mean_motion     = xno * xmnpda / M_2PI;       // revolutions/day
+    double inclination     = radtodeg ( xincl );         // degrees
+    double ascending_node  = radtodeg ( xnodeo );        // degrees
+    double arg_pericenter  = radtodeg ( omegao );        // degrees
+    double mean_anomaly    = radtodeg ( xmo );           // degrees
+    double mean_motion_dot = xndt2o / temp;              // revolutions/day^2
+    double mean_motion_ddot = xndd6o * xmnpda / temp;    // revolutions/day^3
+
+    // Format epoch as UTC ISO-8601 with microsecond precision.
+
+    SSDate date = SSTime ( jdepoch );
+    string epoch = formstr (
+        "%04hd-%02hd-%02.0fT%02hd:%02hd:%09.6f",
+        date.year,
+        date.month,
+        floor ( date.day ),
+        date.hour,
+        date.min,
+        date.sec
+    );
+
+    // CelesTrak omits the leading zero from eccentricity.
+
+    string eccentricity = formstr ( "%.8f", eo );
+    if ( eccentricity.length() > 1 && eccentricity[0] == '0' )
+        eccentricity.erase ( 0, 1 );
+
+    // Remove insignificant trailing zeros, matching CelesTrak's variable
+    // decimal precision for eccentricity.
+
+    while ( eccentricity.length() > 2 && eccentricity.back() == '0' )
+        eccentricity.pop_back();
+
+    return formstr (
+        "%s,%s,%s,%.8f,%s,%.4f,%.4f,%.4f,%.4f,0,U,%d,%d,%d,%.8G,%.8G,%.8G",
+        name.c_str(),
+        desig.c_str(),
+        epoch.c_str(),
+        mean_motion,
+        eccentricity.c_str(),
+        inclination,
+        ascending_node,
+        arg_pericenter,
+        mean_anomaly,
+        norad,
+        elset,
+        revno,
+        bstar,
+        mean_motion_dot,
+        mean_motion_ddot
+    );
 }
 
 // Writes a TLE record to three lines of an output stream (file).
@@ -2378,7 +2444,7 @@ void SSTLE::delargs ( void )
 // In the returned orbit, q is Earth radii, mm is radians per minute, and i, w, n are referred to
 // Earth's equatorial plane.
 
-SSOrbit SSTLE::toOrbit ( double tsince )
+SSOrbit SSTLE::toOrbit ( double tsince ) const
 {
     // Recover original semimajor axis and mean motion.
     

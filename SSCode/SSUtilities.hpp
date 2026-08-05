@@ -63,7 +63,7 @@ string formstr ( const char *fmt, ... );
 vector<string> split ( string str, string delim );
 vector<string> tokenize ( string str, string delim );
 vector<string> split_csv ( const string &csv );
-
+string escape_csv ( string str );
 int compare ( const string &str1, const string &str2, size_t n, bool casesens = true );
 
 string toLower ( const string &str );

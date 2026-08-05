@@ -48,37 +48,272 @@ void TestSCOREData ( const string &scorepath )
     cout << endl;
 }
 
+// Imports one satellite category file in TLE or CelesTrak CSV format.
+// Satellites already present in the input object vector simply receive the
+// specified category. New satellites are created as needed.
+// Returns the number of TLE records successfully processed.
+
+int SSImportSatelliteCategoryFile ( const string &filename, SSSatellite::Category category, SSObjectVec &satellites )
+{
+    FILE *file = fopen ( filename.c_str(), "rb" );
+    if ( file == nullptr )
+        return 0;
+
+    // build lookup table of satellites by NORAD ID
+    
+    map<int,SSSatellite *> satmap;
+    for ( int i = 0; i < satellites.size(); i++ )
+    {
+        SSSatellite *pSat = SSGetSatellitePtr ( satellites[i] );
+        if ( pSat )
+            satmap[pSat->getTLE().norad] = pSat;
+    }
+    
+    bool csv = toLower ( getFileExt ( filename ) ) == ".csv";
+
+    SSTLE tle;
+    int n = 0;
+
+    while ( true )
+    {
+        int result = csv ? tle.read_csv ( file ) : tle.read ( file );
+
+        if ( result == EOF )
+            break;
+
+        if ( result != 0 )
+            continue;
+
+        auto it = satmap.find ( tle.norad );
+        if ( it != satmap.end() )
+        {
+            SSSatellite *pSat = it->second;
+            pSat->addCategory ( category );
+            if ( tle.jdepoch > pSat->getTLE().jdepoch )
+                pSat->setTLE ( tle );
+        }
+        else
+        {
+            SSSatellite *pSat = new SSSatellite ( tle );
+            if ( pSat )
+            {
+                pSat->addCategory ( category );
+                satellites.append ( SSObjectPtr ( pSat ) );
+                satmap.insert ( { tle.norad, pSat } );
+            }
+        }
+
+        n++;
+    }
+
+    fclose ( file );
+    return n;
+}
+
+// Imports all recognized satellite category files in a directory.
+// Existing satellites receive additional categories; new satellites
+// are created as needed.
+// Returns the number of TLE records imported.
+
+int SSImportTLEDirectory ( const string &dirname, const map<string,SSSatellite::Category> &categories, SSObjectVec &satellites )
+{
+    vector<string> files;
+    int err = listDirectory ( dirname, files );
+    if ( err != 0 )
+        return 0;
+
+    int n = 0;
+    for ( string &path : files )
+    {
+        string filename = getFileName ( path );
+        auto it = categories.find ( filename );
+        if ( it == categories.end() )
+            continue;
+        
+        path = dirname + "/" + filename;
+        n += SSImportSatelliteCategoryFile ( path, it->second, satellites );
+    }
+
+    return n;
+}
+
+// Maps N2YO satellite category filenames to N2YO category identifiers.
+
+static const map<string,SSSatellite::Category> N2YOSatelliteCategoryFiles =
+{
+    { "brightest.txt",         SSSatellite::kBrightest },
+    { "stations.txt",          SSSatellite::kISS },
+    { "weather.txt",           SSSatellite::kWeather },
+    { "noaa.txt",              SSSatellite::kNOAA },
+    { "goes.txt",              SSSatellite::kGOES },
+    { "resource.txt",          SSSatellite::kEarthResources },
+    { "sarsat.txt",            SSSatellite::kSearchAndRescue },
+    { "dmc.txt",               SSSatellite::kDisaster },
+    { "tdrss.txt",             SSSatellite::kTDRS },
+    { "geo.txt",               SSSatellite::kGeostationary },
+    { "intelsat.txt",          SSSatellite::kIntelsat },
+    { "gorizont.txt",          SSSatellite::kGorizont },
+    { "raduga.txt",            SSSatellite::kRaduga },
+    { "molniya.txt",           SSSatellite::kMolniya },
+    { "iridium.txt",           SSSatellite::kIridium },
+    { "orbcomm.txt",           SSSatellite::kOrbcomm },
+    { "globalstar.txt",        SSSatellite::kGlobalstar },
+    { "amateur.txt",           SSSatellite::kAmateur },
+    { "x-comm.txt",            SSSatellite::kExperimental },
+    { "gps-ops.txt",           SSSatellite::kGPSOps },
+    { "glo-ops.txt",           SSSatellite::kGlonassOps },
+    { "galileo.txt",           SSSatellite::kGalileo },
+    { "sbas.txt",              SSSatellite::kSBAS },
+    { "nnss.txt",              SSSatellite::kNNSS },
+    { "musson.txt",            SSSatellite::kMusson },
+    { "science.txt",           SSSatellite::kScience },
+    { "geodetic.txt",          SSSatellite::kGeodetic },
+    { "engineering.txt",       SSSatellite::kEngineering },
+    { "education.txt",         SSSatellite::kEducation },
+    { "military.txt",          SSSatellite::kMilitary },
+    { "radar.txt",             SSSatellite::kRadar },
+    { "cubesat.txt",           SSSatellite::kCubeSat },
+    { "sirius-xm.txt",         SSSatellite::kSiriusXM },
+    { "tv.txt",                SSSatellite::kTV },
+    { "beidou.txt",            SSSatellite::kBeiDou },
+    { "yaogan.txt",            SSSatellite::kYaogan },
+    { "westford.txt",          SSSatellite::kWestford },
+    { "parus.txt",             SSSatellite::kParus },
+    { "strela.txt",            SSSatellite::kStrela },
+    { "gonets.txt",            SSSatellite::kGonets },
+    { "tsiklon.txt",           SSSatellite::kTsiklon },
+    { "tsikada.txt",           SSSatellite::kTsikada },
+    { "o3b.txt",               SSSatellite::kO3b },
+    { "tselina.txt",           SSSatellite::kTselina },
+    { "celestis.txt",          SSSatellite::kCelestis },
+    { "irnss.txt",             SSSatellite::kIRNSS },
+    { "qzss.txt",              SSSatellite::kQZSS },
+    { "flock.txt",             SSSatellite::kFlock },
+    { "lemur.txt",             SSSatellite::kLemur },
+    { "gps.txt",               SSSatellite::kGPS },
+    { "glonass.txt",           SSSatellite::kGlonass },
+    { "starlink.txt",          SSSatellite::kStarlink },
+    { "oneweb.txt",            SSSatellite::kOneWeb },
+    { "chinese-stations.txt",  SSSatellite::kChineseStation },
+    { "quifan.txt",            SSSatellite::kQianfan },
+    { "leo.txt",               SSSatellite::kKuiper },
+    { "geesat.txt",            SSSatellite::kGeeSAT },
+    { "junk.txt",              SSSatellite::kJunk }
+};
+
+// Maps CelesTrak satellite category filenames to category identifiers.
+
+static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
+{
+    { "visual.csv",        SSSatellite::kBrightest },
+    { "stations.csv",      SSSatellite::kISS },
+    { "weather.csv",       SSSatellite::kWeather },
+    { "resource.csv",      SSSatellite::kEarthResources },
+    { "sar.csv",           SSSatellite::kSearchAndRescue },
+    { "tdrss.csv",         SSSatellite::kTDRS },
+    { "geo.csv",           SSSatellite::kGeostationary },
+    { "gpz.csv",           SSSatellite::kGEOProtectedZone },
+    { "intelsat.csv",      SSSatellite::kIntelsat },
+    { "eutelsat.csv",      SSSatellite::kEutelsat },
+    { "iridium-next.csv",  SSSatellite::kIridium },
+    { "orbcomm.csv",       SSSatellite::kOrbcomm },
+    { "globalstar.csv",    SSSatellite::kGlobalstar },
+    { "amateur.csv",       SSSatellite::kAmateur },
+    { "x-comm.csv",        SSSatellite::kExperimental },
+    { "gps-ops.csv",       SSSatellite::kGPSOps },
+    { "glo-ops.csv",       SSSatellite::kGlonassOps },
+    { "galileo.csv",       SSSatellite::kGalileo },
+    { "beidou.csv",        SSSatellite::kBeiDou },
+    { "sbas.csv",          SSSatellite::kSBAS },
+    { "gnss.csv",          SSSatellite::kGPS }, // suspect
+    { "science.csv",       SSSatellite::kScience },
+    { "geodetic.csv",      SSSatellite::kGeodetic },
+    { "engineering.csv",   SSSatellite::kEngineering },
+    { "education.csv",     SSSatellite::kEducation },
+    { "military.csv",      SSSatellite::kMilitary },
+    { "radar.csv",         SSSatellite::kRadar },
+    { "cubesat.csv",       SSSatellite::kCubeSat },
+    { "planet.csv",        SSSatellite::kFlock },
+    { "spire.csv",         SSSatellite::kLemur },
+    { "satnogs.csv",       SSSatellite::kSatNOGS },
+    { "starlink.csv",      SSSatellite::kStarlink },
+    { "oneweb.csv",        SSSatellite::kOneWeb },
+    { "qianfan.csv",       SSSatellite::kQianfan },
+    { "kuiper.csv",        SSSatellite::kKuiper },
+    { "hulianwang.csv",    SSSatellite::kHulianwang },
+    { "argos.csv",         SSSatellite::kARGOS }
+};
+
 int main ( int argc, const char *argv[] )
 {
-    // If a second input file is supplied, treat it as the SCORE CSV file.
+    if ( argc < 6 )
+    {
+        cerr << "Usage: SSTLETest "
+             << "tle_directory score_file mccants_file n2yo_file je9pel_file"
+             << endl;
 
-    if ( argc > 2 )
-        TestSCOREData ( argv[2] );
-    
-    // Get path to input TLE file from user, if not presetn in first command-line argument.
-    char tlepath[256] = { 0 };
-    if ( argc < 2 )
-    {
-        printf ( "Path to input TLE file: " );
-        scanf ( "%s", tlepath );
-    }
-    else
-    {
-        strncpy ( tlepath, argv[1], sizeof ( tlepath ) );
-    }
-    
-    // Open TLE file; exit on failure.
-    FILE *tlefile = fopen ( tlepath, "r" );
-    if ( tlefile == NULL )
-    {
-        printf ( "Can't open TLE file %s!\n", tlepath );
         return -1;
     }
-    
-    // Is file in CSV format? If not assume traditional TLE format.
-    // Read entries from TLE file until we fail.
-    bool csvformat = ( strcmp ( tlepath + strlen ( tlepath ) - 3, "csv" ) == 0 );
 
+    string tleDirectory = argv[1];
+    string scoreFile    = argv[2];
+    string mccantsFile  = argv[3];
+    string n2yoFile     = argv[4];
+    string je9pelFile   = argv[5];
+
+    // Choose an appropriate TLE-file-to-category mapping
+    
+    map<string,SSSatellite::Category> categoryMap;
+    string dirname = toLower ( getFileName ( tleDirectory ) );
+    if ( dirname.find ( "celestrak" ) != string::npos )
+        categoryMap = CelesTrakSatelliteCategoryFiles;
+    else if ( dirname.find ( "n2yo" ) != string::npos )
+        categoryMap = N2YOSatelliteCategoryFiles;
+
+    // Import base satellite records from traditional TLE or CelesTrak CSV.
+
+    SSObjectVec satellites;
+    int nsat = SSImportTLEDirectory ( tleDirectory, categoryMap, satellites );
+    if ( nsat == 0 )
+    {
+        cerr << "Failed to import satellites from " << tleDirectory << endl;
+        return -2;
+    }
+
+    cerr << "Imported " << nsat << " satellites from " << tleDirectory << endl;
+
+    // Add N2YO country, launch, decay, taxonomy, and description data.
+
+    int nn2yo = SSImportN2Data ( n2yoFile, satellites );
+    cerr << "Added N2YO data to " << nn2yo << " satellites." << endl;
+
+    // Add McCants standard magnitudes and physical sizes.
+
+    int nmccants = SSImportMcNames ( mccantsFile, satellites );
+    cerr << "Added McCants data to " << nmccants << " satellites." << endl;
+
+    // Add SCORE-derived standard magnitudes. Since this follows McCants,
+    // SCORE magnitudes replace McCants magnitudes where both are available.
+
+    int nscore = SSImportSCOREData ( scoreFile, satellites );
+    cerr << "Added SCORE magnitudes to " << nscore << " satellites." << endl;
+
+    // Add JE9PEL amateur-radio frequency data.
+
+    int nfreq = SSImportSatelliteFrequencyData ( je9pelFile, satellites );
+    cerr << "Added " << nfreq << " JE9PEL frequency records." << endl;
+
+    // Display the assembled master satellite catalog.
+
+    for ( int i = 0; i < satellites.size(); i++ )
+    {
+        SSSatellite *pSat = SSGetSatellitePtr ( satellites[i] );
+
+        if ( pSat )
+            cout << pSat->toCSV() << endl;
+    }
+
+#if 0
     SSTLE tle;
     while ( true )
     {
@@ -113,5 +348,6 @@ int main ( int argc, const char *argv[] )
     }
     
     fclose ( tlefile );
+#endif
     return 0;
 }

@@ -52,7 +52,23 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/timmyd/Desktop/celestrak/testdata.csv /Users/timmyd/Downloads/satellite_observations_all.csv"
+            argument = "/Users/timmyd/Downloads/satellites/n2yo"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/timmyd/Downloads/satellites/other/satellite_observations_all.csv"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/timmyd/Downloads/satellites/other/McNames.txt"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/timmyd/Downloads/satellites/n2yo/n2yo.csv"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/timmyd/Downloads/satellites/other/je9pel.csv"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
