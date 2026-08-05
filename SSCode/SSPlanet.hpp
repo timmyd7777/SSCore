@@ -270,7 +270,7 @@ public:
         kGOES                  =  5,    // GOES
         kEarthResources        =  6,    // Earth Resources
         kSearchAndRescue       =  7,    // Search & Rescue
-        kDisaster              =  8,    // Disaster Monitoring
+        kDisasterMonitoring    =  8,    // Disaster Monitoring
         kTDRS                  =  9,    // Tracking and Data Relay Satellite System (TDRSS)
         kGeostationary         = 10,    // Geostationary
         kIntelsat              = 11,    // Intelsat
@@ -281,7 +281,7 @@ public:
         kOrbcomm               = 16,    // Orbcomm
         kGlobalstar            = 17,    // Globalstar
         kAmateur               = 18,    // Amateur Radio
-        kExperimental          = 19,    // Experimental
+        kExperimental          = 19,    // Experimental Communication
         kGPSOps                = 20,    // GPS Operational
         kGlonassOps            = 21,    // GLONASS Operational
         kGalileo               = 22,    // Galileo
@@ -320,12 +320,14 @@ public:
         kQianfan               = 55,    // Qianfan (Thousand Sails)
         kKuiper                = 56,    // Kuiper (AKA Leo) Constallation, not to be confused with LEO
         kGeeSAT                = 57,    // GeeSAT
-        kJunk                  = 58,    // Space junk / debris
+        kSES                   = 58,    // SES
         kARGOS                 = 59,    // ARGOS Data Collection System
         kEutelsat              = 60,    // Eutelsat
-        kHulianwang            = 61,    // Hulianwang Constellation
+        kHulianwang            = 61,    // Hulianwang
         kSatNOGS               = 62,    // SatNOGS
-        kGEOProtectedZone      = 63     // GEO Protected Zone    };
+        kGEOProtectedZone      = 63,    // GEO Protected Zone
+        kSAR                   = 64,    // Synthetic Aperture Radar (SAR)
+        kJunk                  = 99,    // Space junk / debris
     };
     
     struct FreqData
@@ -386,6 +388,7 @@ public:
     
     static SSObjectPtr fromCSV ( string csv );
     string toCSV ( void );
+    static string headerCSV ( void );
 };
 
 // convenient aliases for pointers to various subclasses of SSPlanet

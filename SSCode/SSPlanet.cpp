@@ -828,11 +828,6 @@ string SSSatellite::toCSV ( void )
     csv += isfinite ( _Hmag ) ? formstr ( "%+.2f,", _Hmag ) : ",";
     csv += ",";       // MAG_SRC
 
-    // Standard magnitude and source.
-
-    csv += isfinite ( _Hmag ) ? formstr ( "%+.2f,", _Hmag ) : ",";
-    csv += ",";       // MAG_SRC
-
     // Physical diameter in meters. SSPlanet stores physical radius in kilometers.
 
     csv += isfinite ( _radius ) && _radius > 0.0 ? formstr ( "%.2f,", 2.0 * _radius * 1000.0 ) : ",";
@@ -895,6 +890,15 @@ string SSSatellite::toCSV ( void )
 
     csv += escape_csv ( _description );
     return csv;
+}
+
+// Returns CSV column header string
+
+string SSSatellite::headerCSV ( void )
+{
+    string header = "OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,NORAD_CAT_ID,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,";
+    header += "STD_MAG,MAG_SRC,DIAMETER,DIAMETER_SRC,COUNTRY,LAUNCH_SITE,LAUNCH_DATE,DECAY_DATE,RADIO_UPLINK_FREQ,RADIO_DOWNLINK_FREQ,RADIO_BEACON_FREQ,RADIO_MODE,RADIO_CALLSIGN,RADIO_STATUS,CATEGORIES,DESCRIPTION";
+    return header;
 }
 
 // Allocates a new SSSatellite and initializes it from a master-catalog

@@ -2316,7 +2316,7 @@ string SSTLE::toCSV ( void )
 
     return formstr (
         "%s,%s,%s,%.8f,%s,%.4f,%.4f,%.4f,%.4f,0,U,%d,%d,%d,%.8G,%.8G,%.8G",
-        name.c_str(),
+        escape_csv ( name ).c_str(),
         desig.c_str(),
         epoch.c_str(),
         mean_motion,

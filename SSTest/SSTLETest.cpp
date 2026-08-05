@@ -148,7 +148,7 @@ static const map<string,SSSatellite::Category> N2YOSatelliteCategoryFiles =
     { "goes.txt",              SSSatellite::kGOES },
     { "resource.txt",          SSSatellite::kEarthResources },
     { "sarsat.txt",            SSSatellite::kSearchAndRescue },
-    { "dmc.txt",               SSSatellite::kDisaster },
+    { "dmc.txt",               SSSatellite::kDisasterMonitoring },
     { "tdrss.txt",             SSSatellite::kTDRS },
     { "geo.txt",               SSSatellite::kGeostationary },
     { "intelsat.txt",          SSSatellite::kIntelsat },
@@ -209,7 +209,6 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "stations.csv",      SSSatellite::kISS },
     { "weather.csv",       SSSatellite::kWeather },
     { "resource.csv",      SSSatellite::kEarthResources },
-    { "sar.csv",           SSSatellite::kSearchAndRescue },
     { "tdrss.csv",         SSSatellite::kTDRS },
     { "geo.csv",           SSSatellite::kGeostationary },
     { "gpz.csv",           SSSatellite::kGEOProtectedZone },
@@ -234,6 +233,8 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "radar.csv",         SSSatellite::kRadar },
     { "cubesat.csv",       SSSatellite::kCubeSat },
     { "planet.csv",        SSSatellite::kFlock },
+    { "sar.csv",           SSSatellite::kSAR },
+    { "ses.csv",           SSSatellite::kSES },
     { "spire.csv",         SSSatellite::kLemur },
     { "satnogs.csv",       SSSatellite::kSatNOGS },
     { "starlink.csv",      SSSatellite::kStarlink },
@@ -303,8 +304,18 @@ int main ( int argc, const char *argv[] )
     int nfreq = SSImportSatelliteFrequencyData ( je9pelFile, satellites );
     cerr << "Added " << nfreq << " JE9PEL frequency records." << endl;
 
+    // Sort the resulting file by NORAD catalog number.
     // Display the assembled master satellite catalog.
 
+    auto cmp = [] ( const SSObjectPtr &pObj1, const SSObjectPtr &pObj2 ) -> bool
+    {
+        SSSatellite *pSat1 = SSGetSatellitePtr( pObj1 );
+        SSSatellite *pSat2 = SSGetSatellitePtr( pObj2 );
+        return pSat1->getTLE().norad < pSat2->getTLE().norad;
+    };
+    
+    satellites.sort ( cmp );
+    cout << SSSatellite::headerCSV() << endl;
     for ( int i = 0; i < satellites.size(); i++ )
     {
         SSSatellite *pSat = SSGetSatellitePtr ( satellites[i] );
