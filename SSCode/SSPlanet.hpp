@@ -323,11 +323,12 @@ public:
         kSES                   = 58,    // SES
         kARGOS                 = 59,    // ARGOS Data Collection System
         kEutelsat              = 60,    // Eutelsat
-        kHulianwang            = 61,    // Hulianwang
+        kHulianwang            = 61,    // Hulianwang ("Guowang") National Satellite Internet constellation)
         kSatNOGS               = 62,    // SatNOGS
         kGEOProtectedZone      = 63,    // GEO Protected Zone
         kSAR                   = 64,    // Synthetic Aperture Radar (SAR)
-        kJunk                  = 99,    // Space junk / debris
+        kTelesat               = 65,    // Telesat
+        kJunk                  = 99,    // Space junk / debris - always last category!
     };
     
     struct FreqData

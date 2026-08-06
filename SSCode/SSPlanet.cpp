@@ -1001,7 +1001,7 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
         for ( string field : categories )
         {
             int category = strtoint ( field );
-            if ( category >= kBrightest && category <= kGeeSAT )
+            if ( category >= kBrightest && category <= kJunk )
                 pSat->_categories.push_back ( Category ( category ) );
         }
     }

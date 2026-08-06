@@ -2123,6 +2123,34 @@ static string encodeAlpha5 ( int norad )
     return formstr ( "%c%04d", c, suffix );
 }
 
+// Expands TLE international designator "98067A" to "1998-067A".
+
+string expandDesignator ( const string &desig )
+{
+    if ( desig.length() < 5 )
+        return "";
+
+    int yy = atoi ( desig.substr ( 0, 2 ).c_str() );
+    int year = yy >= 57 ? 1900 + yy : 2000 + yy;
+
+    return formstr ( "%04d-%s", year, desig.substr ( 2 ).c_str() );
+}
+
+// Converts expanded international designator "1998-067A" to "98067A".
+
+string compressDesignator ( const string &desig )
+{
+    if ( desig.length() < 8 || desig[4] != '-' )
+        return "";
+
+    int year = atoi ( desig.substr ( 0, 4 ).c_str() );
+
+    if ( year < 1957 || year > 2056 )
+        return "";
+
+    return formstr ( "%02d%s", year % 100, desig.substr ( 5 ).c_str() );
+}
+
 // Reads a TLE record from three lines of an input stream (file).
 // Returns 0 if successful, EOF (-1) at end of file,
 // or another negative number on failure to parse data.
@@ -2152,7 +2180,7 @@ int SSTLE::read ( FILE *file )
         return -2;
     
     number = decodeAlpha5 ( trim ( buf.substr ( 2, 5 ) ) );
-    desig = trim ( buf.substr ( 9, 6 ) );
+    desig = expandDesignator ( trim ( buf.substr ( 9, 6 ) ) );
     epoch = strtofloat64 ( buf.substr ( 18, 14 ) );
     xndt20 = strtofloat64 ( buf.substr ( 33, 10 ) );
     xndd60 = strtofloat64 ( buf.substr ( 44, 6 ) );
@@ -2375,11 +2403,8 @@ int SSTLE::write ( ostream &file )
     // but classic TLE format requires designator formatted as "98067AB", so abbreviate it.
     string tledesig = desig;
     if ( tledesig.length() > 7 )
-    {
-        tledesig = tledesig.substr ( 2, string::npos ); // elminate 2 leading characters
-        replaceAll ( tledesig, "-", "" );               // eliminate hyphens
-        tledesig = tledesig.substr ( 0, 7 );            // truncate to 7 characters no matter what
-    }
+        tledesig = compressDesignator( desig );
+
     
     // format first line of orbital elements
     
@@ -2441,8 +2466,8 @@ void SSTLE::delargs ( void )
 
 // Returns Keplerian orbital elements at a specific number of minutes since epoch (tsince).
 // Based on analysis of SGP orbit model, and at least approximately correct, but needs further testing.
-// In the returned orbit, q is Earth radii, mm is radians per minute, and i, w, n are referred to
-// Earth's equatorial plane.
+// In the returned orbit, q is Earth radii; mm, wrate, and nrate are in radians per minute, and i, w, n are referred to
+// Earth's equatorial plane, so polera and poledec are the north celestial pole.
 
 SSOrbit SSTLE::toOrbit ( double tsince ) const
 {
@@ -2469,5 +2494,5 @@ SSOrbit SSTLE::toOrbit ( double tsince ) const
     double xnodet = fmod2p ( xnodeo + xnodot * tsince );
     double xmt = fmod2p ( xmo + xno * tsince );
     
-    return SSOrbit ( jdepoch + tsince / xmnpda, aodp * ( 1.0 - eo ), eo, xincl, omegat, xnodet, xmt, xnodp );
+    return SSOrbit ( jdepoch + tsince / xmnpda, aodp * ( 1.0 - eo ), eo, xincl, omegat, xnodet, xmt, xnodp, omegadot, xnodot, 0.0, SSAngle::kHalfPi );
 }

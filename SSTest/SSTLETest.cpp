@@ -195,7 +195,7 @@ static const map<string,SSSatellite::Category> N2YOSatelliteCategoryFiles =
     { "starlink.txt",          SSSatellite::kStarlink },
     { "oneweb.txt",            SSSatellite::kOneWeb },
     { "chinese-stations.txt",  SSSatellite::kChineseStation },
-    { "quifan.txt",            SSSatellite::kQianfan },
+    { "qianfan.txt",           SSSatellite::kQianfan },
     { "leo.txt",               SSSatellite::kKuiper },
     { "geesat.txt",            SSSatellite::kGeeSAT },
     { "junk.txt",              SSSatellite::kJunk }
@@ -209,6 +209,7 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "stations.csv",      SSSatellite::kISS },
     { "weather.csv",       SSSatellite::kWeather },
     { "resource.csv",      SSSatellite::kEarthResources },
+    { "sarsat.csv",        SSSatellite::kSearchAndRescue },
     { "tdrss.csv",         SSSatellite::kTDRS },
     { "geo.csv",           SSSatellite::kGeostationary },
     { "gpz.csv",           SSSatellite::kGEOProtectedZone },
@@ -242,7 +243,12 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "qianfan.csv",       SSSatellite::kQianfan },
     { "kuiper.csv",        SSSatellite::kKuiper },
     { "hulianwang.csv",    SSSatellite::kHulianwang },
-    { "argos.csv",         SSSatellite::kARGOS }
+    { "ses.csv",           SSSatellite::kSES },
+    { "argos.csv",         SSSatellite::kARGOS },
+    { "eutelsat.csv",      SSSatellite::kEutelsat },
+    { "gpz.csv",           SSSatellite::kGEOProtectedZone }, // DOUBLE CHECK
+    { "sar.csv",           SSSatellite::kSAR },
+    { "telesat.csv",       SSSatellite::kTelesat }
 };
 
 int main ( int argc, const char *argv[] )
@@ -304,6 +310,35 @@ int main ( int argc, const char *argv[] )
     int nfreq = SSImportSatelliteFrequencyData ( je9pelFile, satellites );
     cerr << "Added " << nfreq << " JE9PEL frequency records." << endl;
 
+    // Test round-trip export-import-export of all satellite data
+    
+    for ( int i = 0; i < satellites.size(); i++ )
+    {
+        SSSatellite *pSat = SSGetSatellitePtr ( satellites[i] );
+        if ( pSat )
+        {
+            int norad = pSat->getTLE().norad;
+            string csv = pSat->toCSV();
+            SSObjectPtr pObject = SSSatellite::fromCSV ( csv );
+            SSSatellitePtr pSat = SSGetSatellitePtr ( pObject );
+            if ( pSat == nullptr )
+            {
+                cerr << "CSV import failed for NORAD " << norad << endl;
+                cerr << csv << endl;
+                continue;
+            }
+            
+            string csv2 = pSat->toCSV();
+            if ( csv != csv2 )
+            {
+                cerr << "CSV round-trip mismatch for NORAD " << norad << endl;
+                cerr << csv << endl;
+                cerr << csv2 << endl;
+                continue;
+            }
+        }
+    }
+
     // Sort the resulting file by NORAD catalog number.
     // Display the assembled master satellite catalog.
 
@@ -315,13 +350,14 @@ int main ( int argc, const char *argv[] )
     };
     
     satellites.sort ( cmp );
+
     cout << SSSatellite::headerCSV() << endl;
     for ( int i = 0; i < satellites.size(); i++ )
     {
         SSSatellite *pSat = SSGetSatellitePtr ( satellites[i] );
-
         if ( pSat )
             cout << pSat->toCSV() << endl;
+        
     }
 
 #if 0
