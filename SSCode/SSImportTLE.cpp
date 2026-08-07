@@ -132,6 +132,8 @@ int SSImportMcNames ( const string &filename, SSObjectVec &objects )
         {
             pSat->setHMagnitude ( mcname.mag );
             pSat->setRadius ( mcname.len / 2000.0 );
+            pSat->setMagnitudeSource ( SSSatellite::kMcCants );
+            pSat->setDiameterSource ( SSSatellite::kMcCants );
             n++;
         }
     }
@@ -342,7 +344,8 @@ int SSImportN2Data ( const string &filename, SSObjectVec &satellites )
     return n;
 }
 
-// Import all SCORE observations from CSV file.
+// Import all SCORE observations from CSV file downloaded
+// from https://score.cps.iau.org/download
 // The enum below defines the columns in the SCORE CSV file.
 
 enum
@@ -516,8 +519,199 @@ int SSImportSCOREData ( const string &filename, SSObjectVec &objects )
             continue;
 
         pSat->setHMagnitude ( it->second.mag );
+        pSat->setMagnitudeSource ( SSSatellite::kSCORE );
         n++;
     }
 
+    return n;
+}
+
+// Returns reasonable fallback McCants standard magnitude and physical
+// diameter in meters for a well-known satellite constellation.
+// Returns false if no useful default is available.
+//
+// These values should only fill missing data; they should never replace
+// McCants, SCORE-derived, or otherwise measured values.
+
+bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diameter )
+{
+    stdmag = INFINITY;
+    diameter = INFINITY;
+    auto categories = pSat->getCategories();
+    
+    for ( auto category : categories )
+    {
+        switch ( category )
+        {
+            case SSSatellite::kStarlink:
+            {
+                // STARLINK-1130 (DARKSAT), NORAD 44932, was the single
+                // experimental dark-coated spacecraft.
+
+                int norad = pSat->getTLE().norad;
+                double launchDate = pSat->getLaunchDate();
+                
+                if ( norad == 44932 )
+                {
+                    stdmag = +6.0;
+                    diameter = 4.0;
+                }
+
+                // Gen2 Mini launches began in February 2023.
+                // These spacecraft are physically larger but incorporate
+                // improved brightness-mitigation measures.
+
+                else if ( launchDate >= SSTime ( SSDate ( kGregorian, 0.0, 2023, 2, 27.0 ) ) )
+                {
+                    stdmag = +6.0;
+                    diameter = 5.5;
+                }
+
+                // Later v1.0 and v1.5 spacecraft used VisorSat or related
+                // brightness mitigation. Use a compromise value because
+                // launch batches overlap the exact design transitions.
+
+                else if ( launchDate >= SSTime ( SSDate ( kGregorian, 0.0,2020, 6, 1.0 ) ) )
+                {
+                    stdmag = +5.8;
+                    diameter = 4.0;
+                }
+
+                // Original unmitigated v0.9/v1.0 spacecraft.
+
+                else
+                {
+                    stdmag = +5.5;
+                    diameter = 4.0;
+                }
+
+                return true;
+            }
+
+            case SSSatellite::kOneWeb:
+                stdmag = +6.0;
+                diameter = 6.0;
+                return true;
+
+            case SSSatellite::kIridium:
+                stdmag = +3.5;
+                diameter = 4.0;
+                return true;
+
+            case SSSatellite::kOrbcomm:
+                stdmag = +9.2;
+                diameter = 1.0;
+                return true;
+
+            case SSSatellite::kGlobalstar:
+                stdmag = +4.2;
+                diameter = 5.0;
+                return true;
+
+            case SSSatellite::kO3b:
+                stdmag = +6.8;
+                diameter = 4.5;
+                return true;
+
+            case SSSatellite::kFlock:
+                stdmag = +9.5;
+                diameter = 0.30;
+                return true;
+
+            case SSSatellite::kLemur:
+                stdmag = +9.0;
+                diameter = 0.35;
+                return true;
+
+            case SSSatellite::kKuiper:
+                // Based primarily on the SCORE-derived magnitudes already
+                // reduced in this project.
+
+                stdmag = +6.8;
+                diameter = 5.0;
+                return true;
+
+            case SSSatellite::kQianfan:
+                stdmag = +6.2;
+                diameter = 5.0;
+                return true;
+
+            case SSSatellite::kHulianwang:
+                stdmag = +6.3;
+                diameter = 5.0;
+                return true;
+
+            case SSSatellite::kGeeSAT:
+                stdmag = +7.5;
+                diameter = 1.5;
+                return true;
+
+            case SSSatellite::kGPS:
+            case SSSatellite::kGPSOps:
+                stdmag = +4.5;
+                diameter = 5.0;
+                return true;
+
+            case SSSatellite::kGLONASS:
+            case SSSatellite::kGLONASSOps:
+                stdmag = +4.8;
+                diameter = 4.0;
+                return true;
+
+            case SSSatellite::kGalileo:
+                stdmag = +5.0;
+                diameter = 4.0;
+                return true;
+
+            case SSSatellite::kBeiDou:
+                stdmag = +5.0;
+                diameter = 4.0;
+                return true;
+
+            case SSSatellite::kIRNSS:
+                stdmag = +5.5;
+                diameter = 4.0;
+                return true;
+
+            case SSSatellite::kQZSS:
+                stdmag = +4.5;
+                diameter = 5.0;
+                return true;
+
+            case SSSatellite::kSBAS:
+                stdmag = +5.0;
+                diameter = 5.0;
+                return true;
+
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+
+// Sets constellation-default standard magnitude and diameter for all satellites in a veector of SSObjectPtr.
+// Returns the total number of satellites to which magnitude and diameter have been assigned.
+
+int SSGetDefaultSatelliteData ( SSObjectVec &satellites )
+{
+    int n = 0;
+    for ( size_t i = 0; i < satellites.size(); i++ )
+    {
+        SSSatellitePtr pSat = SSGetSatellitePtr ( satellites[i] );
+        if ( pSat == nullptr )
+            continue;
+        
+        float stdmag = INFINITY, diam = 0.0;
+        if ( SSGetDefaultSatelliteData ( pSat, stdmag, diam ) )
+        {
+            pSat->setHMagnitude ( stdmag );
+            pSat->setRadius ( diam / 2000.0 );
+            pSat->setMagnitudeSource ( SSSatellite::kConstellation );
+            pSat->setDiameterSource ( SSSatellite::kConstellation );
+            n++;
+        }
+    }
     return n;
 }

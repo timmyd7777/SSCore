@@ -161,7 +161,7 @@ static const map<string,SSSatellite::Category> N2YOSatelliteCategoryFiles =
     { "amateur.txt",           SSSatellite::kAmateur },
     { "x-comm.txt",            SSSatellite::kExperimental },
     { "gps-ops.txt",           SSSatellite::kGPSOps },
-    { "glo-ops.txt",           SSSatellite::kGlonassOps },
+    { "glo-ops.txt",           SSSatellite::kGLONASSOps },
     { "galileo.txt",           SSSatellite::kGalileo },
     { "sbas.txt",              SSSatellite::kSBAS },
     { "nnss.txt",              SSSatellite::kNNSS },
@@ -191,7 +191,7 @@ static const map<string,SSSatellite::Category> N2YOSatelliteCategoryFiles =
     { "flock.txt",             SSSatellite::kFlock },
     { "lemur.txt",             SSSatellite::kLemur },
     { "gps.txt",               SSSatellite::kGPS },
-    { "glonass.txt",           SSSatellite::kGlonass },
+    { "glonass.txt",           SSSatellite::kGLONASS },
     { "starlink.txt",          SSSatellite::kStarlink },
     { "oneweb.txt",            SSSatellite::kOneWeb },
     { "chinese-stations.txt",  SSSatellite::kChineseStation },
@@ -221,7 +221,7 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "amateur.csv",       SSSatellite::kAmateur },
     { "x-comm.csv",        SSSatellite::kExperimental },
     { "gps-ops.csv",       SSSatellite::kGPSOps },
-    { "glo-ops.csv",       SSSatellite::kGlonassOps },
+    { "glo-ops.csv",       SSSatellite::kGLONASSOps },
     { "galileo.csv",       SSSatellite::kGalileo },
     { "beidou.csv",        SSSatellite::kBeiDou },
     { "sbas.csv",          SSSatellite::kSBAS },
@@ -256,51 +256,53 @@ int main ( int argc, const char *argv[] )
     if ( argc < 6 )
     {
         cerr << "Usage: SSTLETest "
-             << "tle_directory score_file mccants_file n2yo_file je9pel_file"
+             << "n2yo_dir celestrak_dir score_file mccants_file n2yo_file je9pel_file"
              << endl;
 
         return -1;
     }
 
-    string tleDirectory = argv[1];
-    string scoreFile    = argv[2];
-    string mccantsFile  = argv[3];
-    string n2yoFile     = argv[4];
-    string je9pelFile   = argv[5];
+    string celestrakDir = argv[1];
+    string n2yoDir      = argv[2];
+    string scoreFile    = argv[3];
+    string mccantsFile  = argv[4];
+    string n2yoFile     = argv[5];
+    string je9pelFile   = argv[6];
 
-    // Choose an appropriate TLE-file-to-category mapping
-    
-    map<string,SSSatellite::Category> categoryMap;
-    string dirname = toLower ( getFileName ( tleDirectory ) );
-    if ( dirname.find ( "celestrak" ) != string::npos )
-        categoryMap = CelesTrakSatelliteCategoryFiles;
-    else if ( dirname.find ( "n2yo" ) != string::npos )
-        categoryMap = N2YOSatelliteCategoryFiles;
-
-    // Import base satellite records from traditional TLE or CelesTrak CSV.
+    // Import base satellite records from CelesTrak CSV.
 
     SSObjectVec satellites;
-    int nsat = SSImportTLEDirectory ( tleDirectory, categoryMap, satellites );
+    int nsat = SSImportTLEDirectory ( celestrakDir, CelesTrakSatelliteCategoryFiles, satellites );
     if ( nsat == 0 )
-    {
-        cerr << "Failed to import satellites from " << tleDirectory << endl;
-        return -2;
-    }
+        cerr << "Failed to import satellites from " << celestrakDir << endl;
+    else
+        cerr << "Imported " << nsat << " satellites from " << celestrakDir << endl;
 
-    cerr << "Imported " << nsat << " satellites from " << tleDirectory << endl;
+    // Import base satellite records from n2yo.com TLE.
+
+    nsat = SSImportTLEDirectory ( n2yoDir, N2YOSatelliteCategoryFiles, satellites );
+    if ( nsat == 0 )
+        cerr << "Failed to import satellites from " << n2yoDir << endl;
+    else
+        cerr << "Imported " << nsat << " satellites from " << n2yoDir << endl;
 
     // Add N2YO country, launch, decay, taxonomy, and description data.
 
     int nn2yo = SSImportN2Data ( n2yoFile, satellites );
     cerr << "Added N2YO data to " << nn2yo << " satellites." << endl;
 
-    // Add McCants standard magnitudes and physical sizes.
+    // Get default standard magnitude and diameter for satellites in categorized constellations.
+    
+    int ndefaults = SSGetDefaultSatelliteData ( satellites );
+    cerr << "Added constellation default standard magnitude and diameter to " << ndefaults << " satellites." << endl;
+
+    // Add McCants standard magnitudes and physical sizes. This will override defaults.
 
     int nmccants = SSImportMcNames ( mccantsFile, satellites );
     cerr << "Added McCants data to " << nmccants << " satellites." << endl;
 
-    // Add SCORE-derived standard magnitudes. Since this follows McCants,
-    // SCORE magnitudes replace McCants magnitudes where both are available.
+    // Add SCORE-derived standard magnitudes. Since this follows McCants and defaults,
+    // SCORE magnitudes replace McCants and default magnitudes where both are available.
 
     int nscore = SSImportSCOREData ( scoreFile, satellites );
     cerr << "Added SCORE magnitudes to " << nscore << " satellites." << endl;

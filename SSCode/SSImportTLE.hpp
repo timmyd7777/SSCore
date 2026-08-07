@@ -97,4 +97,7 @@ int SSImportSCOREData ( const string &filename, SCOREDataVec &data );
 int SCOREDataToStandardMagnitudes ( const SCOREDataVec &data, SCOREMagnitudeMap &magnitudes );
 int SSImportSCOREData ( const string &filename, SSObjectVec &objects );
 
+bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diameter );
+int SSGetDefaultSatelliteData ( SSObjectVec &satellites );
+
 #endif /* SSPlanet_hpp */

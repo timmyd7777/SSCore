@@ -826,12 +826,12 @@ string SSSatellite::toCSV ( void )
     // Standard magnitude and source.
 
     csv += isfinite ( _Hmag ) ? formstr ( "%+.2f,", _Hmag ) : ",";
-    csv += ",";       // MAG_SRC
+    csv += _magSrc != 0 ? formstr ( "%c,", (int) _magSrc ) : ",";
 
     // Physical diameter in meters. SSPlanet stores physical radius in kilometers.
 
     csv += isfinite ( _radius ) && _radius > 0.0 ? formstr ( "%.2f,", 2.0 * _radius * 1000.0 ) : ",";
-    csv += ",";       // DIAMETER_SRC
+    csv += _diamSrc != 0 ? formstr ( "%c,", (int) _diamSrc ) : ",";
     
     // Source country, launch site, launch date, and decay date.
 
@@ -926,15 +926,15 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
     // Standard magnitude and source.
 
     pSat->_Hmag = fields[17].empty() ? INFINITY : strtofloat ( fields[17] );
+    pSat->_magSrc = fields[18].empty() ? 0 : fields[18][0];
 
-    // fields[18] = MAG_SRC; not currently stored.
-
-    // Physical diameter is stored as radius in kilometers by SSPlanet.
+    // Physical diameter and source; diameter is stored as SSPlanet::_radius in kilometers.
 
     pSat->_radius = fields[19].empty() ? 0.0 : strtofloat64 ( fields[19] ) / 2000.0;
+    pSat->_diamSrc = fields[20].empty() ? 0 : fields[20][0];
 
-    // fields[20] = DIAMETER_SRC; not currently stored.
-
+    // Source country and launch site abbreviations; convert launch date from UTC gregorian calendar to JD.
+    
     pSat->_sourceCountry = fields[21];
     pSat->_launchSite = fields[22];
     pSat->_launchDate = fields[23].empty() ? INFINITY : double ( SSTime ( SSDate ( "%Y-%m-%d", fields[23] ) ) );
@@ -1001,7 +1001,7 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
         for ( string field : categories )
         {
             int category = strtoint ( field );
-            if ( category >= kBrightest && category <= kJunk )
+            if ( category >= 1 && category <= 255 )
                 pSat->_categories.push_back ( Category ( category ) );
         }
     }

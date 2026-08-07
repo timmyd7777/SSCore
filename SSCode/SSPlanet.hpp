@@ -283,7 +283,7 @@ public:
         kAmateur               = 18,    // Amateur Radio
         kExperimental          = 19,    // Experimental Communication
         kGPSOps                = 20,    // GPS Operational
-        kGlonassOps            = 21,    // GLONASS Operational
+        kGLONASSOps            = 21,    // GLONASS Operational
         kGalileo               = 22,    // Galileo
         kSBAS                  = 23,    // Satellite-Based Augmentation System (SBAS)
         kNNSS                  = 24,    // Navy Navigation Satellite System (NNSS)
@@ -313,24 +313,34 @@ public:
         kFlock                 = 48,    // Planet Flock
         kLemur                 = 49,    // Spire Lemur
         kGPS                   = 50,    // GPS Constellation
-        kGlonass               = 51,    // GLONASS Constellation
+        kGLONASS               = 51,    // GLONASS Constellation
         kStarlink              = 52,    // Starlink Constellation
         kOneWeb                = 53,    // OneWeb Constellation
         kChineseStation        = 54,    // Chinese Space Station
         kQianfan               = 55,    // Qianfan (Thousand Sails)
         kKuiper                = 56,    // Kuiper (AKA Leo) Constallation, not to be confused with LEO
         kGeeSAT                = 57,    // GeeSAT
-        kSES                   = 58,    // SES
-        kARGOS                 = 59,    // ARGOS Data Collection System
-        kEutelsat              = 60,    // Eutelsat
-        kHulianwang            = 61,    // Hulianwang ("Guowang") National Satellite Internet constellation)
-        kSatNOGS               = 62,    // SatNOGS
-        kGEOProtectedZone      = 63,    // GEO Protected Zone
-        kSAR                   = 64,    // Synthetic Aperture Radar (SAR)
-        kTelesat               = 65,    // Telesat
         kJunk                  = 99,    // Space junk / debris - always last category!
+        kSES                   = 100,   // SES
+        kARGOS                 = 101,   // ARGOS Data Collection System
+        kEutelsat              = 102,   // Eutelsat
+        kHulianwang            = 103,   // Hulianwang (Guowang) National Internet Satellites
+        kSatNOGS               = 104,   // SatNOGS
+        kGEOProtectedZone      = 105,   // GEO Protected Zone
+        kSAR                   = 106,   // Synthetic Aperture Radar (SAR)
+        kTelesat               = 107,   // Telesat
     };
     
+    // Sources of standard magnitude and physical diameter data
+    
+    enum DataSrc
+    {
+        kMcCants = 'M',                 // Mike McCants "MacNames.txt" file, last updated 24 July 2019
+        kConstellation = 'C',           // Default value for constellation
+        kSCORE = 'S',                   // Derived from IAU SCORE observations
+        kRCS = 'R'                      // Derived from radar cross section published by space-track.org
+    };
+        
     struct FreqData
     {
         int    norad = 0;             // NORAD tracking number
@@ -353,7 +363,8 @@ protected:
     float   _decayDate = INFINITY;    // re-entry date (JD); infinity if unknonwn
     vector<Category> _categories;     // Categories to which this satellite belongs
     vector<FreqData> _frequencies;    // frequency data for radio transmitter(s)
-
+    char   _magSrc = 0, _diamSrc = 0; // source of standard magnitude and diameter data, 0 = unknown
+    
 public:
     
     SSSatellite ( SSTLE &tle );
@@ -374,9 +385,14 @@ public:
     vector<Category> getCategories ( void ) { return _categories; }
     vector<FreqData> getRadioFrequencies ( void ) { return _frequencies; }
 
+    char getMagnitudeSource ( void ) { return _magSrc; }
+    char getDiameterSource ( void ) { return _diamSrc; }
+    void setMagnitudeSource ( char src ) { _magSrc = src; }
+    void setDiameterSource ( char src ) { _diamSrc = src; }
+
     void addCategory ( Category c );
     bool hasCategory ( Category c );
-    
+
     void setSourceCountry ( string source ) { _sourceCountry = source; }
     void setLaunchSite ( string site ) { _launchSite = site; }
     void setLaunchDate ( double jd ) { _launchDate = jd; }
