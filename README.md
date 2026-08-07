@@ -119,4 +119,5 @@ Version History
 - **Version 1.9** - 27 Nov 2023: Added Tetra3 plate solver, test program, and pattern database. Added SSMountModel. Added code for importing GAIA DR3 and 10-pc sample. Misc warnings cleanup and minor fixes. 
 - **Version 2.0** - 29 Jul 2026: Updated solar system moon data to include all 461 (!!) known moons. Added dwarf planets. Updated JPL DE438 planetary ephemeris to DE442.  Updated deep sky data with Steinicke's 2026NGC-IC. Added Charles Turner's Milky Way outlines and bright nebula contours. Revised CSV formats for stars, deep sky, and solar system objects. Cleaned up test program. 
 - **Version 2.01** - 2 Aug 2026: Added support for the [Alpha-5](https://www.space-track.org/documentation#tle-alpha5) extension to TLE format, and [Celestrak](https://celestrak.org/NORAD/documentation/gp-data-formats.php) OMM CSV format.
+- **Version 2.1** - 8 Aug 2026: Added consolidated Satellites.csv file with data for all ~34K satellites from CelesTrak and N2YO data, magnitudes from McCants and SCORE, and amateur radio data from Mineo Wakita (Je9PEL).
 
