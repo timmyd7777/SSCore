@@ -52,11 +52,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "/Users/timmyd/Downloads/satellites/celestrak"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Users/timmyd/Downloads/satellites/n2yo"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/timmyd/Downloads/satellites/other/satellite_observations_all.csv"
+            argument = "/Users/timmyd/Downloads/satellites/other/score.csv"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

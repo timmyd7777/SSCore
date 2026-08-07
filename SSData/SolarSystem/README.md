@@ -108,6 +108,130 @@ There are two files here.  The larger, **1550_2650.442**, is about 103 MB in siz
 - Version 1.0 (3 Apr 2020): initial commit.
 - Version 2.0 (26 Jul 2026): update from DE438 to DE442
 
+Satellites.csv
+--------------
+
+This file consolidates satellite data from several sources. [Celestrak](https://www.celestak.org/) and [N2YO](https://n2yo.com) are the primary sources for satellite orbital elements and satellite categories. Launch and decay dates, launch sites, countries, and descriptions are provided by [Space-Track](https://www.space-track.org) and n2yo.com.
+
+Satellite standard visual magnitudes and sizes were originally from Mike McCant's [McNames](https://www.mmccants.org/tles/mcnames.zip) file. Mike stopped updating this file in July 2019, but most of its satellites are still in orbit. More recent satellite magnitudes are derived from the IAU [SCORE](https://score.cps.iau.org/about) observation [database](https://score.cps.iau.org/download). For satellites belonging to a well-observed constellation (like Starlink, Kuiper, Iridium), a constellation-average standard magnitude is assigned.
+
+Satellite radio frequency data comes from [Mineo Wakita](https://www.ne.jp/asahi/hamradio/je9pel/satslist.htm).
+
+In the consolidated CSV file, the first 15 fields are identical to Celestrak's OMM (Orbital Mean-Element Message) CSV export format. The remaining fields contain data from these other sources. The columns are:
+
+- **_OBJECT_NAME_** is satellite name. Multiple names from different sources are concatenated with semicolons, like `SPACE STATION;ISS (ZARYA)`
+- **_OBJECT_ID_** is the satellite's international designator, like `1998-067A`
+- **_EPOCH_** is the epoch of orbital elements, like `2026-08-03T19:06:47.841984`
+- **_MEAN_MOTION_** is mean motion in revolutions per day, like `15.49332738`
+- **_ECCENTRICITY_** is orbital eccentricity like `.00072249`
+- **_INCLINATION_** is inclination of orbit plane to Earth's equatorial plane in degrees, like `51.6316`
+- **_RA_OF_ASC_NODE_** is right ascension of ascending node at epoch (not J2000) in degrees, like `64.4821`
+- **_ARG_OF_PERICENTER_** is the argument of pericenter in degrees, like `9.2337`
+- **_MEAN_ANOMALY_** is the mean anomalty at epoch in degrees, like `350.8783`
+- **_EPHEMERIS_TYPE_** indicates the orbit propogator to be used with these elements, and is always `0` for SGP4/SDP4
+- **_CLASSIFICATION_TYPE_** is the classification status, `U` = unclassified
+- **_NORAD_CAT_ID_** is the satellite's NORAD catalog ID. The ISS is `25544`
+- **_ELEMENT_SET_NO_** is the sequential element set number for this satellite, maximum `999`
+- **_REV_AT_EPOCH_** is the number of revolutions around Earth the the satellite has completed since launch, like `57913`
+- **_BSTAR_** is the B* atmospheric drag coefficient (see SGP4 documetation), like `.14146099E-3`
+- **_MEAN_MOTION_DOT_** is 1/2 of the first derivative of the mean motion in revolutions/day^2, like `.14146099E-3`
+- **_MEAN_MOTION_DDOT_** is 1/6 of the second derivative of the mean motion in revolutions/day^3, like `.7444E-4`
+- **_STD_MAG_** is the satellite's standard visual magnitude as defined by McCants: its apparent magnitude at 1000 km range and 50% ilumination, like `-0.50` for the ISS.
+- **_MAG_SRC_** is the standard magnitude source: `M` = McCants, `C` = constellation average, `S` = SCORE observations
+- **_DIAMETER_** is the satellite's largest physical size, i.e. diameter of enclosing sphere, in meters, like `30.0` for the ISS.
+- **_DIAMETER_SRC_** is the source of the diameter: `M` = McCants, `R` = radar cross section
+- **_COUNTRY_** is the abbreviation for the satellite owner/operator's country or other source/organization, used by space-track. The multinational `ISS` is its own country!
+- **_LAUNCH_SITE_** is the abbreviation for the satellite's launch site used by space-track. `TTMTR` for the ISS Zarya module, launched from Tyuratam.
+- **_LAUNCH_DATE_** is the satellite's launch date, YYYY-MM-DD. For the first ISS module, `1998-11-20`
+- **_DECAY_DATE_** is the satellite's re-entry date, YYYY-MM-DD. Empty for currently-orbiting satellites like the ISS.
+- **_RADIO_UPLINK_FREQ_** is the satellite's uplink radio communication frequency, multiple frequencies are semicolon-separated, like `145.825;437.825`
+- **_RADIO_DOWNLINK_FREQ_** is the satellite's downlink radio communication frequency, multiple frequencies are semicolon-separated.
+- **_RADIO_BEACON_FREQ_** is the satellite's radio beacon frequency, multiple frequencies are semicolon-separated.
+- **_RADIO_MODE_** is the radio modulation scheme, multiple modes are semicolon-separated. The ISS uses `SSTV;1k2 AFSK;1k2 AFSK SSTV;1k2 AFSK APRS;9k6 GFSK FM;FM;Voice(Reg 1);Voice(Reg 2 3)`
+- **_RADIO_CALLSIGN_** is the satellite radio station's international call sign for ; multiple callsigns are semicolon-delimited. The ISS call signs are all `RS0ISS ARISS`.
+- **_RADIO_STATUS_** is the satellite's radio communication status. Statuses for multiple radio systems are semicolon-delimited.
+- **_CATEGORIES_** is a semicolon-delimited list of numerical category identifiers to which the satellite belongs. See list below. The ISS belongs to categories `18;1;2;9`.
+- **_DESCRIPTION_** is a free-text description of the satellite from n2yo.com or the NSSDC master catalog.
+
+The first 57 category identifiers are from n2yo.com, and many are shared with Celestrak. Category 99 (space debris) is from n2yo, although this is not formally listed as a category there. Categories 100-107 are unique to Celestrak. Here is a complete list:
+
+|  ID | Category |
+|-----|----------|
+|   1 | Brightest |
+|   2 | International Space Station |
+|   3 | Weather |
+|   4 | NOAA |
+|   5 | kGOES |
+|   6 | Earth Resources |
+|   7 | Search and Rescue |
+|   8 | Disaster Monitoring (DMC) |
+|   9 | Tracking and Data Relay Satellite System (TDRSS) |
+|  10 | Geostationary |
+|  11 | Intelsat |
+|  12 | Gorizont |
+|  13 | Raduga |
+|  14 | Molniya |
+|  15 | Iridium and Iridium-NEXT |
+|  16 | Orbcomm |
+|  17 | Globalstar |
+|  18 | Amateur Radio |
+|  19 | Experimental |
+|  20 | GPS Operational |
+|  21 | GLONASS Operational |
+|  22 | Galileo |
+|  23 | Satellite-Based Augmentation System (SBAS) |
+|  24 | Navy Navigation Satellite System (NNSS) |
+|  25 | Russian LEO Navigation (Musson) |
+|  26 | Space & Earth Science |
+|  27 | Geodetic |
+|  28 | Engineering |
+|  29 | Education |
+|  30 | Military |
+|  31 | Radar Calibration |
+|  32 | CubeSats |
+|  33 | XM & Sirius |
+|  34 | Television |
+|  35 | BeiDou Navigation |
+|  36 | Yaogan |
+|  37 | Westford Needles |
+|  38 | Parus |
+|  39 | Strela |
+|  40 | Gonets |
+|  41 | Tsiklon |
+|  42 | Tsikada |
+|  43 | O3b Communication |
+|  44 | Tselina |
+|  45 | Celestis |
+|  46 | Indian Regional Navigation Satellite System (IRNSS / NavIC) |
+|  47 | Quasi-Zenith Satellite System (QZSS) |
+|  48 | Planet (Flock) |
+|  49 | Spire (Lemur) |
+|  50 | GPS |
+|  51 | GLONASS |
+|  52 | Starlink |
+|  53 | OneWeb |
+|  54 | Chinese Space Station |
+|  55 | Qianfan (Thousand Sails) |
+|  56 | Amazon Leo (Kuiper), not to be confused with LEO = Low Earth Orbit |
+|  57 | GeeSAT |
+|  99 | Space junk / debris |
+| 100 | SES |
+| 101 | ARGOS Data Collection System |
+| 102 | Eutelsat |
+| 103 | Hulianwang (Guowang) National Internet Satellites |
+| 104 | SatNOGS |
+| 105 | GEO Protected Zone |
+| 106 | Synthetic Aperture Radar (SAR) |
+| 107 | TeleSat |
+
+**IMPORTANT:** The `Satellites.csv` file checked into this repository is an example only, for illistrative and testing purposes. For production uses, the current version is updated daily and can be downloaded from:
+
+[https://www.southernstars.com/updates/satellites/satellites.csv](https://www.southernstars.com/updates/satellites/satellites.csv)
+
+**Revision History**
+
+- Version 2.0 (5 Aug 2026): initial version.
+
 Satellites
 ----------
 
