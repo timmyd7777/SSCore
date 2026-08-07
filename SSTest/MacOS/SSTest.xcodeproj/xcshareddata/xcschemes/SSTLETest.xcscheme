@@ -52,27 +52,27 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/timmyd/Downloads/satellites/celestrak"
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/CelesTrak "
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/timmyd/Downloads/satellites/n2yo"
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/N2YO "
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/timmyd/Downloads/satellites/other/score.csv"
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/N2YO/n2yo.csv "
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/timmyd/Downloads/satellites/other/McNames.txt"
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/Other/mcnames.txt"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/timmyd/Downloads/satellites/n2yo/n2yo.csv"
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/Other/score.csv"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/timmyd/Downloads/satellites/other/je9pel.csv"
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/Other/je9pel.csv"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

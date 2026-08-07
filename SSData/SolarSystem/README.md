@@ -223,6 +223,7 @@ The first 57 category identifiers are from n2yo.com, and many are shared with Ce
 | 105 | GEO Protected Zone |
 | 106 | Synthetic Aperture Radar (SAR) |
 | 107 | TeleSat |
+| 108 | Analyst (Unknown) satellites |
 
 **IMPORTANT:** The `Satellites.csv` file checked into this repository is an example only, for illistrative and testing purposes. For production uses, the current version is updated daily and can be downloaded from:
 
@@ -230,20 +231,19 @@ The first 57 category identifiers are from n2yo.com, and many are shared with Ce
 
 **Revision History**
 
-- Version 2.0 (5 Aug 2026): initial version.
+- Version 2.0 (8 Aug 2026): initial version.
 
 Satellites
 ----------
 
-This directory contains a sample of TLE (Two/Three-Line Element) and other satellite data files from different sources.  These are test cases for SSCore satellite data import functionality, and may be useful in their own right!
+This directory contains a sample of TLE (Two/Three-Line Element) and other satellite data files from different sources.  These are test cases for SSCore satellite data import functionality, and may be useful in their own right! These files are examples only, and should not be used for production.
 
-- **_visual.txt_** is the [Visual](http://www.celestrak.com/NORAD/elements/visual.txt) (brightest) satellite list from [CelesTrak](http://www.celestrak.com)
-- **_all.txt_** is the [complete](https://www.n2yo.com/tle2/3line.tle) satellite list from [N2YO](https://www.n2yo.com)
-- **_brightest.txt_** is the [Brightestl](https://www.n2yo.com/tle2/1.txt) satellite list from [N2YO](https://www.n2yo.com)
-- **_mcnames.txt_** is Mike McCants' satellite [names file](https://www.prismnet.com/~mmccants/tles/mcnames.zip), which contains satellite size and magnitude information.
+- **_CeleTrak_** contains a selection of satellite orbit files in CSV format from [CelesTrak](http://www.celestrak.com)
+- **_N2YO_** contains a selection of satellite orbit files in TLE format from [N2YO](https://www.n2yo.com)
+- **_Other_** contains a number of miscellaneous other satellite data files, including...
+- **_mcnames.txt_** is Mike McCants' satellite [names file](https://www.prismnet.com/~mmccants/tles/mcnames.zip), which contains satellite size and magnitude information. Mike last updated this file in July 2019.
+- **_score.csv_** is the [SCORE](https://score.cps.iau.org/download) observation database, which contains more recent satellite magnitude observations. 
 - **_je9pel.csv_** is Mineo Wakita's amateur radio satellite [frequency file](http://www.ne.jp/asahi/hamradio/je9pel/satslist.csv), in CSV format.
-- **_testdata.csv_** is a selection of test satellites from celestrak.org, in CSV format.
-- **_testdata.txt_** is the same selection of satellites from celestrak.org, in TLE format.
 
 **Revision History**
 
@@ -252,6 +252,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 - Version 1.2 (21 Mar 2021): updated with latest data from all sources; added n2yo "brightest" satellites.
 - Version 1.3 (10 Oct 2022): updated with latest data from all sources. 
 - Version 1.4 (2 Apr 2024): added test data from celestrak.org in new CSV and TLE format.
+- Version 2.0 (8 Aug 2026): reorganized, added lstest CelesTrak and N2YO files, added SCORE database.
 
 Cities.csv
 ----------
