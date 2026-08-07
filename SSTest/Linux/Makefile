@@ -126,7 +126,7 @@ all:	test mounttest tetratest tletest
 
 # This target runs the sstest executable, with default commend-line arguments
 
-run:	mounttest
+run:	test
 	./sstest ../../SSData .
 
 # This target runs the ssmounttest executable as super-user
@@ -142,8 +142,13 @@ runtetra: tetratest
 # This target runs the sstletest executable with TLE data in the SSData/SolarSystem/Satellites directory.
 
 runtle: tletest
-	./sstletest ../../SSData/SolarSystem/Satellites/brightest.txt
-
+	./sstletest ../../SSData/SolarSystem/Satellites/CelesTrak \
+	            ../../SSData/SolarSystem/Satellites/N2YO \
+	            ../../SSData/SolarSystem/Satellites/N2YO/n2yo.csv \
+	            ../../SSData/SolarSystem/Satellites/Other/mcnames.txt \
+	            ../../SSData/SolarSystem/Satellites/Other/score.csv \
+	            ../../SSData/SolarSystem/Satellites/Other/je9pel.csv > Satellites.csv
+	            	            
 # These targets build object files from C and C++ source files
 
 .c.o:

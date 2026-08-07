@@ -165,7 +165,7 @@ void TestSatellites ( string inputDir, string outputDir )
 {
     cout << "Testing Satellites and TLE import/export...\n";
     
-    string filename = inputDir + "/SolarSystem/Satellites/visual.txt";
+    string filename = inputDir + "/SolarSystem/Satellites/CelesTrak/visual.txt";
     FILE *file = fopen ( filename.c_str(), "r" );
     if ( ! file )
     {
@@ -502,7 +502,7 @@ void TestEphemeris ( string inputDir, string outputDir )
     SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Moons.csv", solsys );
     cout << "Imported " << solsys.size() << " solar system objects." << endl;
     
-    int nsat = SSImportSatellitesFromTLE ( inputDir + "/SolarSystem/Satellites/visual.txt", solsys );
+    int nsat = SSImportSatellitesFromTLE ( inputDir + "/SolarSystem/Satellites/CelesTrak/visual.txt", solsys );
     cout << "Imported " << nsat << " artificial satellites." << endl;
 
     int nnames = SSImportMcNames ( inputDir + "/SolarSystem/Satellites/mcnames.txt", solsys );

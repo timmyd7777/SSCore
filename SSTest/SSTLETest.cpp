@@ -8,6 +8,9 @@
 #include "SSTLE.hpp"
 #include "SSImportTLE.hpp"
 
+// Tests derivation of satellite standard magnitudes from SCORE data obtained
+// in CSV format from https://score.cps.iau.org/download
+
 void TestSCOREData ( const string &scorepath )
 {
     SCOREDataVec observations;
@@ -16,7 +19,7 @@ void TestSCOREData ( const string &scorepath )
     int nobs = SSImportSCOREData ( scorepath, observations );
     if ( nobs == 0 )
     {
-        cout << "Can't import SCORE data from " << scorepath << endl;
+        cerr << "Can't import SCORE data from " << scorepath << endl;
         return;
     }
 
@@ -25,27 +28,23 @@ void TestSCOREData ( const string &scorepath )
     int nsat = SCOREDataToStandardMagnitudes ( observations, magnitudes );
     if ( nsat == 0 )
     {
-        cout << "Can't derive SCORE standard magnitudes." << endl;
+        cerr << "Can't derive SCORE standard magnitudes." << endl;
         return;
     }
 
     cout << "Derived standard magnitudes for " << nsat << " satellites." << endl << endl;
-    
-    printf ( "%6s  %-24s  %6s  %4s  %6s\n", "NORAD", "Name", "StdMag", "MAD", "NObs" );
-
+    fprintf ( stderr, "%6s  %-24s  %6s  %4s  %6s\n", "NORAD", "Name", "StdMag", "MAD", "NObs" );
     for ( auto &item : magnitudes )
     {
         int norad = item.first;
         SCOREMagnitude &mag = item.second;
-        printf ( "%6d  %-24.24s  %+6.2f  %4.2f  %6d\n",
+        fprintf ( stderr, "%6d  %-24.24s  %+6.2f  %4.2f  %6d\n",
                  mag.norad,
                  mag.name.c_str(),
                  mag.mag,
                  mag.mad,
                  mag.nobs );
     }
-
-    cout << endl;
 }
 
 // Imports one satellite category file in TLE or CelesTrak CSV format.
@@ -110,9 +109,8 @@ int SSImportSatelliteCategoryFile ( const string &filename, SSSatellite::Categor
     return n;
 }
 
-// Imports all recognized satellite category files in a directory.
-// Existing satellites receive additional categories; new satellites
-// are created as needed.
+// Imports all satellite files in a directory, either TLE or CSV format.
+// Existing satellites receive additional categories; new satellites are created as needed.
 // Returns the number of TLE records imported.
 
 int SSImportTLEDirectory ( const string &dirname, const map<string,SSSatellite::Category> &categories, SSObjectVec &satellites )
@@ -125,13 +123,14 @@ int SSImportTLEDirectory ( const string &dirname, const map<string,SSSatellite::
     int n = 0;
     for ( string &path : files )
     {
+		SSSatellite::Category category = SSSatellite::Category::kNone;
         string filename = getFileName ( path );
         auto it = categories.find ( filename );
-        if ( it == categories.end() )
-            continue;
+        if ( it != categories.end() )
+            category = it->second;
         
         path = dirname + "/" + filename;
-        n += SSImportSatelliteCategoryFile ( path, it->second, satellites );
+        n += SSImportSatelliteCategoryFile ( path, category, satellites );
     }
 
     return n;
@@ -248,15 +247,16 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "eutelsat.csv",      SSSatellite::kEutelsat },
     { "gpz.csv",           SSSatellite::kGEOProtectedZone }, // DOUBLE CHECK
     { "sar.csv",           SSSatellite::kSAR },
-    { "telesat.csv",       SSSatellite::kTelesat }
+    { "telesat.csv",       SSSatellite::kTelesat },
+    { "analyst.csv",       SSSatellite::kAnalyst }
 };
 
 int main ( int argc, const char *argv[] )
 {
-    if ( argc < 6 )
+    if ( argc < 7 )
     {
         cerr << "Usage: SSTLETest "
-             << "n2yo_dir celestrak_dir score_file mccants_file n2yo_file je9pel_file"
+             << "celestrak_dir n2yo_dir n2yo_file mccants_file score_file je9pel_file"
              << endl;
 
         return -1;
@@ -264,11 +264,13 @@ int main ( int argc, const char *argv[] )
 
     string celestrakDir = argv[1];
     string n2yoDir      = argv[2];
-    string scoreFile    = argv[3];
+    string n2yoFile     = argv[3];
     string mccantsFile  = argv[4];
-    string n2yoFile     = argv[5];
+    string scoreFile    = argv[5];
     string je9pelFile   = argv[6];
 
+	TestSCOREData ( scoreFile );
+	
     // Import base satellite records from CelesTrak CSV.
 
     SSObjectVec satellites;

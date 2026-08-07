@@ -329,6 +329,7 @@ public:
         kGEOProtectedZone      = 105,   // GEO Protected Zone
         kSAR                   = 106,   // Synthetic Aperture Radar (SAR)
         kTelesat               = 107,   // Telesat
+        kAnalyst               = 108,   // Analyst (Unknown) Satellites
     };
     
     // Sources of standard magnitude and physical diameter data
