@@ -23,7 +23,7 @@ void TestSCOREData ( const string &scorepath )
         return;
     }
 
-    cout << "Imported " << nobs << " SCORE observations." << endl;
+    cerr << "Imported " << nobs << " SCORE observations." << endl;
 
     int nsat = SCOREDataToStandardMagnitudes ( observations, magnitudes );
     if ( nsat == 0 )
@@ -32,7 +32,7 @@ void TestSCOREData ( const string &scorepath )
         return;
     }
 
-    cout << "Derived standard magnitudes for " << nsat << " satellites." << endl << endl;
+    cerr << "Derived standard magnitudes for " << nsat << " satellites." << endl << endl;
     fprintf ( stderr, "%6s  %-24s  %6s  %4s  %6s\n", "NORAD", "Name", "StdMag", "MAD", "NObs" );
     for ( auto &item : magnitudes )
     {
