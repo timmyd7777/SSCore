@@ -27,8 +27,8 @@ double kcoskdeg ( double k, double deg )
 SSOrbit::SSOrbit ( void )
 {
     t = q = e = i = w = n = m = mm = wrate = nrate = 0.0;
-    polera = degtorad ( 270.0 );
-    poledec = degtorad ( 90.0 - 23.439291 );
+    polera = kEclNPoleRA;
+    poledec = kEclNPoleDec;
 }
 
 // Constructs an orbit from the specified set of Keplerian elements.

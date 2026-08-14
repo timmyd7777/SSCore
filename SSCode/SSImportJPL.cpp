@@ -185,6 +185,55 @@ int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec 
     return numAstCom;
 }
 
+// Comparison function for soring imported comets.
+// Numbered periodic comets and their fragments are sorted first by periodic comet number, then by designation.
+// Unnumbered comets follow, sorted by designation, and numbered interstellar comets are sorted last by designation.
+// Returns true if the first comet should precede the second.
+
+static bool CometCmp ( const SSObjectPtr &pObj1, const SSObjectPtr &pObj2 )
+{
+    SSPlanetPtr p1 = SSGetPlanetPtr ( pObj1 );
+    SSPlanetPtr p2 = SSGetPlanetPtr ( pObj2 );
+
+    if ( p1 == nullptr || p2 == nullptr )
+        return p1 != nullptr;
+
+    string d1 = p1->getName ( 0 );
+    string d2 = p2->getName ( 0 );
+
+    bool i1 = d1.length() > 1 && d1.back() == 'I' && strtoint ( d1 ) > 0;
+    bool i2 = d2.length() > 1 && d2.back() == 'I' && strtoint ( d2 ) > 0;
+
+    SSIdentifier id1 = p1->getIdentifier ( kCatComNum );
+    SSIdentifier id2 = p2->getIdentifier ( kCatComNum );
+
+    bool p1num = id1.identifier() > 0;
+    bool p2num = id2.identifier() > 0;
+
+    // Numbered periodic comets and fragments first.
+
+    if ( p1num != p2num )
+        return p1num;
+
+    if ( p1num )
+    {
+        if ( id1.identifier() != id2.identifier() )
+            return id1.identifier() < id2.identifier();
+
+        return d1 < d2;
+    }
+
+    // Interstellar objects last.
+
+    if ( i1 != i2 )
+        return ! i1;
+
+    // Unnumbered comets alphabetically; interstellar numerically/alphabetically
+    // also comes out correctly as 1I, 2I, 3I.
+
+    return d1 < d2;
+}
+
 // Imports comet orbital data from both JPL DASTCOM and the Minor Planet Center comet database.
 // JPL data is preferred; MPC comets are appended only if not present in the JPL data.
 // Returns total number of comets successfully appended to output object vector (comets).
@@ -233,5 +282,6 @@ int SSImportComets ( const string &jplFilename, const string &mpcFilename, SSObj
         }
     }
 
+    comets.sort ( CometCmp );
     return (int) comets.size() - start;
 }

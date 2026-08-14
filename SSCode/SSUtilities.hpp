@@ -93,15 +93,16 @@ void hexstring_to_binary ( const std::string &source, uint8_t *destination, size
 void binary_to_hexstring ( const uint8_t *source, size_t length, std::string& destination );
 string hexstring ( const void *source, size_t length );
 
+#define degtorad(deg) ((deg)*(M_PI/180.0))
+#define radtodeg(rad) ((rad)*(180.0/M_PI))
+#define sindeg(deg) sin(degtorad((deg)))
+#define cosdeg(deg) cos(degtorad((deg)))
+#define tandeg(deg) tan(degtorad((deg)))
+#define asindeg(y) radtodeg(asin((y)))
+#define acosdeg(x) radtodeg(acos((x)))
+#define atandeg(x) radtodeg(atan((x)))
+
 double strtodeg ( string str );
-double degtorad ( double deg );
-double radtodeg ( double rad );
-double sindeg ( double deg );
-double cosdeg ( double deg );
-double tandeg ( double deg );
-double asindeg ( double y );
-double acosdeg ( double x );
-double atandeg ( double x );
 double atan2pi ( double y, double x );
 double atan2pideg ( double y, double x );
 double modpi ( double rad );

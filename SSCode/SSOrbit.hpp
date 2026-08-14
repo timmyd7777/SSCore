@@ -31,12 +31,14 @@ struct SSOrbit
     double polera;   // J2000 mean right ascension of pole of reference plane in radians
     double poledec;  // J2000 mean declination of pole of reference plane in radians
 
-    static constexpr double kGravity = 6.67259e-20;                 // Newtonian gravitational constant for mass in kilograms, time in seconds, distance in kilometers [km^3 / kg / sec^2] (JPL)
-    static constexpr double kGaussGravHelio = 0.01720209895;        // Gaussian gravitational constant for heliocentric orbits with time in days and distance in AU
-    static constexpr double kGaussGravGeo = 0.0743669161;           // Gaussian gravitational constant for geocentric orbits with time in minutes and distance in Earth-radii
+    static constexpr double kGravity = 6.67259e-20;                             // Newtonian gravitational constant for mass in kilograms, time in seconds, distance in kilometers [km^3 / kg / sec^2] (JPL)
+    static constexpr double kGaussGravHelio = 0.01720209895;                    // Gaussian gravitational constant for heliocentric orbits with time in days and distance in AU
+    static constexpr double kGaussGravGeo = 0.0743669161;                       // Gaussian gravitational constant for geocentric orbits with time in minutes and distance in Earth-radii
+    static constexpr double kEclNPoleRA = degtorad ( 270.0 );              // J2000 right ascension of ecliptic north pole, radians
+    static constexpr double kEclNPoleDec = degtorad ( 90.0 - 23.439291 );  // J2000 right ascension of ecliptic north pole, radians
     
     SSOrbit ( void );
-    SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm, double wrate = 0.0, double nrate = 0.0, double polera = degtorad ( 270.0 ), double poledec = degtorad ( 90.0 - 23.439291 ) );
+    SSOrbit ( double t, double q, double e, double i, double w, double n, double m, double mm, double wrate = 0.0, double nrate = 0.0, double polera = kEclNPoleRA, double poledec = kEclNPoleDec );
 
     static double meanMotion ( double e, double q, double g = kGaussGravHelio );
     static double periapseDistance ( double e, double mm, double g = kGaussGravHelio );

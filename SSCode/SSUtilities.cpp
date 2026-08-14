@@ -632,62 +632,6 @@ double strtodeg ( string str )
     return str[0] == '-' ? -deg : deg;
 }
 
-// Converts angle in degrees to radians.
-
-double degtorad ( double deg )
-{
-    return deg * M_PI / 180.0;
-}
-
-// Converts angle in radians to degrees.
-
-double radtodeg ( double rad )
-{
-    return rad * 180.0 / M_PI;
-}
-
-// Returns sine of angle in degrees.
-
-double sindeg ( double deg )
-{
-    return sin ( degtorad ( deg ) );
-}
-
-// Returns cosine of angle in degrees.
-
-double cosdeg ( double deg )
-{
-    return cos ( degtorad ( deg ) );
-}
-
-// Returns tangent of angle in degrees.
-
-double tandeg ( double deg )
-{
-    return tan ( degtorad ( deg ) );
-}
-
-// Returns arcsine in degrees.
-
-double asindeg ( double y )
-{
-    return radtodeg ( asin ( y ) );
-}
-
-// Returns arccosine in degrees.
-
-double acosdeg ( double x )
-{
-    return radtodeg ( acos ( x ) );
-}
-
-// Returns arctangent in degrees.
-
-double atandeg ( double x )
-{
-    return radtodeg ( atan ( x ) );
-}
-
 // Returns arctangent of y / x in radians in the range 0 to 2.0 * M_PI.
 
 double atan2pi ( double y, double x )

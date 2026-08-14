@@ -688,17 +688,17 @@ string SSPlanet::toCSV ( void )
     else
         csv += ::isinf ( _orbit.q ) ? "," : formstr ( "%.8f,", _orbit.q );
 
-    csv += ::isinf ( _orbit.e ) ? "," : formstr ( "%.8f,", _orbit.e );
-    csv += ::isinf ( _orbit.i ) ? "," : formstr ( "%.8f,", _orbit.i * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.w ) ? "," : formstr ( "%.8f,", _orbit.w * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.n ) ? "," : formstr ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.m ) ? "," : formstr ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.mm ) ? "," : formstr ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.wrate ) ? "," : formstr ( "%.8f,", _orbit.wrate * SSAngle::kDegPerRad * 365.25 );
-    csv += ::isinf ( _orbit.nrate ) ? "," : formstr ( "%.8f,", _orbit.nrate * SSAngle::kDegPerRad * 365.25 );
-    csv += ::isinf ( _orbit.polera ) ? "," : formstr ( "%.8f,", _orbit.polera * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.poledec ) ? "," : formstr ( "%.8f,", _orbit.poledec * SSAngle::kDegPerRad );
-    csv += ::isinf ( _orbit.t ) ? "," : formstr ( "%.4f,", _orbit.t );
+    csv += _orbit.e == 0.0 ? "," : formstr ( "%.8f,", _orbit.e );
+    csv += _orbit.i == 0.0 ? "," : formstr ( "%.8f,", _orbit.i * SSAngle::kDegPerRad );
+    csv += _orbit.w == 0.0 ? "," : formstr ( "%.8f,", _orbit.w * SSAngle::kDegPerRad );
+    csv += _orbit.n == 0.0 ? "," : formstr ( "%.8f,", _orbit.n * SSAngle::kDegPerRad );
+    csv += _orbit.m == 0.0 ? "," : formstr ( "%.8f,", _orbit.m * SSAngle::kDegPerRad );
+    csv += _orbit.mm == 0.0 ? "," : formstr ( "%.8f,", _orbit.mm * SSAngle::kDegPerRad );
+    csv += _orbit.wrate == 0.0 ? "," : formstr ( "%.8f,", _orbit.wrate * SSAngle::kDegPerRad * 365.25 );
+    csv += _orbit.nrate == 0.0 ? "," : formstr ( "%.8f,", _orbit.nrate * SSAngle::kDegPerRad * 365.25 );
+    csv += _orbit.polera == SSOrbit::kEclNPoleRA ? "," : formstr ( "%.8f,", _orbit.polera * SSAngle::kDegPerRad );
+    csv += _orbit.poledec == SSOrbit::kEclNPoleDec ? "," : formstr ( "%.8f,", _orbit.poledec * SSAngle::kDegPerRad );
+    csv += _orbit.t == 0.0 ? "," : formstr ( "%.1f,", _orbit.t );
 
     csv += ::isinf ( _Hmag ) ? "," : formstr ( "%+.2f,", _Hmag );
     csv += ::isinf ( _Gmag ) ? "," : formstr ( "%+.2f,", _Gmag );
@@ -733,18 +733,18 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     
     SSOrbit orbit;
     
-    orbit.q = fields[1].empty() ? INFINITY : strtofloat64 ( fields[1] );
-    orbit.e = fields[2].empty() ? INFINITY : strtofloat64 ( fields[2] );
-    orbit.i = fields[3].empty() ? INFINITY : strtofloat64 ( fields[3] ) * SSAngle::kRadPerDeg;
-    orbit.w = fields[4].empty() ? INFINITY : strtofloat64 ( fields[4] ) * SSAngle::kRadPerDeg;
-    orbit.n = fields[5].empty() ? INFINITY : strtofloat64 ( fields[5] ) * SSAngle::kRadPerDeg;
-    orbit.m = fields[6].empty() ? INFINITY : strtofloat64 ( fields[6] ) * SSAngle::kRadPerDeg;
-    orbit.mm = fields[7].empty() ? INFINITY : strtofloat64 ( fields[7] ) * SSAngle::kRadPerDeg;
-    orbit.wrate = fields[8].empty() ? INFINITY : strtofloat64 ( fields[8] ) * SSAngle::kRadPerDeg / 365.25;
-    orbit.nrate = fields[9].empty() ? INFINITY : strtofloat64 ( fields[9] ) * SSAngle::kRadPerDeg / 365.25;
-    orbit.polera = fields[10].empty() ? INFINITY : strtofloat64 ( fields[10] ) * SSAngle::kRadPerDeg;
-    orbit.poledec = fields[11].empty() ? INFINITY : strtofloat64 ( fields[11] ) * SSAngle::kRadPerDeg;
-    orbit.t = fields[12].empty() ? INFINITY : strtofloat64 ( fields[12] );
+    orbit.q = fields[1].empty() ? 0.0 : strtofloat64 ( fields[1] );
+    orbit.e = fields[2].empty() ? 0.0 : strtofloat64 ( fields[2] );
+    orbit.i = fields[3].empty() ? 0.0 : strtofloat64 ( fields[3] ) * SSAngle::kRadPerDeg;
+    orbit.w = fields[4].empty() ? 0.0 : strtofloat64 ( fields[4] ) * SSAngle::kRadPerDeg;
+    orbit.n = fields[5].empty() ? 0.0 : strtofloat64 ( fields[5] ) * SSAngle::kRadPerDeg;
+    orbit.m = fields[6].empty() ? 0.0 : strtofloat64 ( fields[6] ) * SSAngle::kRadPerDeg;
+    orbit.mm = fields[7].empty() ? 0.0 : strtofloat64 ( fields[7] ) * SSAngle::kRadPerDeg;
+    orbit.wrate = fields[8].empty() ? 0.0 : strtofloat64 ( fields[8] ) * SSAngle::kRadPerDeg / 365.25;
+    orbit.nrate = fields[9].empty() ? 0.0 : strtofloat64 ( fields[9] ) * SSAngle::kRadPerDeg / 365.25;
+    orbit.polera = fields[10].empty() ? SSOrbit::kEclNPoleRA : strtofloat64 ( fields[10] ) * SSAngle::kRadPerDeg;
+    orbit.poledec = fields[11].empty() ? SSOrbit::kEclNPoleDec : strtofloat64 ( fields[11] ) * SSAngle::kRadPerDeg;
+    orbit.t = fields[12].empty() ? 0.0 : strtofloat64 ( fields[12] );
 
     if ( orbit.q > 1000.0 )
         orbit.q /= SSCoordinates::kKmPerAU;

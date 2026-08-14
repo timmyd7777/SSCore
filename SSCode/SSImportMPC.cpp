@@ -90,9 +90,9 @@ SSPlanetPtr SSImportMPCComet ( const string &line )
     // for numbered periodic or interstellar comets, extract name following slash:
     // "10P/Tempel", "1I/`Oumuamua", etc. Only numbered periodic comets get SSIdentifiers.
 
-    if ( number > 0 && ( kind == 'P' || kind == 'I' ) )
+    if ( number > 0 && ( kind == 'P' || kind == 'D' || kind == 'I' ) )
     {
-        if ( kind == 'P' )
+        if ( kind == 'P' || kind == 'D' )
             ident = SSIdentifier ( kCatComNum, number );
 
         size_t pos = field.find ( '/' );
