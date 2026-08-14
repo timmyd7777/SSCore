@@ -25,6 +25,7 @@
 #include "SSImportHIP.hpp"
 #include "SSImportSKY2000.hpp"
 #include "SSImportNGCIC.hpp"
+#include "SSImportJPL.hpp"
 #include "SSImportMPC.hpp"
 #include "SSImportTLE.hpp"
 #include "SSImportGJ.hpp"
@@ -232,8 +233,8 @@ void TestSolarSystem ( string inputDir, string outputDir )
     cout << "Imported " << numMoons << " natural satellites" << endl;
 
     SSObjectVec comets;
-    int numComets = SSImportMPCComets ( inputDir + "/SolarSystem/Comets.txt", comets );
-    cout << "Imported " << numComets << " MPC comets" << endl;
+    int numComets = SSImportComets ( inputDir + "/SolarSystem/Comets/JPLComets.csv", inputDir + "/SolarSystem/Comets/MPCComets.txt", comets );
+    cout << "Imported " << numComets << " JPL+MPC comets" << endl;
 
     SSObjectVec asteroids;
     int numAsteroids = SSImportMPCAsteroids ( inputDir + "/SolarSystem/Asteroids.txt", asteroids );
@@ -260,7 +261,7 @@ void TestSolarSystem ( string inputDir, string outputDir )
         cout << "Exported " << numMoons << " natural satellites to " << outputDir + "/ExportedMoons.csv" << endl;
 
         numComets = SSExportObjectsToCSV ( outputDir + "/ExportedComets.csv", comets );
-        cout << "Exported " << numComets << " MPC comets to " << outputDir + "/ExportedComets.csv" << endl;
+        cout << "Exported " << numComets << " JPL+MPC comets to " << outputDir + "/ExportedComets.csv" << endl;
 
         numAsteroids = SSExportObjectsToCSV ( outputDir + "/ExportedAsteroids.csv", asteroids );
         cout << "Exported " << numAsteroids << " MPC asteroids to " << outputDir + "/ExportedAsteroids.csv" << endl;

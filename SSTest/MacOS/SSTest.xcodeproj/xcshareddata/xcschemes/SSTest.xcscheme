@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData ."
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData /Users/timmyd/Desktop/SSExport"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -112,6 +112,7 @@
 		A3C22D1B24574892004CE083 /* VSOP2013p8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1224574892004CE083 /* VSOP2013p8.cpp */; };
 		A3C22D1C24574892004CE083 /* VSOP2013p1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1324574892004CE083 /* VSOP2013p1.cpp */; };
 		A3C22D1D24574892004CE083 /* VSOP2013p5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3C22D1424574892004CE083 /* VSOP2013p5.cpp */; };
+		A3E2C42A302F28AA000F56A2 /* SSImportJPL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A37E084828D399B600489544 /* SSImportJPL.cpp */; };
 		A3E524A42B9D051500F012B3 /* SSAngle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87C2404EEEA00BDD11C /* SSAngle.cpp */; };
 		A3ED2F90244614A00040ECE5 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */; };
 		A3F759A8242EEB9300FCDE16 /* SSImportGJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3F759A6242EEB9300FCDE16 /* SSImportGJ.cpp */; };
@@ -586,6 +587,7 @@
 				A3C22D1924574892004CE083 /* VSOP2013p3.cpp in Sources */,
 				A3C22D1624574892004CE083 /* VSOP2013p6.cpp in Sources */,
 				4703A8802404EF0800BDD11C /* SSVector.cpp in Sources */,
+				A3E2C42A302F28AA000F56A2 /* SSImportJPL.cpp in Sources */,
 				A3ED2F90244614A00040ECE5 /* SSPSEphemeris.cpp in Sources */,
 				A34D20A028D3A07E0005A5F1 /* SSImportTYC.cpp in Sources */,
 				A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */,
