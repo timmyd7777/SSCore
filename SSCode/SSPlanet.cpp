@@ -573,8 +573,12 @@ float SSPlanet::computeAsteroidMagnitude ( double rad, double dist, double phase
 
 float SSPlanet::computeCometMagnitude ( double rad, double dist, double h, double k )
 {
+    // Use conventional comet magnitude slope k = 4 if unknown,
+    // equivalent to the traditional H10 law (2.5 * k = 10). See:
+    // https://assets.cambridge.org/97805218/72263/frontmatter/9780521872263_frontmatter.pdf
+
     if ( ! ::isinf ( h ) && ::isinf ( k ) )
-        k = k;
+        k = 4.0;
     return h + 5.0 * log10 ( dist ) + 2.5 * k * log10 ( rad );
 }
 

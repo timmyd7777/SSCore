@@ -20,7 +20,7 @@ SSPlanetPtr SSImportMPCComet ( const string &line )
         return nullptr;
     
     // col 1-4: periodic or interstellar comet number, denoted with 'P' or 'I' in column 5.
-    // col 6-12: provisional designation. Both currently unused.
+    // col 6-12: provisional designation. Both used below.
 
     string field = line.substr ( 0, 4 );
     field = line.substr ( 5, 7 );
@@ -76,46 +76,61 @@ SSPlanetPtr SSImportMPCComet ( const string &line )
     field = trim ( line.substr ( 96, 5 ) );
     float gmag = field.empty() ? INFINITY : strtofloat ( field );
 
+    // col 1-4: numbered periodic/interstellar object number.
+    // col 5: 'P' or 'I'.
     // col 103 - 159: name including provisional desingation and/or periodic comet number
-    
-    vector<string> names;
-    field = trim ( line.substr ( 102, 56 ) );
-    SSIdentifier number = SSIdentifier::fromString ( field );
-    
-    // for numbered periodic comets, extract name following slash.
-    
-    if ( number )
-    {
-        size_t pos = field.find ( "P/" );
-        string name = field.substr ( 0, pos + 1 );
-        if ( ! name.empty() )
-            names.push_back ( name );
 
-        name = field.substr ( pos + 2, string::npos );
-        if ( ! name.empty() )
-            names.push_back ( name );
-    }
-    else
+    int number = strtoint ( line.substr ( 0, 4 ) );
+    char kind = toupper ( line[4] );
+    field = trim ( line.substr ( 102, 56 ) );
+
+    vector<string> names;
+    SSIdentifier ident;
+    
+    // for numbered periodic or interstellar comets, extract name following slash:
+    // "10P/Tempel", "1I/`Oumuamua", etc. Only numbered periodic comets get SSIdentifiers.
+
+    if ( number > 0 && ( kind == 'P' || kind == 'I' ) )
     {
-        // extract name in parantheses (if any), preceded by provisional designation
-        
-        size_t pos1 = field.find ( "(" );
-        size_t pos2 = field.find ( ")" );
-        
-        if ( pos1 == string::npos || pos2 == string::npos )
+        if ( kind == 'P' )
+            ident = SSIdentifier ( kCatComNum, number );
+
+        size_t pos = field.find ( '/' );
+        if ( pos != string::npos )
+        {
+            string desig = trim ( field.substr ( 0, pos ) );
+            if ( ! desig.empty() )
+                names.push_back ( desig );
+
+            string name = trim ( field.substr ( pos + 1 ) );
+            if ( ! name.empty() )
+                names.push_back ( name );
+        }
+        else if ( ! field.empty() )
         {
             names.push_back ( field );
         }
+    }
+    else
+    {
+        // Unnumbered comet: extract designation followed by optional name in parentheses.
+
+        size_t pos1 = field.find ( "(" );
+        size_t pos2 = field.find ( ")" );
+        if ( pos1 == string::npos || pos2 == string::npos )
+        {
+            if ( ! field.empty() )
+                names.push_back ( field );
+        }
         else
         {
-            string name1 = trim ( field.substr ( 0, pos1 - 1 ) );
-            string name2 = trim ( field.substr ( pos1 + 1, pos2 - pos1 - 1 ) );
+            string desig = trim ( field.substr ( 0, pos1 ) );
+            if ( ! desig.empty() )
+                names.push_back ( desig );
             
-            if ( ! name1.empty() )
-                names.push_back ( name1 );
-            
-            if ( ! name2.empty() )
-                names.push_back ( name2 );
+            string name = trim ( field.substr ( pos1 + 1, pos2 - pos1 - 1 ) );
+            if ( ! name.empty() )
+                names.push_back ( name );
         }
     }
 
@@ -134,8 +149,8 @@ SSPlanetPtr SSImportMPCComet ( const string &line )
     double m = epoch == 0.0 ? 0.0 : mdm * ( epoch - peridate );
     SSOrbit orbit ( t, q, e, i, w, n, m, mdm );
     
-    if ( number )
-        pComet->setIdentifier ( number );
+    if ( ident )
+        pComet->setIdentifier ( ident );
 
     pComet->setNames ( names );
     pComet->setOrbit ( orbit );
