@@ -13,4 +13,6 @@
 SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type );
 int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec &objects, SSObjectFilter filter = nullptr, void *userData = nullptr );
 
+int SSImportComets ( const string &jplFilename, const string &mpcFilename, SSObjectVec &comets );
+
 #endif /* SSImportJPL_hpp */

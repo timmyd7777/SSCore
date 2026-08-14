@@ -6,7 +6,10 @@
 //  Copyright © 2021 Southern Stars. All rights reserved.
 //
 
+#include <unordered_set>
+
 #include "SSImportJPL.hpp"
+#include "SSImportMPC.hpp"
 
 // Converts one line of a JPL DASTCOM export CSV file to an SSPlanet of kTypeAsteroid
 // or kTypeComet (type); all other object types fail to create an SSPlanet.
@@ -180,4 +183,55 @@ int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec 
     }
     
     return numAstCom;
+}
+
+// Imports comet orbital data from both JPL DASTCOM and the Minor Planet Center comet database.
+// JPL data is preferred; MPC comets are appended only if not present in the JPL data.
+// Returns total number of comets successfully appended to output object vector (comets).
+
+int SSImportComets ( const string &jplFilename, const string &mpcFilename, SSObjectVec &comets )
+{
+    // Import JPL comets first.
+    
+    int start = (int) comets.size();
+    int n = SSImportJPLDASTCOM ( jplFilename, kTypeComet, comets );
+    if ( n < 1 )
+        return 0;
+    
+    // Build set of all comet designations found in JPL.
+
+    unordered_set<string> designations;
+    for ( int i = start; i < comets.size(); i++ )
+    {
+        SSPlanetPtr pComet = SSGetPlanetPtr ( comets[i] );
+        if ( pComet )
+            designations.insert ( pComet->getName ( 0 ) );
+    }
+
+    // Append MPC comets not found in JPL designations.
+
+    ifstream file ( mpcFilename );
+    if ( ! file )
+        return (int) comets.size() - start;
+
+    string line;
+    while ( getline ( file, line ) )
+    {
+        SSPlanetPtr pComet = SSImportMPCComet ( line );
+        if ( pComet == nullptr )
+            continue;
+
+        string desig = pComet->getName ( 0 );
+        if ( ! desig.empty() && designations.find ( desig ) == designations.end() )
+        {
+            comets.append ( pComet );
+            designations.insert ( desig );
+        }
+        else
+        {
+            delete pComet;
+        }
+    }
+
+    return (int) comets.size() - start;
 }

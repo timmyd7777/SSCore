@@ -89,19 +89,26 @@ string SSPlanet::getNumberName ( void )
 
     if ( _type == kTypeAsteroid )
     {
-        string name = _id.toString();
+        string name;
+        if ( _id )
+            name = "(" + _id.toString() + ") ";
         if ( ! _names.empty() )
-            name += " " + _names[0];
+            name += _names[0];
         return name;
     }
     
     if ( _type == kTypeComet )
     {
         if ( _names.size() == 2 )
-            return _names[0] + " (" + _names[1] + ")";
+        {
+            if ( strtoint ( _names[0] ) > 0 )
+                return _names[0] + "/" + _names[1];
+            else
+                return _names[0] + " (" + _names[1] + ")";
+        }
+        
         if ( _names.size() == 1 )
             return _names[0];
-        return _id.toString();
     }
     
     if ( _type == kTypeSatellite )
@@ -700,11 +707,11 @@ string SSPlanet::toCSV ( void )
     csv += ::isinf ( _rotper ) ? "," : formstr ( "%.5f,", _rotper );
     csv += ::isinf ( _albedo ) ? "," : formstr ( "%.3f,", _albedo );
 
-    // Never print identifier for comets, since this is always duplicated in the first name.
+    // Print identifier if we have one, followed by semicolon-delimited list of names.
     
-    csv += _id && _type != kTypeComet ? _id.toString() + "," : ",";
+    csv += _id ? _id.toString() + "," : ",";
     for ( int i = 0; i < _names.size(); i++ )
-        csv += _names[i] + ",";
+        csv += _names[i] + ";";
 
     return csv;
 }
@@ -752,14 +759,20 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     SSIdentifier ident;
     if ( type == kTypePlanet || type == kTypeMoon )
         ident = SSIdentifier ( kCatJPLanet, strtoint ( fields[19] ) );
-    else
-        ident = SSIdentifier::fromString ( fields[19] );
+    else if ( type == kTypeAsteroid )
+        ident = SSIdentifier ( kCatAstNum, strtoint ( fields[19] ) );
+    else if ( type == kTypeComet )
+        ident = SSIdentifier ( kCatComNum, strtoint ( fields[19] ) );
 
-    vector<string> names;
-    for ( int i = 20; i < fields.size(); i++ )
-        names.push_back ( trim ( fields[i] ) );
-    
-	SSObjectPtr pObject = SSNewObject ( type );
+    vector<string> names = split ( fields[20], ";" );
+    for ( int i = 0; i < names.size(); i++ )
+    {
+        trim ( names[i] );
+        if ( names[i].empty() )
+            names.erase ( names.begin() + i );
+    }
+
+    SSObjectPtr pObject = SSNewObject ( type );
     SSPlanetPtr pPlanet = SSGetPlanetPtr ( pObject );
     if ( pPlanet == nullptr )
         return nullptr;

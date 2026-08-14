@@ -28,7 +28,7 @@ SSOrbit::SSOrbit ( void )
 {
     t = q = e = i = w = n = m = mm = wrate = nrate = 0.0;
     polera = degtorad ( 270.0 );
-    poledec = degtorad ( 90.0 - 90.0 - 23.439291 );
+    poledec = degtorad ( 90.0 - 23.439291 );
 }
 
 // Constructs an orbit from the specified set of Keplerian elements.

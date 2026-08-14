@@ -891,29 +891,6 @@ SSIdentifier SSIdentifier::fromString ( const string &str, SSObjectType type, bo
         if ( bay > 0 )
             return SSIdentifier ( kCatBayer, con * 10000 + bay * 10 + num );
     }
-    
-    // if string is a number inside paratheses, attempt to parse as an asteroid number
-    
-    if ( str[0] == '(' && str[len - 1] == ')' )
-    {
-        uint64_t n = strtoint ( str.substr ( 1, len - 2 ) );
-        if ( n > 0 )
-            return SSIdentifier ( kCatAstNum, n );
-    }
-    
-    // if string is a number followed by "P" (or "p" if case-insensitive),
-    // parse as a periodic comet number
-    
-    size_t pos = str.find ( "P" );
-    if ( ! casesens && pos == string::npos )
-        pos = str.find ( "p" );
-    
-    if ( pos != string::npos )
-    {
-        uint64_t n = strtoint ( str.substr ( 0, pos ) );
-        if ( n > 0 )
-            return SSIdentifier ( kCatComNum, n );
-    }
 
     // If we have a numeric string and a solar system object type,
     // deduce identifier from number and type code.
@@ -1084,11 +1061,11 @@ string SSIdentifier::toString ( void )
     }
     else if ( cat == kCatAstNum )
     {
-        str = "(" + to_string ( id ) + ")";
+        str = to_string ( id );
     }
     else if ( cat == kCatComNum )
     {
-        str = to_string ( id ) + "P";
+        str = to_string ( id );
     }
     else if ( cat == kCatJPLanet )
     {
