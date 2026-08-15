@@ -45,15 +45,15 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     orbit.m = strtofloat64 ( fields[7] );
     orbit.t = strtofloat64 ( fields[8] );
 
-    // reject invalid orbits
-    
-    if ( orbit.q <= 0.0 || orbit.t <= 0.0 )
-        return nullptr;
-    
     // For asteroids, compute perihelion from semimajor axis and eccentricity
     
     if ( type == kTypeAsteroid )
         orbit.q = orbit.q * ( 1.0 - orbit.e );
+    
+    // reject invalid orbits
+    
+    if ( orbit.q <= 0.0 || orbit.t <= 0.0 )
+        return nullptr;
     
     // Compute mean motion
     
@@ -99,8 +99,16 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
         {
             size_t p1 = fields[0].find ( '(' );
             size_t p2 = fields[0].find ( ')' );
-            if ( p2 - p1 > 1 )
-                names.push_back ( fields[0].substr ( p1 + 1, p2 - p1 - 1 ) );   // designation
+            if ( p1 != string::npos )
+            {
+                string desig = p2 != string::npos ? trim ( fields[0].substr ( p1 + 1, p2 - p1 - 1 ) ) : "";
+                if ( ! desig.empty() )
+                    names.push_back ( desig );
+                
+                string name = trim ( fields[0].substr ( 0, p1 ) );
+                if ( ! name.empty() )
+                    names.push_back ( name );
+            }
         }
     }
     else
@@ -179,6 +187,10 @@ int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec 
                 objects.append ( pAstCom );
                 numAstCom++;
             }
+        }
+        else
+        {
+            cerr << line << endl;
         }
     }
     
@@ -284,4 +296,91 @@ int SSImportComets ( const string &jplFilename, const string &mpcFilename, SSObj
 
     comets.sort ( CometCmp );
     return (int) comets.size() - start;
+}
+
+// Imports combined asteroid data from JPL DASTCOM and Minor Planet Center files.
+// All JPL asteroids are imported preferentially and retain their original data
+// and ordering. MPC asteroids are appended only if their asteroid number or,
+// for unnumbered objects, provisional designation is not present in JPL.
+// Imported data is appended to the input vector of SSObjects (asteroids).
+// Returns total number of asteroids successfully imported.
+
+int SSImportAsteroids ( const string &jplFilename, const string &mpcFilename, SSObjectVec &asteroids )
+{
+    // Import JPL asteroids first.
+
+    int start = (int) asteroids.size();
+    int n = SSImportJPLDASTCOM ( jplFilename, kTypeAsteroid, asteroids );
+    if ( n < 1 )
+        return 0;
+
+    // Build sets of all numbered and unnumbered asteroid designations found in JPL.
+
+    unordered_set<uint32_t> numbers;
+    unordered_set<string> designations;
+
+    numbers.reserve ( n );
+    designations.reserve ( n );
+
+    for ( int i = start; i < asteroids.size(); i++ )
+    {
+        SSPlanetPtr pAsteroid = SSGetPlanetPtr ( asteroids[i] );
+        if ( pAsteroid == nullptr )
+            continue;
+
+        SSIdentifier ident = pAsteroid->getIdentifier ( kCatAstNum );
+        if ( ident )
+        {
+            numbers.insert ( (uint32_t) ident.identifier() );
+        }
+        else
+        {
+            string desig = pAsteroid->getName ( 0 );
+            if ( ! desig.empty() )
+                designations.insert ( desig );
+        }
+    }
+
+    // Read MPC asteroids and append only those not found in JPL DASTCOM.
+
+    ifstream file ( mpcFilename );
+    if ( ! file )
+        return (int) asteroids.size() - start;
+
+    string line;
+    while ( getline ( file, line ) )
+    {
+        SSPlanetPtr pAsteroid = SSImportMPCAsteroid ( line );
+        if ( pAsteroid == nullptr )
+        {
+            cout << line << endl;
+            continue;
+        }
+
+        bool found = false;
+        SSIdentifier ident = pAsteroid->getIdentifier ( kCatAstNum );
+        if ( ident )
+        {
+            uint32_t number = (uint32_t) ident.identifier();
+            if ( numbers.find ( number ) != numbers.end() )
+                found = true;
+            else
+                numbers.insert ( number );
+        }
+        else
+        {
+            string desig = pAsteroid->getName ( 0 );
+            if ( desig.empty() || designations.find ( desig ) != designations.end() )
+                found = true;
+            else
+                designations.insert ( desig );
+        }
+
+        if ( found )
+            delete pAsteroid;
+        else
+            asteroids.append ( pAsteroid );
+    }
+
+    return (int) asteroids.size() - start;
 }

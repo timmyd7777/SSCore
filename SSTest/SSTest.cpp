@@ -237,8 +237,8 @@ void TestSolarSystem ( string inputDir, string outputDir )
     cout << "Imported " << numComets << " JPL+MPC comets" << endl;
 
     SSObjectVec asteroids;
-    int numAsteroids = SSImportMPCAsteroids ( inputDir + "/SolarSystem/Asteroids.txt", asteroids );
-    cout << "Imported " << numAsteroids << " MPC asteroids" << endl;
+    int numAsteroids = SSImportAsteroids ( inputDir + "/SolarSystem/Asteroids/JPLAsteroids.csv", inputDir + "/SolarSystem/Asteroids/MPCORB.DAT", asteroids );
+    cout << "Imported " << numAsteroids << " JPL+MPC asteroids" << endl;
 
     SSObjectVec features;
     int numFeatures = SSImportObjectsFromCSV ( inputDir + "/SolarSystem/Features.csv", features );
@@ -264,7 +264,7 @@ void TestSolarSystem ( string inputDir, string outputDir )
         cout << "Exported " << numComets << " JPL+MPC comets to " << outputDir + "/ExportedComets.csv" << endl;
 
         numAsteroids = SSExportObjectsToCSV ( outputDir + "/ExportedAsteroids.csv", asteroids );
-        cout << "Exported " << numAsteroids << " MPC asteroids to " << outputDir + "/ExportedAsteroids.csv" << endl;
+        cout << "Exported " << numAsteroids << " JPL+MPC asteroids to " << outputDir + "/ExportedAsteroids.csv" << endl;
 
         numFeatures = SSExportObjectsToCSV ( outputDir + "/ExportedFeatures.csv", features );
         cout << "Exported " << numFeatures << " non-Earth planetary surface features to " << outputDir + "/ExportedFeatures.csv" << endl;

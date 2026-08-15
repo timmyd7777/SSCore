@@ -250,7 +250,7 @@ SSPlanetPtr SSImportMPCAsteroid ( const string &line )
         size_t endparen = field.find ( ')' );
         if ( endparen != string::npos )
         {
-            number = SSIdentifier::fromString ( field.substr ( 0, endparen + 1 ) );
+            number = SSIdentifier ( kCatAstNum, strtoint ( field.substr ( 1, endparen - 1 ) ) );
             field = trim ( field.substr ( endparen + 1, string::npos ) );
         }
     }

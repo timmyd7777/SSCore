@@ -44,8 +44,8 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
     _orbit = SSOrbit();
     _Hmag = _Gmag = INFINITY;
     _BminV = INFINITY;
-    _radius = 0.0;
-    _mass = 0.0;
+    _radius = INFINITY;
+    _mass = INFINITY;
     _rotper = INFINITY;
     _albedo = INFINITY;
     _taxonomy = "";
@@ -711,8 +711,12 @@ string SSPlanet::toCSV ( void )
     
     csv += _id ? _id.toString() + "," : ",";
     for ( int i = 0; i < _names.size(); i++ )
-        csv += _names[i] + ";";
-
+    {
+        csv += _names[i];
+        if ( i < _names.size() - 1 )
+            csv += ";";
+    }
+    
     return csv;
 }
 
