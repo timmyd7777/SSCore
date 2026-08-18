@@ -794,6 +794,14 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     return pObject;
 }
 
+// Returns CSV column header string
+
+string SSPlanet::headerCSV ( void )
+{
+    string header = "Type,q,e,i,w,N,M,n,wrate,Nrate,poleRA,poleDec,Epoch,H,G,Radius,Mass,RotPer,Albedo,ID,Names";
+    return header;
+}
+
 // Constructs a satellite object from an input Two-Line Element descriptor (tle).
 
 SSSatellite::SSSatellite ( SSTLE &tle ) : SSPlanet ( kTypeSatellite )

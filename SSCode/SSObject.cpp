@@ -423,10 +423,12 @@ SSObjectPtr SSCloneObject ( SSObject *pObj )
 
 int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects, SSObjectFilter filter, void *userData )
 {
-    int i = 0;
+    if ( objects.size() < 1 )
+        return 0;
     
     // If filename is empty, just stream everything to stdout
     
+    int i = 0;
     if ( filename.empty() )
     {
         for ( i = 0; i < objects.size(); i++ )
@@ -440,6 +442,14 @@ int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects, SSObjec
     ofstream file ( filename, ios::trunc );
     if ( ! file )
         return 0;
+    
+    // Write CSV header line depending on class of first object
+    
+    SSObjectPtr pObj = objects[0];
+    if ( SSGetSatellitePtr( pObj ) )
+        file << SSSatellite::headerCSV() << endl;
+    else if ( SSGetPlanetPtr ( pObj ) )
+        file << SSPlanet::headerCSV() << endl;
     
     // Stream objects which pass filter function to CSV file.
     

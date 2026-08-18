@@ -190,7 +190,7 @@ int SSImportJPLDASTCOM ( const string &filename, SSObjectType type, SSObjectVec 
         }
         else
         {
-            cerr << line << endl;
+            // cerr << line << endl;
         }
     }
     
@@ -298,10 +298,38 @@ int SSImportComets ( const string &jplFilename, const string &mpcFilename, SSObj
     return (int) comets.size() - start;
 }
 
-// Imports combined asteroid data from JPL DASTCOM and Minor Planet Center files.
-// All JPL asteroids are imported preferentially and retain their original data
-// and ordering. MPC asteroids are appended only if their asteroid number or,
-// for unnumbered objects, provisional designation is not present in JPL.
+// Compares two asteroids for sorting.
+// Returns true if the first asteroid should precede the second.
+
+static bool CompareAsteroids ( const SSObjectPtr &pObj1, const SSObjectPtr &pObj2 )
+{
+    SSPlanetPtr p1 = SSGetPlanetPtr ( pObj1 );
+    SSPlanetPtr p2 = SSGetPlanetPtr ( pObj2 );
+
+    if ( p1 == nullptr || p2 == nullptr )
+        return p1 != nullptr;
+
+    SSIdentifier id1 = p1->getIdentifier ( kCatAstNum );
+    SSIdentifier id2 = p2->getIdentifier ( kCatAstNum );
+
+    // Numbered asteroids precede unnumbered asteroids.
+
+    if ( bool ( id1 ) != bool ( id2 ) )
+        return bool ( id1 );
+
+    // Sort numbered asteroids by asteroid number.
+
+    if ( id1 )
+        return id1.identifier() < id2.identifier();
+
+    // Sort unnumbered asteroids by designation alphabetically.
+
+    return p1->getName ( 0 ) < p2->getName ( 0 );
+}
+
+// Imports combined asteroid data from JPL DASTCOM and Minor Planet Center MPCORB.
+// JPL asteroids are imported preferentially and retain their original data.
+// MPC asteroids are appended only if their asteroid number or provisional designation is not present in JPL.
 // Imported data is appended to the input vector of SSObjects (asteroids).
 // Returns total number of asteroids successfully imported.
 
@@ -353,7 +381,7 @@ int SSImportAsteroids ( const string &jplFilename, const string &mpcFilename, SS
         SSPlanetPtr pAsteroid = SSImportMPCAsteroid ( line );
         if ( pAsteroid == nullptr )
         {
-            cout << line << endl;
+            // cerr << line << endl;
             continue;
         }
 
@@ -382,5 +410,6 @@ int SSImportAsteroids ( const string &jplFilename, const string &mpcFilename, SS
             asteroids.append ( pAsteroid );
     }
 
+    asteroids.sort ( CompareAsteroids );
     return (int) asteroids.size() - start;
 }

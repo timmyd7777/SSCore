@@ -247,6 +247,7 @@ public:
     
     static SSObjectPtr fromCSV ( string csv );
     string toCSV ( void );
+    static string headerCSV ( void );
 };
 
 // Subclass of solar system object for artificial Earth satellites.

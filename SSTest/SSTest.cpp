@@ -237,7 +237,7 @@ void TestSolarSystem ( string inputDir, string outputDir )
     cout << "Imported " << numComets << " JPL+MPC comets" << endl;
 
     SSObjectVec asteroids;
-    int numAsteroids = SSImportAsteroids ( inputDir + "/SolarSystem/Asteroids/JPLAsteroids.csv", inputDir + "/SolarSystem/Asteroids/MPCORB.DAT", asteroids );
+    int numAsteroids = SSImportAsteroids ( inputDir + "/SolarSystem/Asteroids/JPLAsteroids-13.csv", inputDir + "/SolarSystem/Asteroids/MPCAsteroids-13.txt", asteroids );
     cout << "Imported " << numAsteroids << " JPL+MPC asteroids" << endl;
 
     SSObjectVec features;
@@ -263,7 +263,7 @@ void TestSolarSystem ( string inputDir, string outputDir )
         numComets = SSExportObjectsToCSV ( outputDir + "/ExportedComets.csv", comets );
         cout << "Exported " << numComets << " JPL+MPC comets to " << outputDir + "/ExportedComets.csv" << endl;
 
-        numAsteroids = SSExportObjectsToCSV ( outputDir + "/ExportedAsteroids.csv", asteroids );
+        numAsteroids = SSExportObjectsToCSV ( outputDir + "/ExportedAsteroids-13.csv", asteroids );
         cout << "Exported " << numAsteroids << " JPL+MPC asteroids to " << outputDir + "/ExportedAsteroids.csv" << endl;
 
         numFeatures = SSExportObjectsToCSV ( outputDir + "/ExportedFeatures.csv", features );

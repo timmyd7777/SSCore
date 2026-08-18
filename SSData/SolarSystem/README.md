@@ -14,9 +14,9 @@ This table contains data on the Sun, the major planets, and the officially recog
 
 All orbital elements in this table are referenced against the J2000 ecliptic.
 
-Columns are: Type, q, e, i, w, N, M, n, wrate, Nrate, RA, Dec, Epoch, H, G, Radius, Mass, RotPer, Albedo, ID, Name
+Columns are: Type, q, e, i, w, N, M, n, wrate, Nrate, RA, Dec, Epoch, H, G, Radius, Mass, RotPer, Albedo, ID, Names
 
-- **_Type_** is object type; PL = planet, MN = moon
+- **_Type_** is object type; PL = planet, MN = moon, AS = asteroid, CM = comet
 - **_q_** is perihelion distance (AU)
 - **_e_** is eccentricity
 - **_i_** is inclination (deg)
@@ -24,10 +24,10 @@ Columns are: Type, q, e, i, w, N, M, n, wrate, Nrate, RA, Dec, Epoch, H, G, Radi
 - **_N_** is longitude of ascending node (deg)
 - **_M_** is mean anomaly (deg)
 - **_n_** is mean motion (deg/day)
-- **_wrate_** is rate of argument of perihelion (deg/year) where 1 year = 365.25 days
-- **_Nrate_** is rate of longitude of ascending node (deg/year) where 1 year = 365.35 days
-- **_RA_** is J2000 Right Ascension of north pole of reference plane (deg)
-- **_Dec_** is J2000 Declination of north pole of reference plane (deg)
+- **_wrate_** is rate of argument of perihelion (deg/year) where 1 year = 365.25 days; assume zero if empty
+- **_Nrate_** is rate of longitude of ascending node (deg/year) where 1 year = 365.35 days; assume zero if empty
+- **_RA_** is J2000 Right Ascension of north pole of reference plane (deg); assume J2000 ecliptic north pole RA (270 deg) if empty
+- **_Dec_** is J2000 Declination of north pole of reference plane (deg); assume J2000 ecliptic north pole Dce (66.651 deg) if empty
 - **_Epoch_** is epoch of orbital elements (Julian Ephemeris Date)
 - **_H_** is absolute visual magnitude (i.e., V at 1.0 AU distance and 100% illumination)
 - **_G_** is magnitude phase parameter
@@ -36,7 +36,7 @@ Columns are: Type, q, e, i, w, N, M, n, wrate, Nrate, RA, Dec, Epoch, H, G, Radi
 - **_RotPer_** is sidereal rotation period (days); negative if retrograde
 - **_Albedo_** is geometric albedo
 - **_ID_** is JPL NAIF ID, or asteroid number for dwarf planets Ceres, Eris, Makemake, Haumea
-- **_Name_** is planet name
+- **_Name_** is object name(s); semicolon-delimited
 
 Empty fields indicate unknown or missing values.
 
@@ -76,25 +76,51 @@ Columns are identical to Planets.csv, above.
 - Version 2.0 (30 Jun 2026): added 171 new moons discovered since 2023, rates of motion for argument of perihelion and longitude of ascending node; added J2000 RA and Dec of reference plane.
 - Version 2.01 (8 Jul 2026): corrected rates of ascending node and mean motion for moons with inclination < 90 deg.
 
-Asteroids.txt
+Asteroids-13.csv
 -------------
 
-This table of asteroid data in MPC Export Format was compiled from the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html).  It includes the first 10,000 numbered asteroids from the [MPCORB database](https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT) and all of the asteroids on the MPC's ["Distant"  objects](https://www.minorplanetcenter.net/iau/MPCORB/Distant.txt) list.  This file includes all of the officially IAU-designated dwarf planets.  The file format is described [here](https://www.minorplanetcenter.net/iau/info/MPOrbitFormat.html).
+This table of asteroid data in CSV Format was compiled from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) and the Minor Planet Center [MPCORB](https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT).  It includes approximately 20,000 asteroids with absolute magnitudes brighter than 13.0 or diameters larger than 10 km.
+
+The file format is identical to **Planets.csv** and **Moons.csv** above.
+
+**IMPORTANT:** The `Asteroids-13.csv` file checked into this repository is an example only, for illistrative and testing purposes. For production uses, the current version containing all 1.5 million+ asteroids is updated daily and can be downloaded from:
+
+[https://www.southernstars.com/updates/asteroids/asteroids.csv](https://www.southernstars.com/updates/asteroids/asteroids.csv)
 
 **Revision History**
 
-- Version 1.0 (2 Apr 2020): initial version
-- Version 1.1 (21 Mar 2021): updated with latest data from MPC
+- Version 2.0 (18 Aug 2026): initial version
 
-Comets.txt
+Asteroids
+---------
+
+This directory contains a sample of asteroid data files from different sources. These are test cases for SSCore asteroid data import functionality, and may be useful in their own right! These files are examples only, and should not be used for production.
+
+- **_JPLAsteroids-13.csv_** is the subset of approximately 20,000 asteroids with absolute magnitudes brighter than 13 or diameters larger than 10 km from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) in CSV format.
+- **_MPCAsteroids-13.txt_** is the subset of approximately 15,000 asteroids with absolute magnitudes brighter than 13 lfrom the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html). The file format is described [here](https://www.minorplanetcenter.net/iau/info/MPOrbitFormat.html).
+
+Comets.csv
 ----------
 
-This table of comet data in MPC Export Format is a copy of the Minor Planet Center's ["Observable Comets"](https://www.minorplanetcenter.net/iau/MPCORB/CometEls.txt) file.  The file format is described [here](https://www.minorplanetcenter.net/iau/info/CometOrbitFormat.html).
+This table of comet data in CSV Format was compiled from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) and the Minor Planet Center [Observable Comets](https://www.minorplanetcenter.net/iau/MPCORB/CometEls.txt) file. It contains 4,116 comets.
+
+The file format is identical to **Planets.csv** and **Moons.csv** above.
+
+**IMPORTANT:** The `Comets.csv` file checked into this repository is an example only, for illistrative and testing purposes. For production uses, the current version containing all known comets is updated daily and can be downloaded from:
+
+[https://www.southernstars.com/updates/comets/comets.csv](https://www.southernstars.com/updates/asteroids/asteroids.csv)
 
 **Revision History**
 
-Version 1.0 (2 Apr 2020): initial version
-Version 1.1 (21 Mar 2021): updated with latest data from MPC
+- Version 2.0 (15 Aug 2026): initial version
+
+Comets
+------
+
+This directory contains a sample of comet data files from different sources. These are test cases for SSCore comet data import functionality, and may be useful in their own right! These files are examples only, and should not be used for production.
+
+- **_JPLComets.csv_** is an export of all comets from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) in CSV format.
+- **_MPCComets.txt_** is the Minor Planet Center's ["Observable Comets"](https://www.minorplanetcenter.net/iau/MPCORB/CometEls.txt) file.  The file format is described [here](https://www.minorplanetcenter.net/iau/info/CometOrbitFormat.html).
 
 DE442
 -----
