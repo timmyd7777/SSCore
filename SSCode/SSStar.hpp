@@ -85,7 +85,8 @@ public:
     
     static SSObjectPtr fromCSV ( string csv );
     virtual string toCSV ( void );
-    
+    static string headerCSV ( void );
+
     // magnitude and color conversion utilities
     
     static void bmv2rgb ( float bmv, float &r, float &g, float &b );
@@ -283,6 +284,7 @@ public:
     string getGalaxyType ( void ) { return _spectrum; }
 
     virtual string toCSV ( void );
+    static string headerCSV ( void );
 };
 
 #pragma pack ( pop )

@@ -450,6 +450,10 @@ int SSExportObjectsToCSV ( const string &filename, SSObjectVec &objects, SSObjec
         file << SSSatellite::headerCSV() << endl;
     else if ( SSGetPlanetPtr ( pObj ) )
         file << SSPlanet::headerCSV() << endl;
+    else if ( SSGetDeepSkyPtr ( pObj ) )
+        file << SSDeepSky::headerCSV() << endl;
+    else if ( SSGetStarPtr ( pObj ) )
+        file << SSStar::headerCSV() << endl;
     
     // Stream objects which pass filter function to CSV file.
     

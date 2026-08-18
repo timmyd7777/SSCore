@@ -1312,7 +1312,7 @@ string SSStar::toCSV2 ( void )
         csv += ",";
     else
         for ( int i = 0; i < _names.size(); i++ )
-            csv += _names[i] + ( i < _names.size() - 1 ? ";" : "," );
+            csv += _names[i] + ( i < _names.size() - 1 ? ";" : "" );
 
     return csv;
 }
@@ -1323,6 +1323,13 @@ string SSStar::toCSV2 ( void )
 string SSStar::toCSV ( void )
 {
     return toCSV1() + toCSVD() + toCSVV() + toCSV2();
+}
+
+// Returns CSV column header string
+
+string SSStar::headerCSV ( void )
+{
+    return "Type,RA,Dec,pmRA,pmDec,V,B,Dist,RV,Spec,Comp,Delta,Sep,PA,Year,T,a,e,i,w,n,P,Vtype,Vmin,Vmax,Vper,Vepoch,IDs,Names";
 }
 
 // Stores orbital elements (orbit) referenced to sky plane centered at (ra,dec),
@@ -1432,6 +1439,13 @@ string SSDeepSky::toCSVDS ( void )
 string SSDeepSky::toCSV ( void )
 {
     return toCSV1() + toCSVDS() + toCSV2();
+}
+
+// Returns CSV column header string
+
+string SSDeepSky::headerCSV ( void )
+{
+    return "Type,RA,Dec,pmRA,pmDec,V,B,Dist,RV,Morph,Maj,Min,PA,IDs,Names";
 }
 
 // Allocates a new SSStar and initializes it from a CSV-formatted string.
