@@ -44,10 +44,10 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
     _orbit = SSOrbit();
     _Hmag = _Gmag = INFINITY;
     _BminV = INFINITY;
-    _radius = INFINITY;
-    _mass = INFINITY;
-    _rotper = INFINITY;
-    _albedo = INFINITY;
+    _radius = 0.0;
+    _mass = 0.0;
+    _rotper = 0.0;
+    _albedo = 0.0;
     _taxonomy = "";
     _position = _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
 }
@@ -702,10 +702,10 @@ string SSPlanet::toCSV ( void )
 
     csv += ::isinf ( _Hmag ) ? "," : formstr ( "%+.2f,", _Hmag );
     csv += ::isinf ( _Gmag ) ? "," : formstr ( "%+.2f,", _Gmag );
-    csv += ::isinf ( _radius ) ? "," : formstr ( "%.1f,", _radius );
-    csv += ::isinf ( _mass ) ? "," : formstr ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
-    csv += ::isinf ( _rotper ) ? "," : formstr ( "%.5f,", _rotper );
-    csv += ::isinf ( _albedo ) ? "," : formstr ( "%.3f,", _albedo );
+    csv += _radius == 0.0 ? "," : formstr ( "%.1f,", _radius );
+    csv += _mass == 0.0 ? "," : formstr ( "%.6E,", _mass * SSCoordinates::kKgPerEarthMass );
+    csv += _rotper == 0.0 ? "," : formstr ( "%.5f,", _rotper );
+    csv += _albedo == 0.0 ? "," : formstr ( "%.3f,", _albedo );
 
     // Print identifier if we have one, followed by semicolon-delimited list of names.
     
@@ -755,10 +755,10 @@ SSObjectPtr SSPlanet::fromCSV ( string csv )
     
     float h = fields[13].empty() ? INFINITY : strtofloat ( fields[13] );
     float g = fields[14].empty() ? INFINITY : strtofloat ( fields[14] );
-    float r = fields[15].empty() ? INFINITY : strtofloat ( fields[15] );
-    float m = fields[16].empty() ? INFINITY : strtofloat ( fields[16] );
-    float p = fields[17].empty() ? INFINITY : strtofloat ( fields[17] );
-    float a = fields[18].empty() ? INFINITY : strtofloat ( fields[18] );
+    float r = fields[15].empty() ? 0.0 : strtofloat ( fields[15] );
+    float m = fields[16].empty() ? 0.0 : strtofloat ( fields[16] );
+    float p = fields[17].empty() ? 0.0 : strtofloat ( fields[17] );
+    float a = fields[18].empty() ? 0.0 : strtofloat ( fields[18] );
 
     SSIdentifier ident;
     if ( type == kTypePlanet || type == kTypeMoon )
@@ -859,7 +859,7 @@ string SSSatellite::toCSV ( void )
 
     // Physical diameter in meters. SSPlanet stores physical radius in kilometers.
 
-    csv += isfinite ( _radius ) && _radius > 0.0 ? formstr ( "%.2f,", 2.0 * _radius * 1000.0 ) : ",";
+    csv += _radius > 0.0 ? formstr ( "%.2f,", 2.0 * _radius * 1000.0 ) : ",";
     csv += _diamSrc != 0 ? formstr ( "%c,", (int) _diamSrc ) : ",";
     
     // Source country, launch site, launch date, and decay date.

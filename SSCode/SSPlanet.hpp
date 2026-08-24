@@ -125,10 +125,10 @@ protected:
     float       _Hmag;          // absolute magnitude; infinite if unknown
     float       _Gmag;          // magnitude slope parameter; infinite if unknown
     float       _BminV;         // B-V color index; infinite if unknown
-    float       _radius;        // equatorial radius in kilometers; 0 or infinite if unknown
-    float       _mass;          // mass in Earth masses, 0 or infinite if unknown
-    float       _rotper;        // sidereal rotation period in days, 0 or infinite if unknown
-    float       _albedo;        // geometric albedo; infinite if unknown
+    float       _radius;        // equatorial radius in kilometers; zero if unknown
+    float       _mass;          // mass in Earth masses, zero if unknown
+    float       _rotper;        // sidereal rotation period in days, zero if unknown
+    float       _albedo;        // geometric albedo; zero if unknown
     string      _taxonomy;      // spectral taxonomic type (Tholen) for asteroids; empty if unknown
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day

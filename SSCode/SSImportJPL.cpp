@@ -67,14 +67,14 @@ SSPlanetPtr SSImportJPLAstCom ( const string &line, SSObjectType type )
     else
         orbit.m = orbit.mm * ( orbit.t - orbit.m );
     
-    // Get magnitude parameters, diameter in km, mass in kg, rotation period in days (currenntly ignored)
+    // Get magnitude parameters, diameter in km, mass in kg, rotation period in days, albedo, B-V color index
     
     float h = fields[9].empty() ? INFINITY : strtofloat ( fields[9] );
     float g = fields[10].empty() ? INFINITY : strtofloat ( fields[10] );
-    float d = fields[11].empty() ? INFINITY : strtofloat ( fields[11] );
-    float m = fields[12].empty() ? INFINITY : strtofloat ( fields[12] ) / SSOrbit::kGravity;
-    float p = fields[13].empty() ? INFINITY : strtofloat ( fields[13] ) / 24.0;
-    float a = fields[14].empty() ? INFINITY : strtofloat ( fields[14] );
+    float d = fields[11].empty() ? 0.0 : strtofloat ( fields[11] );
+    float m = fields[12].empty() ? 0.0 : strtofloat ( fields[12] ) / SSOrbit::kGravity;
+    float p = fields[13].empty() ? 0.0 : strtofloat ( fields[13] ) / 24.0;
+    float a = fields[14].empty() ? 0.0 : strtofloat ( fields[14] );
     float c = fields[15].empty() ? INFINITY : strtofloat ( fields[15] );
 
     // parse number, name, designation
