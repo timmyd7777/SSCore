@@ -79,7 +79,7 @@ Columns are identical to Planets.csv, above.
 Asteroids-13.csv
 ----------------
 
-This table of asteroid data in CSV format was compiled from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) and the Minor Planet Center [MPCORB](https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT) database. It includes approximately 20,000 asteroids with absolute magnitudes brighter than 13.0 or diameters larger than 10 km.
+This table of asteroid data in CSV format was compiled from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) and the Minor Planet Center [MPCORB](https://www.minorplanetcenter.net/iau/MPCORB/MPCORB.DAT) database. It includes approximately 25,000 asteroids numbered < 10000, with absolute magnitudes brighter than 13.0, or diameters larger than 10 km.
 
 The file format is identical to **Planets.csv** and **Moons.csv** above.
 
@@ -94,8 +94,8 @@ Asteroids
 
 This directory contains a sample of asteroid data files from different sources. These are test cases for SSCore asteroid data import functionality, and may be useful in their own right! These files are examples only, and should not be used for production.
 
-- **_JPLAsteroids-13.csv_** is the subset of approximately 20,000 asteroids with absolute magnitudes brighter than 13 or diameters larger than 10 km from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) in CSV format.
-- **_MPCAsteroids-13.txt_** is the subset of approximately 15,000 asteroids with absolute magnitudes brighter than 13 lfrom the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html). The file format is described [here](https://www.minorplanetcenter.net/iau/info/MPOrbitFormat.html).
+- **_JPLAsteroids-13.csv_** is the subset of approximately 25,000 asteroids numbered < 10000, with absolute magnitudes brighter than 13, or diameters larger than 10 km from JPL's [Small-Body Database](https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/) in CSV format.
+- **_MPCAsteroids-13.txt_** is the subset of approximately 20,000 asteroids numbered < 10000, or with absolute magnitudes brighter than 13 lfrom the [Minor Planet Center](https://www.minorplanetcenter.net/iau/mpc.html). The file format is described [here](https://www.minorplanetcenter.net/iau/info/MPOrbitFormat.html).
 
 For production use, the current JPL and MPC asteroid databases, containing all ~1.5 million+ asteroids, are updated daily and can be downloaded from:
 
