@@ -14,6 +14,7 @@ $(SOURCEDIR)/SSImportGCVS.cpp \
 $(SOURCEDIR)/SSImportGJ.cpp \
 $(SOURCEDIR)/SSImportHIP.cpp \
 $(SOURCEDIR)/SSImportMPC.cpp \
+$(SOURCEDIR)/SSImportJPL.cpp \
 $(SOURCEDIR)/SSImportSKY2000.cpp \
 $(SOURCEDIR)/SSImportTLE.cpp \
 $(SOURCEDIR)/SSImportTYC.cpp \
@@ -64,6 +65,7 @@ $(SOURCEDIR)/SSImportGCVS.hpp \
 $(SOURCEDIR)/SSImportGJ.hpp \
 $(SOURCEDIR)/SSImportHIP.hpp \
 $(SOURCEDIR)/SSImportMPC.hpp \
+$(SOURCEDIR)/SSImportJPL.hpp \
 $(SOURCEDIR)/SSImportSKY2000.hpp \
 $(SOURCEDIR)/SSImportTLE.hpp \
 $(SOURCEDIR)/SSImportTYC.hpp \
