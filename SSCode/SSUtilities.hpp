@@ -148,7 +148,7 @@ template <class T> T min ( const T *pData, size_t n );
 template <class T> T max ( const T *pData, size_t n );
 template <class T> T mean ( const T *pData, size_t n );
 template <class T> T stdev ( const T *pData, size_t n, T avg );
-template <class T> T median ( const T *pData, size_t n );
+template <class T> T median ( const T *pData, size_t n, bool sorted = false );
 template <class T> T mad ( const T *pData, size_t n, T med );
 
 #endif /* SSUtilities_hpp */

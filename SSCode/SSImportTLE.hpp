@@ -20,6 +20,7 @@ struct McName
     string name;          // Spacecraft name
     float  len, wid, dep; // Dimensions in meters
     float  mag;           // Magnitude at 1000 km range, 50% illumination.
+    char   source;        // 'v' = visual observation, 'd' = dimension-derived
 };
 
 typedef map<int,McName> McNameMap;
@@ -90,12 +91,78 @@ struct SCOREMagnitude
 
 typedef map<int,SCOREMagnitude> SCOREMagnitudeMap;
 
+// One record from Jonathan McDowell's GCAT satellite catalog
+
+struct GCATData
+{
+    string jcat = "";             // GCAT/JCAT object identifier, e.g. "S00001"
+    int    norad = 0;             // NORAD satellite catalog number (Satcat)
+    
+    string launchTag = "";        // GCAT launch identifier/tag
+    string piece = "";            // International-designator/piece designation
+    string type = "";             // GCAT object type/classification
+    string name = "";             // Primary object name
+    string plName = "";           // Payload/alternate program name
+    
+    string launchDate = "";       // Launch date (LDate), as supplied by GCAT
+    string parent = "";           // Parent object JCAT identifier
+    string separationDate = "";   // Separation/deployment date and time (SDate)
+    string primary = "";          // Primary body orbited, e.g. Earth
+    string decayDate = "";        // Decay/disposal date and time (DDate)
+    
+    string status = "";           // GCAT object status
+    string destination = "";      // Destination field (Dest)
+    
+    string owner = "";            // Owning/operating organization
+    string state = "";            // State/country code
+    string manufacturer = "";     // Manufacturer
+    string bus = "";              // Spacecraft bus/platform
+    string motor = "";            // Propulsion/motor designation
+    
+    float  mass = 0.0;            // Object mass, zero if unknown (kg)
+    string massFlag = "";         // Mass uncertainty/estimate flag
+    float  dryMass = 0.0;         // Dry mass, zero if unknown (kg)
+    string dryMassFlag = "";      // Dry mass uncertainty/estimate flag
+    float  totalMass = 0.0;       // Total associated/launch mass, zero if unknown (kg)
+    string totalMassFlag = "";    // Total mass uncertainty/estimate flag
+
+    float  length = 0.0;          // Longest main-body dimension, zero if unknown (m)
+    string lengthFlag = "";       // Length uncertainty/estimate flag
+    float  diameter = 0.0;        // Second-longest/main-body diameter, zero if unknown (m)
+    string diameterFlag = "";     // Diameter uncertainty/estimate flag
+    float  span = 0.0;            // Maximum dimension including appendages, zero if unknown (m)
+    string spanFlag = "";         // Span uncertainty/estimate flag
+    string shape = "";            // Physical shape description
+    
+    string orbitDate = "";        // Epoch/date associated with orbit data (ODate)
+    
+    float  perigee = 0.0;         // Perigee altitude, zero if unknown (km)
+    string perigeeFlag = "";      // Perigee uncertainty/estimate flag
+    float  apogee = 0.0;          // Apogee altitude, zero if unknown (km)
+    string apogeeFlag = "";       // Apogee uncertainty/estimate flag
+    float  inclination = 0.0;     // Orbital inclination, zero if unknown (degrees)
+    string inclinationFlag = "";  // Inclination uncertainty/estimate flag
+
+    string orbit = "";            // GCAT orbital regime/class (OpOrbit)
+    string orbitQuality = "";     // GCAT orbit quality (OQUAL)
+
+    string altNames = "";         // Alternate names/identifiers (AltNames)
+};
+
+typedef vector<GCATData> GCATDataVec;
+
 int SSImportN2Data ( const string &path, N2DataMap &n2data );
 int SSImportN2Data ( const string &path, SSObjectVec &satellites );
 
 int SSImportSCOREData ( const string &filename, SCOREDataVec &data );
 int SCOREDataToStandardMagnitudes ( const SCOREDataVec &data, SCOREMagnitudeMap &magnitudes );
 int SSImportSCOREData ( const string &filename, SSObjectVec &objects );
+
+int SSImportGCATData ( const string &filename, GCATDataVec &data );
+int SSImportGCATData ( const GCATDataVec &gcat, SSObjectVec &satellites );
+
+float GCATEffectiveArea ( float length, float diameter, float span, const string &shape );
+float GCATStandardMagnitude ( float area );
 
 bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diameter );
 int SSGetDefaultSatelliteData ( SSObjectVec &satellites );

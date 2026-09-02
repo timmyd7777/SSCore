@@ -1021,21 +1021,34 @@ T stdev ( const T *pData, size_t n, T avg )
 }
 
 // Returns median value of sorted array of n elements of type T (int, float, double, whatever).
-// or zero if the array is empty.
+// If sorted is false, the data are copied and sorted internally.
+// If sorted is true, the input array is assumed to already be sorted.
+// Returns zero if the array is empty.
 
 template <class T>
-T median ( const T *pData, size_t n )
+T median ( const T *pData, size_t n, bool sorted )
 {
     if ( n == 0 )
-        return T(0);
+        return T ( 0 );
+
+    if ( sorted )
+    {
+        if ( n & 1 )
+            return pData[n / 2];
+        else
+            return ( pData[n / 2 - 1] + pData[n / 2] ) / T ( 2 );
+    }
+
+    vector<T> data ( pData, pData + n );
+    sort ( data.begin(), data.end() );
 
     if ( n & 1 )
-        return pData[n / 2];
-
-    return ( pData[n / 2 - 1] + pData[n / 2] ) / T(2);
+        return data[n / 2];
+    else
+        return ( data[n / 2 - 1] + data[n / 2] ) / T ( 2 );
 }
 
-// Returns median absolute deviation (MAD) of an array of n elements of type T ((int, float, double, whatever)
+// Returns median absolute deviation (MAD) of an array of n elements of type T (int, float, double, whatever)
 // from the specified median (med), or zero if the array is empty.
 
 template <class T>
@@ -1050,7 +1063,7 @@ T mad ( const T *pData, size_t n, T med )
         dev[i] = fabs ( pData[i] - med );
 
     sort ( dev.begin(), dev.end() );
-    return median ( dev.data(), n );
+    return median ( dev.data(), n, true );
 }
 
 // Explicit template instantiations.
@@ -1099,16 +1112,16 @@ template uint64_t stdev ( const uint64_t *, size_t, uint64_t );
 template float    stdev ( const float    *, size_t, float );
 template double   stdev ( const double   *, size_t, double );
 
-template int8_t   median ( const int8_t   *, size_t );
-template uint8_t  median ( const uint8_t  *, size_t );
-template int16_t  median ( const int16_t  *, size_t );
-template uint16_t median ( const uint16_t *, size_t );
-template int32_t  median ( const int32_t  *, size_t );
-template uint32_t median ( const uint32_t *, size_t );
-template int64_t  median ( const int64_t  *, size_t );
-template uint64_t median ( const uint64_t *, size_t );
-template float    median ( const float    *, size_t );
-template double   median ( const double   *, size_t );
+template int8_t   median ( const int8_t   *, size_t, bool );
+template uint8_t  median ( const uint8_t  *, size_t, bool );
+template int16_t  median ( const int16_t  *, size_t, bool );
+template uint16_t median ( const uint16_t *, size_t, bool );
+template int32_t  median ( const int32_t  *, size_t, bool );
+template uint32_t median ( const uint32_t *, size_t, bool );
+template int64_t  median ( const int64_t  *, size_t, bool );
+template uint64_t median ( const uint64_t *, size_t, bool );
+template float    median ( const float    *, size_t, bool );
+template double   median ( const double   *, size_t, bool );
 
 template int8_t   mad ( const int8_t   *, size_t, int8_t );
 template uint8_t  mad ( const uint8_t  *, size_t, uint8_t );

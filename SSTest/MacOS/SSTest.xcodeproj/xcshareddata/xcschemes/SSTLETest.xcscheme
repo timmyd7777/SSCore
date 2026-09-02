@@ -75,6 +75,14 @@
             argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/Other/je9pel.csv"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/Other/satcat.tsv"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/timmyd/Projects/SouthernStars/Nanoverse/Source/SSCore/SSData/SolarSystem/Satellites/Other/satcat100k.tsv"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

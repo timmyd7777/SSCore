@@ -63,7 +63,7 @@ int SSImportMcNames ( const string &filename, McNameMap &mcnames )
     
     while ( fgetline ( file, line ) )
     {
-        McName mcname = { 0, "", 0.0, 0.0, 0.0, 0.0 };
+        McName mcname = { 0, "", 0.0, 0.0, 0.0, 0.0, 0 };
         
         // Attempt to read McName from line.
         
@@ -80,6 +80,7 @@ int SSImportMcNames ( const string &filename, McNameMap &mcnames )
         mcname.wid = len > 31 ? strtofloat ( line.substr ( 27, 4 ) ) : 0.0;
         mcname.dep = len > 36 ? strtofloat ( line.substr ( 32, 4 ) ) : 0.0;
         mcname.mag = len > 41 ? strtofloat ( line.substr ( 37, 4 ) ) : 0.0;
+        mcname.source = len > 42 ? line[42] : 0;
         
         if ( mcname.mag == 0.0 )
             mcname.mag = INFINITY;
@@ -526,12 +527,223 @@ int SSImportSCOREData ( const string &filename, SSObjectVec &objects )
     return n;
 }
 
+// Imports Jonathan McDowell's GCAT satellite catalog file(s) in TSV format, from:
+// https://www.planet4589.org/space/gcat/tsv/cat/satcat.tsv
+// https://www.planet4589.org/space/gcat/tsv/cat/satcat100k.tsv
+// GCATData are appended to the input vector (data).
+// Returns the number of GCATData structs appended.
+
+int SSImportGCATData ( const string &filename, vector<GCATData> &data )
+{
+    ifstream file ( filename );
+
+    if ( ! file )
+        return 0;
+
+    string line;
+    int count = 0;
+
+    while ( getline ( file, line ) )
+    {
+        // Skip header, comments, and blank lines.
+
+        if ( line.empty() || line[0] == '#' )
+            continue;
+
+        vector<string> fields = split ( line, "\t" );
+        if ( fields.size() < 42 )
+            continue;
+
+        GCATData gcat;
+
+        gcat.jcat             = trim ( fields[0] );
+        gcat.norad            = strtoint ( trim ( fields[1] ) );
+        gcat.launchTag        = trim ( fields[2] );
+        gcat.piece            = trim ( fields[3] );
+        gcat.type             = trim ( fields[4] );
+        gcat.name             = trim ( fields[5] );
+        gcat.plName           = trim ( fields[6] );
+
+        gcat.launchDate       = trim ( fields[7] );
+        gcat.parent           = trim ( fields[8] );
+        gcat.separationDate   = trim ( fields[9] );
+        gcat.primary          = trim ( fields[10] );
+        gcat.decayDate        = trim ( fields[11] );
+
+        gcat.status           = trim ( fields[12] );
+        gcat.destination      = trim ( fields[13] );
+        gcat.owner            = trim ( fields[14] );
+        gcat.state            = trim ( fields[15] );
+        gcat.manufacturer     = trim ( fields[16] );
+        gcat.bus              = trim ( fields[17] );
+        gcat.motor            = trim ( fields[18] );
+
+        gcat.mass             = strtofloat ( fields[19] );
+        gcat.massFlag         = trim ( fields[20] );
+        gcat.dryMass          = strtofloat ( fields[21] );
+        gcat.dryMassFlag      = trim ( fields[22] );
+        gcat.totalMass        = strtofloat ( fields[23] );
+        gcat.totalMassFlag    = trim ( fields[24] );
+
+        gcat.length           = strtofloat ( fields[25] );
+        gcat.lengthFlag       = trim ( fields[26] );
+        gcat.diameter         = strtofloat ( fields[27] );
+        gcat.diameterFlag     = trim ( fields[28] );
+        gcat.span             = strtofloat ( fields[29] );
+        gcat.spanFlag         = trim ( fields[30] );
+
+        gcat.shape            = trim ( fields[31] );
+        gcat.orbitDate        = trim ( fields[32] );
+
+        gcat.perigee          = strtofloat ( fields[33] );
+        gcat.perigeeFlag      = trim ( fields[34] );
+        gcat.apogee           = strtofloat ( fields[35] );
+        gcat.apogeeFlag       = trim ( fields[36] );
+        gcat.inclination      = strtofloat ( fields[37] );
+        gcat.inclinationFlag  = trim ( fields[38] );
+
+        gcat.orbit            = trim ( fields[39] );
+        gcat.orbitQuality     = trim ( fields[40] );
+        gcat.altNames         = trim ( fields[41] );
+
+        data.push_back ( gcat );
+        count++;
+    }
+
+    return count;
+}
+
+// Estimates effective optical cross-sectional area from GCAT dimensions.
+// GCAT length and diameter describe the main spacecraft body, while span
+// includes appendages. For spacecraft with broad appendages such as solar
+// panels, sails, or plates, diameter * span is used as an alternate area
+// estimate when larger than the main-body length * diameter.
+//
+// Antennas and tethers are excluded because their span can greatly exceed
+// their reflective area. This is an empirical fallback estimator calibrated
+// against McCants visual standard magnitudes and independently checked against
+// SCORE photometry; it is intended for satellites lacking measured magnitudes.
+
+float GCATEffectiveArea ( float length, float diameter, float span, const string &shape )
+{
+    float area = length * diameter;
+    if ( span > 0.0f )
+    {
+        string shapel = toLower ( shape );
+
+        bool broad =
+            shapel.find ( "pan" ) != string::npos ||
+            shapel.find ( "sail" ) != string::npos ||
+            shapel.find ( "plate" ) != string::npos;
+
+        bool skinny =
+            shapel.find ( "ant" ) != string::npos ||
+            shapel.find ( "tether" ) != string::npos;
+
+        if ( broad && ! skinny )
+            area = max ( area, diameter * span );
+    }
+
+    return area;
+}
+
+// Estimate McCants-style standard magnitude from GCAT effective area in square meters.
+// The constant was calibrated against McCants visual magnitudes using GCAT dimensions.
+
+float GCATStandardMagnitude ( float area )
+{
+    if ( area <= 0.0f )
+        return INFINITY;
+
+    return 7.98689f - 2.5f * log10f ( area );
+}
+
+// Applies GCAT physical data to existing satellites matched by NORAD number.
+// GCAT data is used only to fill information not already available from
+// higher-priority sources, including mass, physical size, and McCants-style
+// standard magnitude estimated from GCAT effective area.
+// The caller must first combine all desired GCAT catalogs into the input vector.
+// Returns the number of satellites updated with GCAT data.
+
+int SSImportGCATData ( const GCATDataVec &gcat, SSObjectVec &satellites )
+{
+    // Build NORAD -> GCAT record map.
+
+    map<int,const GCATData *> gcatmap;
+    for ( const auto &data : gcat )
+        if ( data.norad > 0 )
+            gcatmap[data.norad] = &data;
+
+    // Apply GCAT data to each matching satellite.
+
+    int n = 0;
+    for ( int i = 0; i < satellites.size(); i++ )
+    {
+        SSSatellite *pSat = SSGetSatellitePtr ( satellites[i] );
+        if ( pSat == nullptr )
+            continue;
+
+        int norad = pSat->getTLE().norad;
+        auto it = gcatmap.find ( norad );
+        if ( it == gcatmap.end() )
+            continue;
+
+        const GCATData &data = *it->second;
+        bool updated = false;
+
+        // Fill missing physical mass. GCAT mass is in kilograms;
+        // SSPlanet stores mass in Earth masses.
+
+        if ( pSat->getMass() <= 0.0 && data.mass > 0.0f )
+        {
+            pSat->setMass ( data.mass / SSCoordinates::kKgPerEarthMass );
+            updated = true;
+        }
+
+        // Fill missing physical size. GCAT length is the longest dimension
+        // of the main satellite body and is stored here as representative
+        // physical diameter, in the same manner as McCants length.
+
+        if ( pSat->getRadius() <= 0.0 && data.length > 0.0f )
+        {
+            pSat->setRadius ( data.length / 2000.0 );
+            pSat->setDiameterSource ( SSSatellite::kGCAT );
+            updated = true;
+        }
+
+        // Fill missing standard magnitude from GCAT effective optical area.
+
+        if ( ! isfinite ( pSat->getHMagnitude() ) )
+        {
+            float area = GCATEffectiveArea ( data.length, data.diameter, data.span, data.shape );
+            float stdmag = GCATStandardMagnitude ( area );
+            if ( isfinite ( stdmag ) )
+            {
+                pSat->setHMagnitude ( stdmag );
+                pSat->setMagnitudeSource ( SSSatellite::kGCAT );
+                updated = true;
+            }
+        }
+
+        if ( updated )
+            n++;
+    }
+
+    return n;
+}
+
 // Returns reasonable fallback McCants standard magnitude and physical
 // diameter in meters for a well-known satellite constellation.
 // Returns false if no useful default is available.
 //
 // These values should only fill missing data; they should never replace
 // McCants, SCORE-derived, or otherwise measured values.
+//
+// Starlink visual magnitude estimates are based in part on published photometry:
+// Mallama & Respler (2022), "Visual Brightness Characteristics of Starlink
+// Generation 1 Satellites", https://arxiv.org/abs/2210.17268
+// Mallama et al. (2023), "Starlink Generation 2 Mini Satellites:
+// Photometric Characterization", https://arxiv.org/abs/2306.06657
 
 bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diameter )
 {
@@ -623,16 +835,13 @@ bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diam
                 diameter = 0.35;
                 return true;
 
-            case SSSatellite::kKuiper:
-                // Based primarily on the SCORE-derived magnitudes already
-                // reduced in this project.
-
+            case SSSatellite::kKuiper: // Based on the SCORE-derived magnitudes for Kuiper satellites.
                 stdmag = +6.8;
                 diameter = 5.0;
                 return true;
 
-            case SSSatellite::kQianfan:
-                stdmag = +6.2;
+            case SSSatellite::kQianfan: // Based on the SCORE-derived magnitudes for NORAD 69472
+                stdmag = +4.9;
                 diameter = 5.0;
                 return true;
 

@@ -39,6 +39,9 @@
 xcuserdata/
 DerivedData/
 
+# Jonathan McDowell's satcat.tsv files
+satcat*.tsv
+
 # Linux test executable
 Linux/sstest
 

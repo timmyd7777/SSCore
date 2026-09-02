@@ -340,7 +340,7 @@ public:
         kMcCants = 'M',                 // Mike McCants "MacNames.txt" file, last updated 24 July 2019
         kConstellation = 'C',           // Default value for constellation
         kSCORE = 'S',                   // Derived from IAU SCORE observations
-        kRCS = 'R'                      // Derived from radar cross section published by space-track.org
+        kGCAT = 'G'                     // Derived from size and shape in Jonathan McDowell's GCAT satellite catalog
     };
         
     struct FreqData

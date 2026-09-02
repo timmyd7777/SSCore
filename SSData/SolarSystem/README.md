@@ -166,9 +166,9 @@ In the consolidated CSV file, the first 15 fields are identical to Celestrak's O
 - **_MEAN_MOTION_DOT_** is 1/2 of the first derivative of the mean motion in revolutions/day^2, like `.14146099E-3`
 - **_MEAN_MOTION_DDOT_** is 1/6 of the second derivative of the mean motion in revolutions/day^3, like `.7444E-4`
 - **_STD_MAG_** is the satellite's standard visual magnitude as defined by McCants: its apparent magnitude at 1000 km range and 50% ilumination, like `-0.50` for the ISS.
-- **_MAG_SRC_** is the standard magnitude source: `M` = McCants, `C` = constellation average, `S` = SCORE observations
+- **_MAG_SRC_** is the standard magnitude source: `M` = McCants, `C` = constellation average, `S` = SCORE observations, 'G' = derived from Jonathan McDowell's GCAT satellite size & shape
 - **_DIAMETER_** is the satellite's largest physical size, i.e. diameter of enclosing sphere, in meters, like `30.0` for the ISS.
-- **_DIAMETER_SRC_** is the source of the diameter: `M` = McCants, `R` = radar cross section
+- **_DIAMETER_SRC_** is the source of the diameter: `M` = McCants, `G` = Jonathan McDowell's GCAT satellite data
 - **_COUNTRY_** is the abbreviation for the satellite owner/operator's country or other source/organization, used by space-track. The multinational `ISS` is its own country!
 - **_LAUNCH_SITE_** is the abbreviation for the satellite's launch site used by space-track. `TTMTR` for the ISS Zarya module, launched from Tyuratam.
 - **_LAUNCH_DATE_** is the satellite's launch date, YYYY-MM-DD. For the first ISS module, `1998-11-20`
@@ -261,6 +261,7 @@ The first 57 category identifiers are from n2yo.com, and many are shared with Ce
 **Revision History**
 
 - Version 2.0 (8 Aug 2026): initial version.
+- Version 2.1 (2 Sep 2026): added size and magnitude from Jonathan McDowell's GCAT if no other source is available.
 
 Satellites
 ----------
@@ -273,6 +274,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 - **_mcnames.txt_** is Mike McCants' satellite [names file](https://www.prismnet.com/~mmccants/tles/mcnames.zip), which contains satellite size and magnitude information. Mike last updated this file in July 2019.
 - **_score.csv_** is the [SCORE](https://score.cps.iau.org/download) observation database, which contains more recent satellite magnitude observations. 
 - **_je9pel.csv_** is Mineo Wakita's amateur radio satellite [frequency file](http://www.ne.jp/asahi/hamradio/je9pel/satslist.csv), in CSV format.
+- **_satcat.zip_** is a ZIP file containing Jonathan McDowell's [GCAT satellite files](https://www.planet4589.org/space/gcat/tsv/cat/satcat.tsv), in TSV format.
 
 **Revision History**
 
@@ -282,6 +284,7 @@ This directory contains a sample of TLE (Two/Three-Line Element) and other satel
 - Version 1.3 (10 Oct 2022): updated with latest data from all sources. 
 - Version 1.4 (2 Apr 2024): added test data from celestrak.org in new CSV and TLE format.
 - Version 2.0 (8 Aug 2026): reorganized, added lstest CelesTrak and N2YO files, added SCORE database.
+- Version 2.1 (2 Sep 2026): added ZIP containing Jonathan McDowell's GCAT satellite files.
 
 Cities.csv
 ----------
