@@ -149,7 +149,9 @@ runtle: tletest
 	            ../../SSData/SolarSystem/Satellites/N2YO/n2yo.csv \
 	            ../../SSData/SolarSystem/Satellites/Other/mcnames.txt \
 	            ../../SSData/SolarSystem/Satellites/Other/score.csv \
-	            ../../SSData/SolarSystem/Satellites/Other/je9pel.csv > Satellites.csv
+	            ../../SSData/SolarSystem/Satellites/Other/je9pel.csv \
+	            ../../SSData/SolarSystem/Satellites/Other/satcat.tsv \
+	            ../../SSData/SolarSystem/Satellites/Other/satcat100k.tsv > Satellites.csv
 	            	            
 # These targets build object files from C and C++ source files
 
