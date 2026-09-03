@@ -182,7 +182,7 @@ In the consolidated CSV file, the first 15 fields are identical to Celestrak's O
 - **_CATEGORIES_** is a semicolon-delimited list of numerical category identifiers to which the satellite belongs. See list below. The ISS belongs to categories `18;1;2;9`.
 - **_DESCRIPTION_** is a free-text description of the satellite from n2yo.com or the NSSDC master catalog.
 
-The first 57 category identifiers are from n2yo.com, and many are shared with Celestrak. Category 99 (space debris) is from n2yo, although this is not formally listed as a category there. Categories 100-107 are unique to Celestrak. Here is a complete list:
+The first 57 category identifiers are from n2yo.com, and many are shared with Celestrak. Category 99 (space debris) is from n2yo, although this is not formally listed as a category there. Categories 100+ are unique to Celestrak. Here is a complete list:
 
 |  ID | Category |
 |-----|----------|
@@ -244,15 +244,18 @@ The first 57 category identifiers are from n2yo.com, and many are shared with Ce
 |  56 | Amazon Leo (Kuiper), not to be confused with LEO = Low Earth Orbit |
 |  57 | GeeSAT |
 |  99 | Space junk / debris |
-| 100 | SES |
-| 101 | ARGOS Data Collection System |
-| 102 | Eutelsat |
-| 103 | Hulianwang (Guowang) National Internet Satellites |
-| 104 | SatNOGS |
-| 105 | GEO Protected Zone |
-| 106 | Synthetic Aperture Radar (SAR) |
-| 107 | TeleSat |
-| 108 | Analyst (Unknown) satellites |
+| 100 | All Active |
+| 101 | Newly Launched (Last 30 days) |
+| 104 | Analyst (Unknown) satellites |
+| 112 | Synthetic Aperture Radar (SAR) |
+| 116 | ARGOS Data Collection System |
+| 121 | GEO Protected Zone |
+| 122 | SES |
+| 123 | Eutelsat |
+| 124 | TeleSat |
+| 128 | Hulianwang (Guowang) National Internet Satellites |
+| 137 | SatNOGS |
+| 140 | All Global Navigation (GNSS) |
 
 **IMPORTANT:** The `Satellites.csv` file checked into this repository is an example only, for illistrative and testing purposes. For production uses, the current version is updated daily and can be downloaded from:
 
@@ -262,6 +265,7 @@ The first 57 category identifiers are from n2yo.com, and many are shared with Ce
 
 - Version 2.0 (8 Aug 2026): initial version.
 - Version 2.1 (2 Sep 2026): added size and magnitude from Jonathan McDowell's GCAT if no other source is available.
+- Version 2.11 (3 Sep 2026): added and reorganized Celestrak categories.
 
 Satellites
 ----------
