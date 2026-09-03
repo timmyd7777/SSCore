@@ -260,7 +260,8 @@ public:
     
     // N2YO satellite category identifiers
     // See https://www.n2yo.com/api/
-
+    // Categories >= 100 are found on Celestrak but not N2YO.com
+    
     enum Category
     {
         kNone                  =  0,    // Missing/unknown category assignment
@@ -321,16 +322,19 @@ public:
         kQianfan               = 55,    // Qianfan (Thousand Sails)
         kKuiper                = 56,    // Kuiper (AKA Leo) Constallation, not to be confused with LEO
         kGeeSAT                = 57,    // GeeSAT
-        kJunk                  = 99,    // Space junk / debris - always last category!
-        kSES                   = 100,   // SES
-        kARGOS                 = 101,   // ARGOS Data Collection System
-        kEutelsat              = 102,   // Eutelsat
-        kHulianwang            = 103,   // Hulianwang (Guowang) National Internet Satellites
-        kSatNOGS               = 104,   // SatNOGS
-        kGEOProtectedZone      = 105,   // GEO Protected Zone
-        kSAR                   = 106,   // Synthetic Aperture Radar (SAR)
-        kTelesat               = 107,   // Telesat
-        kAnalyst               = 108,   // Analyst (Unknown) Satellites
+        kJunk                  = 99,    // Space junk / debris
+        kActive                = 100,   // All Active Satellites
+        kNewest                = 101,   // Last 30 days launches
+        kAnalyst               = 104,   // Analyst (Unknown) Satellites
+        kSAR                   = 112,   // Synthetic Aperture Radar (SAR)
+        kARGOS                 = 116,   // ARGOS Data Collection System
+        kGEOProtectedZone      = 121,   // GEO Protected Zone
+        kSES                   = 122,   // SES
+        kEutelsat              = 123,   // Eutelsat
+        kTelesat               = 124,   // Telesat
+        kHulianwang            = 128,   // Hulianwang (Guowang) National Internet Satellites
+        kSatNOGS               = 137,   // SatNOGS
+        kGNSS                  = 140    // All Global Navigation Satellites
     };
     
     // Sources of standard magnitude and physical diameter data

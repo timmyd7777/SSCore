@@ -916,7 +916,7 @@ string SSSatellite::toCSV ( void )
     csv += ",";
 
     // Description is the only field expected to require CSV escaping.
-
+    
     csv += escape_csv ( _description );
     return csv;
 }

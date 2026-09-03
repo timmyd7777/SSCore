@@ -205,6 +205,7 @@ static const map<string,SSSatellite::Category> N2YOSatelliteCategoryFiles =
 static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
 {
     { "visual.csv",        SSSatellite::kBrightest },
+    { "tle-new.csv",       SSSatellite::kNewest },
     { "stations.csv",      SSSatellite::kISS },
     { "weather.csv",       SSSatellite::kWeather },
     { "resource.csv",      SSSatellite::kEarthResources },
@@ -224,7 +225,7 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "galileo.csv",       SSSatellite::kGalileo },
     { "beidou.csv",        SSSatellite::kBeiDou },
     { "sbas.csv",          SSSatellite::kSBAS },
-    { "gnss.csv",          SSSatellite::kGPS }, // suspect
+    { "gnss.csv",          SSSatellite::kGNSS },
     { "science.csv",       SSSatellite::kScience },
     { "geodetic.csv",      SSSatellite::kGeodetic },
     { "engineering.csv",   SSSatellite::kEngineering },
@@ -248,7 +249,8 @@ static const map<string,SSSatellite::Category> CelesTrakSatelliteCategoryFiles =
     { "gpz.csv",           SSSatellite::kGEOProtectedZone }, // DOUBLE CHECK
     { "sar.csv",           SSSatellite::kSAR },
     { "telesat.csv",       SSSatellite::kTelesat },
-    { "analyst.csv",       SSSatellite::kAnalyst }
+    { "analyst.csv",       SSSatellite::kAnalyst },
+    { "active.csv",        SSSatellite::kActive },
 };
 
 // Data used to calibrate and evaluate GCAT physical dimensions as a
