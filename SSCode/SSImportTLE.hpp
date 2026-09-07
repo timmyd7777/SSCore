@@ -57,22 +57,26 @@ typedef map<int,N2Data> N2DataMap;
 
 struct SCOREData
 {
-    string  name = "";            // Satellite name
-    int     norad = 0;            // NORAD satellite catalog number
-    double  time = 0.0;           // Julian date of observation in UTC
-    double  time_err = 0.0;       // time uncertainty in days
-    float   mag = INFINITY;       // observed satellite magnitude
-    float   mag_err = 0.0;        // uncertainty in observed satellite magnitude
-    double  lon = 0.0;            // observer longitude in radians, east positive
-    double  lat = 0.0;            // observer latitude in radians, north positive
-    double  alt = 0.0;            // observer altitude above WGS84 ellipsoid, kilometers
-    string  filter = "";          // photometric filter ("V", "R", etc.)
-    double  ra = 0.0;             // observed satellite J2000 right ascension. radians
-    double  ra_err = 0.0;         // uncertainty in RA, radians
-    double  dec = 0.0;            // observed satellite J2000 declination in radians
-    double  dec_err = 0.0;        // uncertainty in Dec, radians
-    double  range = 0.0;          // observed satellite distance in kilometers
-    double  range_err = 0.0;      // uncertainty in observed satellite distance in kilometers
+    string  name = "";                 // Satellite name
+    int     norad = 0;                 // NORAD satellite catalog number
+    double  time = 0.0;                // Julian date of observation in UTC
+    double  time_err = 0.0;            // time uncertainty in days
+    float   mag = INFINITY;            // observed satellite magnitude
+    float   mag_err = 0.0;             // uncertainty in observed satellite magnitude
+    double  lon = 0.0;                 // observer longitude in radians, east positive
+    double  lat = 0.0;                 // observer latitude in radians, north positive
+    double  alt = 0.0;                 // observer altitude above WGS84 ellipsoid, kilometers
+    string  instrument = "";           // instrument used to capture magnitude data
+    string  filter = "";               // photometric filter ("V", "R", etc.)
+    double  ra = 0.0;                  // observed satellite J2000 right ascension. radians
+    double  ra_err = 0.0;              // uncertainty in RA, radians
+    double  dec = 0.0;                 // observed satellite J2000 declination in radians
+    double  dec_err = 0.0;             // uncertainty in Dec, radians
+    double  range = 0.0;               // observed satellite distance in kilometers
+    double  range_err = 0.0;           // uncertainty in observed satellite distance in kilometers
+    double  ra_satchecker = 0.0;       // SatChecker-computed J2000 right ascension, radians
+    double  dec_satchecker = 0.0;      // SatChecker-computed J2000 declination, radians
+    double  range_satchecker = 0.0;    // SatChecker-computed satellite distance, kilometers
 };
 
 typedef vector<SCOREData> SCOREDataVec;

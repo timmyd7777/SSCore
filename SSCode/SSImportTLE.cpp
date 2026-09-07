@@ -410,33 +410,41 @@ int SSImportSCOREData ( const string &filename, SCOREDataVec &data )
     {
         vector<string> fields = split_csv ( line );
 
-        if ( fields.size() < 41 )
+        if ( fields.size() < 41 ) {
+            cerr << line << endl;
             continue;
-
+        }
+        
         SCOREData score;
 
-        score.name      = fields[kSatelliteName];
-        score.norad     = strtoint ( fields[kNORADCatID] );
-        score.time      = SSTime ( SSDate ( "%Y-%m-%dT%H:%M:%S", fields[kObservationTimeUTC] ) );
-        score.time_err  = strtofloat64 ( fields[kObservationTimeUncertaintySec] ) / SSTime::kSecondsPerDay;
-        score.mag       = fields[kApparentMagnitude].empty() ? INFINITY : strtofloat ( fields[kApparentMagnitude] );
-        score.mag_err   = fields[kMagnitudeUncertainty].empty() ? 0.0 : strtofloat ( fields[kMagnitudeUncertainty] );
-        score.lon       = degtorad ( strtofloat64 ( fields[kObserverLongitudeDeg] ) );
-        score.lat       = degtorad ( strtofloat64 ( fields[kObserverLatitudeDeg] ) );
-        score.alt       = strtofloat ( fields[kObserverAltitudeM] ) / 1000.0;
-        score.filter    = fields[kObservingFilter];
-        score.ra        = degtorad ( strtofloat64 ( fields[kSatelliteRADeg] ) );
-        score.ra_err    = degtorad ( sqrt ( strtofloat64 ( fields[kSigma2RA] ) ) );
-        score.dec       = degtorad ( strtofloat ( fields[kSatelliteDecDeg] ) );
-        score.dec_err   = degtorad ( sqrt ( strtofloat ( fields[kSigma2Dec] ) ) );
-        score.range     = strtofloat ( fields[kRangeKm] );
-        score.range_err = strtofloat ( fields[kRangeUncertaintyKm] );
-
+        score.name             = fields[kSatelliteName];
+        score.norad            = strtoint ( fields[kNORADCatID] );
+        score.time             = SSTime ( SSDate ( "%Y-%m-%dT%H:%M:%S", fields[kObservationTimeUTC] ) );
+        score.time_err         = strtofloat64 ( fields[kObservationTimeUncertaintySec] ) / SSTime::kSecondsPerDay;
+        score.mag              = fields[kApparentMagnitude].empty() ? INFINITY : strtofloat ( fields[kApparentMagnitude] );
+        score.mag_err          = fields[kMagnitudeUncertainty].empty() ? 0.0 : strtofloat ( fields[kMagnitudeUncertainty] );
+        score.lon              = degtorad ( strtofloat64 ( fields[kObserverLongitudeDeg] ) );
+        score.lat              = degtorad ( strtofloat64 ( fields[kObserverLatitudeDeg] ) );
+        score.alt              = strtofloat ( fields[kObserverAltitudeM] ) / 1000.0;
+        score.instrument       = fields[kInstrument];
+        score.filter           = fields[kObservingFilter];
+        score.ra               = degtorad ( strtofloat64 ( fields[kSatelliteRADeg] ) );
+        score.ra_err           = degtorad ( sqrt ( strtofloat64 ( fields[kSigma2RA] ) ) );
+        score.dec              = degtorad ( strtofloat ( fields[kSatelliteDecDeg] ) );
+        score.dec_err          = degtorad ( sqrt ( strtofloat ( fields[kSigma2Dec] ) ) );
+        score.range            = strtofloat ( fields[kRangeKm] );
+        score.range_err        = strtofloat ( fields[kRangeUncertaintyKm] );
+        score.ra_satchecker    = degtorad ( strtofloat64 ( fields[kSatCheckerRADeg] ) );
+        score.dec_satchecker   = degtorad ( strtofloat64 ( fields[kSatCheckerDecDeg] ) );
+        score.range_satchecker = strtofloat64 ( fields[kSatCheckerRangeKm] );
+        
         // Reject observations with missing NORAD ID, observer location, or satellite astrometry or range.
         // A coordinate pair of exactly (0,0) is extraordinarily unlikely for observer location or satellite position.
 
-        if ( score.norad > 0 && score.time > SSTime::kJ2000 && ! ( score.lon == 0.0 && score.lat == 0.0 ) && ! ( score.ra == 0.0 && score.dec == 0.0 ) && score.range > 0.0 )
+        if ( score.norad > 0 && score.time > SSTime::kJ2000 ) // && ! ( score.lon == 0.0 && score.lat == 0.0 ) && ! ( score.ra == 0.0 && score.dec == 0.0 ) && score.range > 0.0 )
             data.push_back ( score );
+        else
+            cerr << line << endl;
     }
 
     return (int) data.size();
@@ -451,23 +459,51 @@ int SCOREDataToStandardMagnitudes ( const SCOREDataVec &data, SCOREMagnitudeMap 
     
     for ( auto &obs : data )
     {
+        // Smartphone photometry shows large systematic scatter and is not
+        // sufficiently reliable for deriving satellite standard magnitudes.
+
+        if ( obs.instrument == "iPhone 12 Mini" )
+            continue;
+
         if ( ! isfinite ( obs.mag ) )
             continue;
 
+        if ( obs.lon == 0.0 && obs.lat == 0.0 )
+            continue;
+
+        // Prefer observed geometry when available; otherwise use geometry
+        // computed by SatChecker from historical orbital elements.
+
+        double ra = obs.ra;
+        double dec = obs.dec;
+        double range = obs.range;
+
+        if ( ra == 0.0 && dec == 0.0 )
+        {
+            ra = obs.ra_satchecker;
+            dec = obs.dec_satchecker;
+        }
+
+        if ( range <= 0.0 )
+            range = obs.range_satchecker;
+
+        if ( ra == 0.0 && dec == 0.0 )
+            continue;
+
+        if ( range <= 0.0 )
+            continue;
+        
         // Computes the Sun-satellite-observer phase angle for one SCORE observation.
         // SCORE right ascension and declination are in the fundamental J2000 frame.
         // Observation range is in kilometers. Returned phase angle is in radians.
-
+        
         SSTime time ( obs.time );
         SSSpherical location ( obs.lon, obs.lat, obs.alt );
         SSCoordinates coords ( time, location );
-
-        SSVector direction = SSSpherical ( obs.ra, obs.dec );
-        double range = obs.range / SSCoordinates::kKmPerAU;
-        SSVector position = coords.getObserverPosition() + direction * range;
-
+        SSVector direction = SSSpherical ( ra, dec );
+        SSVector position = coords.getObserverPosition() + direction * ( range / SSCoordinates::kKmPerAU );
         double phase = SSPlanet::phaseAngle ( position, direction );
-        float stdmag = SSSatellite::computeStandardMagnitude ( obs.range, phase, obs.mag );
+        float stdmag = SSSatellite::computeStandardMagnitude ( range, phase, obs.mag );
         if ( ! isfinite ( stdmag ) )
             continue;
         
@@ -744,6 +780,13 @@ int SSImportGCATData ( const GCATDataVec &gcat, SSObjectVec &satellites )
 // Generation 1 Satellites", https://arxiv.org/abs/2210.17268
 // Mallama et al. (2023), "Starlink Generation 2 Mini Satellites:
 // Photometric Characterization", https://arxiv.org/abs/2306.06657
+//
+// SCORE-derived values are based on modern measured photometry reduced
+// to the McCants standard condition (1000 km, 50% illumination).
+//
+// Other legacy-constellation magnitudes are approximate engineering
+// estimates intended only as fallbacks where no measured McCants or SCORE
+// magnitude is available.
 
 bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diameter )
 {
@@ -757,138 +800,185 @@ bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diam
         {
             case SSSatellite::kStarlink:
             {
-                // STARLINK-1130 (DARKSAT), NORAD 44932, was the single
-                // experimental dark-coated spacecraft.
+                SSTLE tle = pSat->getTLE();
+                int norad = tle.norad;
+                string name = tle.name;
 
-                int norad = pSat->getTLE().norad;
-                double launchDate = pSat->getLaunchDate();
+                // Extract spacecraft number from names like STARLINK-30042, STARLINK-11107 [DTC]
                 
+                int number = 0;
+                if ( name.compare ( 0, 9, "STARLINK-" ) == 0 )
+                    number = strtoint ( name.substr ( 9 ) );
+
                 if ( norad == 44932 )
                 {
+                    // DarkSat.
                     stdmag = +6.0;
                     diameter = 4.0;
                 }
-
-                // Gen2 Mini launches began in February 2023.
-                // These spacecraft are physically larger but incorporate
-                // improved brightness-mitigation measures.
-
-                else if ( launchDate >= SSTime ( SSDate ( kGregorian, 0.0, 2023, 2, 27.0 ) ) )
+                else if ( number >= 11000 && number < 12000 )
                 {
-                    stdmag = +6.0;
+                    // V2 Mini Direct-to-Cell: SCORE median standard magnitude is about +6.3.
+                    
+                    stdmag = +6.3;
                     diameter = 5.5;
                 }
-
-                // Later v1.0 and v1.5 spacecraft used VisorSat or related
-                // brightness mitigation. Use a compromise value because
-                // launch batches overlap the exact design transitions.
-
-                else if ( launchDate >= SSTime ( SSDate ( kGregorian, 0.0,2020, 6, 1.0 ) ) )
+                else if ( number >= 30000 && number < 40000 )
                 {
-                    stdmag = +5.8;
-                    diameter = 4.0;
+                    // V2 Mini: SCORE median standard magnitude is about +7.6.
+                    // Gen2 Mini launches began in February 2023:  physically larger
+                    // but incorporate improved brightness-mitigation measures.
+                    
+                    stdmag = +7.6;
+                    diameter = 5.5;
                 }
-
-                // Original unmitigated v0.9/v1.0 spacecraft.
-
                 else
                 {
-                    stdmag = +5.5;
-                    diameter = 4.0;
+                    // Gen 1 / V1.5: retain the existing launch-date distinction.
+                    // Later v1.0 and v1.5 spacecraft used VisorSat or related
+                    // brightness mitigation. Use a compromise value because
+                    // launch batches overlap the exact design transitions.
+                    
+                    double launchDate = pSat->getLaunchDate();
+                    if ( launchDate >= SSTime ( SSDate ( kGregorian, 0.0, 2020, 6, 1.0 ) ) )
+                    {
+                        stdmag = +5.8;
+                        diameter = 4.0;
+                    }
+                    else
+                    {
+                        stdmag = +5.5;
+                        diameter = 4.0;
+                    }
                 }
 
                 return true;
             }
+                
+            // Approximation. Published OneWeb photometry gives a mean
+            // magnitude of +7.18 when normalized to 1000 km, but this
+            // is not directly a McCants 90-degree-phase magnitude.
 
             case SSSatellite::kOneWeb:
                 stdmag = +6.0;
                 diameter = 6.0;
                 return true;
 
+            // Approximate historical visual-brightness from McCants.
+            // Iridium brightness is strongly attitude-dependent and the
+            // original spacecraft were capable of large specular flares.
+
             case SSSatellite::kIridium:
                 stdmag = +3.5;
                 diameter = 4.0;
                 return true;
 
+            // Approximation for the small ORBCOMM LEO spacecraft.
+                
             case SSSatellite::kOrbcomm:
                 stdmag = +9.2;
                 diameter = 1.0;
                 return true;
 
+            // Approximation for first-generation Globalstar communications satellites.
+            
             case SSSatellite::kGlobalstar:
                 stdmag = +4.2;
                 diameter = 5.0;
                 return true;
 
+            // Approximation for O3b MEO communications spacecraft.
+                
             case SSSatellite::kO3b:
                 stdmag = +6.8;
                 diameter = 4.5;
                 return true;
 
+            // Approximation for Planet Dove/Flock spacecraft as 3U CubeSats.
+                
             case SSSatellite::kFlock:
                 stdmag = +9.5;
                 diameter = 0.30;
                 return true;
 
+            // Approximation for Spire LEMUR spacecraft, based on 3U CubeSat form factor.
+                
             case SSSatellite::kLemur:
                 stdmag = +9.0;
                 diameter = 0.35;
                 return true;
 
-            case SSSatellite::kKuiper: // Based on the SCORE-derived magnitudes for Kuiper satellites.
+            // Based on the SCORE-derived magnitudes for Kuiper satellites.
+                
+            case SSSatellite::kKuiper:
                 stdmag = +6.8;
                 diameter = 5.0;
                 return true;
 
-            case SSSatellite::kQianfan: // Based on the SCORE-derived magnitudes for NORAD 69472
-                stdmag = +4.9;
+            // Based on SCORE: median +5.28 from 73 satellites.
+                
+            case SSSatellite::kQianfan:
+                stdmag = +5.3;
                 diameter = 5.0;
                 return true;
 
+            // Based on SCORE: median +4.05 from 19 satellites.
+                
             case SSSatellite::kHulianwang:
-                stdmag = +6.3;
+                stdmag = +4.1;
                 diameter = 5.0;
                 return true;
 
+            // Approximate; no reliable constellation-wide  visual photometry.
+                
             case SSSatellite::kGeeSAT:
                 stdmag = +7.5;
                 diameter = 1.5;
                 return true;
 
+            // Approximation based on McCants values. GPS spans several spacecraft
+            // blocks with different buses and solar-array configurations.
+            
             case SSSatellite::kGPS:
             case SSSatellite::kGPSOps:
                 stdmag = +4.5;
                 diameter = 5.0;
                 return true;
 
+            // Approximation from McCants values across multiple GLONASS generations.
+            
             case SSSatellite::kGLONASS:
             case SSSatellite::kGLONASSOps:
                 stdmag = +4.8;
                 diameter = 4.0;
                 return true;
 
+            // Approximation for Galileo navigation spacecraft based on McCants values.
+                
             case SSSatellite::kGalileo:
                 stdmag = +5.0;
                 diameter = 4.0;
                 return true;
 
+            // Approximation for BeiDou includes multiple spacecraft designs operating in MEO, IGSO, and GEO.
+            
             case SSSatellite::kBeiDou:
                 stdmag = +5.0;
                 diameter = 4.0;
                 return true;
 
+            // Approximation for IRNSS/NavIC GEO and IGSO navigation spacecraft;
+            // no reliable constellation-wide visual photometry.
+                
             case SSSatellite::kIRNSS:
                 stdmag = +5.5;
                 diameter = 4.0;
                 return true;
 
+            // Approximation for QZSS spacecraft designs in IGSO and GEO orbits.
+                
             case SSSatellite::kQZSS:
                 stdmag = +4.5;
-                diameter = 5.0;
-                return true;
-
-            case SSSatellite::kSBAS:
-                stdmag = +5.0;
                 diameter = 5.0;
                 return true;
 
