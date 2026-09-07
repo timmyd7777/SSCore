@@ -47,6 +47,243 @@ void TestSCOREData ( const string &scorepath )
     }
 }
 
+#include <set>
+
+void SCOREDataDiagnostics ( const SCOREDataVec &data )
+{
+    size_t nTotal = 0;
+    size_t nMag = 0;
+    size_t nObserver = 0;
+    size_t nRADec = 0;
+    size_t nRange = 0;
+    size_t nRADecRange = 0;
+    size_t nUsable = 0;
+
+    set<int> satTotal;
+    set<int> satMag;
+    set<int> satObserver;
+    set<int> satRADec;
+    set<int> satRange;
+    set<int> satRADecRange;
+    set<int> satUsable;
+
+    for ( const SCOREData &obs : data )
+    {
+        nTotal++;
+        satTotal.insert ( obs.norad );
+
+        // A missing magnitude is stored as INFINITY by SSImportSCOREData().
+        if ( ! isfinite ( obs.mag ) )
+            continue;
+
+        nMag++;
+        satMag.insert ( obs.norad );
+
+        // Importer currently treats lon = lat = 0 as missing observer coordinates.
+        if ( obs.lon == 0.0 && obs.lat == 0.0 )
+            continue;
+
+        nObserver++;
+        satObserver.insert ( obs.norad );
+
+        bool hasRADec = ! ( obs.ra == 0.0 && obs.dec == 0.0 );
+        bool hasRange = isfinite ( obs.range ) && obs.range > 0.0;
+
+        if ( hasRADec )
+        {
+            nRADec++;
+            satRADec.insert ( obs.norad );
+        }
+
+        if ( hasRange )
+        {
+            nRange++;
+            satRange.insert ( obs.norad );
+        }
+
+        if ( hasRADec && hasRange )
+        {
+            nRADecRange++;
+            satRADecRange.insert ( obs.norad );
+        }
+
+        if ( ! hasRADec || ! hasRange )
+            continue;
+
+        nUsable++;
+        satUsable.insert ( obs.norad );
+    }
+
+    printf ( "\nSCORE data diagnostics:\n" );
+    printf ( "%-30s %10s %10s\n", "", "Obs", "Sats" );
+    printf ( "%-30s %10zu %10zu\n", "Total:", nTotal, satTotal.size() );
+    printf ( "%-30s %10zu %10zu\n", "Valid magnitude:", nMag, satMag.size() );
+    printf ( "%-30s %10zu %10zu\n", "Valid observer position:", nObserver, satObserver.size() );
+    printf ( "%-30s %10zu %10zu\n", "Has RA/Dec:", nRADec, satRADec.size() );
+    printf ( "%-30s %10zu %10zu\n", "Has range:", nRange, satRange.size() );
+    printf ( "%-30s %10zu %10zu\n", "Has RA/Dec + range:", nRADecRange, satRADecRange.size() );
+    printf ( "%-30s %10zu %10zu\n", "Usable by current reduction:", nUsable, satUsable.size() );
+}
+
+void SCORECompareSatCheckerGeometry ( const SCOREDataVec &data )
+{
+    vector<double> sep;
+    vector<double> rangeDiff;
+    vector<double> rangeFrac;
+
+    for ( const auto &obs : data )
+    {
+        if ( obs.ra == 0.0 && obs.dec == 0.0 )
+            continue;
+
+        if ( obs.range <= 0.0 )
+            continue;
+
+        if ( obs.ra_satchecker == 0.0 && obs.dec_satchecker == 0.0 )
+            continue;
+
+        if ( obs.range_satchecker <= 0.0 )
+            continue;
+
+        // Angular separation between observed and SatChecker directions.
+
+        double cossep =
+            sin ( obs.dec ) * sin ( obs.dec_satchecker ) +
+            cos ( obs.dec ) * cos ( obs.dec_satchecker ) *
+            cos ( obs.ra - obs.ra_satchecker );
+
+        cossep = max ( -1.0, min ( 1.0, cossep ) );
+
+        double angle = acos ( cossep );
+
+        // Range residual: SatChecker minus observed.
+
+        double dr = obs.range_satchecker - obs.range;
+
+        sep.push_back ( radtodeg ( angle ) );
+        rangeDiff.push_back ( dr );
+        rangeFrac.push_back ( dr / obs.range );
+    }
+
+    if ( sep.empty() )
+        return;
+
+    double sepMed = median ( sep.data(), sep.size() );
+    double sepMAD = mad ( sep.data(), sep.size(), sepMed );
+
+    double rangeMed = median ( rangeDiff.data(), rangeDiff.size() );
+    double rangeMAD = mad ( rangeDiff.data(), rangeDiff.size(), rangeMed );
+
+    double fracMed = median ( rangeFrac.data(), rangeFrac.size() );
+    double fracMAD = mad ( rangeFrac.data(), rangeFrac.size(), fracMed );
+
+    printf ( "\nSCORE observed vs SatChecker geometry:\n\n" );
+    printf ( "Observations compared: %zu\n", sep.size() );
+    printf ( "Angular separation:   median %.6f deg, MAD %.6f deg\n",
+             sepMed, sepMAD );
+    printf ( "Range difference:     median %+.3f km, MAD %.3f km\n",
+             rangeMed, rangeMAD );
+    printf ( "Fractional range:     median %+.6f, MAD %.6f\n",
+             fracMed, fracMAD );
+}
+
+void SCOREPrintInstrumentStatistics ( const SCOREDataVec &data )
+{
+    struct Stats
+    {
+        int nobs = 0;
+        map<int,vector<float>> stdmags;
+        vector<float> appmags;
+        vector<double> ranges;
+    };
+
+    map<string,Stats> stats;
+
+    for ( const SCOREData &obs : data )
+    {
+        if ( ! isfinite ( obs.mag ) )
+            continue;
+
+        double ra = obs.ra;
+        double dec = obs.dec;
+        double range = obs.range;
+
+        if ( ra == 0.0 && dec == 0.0 )
+        {
+            ra = obs.ra_satchecker;
+            dec = obs.dec_satchecker;
+        }
+
+        if ( range <= 0.0 )
+            range = obs.range_satchecker;
+
+        if ( ( ra == 0.0 && dec == 0.0 ) || range <= 0.0 )
+            continue;
+
+        SSTime time ( obs.time );
+        SSSpherical location ( obs.lon, obs.lat, obs.alt );
+        SSCoordinates coords ( time, location );
+
+        SSVector direction = SSSpherical ( ra, dec );
+        SSVector position = coords.getObserverPosition()
+                          + direction * ( range / SSCoordinates::kKmPerAU );
+
+        double phase = SSPlanet::phaseAngle ( position, direction );
+
+        float stdmag = SSSatellite::computeStandardMagnitude ( range, phase, obs.mag );
+        if ( ! isfinite ( stdmag ) )
+            continue;
+
+        // Change this key if observer/mode/filter are added to SCOREData.
+        string key = obs.instrument;
+
+        Stats &s = stats[key];
+
+        s.nobs++;
+        s.stdmags[obs.norad].push_back ( stdmag );
+        s.appmags.push_back ( obs.mag );
+        s.ranges.push_back ( range );
+    }
+
+    printf ( "\n%-28s %7s %7s %10s %9s %9s %9s\n",
+             "Instrument", "NObs", "NSat", "Range km",
+             "AppMag", "StdMag", "MAD" );
+
+    for ( auto &item : stats )
+    {
+        const string &instrument = item.first;
+        Stats &s = item.second;
+
+        vector<float> satmags;
+
+        for ( auto &sat : s.stdmags )
+        {
+            vector<float> &mags = sat.second;
+
+            if ( ! mags.empty() )
+                satmags.push_back ( median ( mags.data(), mags.size() ) );
+        }
+
+        if ( satmags.empty() )
+            continue;
+
+        float appmed = median ( s.appmags.data(), s.appmags.size() );
+        double rangemed = median ( s.ranges.data(), s.ranges.size() );
+
+        float stdmed = median ( satmags.data(), satmags.size() );
+        float stdmad = mad ( satmags.data(), satmags.size(), stdmed );
+
+        printf ( "%-28s %7d %7zu %10.0f %9.2f %9.2f %9.2f\n",
+                 instrument.c_str(),
+                 s.nobs,
+                 satmags.size(),
+                 rangemed,
+                 appmed,
+                 stdmed,
+                 stdmad );
+    }
+}
+
 // Imports one satellite category file in TLE or CelesTrak CSV format.
 // Satellites already present in the input object vector simply receive the
 // specified category. New satellites are created as needed.
@@ -714,9 +951,15 @@ int main ( int argc, const char *argv[] )
     SCOREDataVec scoreobs;
     SCOREMagnitudeMap scoremags;
 
-    SSImportSCOREData ( scoreFile, scoreobs );
+    int nobs = SSImportSCOREData ( scoreFile, scoreobs );
+    cerr << "Imported " << nobs << " SCORE observations." << endl;
+    
     int nscm = SCOREDataToStandardMagnitudes ( scoreobs, scoremags );
     cerr << "Imported and computed " << nscm << " SCORE satellite magnitudes." << endl;
+
+    //SCOREDataDiagnostics ( scoreobs );
+    //SCORECompareSatCheckerGeometry ( scoreobs );
+    //SCOREPrintInstrumentStatistics ( scoreobs );
 
     McNameMap mcnames;
     int nmcn = SSImportMcNames ( mccantsFile, mcnames );
@@ -738,7 +981,7 @@ int main ( int argc, const char *argv[] )
     AnalyzeGCATMagnitudeCalibration ( calibration );
     AnalyzeSCOREvsGCATMagnitudes ( scoremags, gcat );
     
-    TestSCOREData ( scoreFile ); */
+    TestSCOREData ( scoreFile );  */
     
     // Import base satellite records from CelesTrak CSV.
 

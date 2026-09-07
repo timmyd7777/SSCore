@@ -125,21 +125,30 @@ int SSImportMcNames ( const string &filename, SSObjectVec &objects )
             continue;
         
         // Get satellite's NORAD number. Look for McName record with same number.
-        // If we find one, copy McName magnitude and size into satellite.
+        // If we find one, copy McName magnitude and size into satellite (if valid).
         
         int norad = pSat->getTLE().norad;
         McName mcname = mcnamemap[norad];
         if ( mcname.norad == norad )
         {
-            pSat->setHMagnitude ( mcname.mag );
-            pSat->setRadius ( mcname.len / 2000.0 );
-            pSat->setMagnitudeSource ( SSSatellite::kMcCants );
-            pSat->setDiameterSource ( SSSatellite::kMcCants );
-            n++;
+            if ( mcname.mag < INFINITY )
+            {
+                pSat->setHMagnitude ( mcname.mag );
+                pSat->setMagnitudeSource ( SSSatellite::kMcCants );
+            }
+            
+            if ( mcname.len > 0 )
+            {
+                pSat->setRadius ( mcname.len / 2000.0 );
+                pSat->setDiameterSource ( SSSatellite::kMcCants );
+            }
+            
+            if ( mcname.mag < INFINITY || mcname.len > 0 )
+                n++;
         }
     }
     
-    // Return total number of McName records matched.
+    // Return total number of McName records matched with valid mag or length.
     
     return n;
 }
@@ -796,14 +805,14 @@ bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diam
     
     for ( auto category : categories )
     {
+        SSTLE tle = pSat->getTLE();
+        int norad = tle.norad;
+        string name = tle.name;
+
         switch ( category )
         {
             case SSSatellite::kStarlink:
             {
-                SSTLE tle = pSat->getTLE();
-                int norad = tle.norad;
-                string name = tle.name;
-
                 // Extract spacecraft number from names like STARLINK-30042, STARLINK-11107 [DTC]
                 
                 int number = 0;
@@ -897,10 +906,14 @@ bool SSGetDefaultSatelliteData ( SSSatellitePtr pSat, float &stdmag, float &diam
             // Approximation for Planet Dove/Flock spacecraft as 3U CubeSats.
                 
             case SSSatellite::kFlock:
-                stdmag = +9.5;
-                diameter = 0.30;
-                return true;
-
+                if ( startsWith ( name, "FLOCK") )
+                {
+                    stdmag = +9.5;
+                    diameter = 0.30;
+                    return true;
+                }
+                break;
+                
             // Approximation for Spire LEMUR spacecraft, based on 3U CubeSat form factor.
                 
             case SSSatellite::kLemur:
