@@ -169,6 +169,8 @@ In the consolidated CSV file, the first 15 fields are identical to Celestrak's O
 - **_MAG_SRC_** is the standard magnitude source: `M` = McCants, `C` = constellation average, `S` = SCORE observations, 'G' = derived from Jonathan McDowell's GCAT satellite size & shape
 - **_DIAMETER_** is the satellite's largest physical size, i.e. diameter of enclosing sphere, in meters, like `30.0` for the ISS.
 - **_DIAMETER_SRC_** is the source of the diameter: `M` = McCants, `G` = Jonathan McDowell's GCAT satellite data
+- **_MASS_** is the satellite's mass at launch ("wet mass"), in kilograms.
+- **_MASS_SRC_** is the source of the mass measurement, currently only `G` = Jonathan McDowell's GCAT satellite data
 - **_COUNTRY_** is the abbreviation for the satellite owner/operator's country or other source/organization, used by space-track. The multinational `ISS` is its own country!
 - **_LAUNCH_SITE_** is the abbreviation for the satellite's launch site used by space-track. `TTMTR` for the ISS Zarya module, launched from Tyuratam.
 - **_LAUNCH_DATE_** is the satellite's launch date, YYYY-MM-DD. For the first ISS module, `1998-11-20`
@@ -266,6 +268,7 @@ The first 57 category identifiers are from n2yo.com, and many are shared with Ce
 - Version 2.0 (8 Aug 2026): initial version.
 - Version 2.1 (2 Sep 2026): added size and magnitude from Jonathan McDowell's GCAT if no other source is available.
 - Version 2.11 (3 Sep 2026): added and reorganized Celestrak categories.
+- Version 2.2 (10 Sep 2026): added satellite masses from GCAT.
 
 Satellites
 ----------

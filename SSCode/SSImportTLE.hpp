@@ -123,11 +123,11 @@ struct GCATData
     string bus = "";              // Spacecraft bus/platform
     string motor = "";            // Propulsion/motor designation
     
-    float  mass = 0.0;            // Object mass, zero if unknown (kg)
+    float  mass = 0.0;            // Object mass at launch, zero if unknown (kg)
     string massFlag = "";         // Mass uncertainty/estimate flag
-    float  dryMass = 0.0;         // Dry mass, zero if unknown (kg)
+    float  dryMass = 0.0;         // Dry mass at end of active lifetime, zero if unknown (kg)
     string dryMassFlag = "";      // Dry mass uncertainty/estimate flag
-    float  totalMass = 0.0;       // Total associated/launch mass, zero if unknown (kg)
+    float  totalMass = 0.0;       // Total mass of associated objects at launch, zero if unknown (kg)
     string totalMassFlag = "";    // Total mass uncertainty/estimate flag
 
     float  length = 0.0;          // Longest main-body dimension, zero if unknown (m)

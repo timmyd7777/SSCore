@@ -859,9 +859,14 @@ string SSSatellite::toCSV ( void )
 
     // Physical diameter in meters. SSPlanet stores physical radius in kilometers.
 
-    csv += _radius > 0.0 ? formstr ( "%.2f,", 2.0 * _radius * 1000.0 ) : ",";
+    csv += _radius > 0.0 ? formstr ( "%.2f,", 2000.0 * _radius ) : ",";
     csv += _diamSrc != 0 ? formstr ( "%c,", (int) _diamSrc ) : ",";
     
+    // Mass in kilograms. SSPlanet stores mass in earth-masses. Mass source is always Jonathan McDowell GCAT.
+    
+    csv += _mass > 0.0 ? formstr ( "%.1f,", SSCoordinates::kKgPerEarthMass * _mass ) : ",";
+    csv += _mass > 0.0 ? "G," : ",";
+
     // Source country, launch site, launch date, and decay date.
 
     csv += _sourceCountry.empty() ? "," : _sourceCountry + ",";
@@ -926,7 +931,7 @@ string SSSatellite::toCSV ( void )
 string SSSatellite::headerCSV ( void )
 {
     string header = "OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,NORAD_CAT_ID,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,";
-    header += "STD_MAG,MAG_SRC,DIAMETER,DIAMETER_SRC,COUNTRY,LAUNCH_SITE,LAUNCH_DATE,DECAY_DATE,RADIO_UPLINK_FREQ,RADIO_DOWNLINK_FREQ,RADIO_BEACON_FREQ,RADIO_MODE,RADIO_CALLSIGN,RADIO_STATUS,CATEGORIES,DESCRIPTION";
+    header += "STD_MAG,MAG_SRC,DIAMETER,DIAMETER_SRC,MASS,MASS_SRC,COUNTRY,LAUNCH_SITE,LAUNCH_DATE,DECAY_DATE,RADIO_UPLINK_FREQ,RADIO_DOWNLINK_FREQ,RADIO_BEACON_FREQ,RADIO_MODE,RADIO_CALLSIGN,RADIO_STATUS,CATEGORIES,DESCRIPTION";
     return header;
 }
 
@@ -937,9 +942,9 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
 {
     vector<string> fields = split_csv ( csv );
 
-    // 17 CelesTrak TLE fields plus 16 extended satellite fields.
+    // 17 CelesTrak TLE fields plus 18 extended satellite fields.
 
-    if ( fields.size() < 33 || fields[0] == "OBJECT_NAME" )
+    if ( fields.size() < 35 || fields[0] == "OBJECT_NAME" )
         return nullptr;
 
     // Parse the CelesTrak-compatible TLE portion.
@@ -962,22 +967,27 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
     pSat->_radius = fields[19].empty() ? 0.0 : strtofloat64 ( fields[19] ) / 2000.0;
     pSat->_diamSrc = fields[20].empty() ? 0 : fields[20][0];
 
+    // Mass is stored as SSPlanet::_mass in earth-masses. Ignore mass source for now.
+
+    pSat->_mass = fields[21].empty() ? 0.0 : strtofloat64 ( fields[21] ) / SSCoordinates::kKgPerEarthMass;
+    char massSrc = fields[22].empty() ? 0 : fields[22][0];
+
     // Source country and launch site abbreviations; convert launch date from UTC gregorian calendar to JD.
     
-    pSat->_sourceCountry = fields[21];
-    pSat->_launchSite = fields[22];
-    pSat->_launchDate = fields[23].empty() ? INFINITY : double ( SSTime ( SSDate ( "%Y-%m-%d", fields[23] ) ) );
-    pSat->_decayDate = fields[24].empty() ? INFINITY : double ( SSTime ( SSDate ( "%Y-%m-%d", fields[24] ) ) );
+    pSat->_sourceCountry = fields[23];
+    pSat->_launchSite = fields[24];
+    pSat->_launchDate = fields[25].empty() ? INFINITY : double ( SSTime ( SSDate ( "%Y-%m-%d", fields[25] ) ) );
+    pSat->_decayDate = fields[26].empty() ? INFINITY : double ( SSTime ( SSDate ( "%Y-%m-%d", fields[26] ) ) );
 
     // Radio frequency data. Multiple records are encoded by separating
     // corresponding values in each field with semicolons.
 
-    vector<string> uplinks   = split ( fields[25], ";" );
-    vector<string> downlinks = split ( fields[26], ";" );
-    vector<string> beacons   = split ( fields[27], ";" );
-    vector<string> modes     = split ( fields[28], ";" );
-    vector<string> callsigns = split ( fields[29], ";" );
-    vector<string> statuses  = split ( fields[30], ";" );
+    vector<string> uplinks   = split ( fields[27], ";" );
+    vector<string> downlinks = split ( fields[28], ";" );
+    vector<string> beacons   = split ( fields[29], ";" );
+    vector<string> modes     = split ( fields[30], ";" );
+    vector<string> callsigns = split ( fields[31], ";" );
+    vector<string> statuses  = split ( fields[32], ";" );
 
     size_t nfreq = uplinks.size();
 
@@ -996,12 +1006,12 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
     if ( statuses.size() > nfreq )
         nfreq = statuses.size();
 
-    bool haveFreq = ! fields[25].empty()
-                 || ! fields[26].empty()
-                 || ! fields[27].empty()
+    bool haveFreq = ! fields[27].empty()
                  || ! fields[28].empty()
                  || ! fields[29].empty()
-                 || ! fields[30].empty();
+                 || ! fields[30].empty()
+                 || ! fields[31].empty()
+                 || ! fields[32].empty();
 
     if ( haveFreq )
     {
@@ -1024,9 +1034,9 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
 
     // N2YO categories are encoded as semicolon-separated integer IDs.
 
-    if ( ! fields[31].empty() )
+    if ( ! fields[33].empty() )
     {
-        vector<string> categories = split ( fields[31], ";" );
+        vector<string> categories = split ( fields[33], ";" );
         for ( string field : categories )
         {
             int category = strtoint ( field );
@@ -1038,7 +1048,7 @@ SSObjectPtr SSSatellite::fromCSV ( string csv )
     // split_csv() has already removed surrounding quotes and restored
     // embedded doubled quotation marks.
 
-    pSat->_description = fields[32];
+    pSat->_description = fields[34];
     return SSObjectPtr ( pSat );
 }
 
