@@ -14,7 +14,9 @@ int main ( int argc, const char *argv[] )
         cout << "Can't load Tetra3 database from " << argv[1] << endl;
         return -1;
     }
-    cout << "Loaded Tetra3 database with " << t3.numPatterns() << " patterns and " << t3.numStars() << " stars\n";
+    
+    T3Database t3db = t3.getDatabase ( 0 );
+    cout << "Loaded Tetra3 database with " << t3db.numPatterns() << " patterns and " << t3db.numStars() << " stars\n";
 
     // (x,y) coordinates sources extracted from test image IMG_2023-08-16-20-38-05.png
     

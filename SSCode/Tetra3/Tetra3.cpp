@@ -5,6 +5,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <algorithm>
 #include <chrono>
 #include <thread>
 #include <mutex>
@@ -184,6 +185,9 @@ bool T3Results::raDectoImageXY ( double ra, double dec, float width, float heigh
     
     SSVector v ( SSSpherical ( ra, dec ) );
     v = rmat.transpose() * v;
+    if ( v.x <= 0.0 )
+        return false;
+
     T3Source s = T3Source::deproject ( v, degtorad ( fov ), width, height );
     x = s.x; y = s.y;
     return true;
@@ -461,7 +465,7 @@ void T3Database::combineDatabase ( const T3Database &other )
     // Clear this database's pattern vector, then restore saved patterns from this database to new index locations.
     patterns.clear();
     for ( int i = 0; i < oldPatterns.size(); i++ )
-        addPattern ( patterns[i] );
+        addPattern ( oldPatterns[i] );
     
     // Add patterns from other database, with star indices updated
     for ( int i = 0; i < other.patterns.size(); i++ )
@@ -792,22 +796,23 @@ SSMatrix Tetra3::findRotationMatrix ( const std::vector<SSVector> &image_vectors
     return r.transpose();
 }
 
+// Orders candidate solutions by false-match probability, then match count, then residual.
+// This resolves ambiguity between results with equal match counts.
+
+static bool betterResult ( const T3Results &a, const T3Results &b )
+{
+    if ( a.prob != b.prob )
+        return a.prob < b.prob;
+    if ( a.matches != b.matches )
+        return a.matches > b.matches;
+    return a.rmse < b.rmse;
+}
+
 // Get stars within radius radians of the vector.
 
-std::vector<SSVector> Tetra3::getNearbyStarVectors ( const SSVector &vector, double radius )
+std::vector<SSVector> Tetra3::getNearbyStarVectors ( T3Database &db, const SSVector &vector, double radius )
 {
-    std::vector<SSVector> nearby_star_vectors;
-    
-    double cosrad = cos ( radius );
-    for ( size_t i = 0; i < db.numStars(); i++ )
-    {
-        T3Star star = db.getStar ( i );
-        SSVector star_vector ( star.xyz[0], star.xyz[1], star.xyz[2] );
-        if ( star_vector.dotProduct ( vector ) > cosrad )
-            nearby_star_vectors.push_back ( star_vector );
-    }
-    
-    return nearby_star_vectors;
+    return db.getNearbyStarVectors(vector, radius);
 }
 
 // Multiplies all elements in a vector of vectors (vecs) by a 3x3 rotation matrix (rmat),
@@ -822,13 +827,14 @@ std::vector<SSVector> rotateVectors ( SSMatrix rmat, std::vector<SSVector> &vecs
 }
 
 // Solve for the sky location of an image using source locations (centroids) of stars found in the image.
+// The pattern database used to attempt solution is (db).
 // The image's dimensions in pixels are width (x) and height (y).
 // The function returns true if it can successfully solve the image, or false if it fails.
 // If successful, details of the solution are returned in the T3Results struct provided.
 // Every combination of the args.pattern_checking_stars brightest stars found is checked against the database
 // before giving up.
 
-bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float width, float height, const T3Options &args, T3Results &results )
+bool Tetra3::solveFromSources ( T3Database &db, const std::vector<T3Source> &sources, float width, float height, const T3Options &args, T3Results &results )
 {
     if ( db.numPatterns() < 1 || db.numStars() < 1 )
         return false;
@@ -848,7 +854,7 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
         {
             opts.fov_estimate = fov;
             opts.fov_max_error = fov * 0.1;
-            if ( solveFromSources ( sources, width, height, opts, res ) )
+            if ( solveFromSources ( db, sources, width, height, opts, res ) )
                 if ( res.prob < results.prob )
                     results = res;
         }
@@ -983,13 +989,15 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
                 
                 SSVector image_center_vector = rotation_matrix.col ( 0 );
                 double fov_diagonal_rad = fov * hypot ( width, height ) / width / 2.0;
-                std::vector<SSVector> nearby_star_vectors = getNearbyStarVectors ( image_center_vector, fov_diagonal_rad );
+                std::vector<SSVector> nearby_star_vectors = getNearbyStarVectors ( db, image_center_vector, fov_diagonal_rad );
                 
                 // Match the nearby star vectors to the proposed measured source vectors
                 
                 double match_sep = args.match_radius * fov;
                 std::vector<double> match_separations ( rotated_star_vectors.size() );
-                std::vector<SSVector> match_image_sources, match_catalog_stars;
+                std::vector<SSVector> match_image_sources;   // unit vectors in camera frame, +X = boresight. Offsets from +X scale with tan(FoV/2).
+                std::vector<SSVector> match_catalog_stars;   // unit vectors on sphere, relative to catalog RA/Dec.
+                std::vector<T3Source> match_image_centroids; // pixel (x,y) of matched stars; re-projected to match_image_sources when FoV changes.
 
                 // for each star in the source image, find the closest catalog star
                 
@@ -1013,6 +1021,7 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
                     {
                         match_image_sources.push_back ( all_star_vectors[i] );
                         match_catalog_stars.push_back ( nearby_star_vectors[jmatch] );
+                        match_image_centroids.push_back ( verification_sources[i] );
                     }
                 }
                 
@@ -1027,10 +1036,73 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
                 
                 // Two matches can always be made using the degrees of freedom of the pattern
                 double prob_mismatch = binomialCDF(num_extracted_stars - (num_star_matches - 2), num_extracted_stars, 1.0 - prob_single_star_mismatch);
+
+                // Refit field of view and rotation to fit match_image_sources onto match_catalog_stars.
+
                 if ( prob_mismatch < args.match_threshold )
                 {
-                    // if a match has been found, recompute rotation with all matched vectors
-                    rotation_matrix = findRotationMatrix(match_image_sources, match_catalog_stars );
+                    // The first pass fits and drops wrong neighbours; the second pass refits the rest.
+
+                    for ( int pass = 0; pass < 2; pass++ )
+                    {
+                        // Calculate means for both coordinate frames.
+
+                        size_t n = match_catalog_stars.size();
+                        SSVector image_mean, catalog_mean;
+                        for ( size_t i = 0; i < n; i++ )
+                        {
+                            image_mean += match_image_sources[i];
+                            catalog_mean += match_catalog_stars[i];
+                        }
+                        image_mean /= n;
+                        catalog_mean /= n;
+
+                        // Inaccurate FoV scales star offsets in match_image_sources by a common factor k = tan( guessed_fov / 2) / tan( true_fov / 2 )
+                        // whereas at the true FoV the image vectors would differ from the catalog only by a rotation.
+                        // The spread about the mean ignores rotation and scales with k^2; hence sqrt(catalog spread / image spread) = 1/k.
+
+                        double image_spread = 0.0, catalog_spread = 0.0;
+                        for ( size_t i = 0; i < n; i++ )
+                        {
+                            image_spread += ( match_image_sources[i] - image_mean ) * ( match_image_sources[i] - image_mean );
+                            catalog_spread += ( match_catalog_stars[i] - catalog_mean ) * ( match_catalog_stars[i] - catalog_mean );
+                        }
+                        fov = 2.0 * atan ( tan ( fov / 2.0 ) * sqrt ( catalog_spread / image_spread ) );
+
+                        // Re-project at the new field of view, then re-solve the rotation.
+                        // The second pass stops here.
+
+                        match_image_sources = computeVectors ( match_image_centroids, fov, width, height );
+                        rotation_matrix = findRotationMatrix ( match_image_sources, match_catalog_stars );
+                        if ( pass == 1 )
+                            break;
+
+                        // The first pass continues here to prune matched stars that fit poorly after the refit.
+                        // Rejects only those matches that are grossly worse than typical (5x median error) and at least 2px offset.
+
+                        std::vector<double> errors;
+                        for ( size_t i = 0; i < n; i++ )
+                            errors.push_back ( ( rotation_matrix * match_image_sources[i] ).angularSeparation ( match_catalog_stars[i] ) );
+                        std::vector<double> sorted = errors;
+                        std::nth_element ( sorted.begin(), sorted.begin() + n / 2, sorted.end() );
+                        double limit = std::max ( 5.0 * sorted[n / 2], 2.0 * fov / width );
+
+                        for ( size_t i = n; i-- > 0; ) // walk backwards to keep errors[i] aligned
+                        {
+                            if ( errors[i] > limit && match_catalog_stars.size() > 5 ) // never fit fewer than 5 stars
+                            {
+                                match_image_centroids.erase ( match_image_centroids.begin() + i );
+                                match_image_sources.erase ( match_image_sources.begin() + i );
+                                match_catalog_stars.erase ( match_catalog_stars.begin() + i );
+                            }
+                        }
+                    }
+
+                    // Reject a refit field of view outside the caller's tolerance, as the four-star estimate does.
+
+                    if ( args.fov_estimate != 0.0 && args.fov_max_error != 0.0 && fabs ( radtodeg ( fov ) - args.fov_estimate ) > args.fov_max_error )
+                        continue;
+
                     double det = rotation_matrix.determinant();
 
                     // Residuals calculation
@@ -1054,7 +1126,7 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
                     result.roll = radtodeg ( roll ) * ( det < 0 ? -1 : 1 );
                     result.fov = radtodeg ( fov );
                     result.matches = match_image_sources.size();
-                    result.prob = prob_mismatch;
+                    result.prob = prob_mismatch;  // does not account for changes due to refit
                     result.rmse = radtodeg ( residual ) * 3600.0;   // arcseconds
                     result.rmat = rotation_matrix;
 
@@ -1119,7 +1191,7 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
     {
         results = all_results[0];
         for ( int i = 1; i < all_results.size(); i++ )
-            if ( all_results[i].prob < results.prob )
+            if ( betterResult ( all_results[i], results ) )
                 results = all_results[i];
     }
 
@@ -1127,4 +1199,131 @@ bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float widt
     std::chrono::duration<double> t_solve = std::chrono::high_resolution_clock::now() - t0_solve;
     results.t_solve = t_solve.count() * 1000.0;
     return solved;
+}
+
+// Wrapper for the above, attempts to solve sources using all pattern databases loaded into this Tetra3 object.
+// All inputs and outputs are same as the above method.
+
+bool Tetra3::solveFromSources ( const std::vector<T3Source> &sources, float width, float height, const T3Options &options, T3Results &results )
+{
+    for ( int i = 0; i < dbs.size(); i++ )
+    {
+        T3Database &db = dbs[i];
+        if ( options.fov_estimate < 0.7 && db.max_fov >= 0.7 )
+            continue;
+        if ( options.fov_estimate > 0.7 && db.max_fov <= 0.7 )
+            continue;
+        bool solved = solveFromSources ( db, sources, width, height, options, results );
+        if ( solved )
+            return true;
+    }
+    
+    // Failed to solve with any database
+    return false;
+}
+
+// Picture the celestial sphere contained inside a "rubik's cube" divided ino 256 mini-cubes on each side.
+// This has 256*256*256 mini-cubes, most of which will be empty. All stars on the celestial sphere will fall
+// within one cube or another. Given a star's XYZ coordinates on the celestial sphere, this function returns
+// the ID of the mini cube any star falls into. It maps that star's XYZ (which must be in the range -1 to +1)
+// onto an 8-bit integer value from 0 to 255, then bitwise-combines all three 8-bit integers to a single 24-bit
+// "cube ID", which is a hash value of the XYZ coordinates, and returns the cube ID.
+
+uint32_t xyzToCubeID ( double xyz[3] )
+{
+    uint32_t cube_id = 0;
+    for ( int k = 0; k < 3; k++ )
+    {
+        uint8_t c = 127.5 * ( xyz[k] + 1.0 );
+        cube_id |= c << ( k * 8 );
+    }
+    return cube_id;
+}
+
+size_t T3Database::makeStarCubeIndex ( void )
+{
+    // For each star in the database, find the cube which that star's XYZ coordinates fall into,
+    // and add the star's index in the overall star array to the list of stars in that cube.
+    
+    for ( uint32_t i = 0; i < stars.size(); i++ )
+    {
+        T3Star &star = stars[i];
+        double xyz[3] = { star.xyz[0], star.xyz[1], star.xyz[2] };
+        uint32_t cube_id = xyzToCubeID ( xyz );
+        
+        if ( starCubes.count(cube_id) > 0 )
+        {
+            starCubes[cube_id].starindex.push_back(i);
+        }
+        else
+        {
+            T3StarCube cube = { cube_id, { i } };
+            starCubes[cube_id] = cube;
+        }
+    }
+    
+    return starCubes.size();
+}
+
+std::vector<SSVector> T3Database::getNearbyStarVectors ( const SSVector &vector, double radius )
+{
+    double cosrad = cos ( radius );
+    std::vector<SSVector> nearby_star_vectors;
+
+    // If we don't have a star cube index, we brute-force-search through all stars to find all
+    // stars within the given radius (in radians) of the specific vector.
+    
+    if ( starCubes.size() == 0 )
+    {
+        for ( size_t i = 0; i < stars.size(); i++ )
+        {
+            const T3Star &star = stars[i];
+            SSVector star_vector ( star.xyz[0], star.xyz[1], star.xyz[2] );
+            if ( star_vector.dotProduct ( vector ) > cosrad )
+                nearby_star_vectors.push_back ( star_vector );
+        }
+        
+        return nearby_star_vectors;
+    }
+    
+    // If we do have a star cube index, use it!  Find the bounding box of the XYZ region of space
+    // that contains the sphere, centered on the search position vector, with the specifed radius.
+    
+    double xmin = clamp ( vector.x - radius, -1.0, 1.0 );
+    double xmax = clamp ( vector.x + radius, -1.0, 1.0 );
+    double ymin = clamp ( vector.y - radius, -1.0, 1.0 );
+    double ymax = clamp ( vector.y + radius, -1.0, 1.0 );
+    double zmin = clamp ( vector.z - radius, -1.0, 1.0 );
+    double zmax = clamp ( vector.z + radius, -1.0, 1.0 );
+
+    // Step through that XYZ space, one cube diameter at at time.
+    
+    double step = 1.0 / 127.5;
+    for ( double x = xmin; x < xmax; x += step )
+        for ( double y = ymin; y < ymax; y += step )
+            for ( double z = zmin; z < zmax; z += step )
+            {
+                // For each cube, compute the cube ID.
+                
+                double xyz[3] = { x, y, z };
+                uint32_t cube_id = xyzToCubeID ( xyz );
+
+                // If there are stars in that cube, test each star to see if it is within
+                // the angular radius of the search center vector. If so, add the star's
+                // XYZ coordinates to the list of nearby star vectors.
+                
+                if ( starCubes.count(cube_id) > 0 )
+                {
+                    T3StarCube &cube = starCubes[cube_id];
+                    for ( const uint32_t i : cube.starindex )
+                    {
+                        const T3Star &star = stars[i];
+                        SSVector star_vector ( star.xyz[0], star.xyz[1], star.xyz[2] );
+                        if ( star_vector.dotProduct ( vector ) > cosrad )
+                            nearby_star_vectors.push_back ( star_vector );
+                    }
+                }
+            }
+
+    return nearby_star_vectors;
 }

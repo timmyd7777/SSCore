@@ -119,9 +119,11 @@ struct T3Source
 {
     float x;                // centroid horizontal (x) coordinate in image
     float y;                // centroid vertical (y) coordinate in image
-    
-    T3Source ( void ) { x = y = 0.0; }
-    T3Source ( float xf, float yf ) { x = xf; y = yf; }
+    float z;                // brightness in arbitrary units, but larger is brighter; zero if unknown/undefined.
+
+    T3Source ( void ) { x = y = z = 0.0; }
+    T3Source ( float xf, float yf ) { x = xf; y = yf; z = 0.0; }
+    T3Source ( float xf, float yf, float zf ) { x = xf; y = yf; z = zf; }
     
     float distance ( const T3Source &s ) { return hypot ( s.x - x, s.y - y ); }
     SSVector project ( float fov, float width, float height ) const;
@@ -168,6 +170,12 @@ struct T3Results
     void setRotationMatrix ( double ra, double dec, double roll );
 };
 
+struct T3StarCube
+{
+    uint32_t id = 0;
+    std::vector<uint32_t> starindex;
+};
+
 // Contains a Tetra3 database of patterns and stars, and associated metadata.
 // Patterns can be loaded into RAM (faster), or read on-demand from file (slower).
 // Currently multi-threaded execution only works when the database is loaded into RAM!
@@ -180,6 +188,7 @@ private:
     
     FILE *fp = NULL;                    // pointer to pattern file, NULL if patterns are loaded into RAM.
     std::vector<T3Star> stars;          // vector of stars
+    std::map<uint32_t,T3StarCube> starCubes;  // index to stars, sorted by their XYZ coordinates into cubes for fast retrieval by position
     std::vector<T3Pattern> patterns;    // vector of patterns loaded into RAM, empty if fp is valid.
     std::vector<uint32_t> patindex;     // 1-based index to valid patterns in patvec; zeros indicate empty patterns
     size_t pattern_offset = 0;          // offset to first pattern in pattern file, in bytes from start of file
@@ -230,6 +239,9 @@ public:
     
     T3PatternVectors getStarPatternVectors ( const T3Pattern &pattern );
     size_t getStarPatternVectors ( const std::vector<T3Pattern> &patterns, std::vector<T3PatternVectors> &pattern_vectors );
+    
+    size_t makeStarCubeIndex ( void );
+    std::vector<SSVector> getNearbyStarVectors ( const SSVector &vector, double radius );
 };
 
 // The main Tetra3 class which contains routines for loading the database
@@ -238,25 +250,23 @@ public:
 class Tetra3
 {
 private:
-    T3Database db;                  // The associated pattern and star database.
-        
+    std::vector<T3Database> dbs;    // Array of multiple pattern and star databases.
+
     std::vector<SSVector> computeVectors ( const std::vector<T3Source> &sources, float fov, float width, float height );
     std::vector<T3Pattern> generatePatternsFromCentroids ( const std::vector<T3Source> &sources, int pattern_size );
     SSMatrix findRotationMatrix ( const std::vector<SSVector> &image_vectors, const std::vector<SSVector> &catalog_vectors );
-    std::vector<SSVector> getNearbyStarVectors ( const SSVector &vector, double radius );
+    std::vector<SSVector> getNearbyStarVectors ( T3Database &db, const SSVector &vector, double radius );
 
 public:
     
     Tetra3 ( void ) { };
     
-    size_t numPatterns ( void ) { return db.numPatterns(); }
-    size_t numStars ( void ) { return db.numStars(); }
+    bool loadDatabase ( const std::string &path ) { dbs.push_back ( T3Database() ); return dbs.back().loadFromNumPy( path ); }
+    bool loadOptimizedDatabase ( const std::string &path, bool loadPatterns = false ) { dbs.push_back ( T3Database() ); return dbs.back().loadOptimized ( path, loadPatterns ); }
+    int numDatabases ( void ) { return dbs.size(); }
+    T3Database &getDatabase ( int i ) { return dbs[i]; }
     
-    bool loadDatabase ( const std::string &path ) { return db.loadFromNumPy ( path ); }
-    bool loadOptimizedDatabase ( const std::string &path, bool loadPatterns = false ) { return db.loadOptimized ( path, loadPatterns ); }
-    bool saveOptimizedDatabase ( const std::string &path ) { return db.saveOptimized ( path ); }
-    bool databaseLoaded ( void ) { return db.isLoaded(); }
-    
+    bool solveFromSources ( T3Database &db, const std::vector<T3Source> &sources, float width, float height, const T3Options &options, T3Results &results );
     bool solveFromSources ( const std::vector<T3Source> &sources, float width, float height, const T3Options &options, T3Results &results );
 };
 
