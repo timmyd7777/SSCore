@@ -2,6 +2,17 @@
 //
 //  Created by Tim DeBenedictis on 11/24/23.
 //  Copyright © 2023 Southern Stars. All rights reserved.
+//
+// This test program takes one command-line argument: the path to the pattern database in .npz format.
+// That pattern dataase is located in SSCore/SSData/Stars/Tetra3.npz
+// The expected console output is as follows:
+//
+// Loaded Tetra3 database with 116537 patterns and 6043 stars
+// Solved 66 sources in 6.94012 ms.
+// R.A.: 15 41 55.30
+// Dec.: +30 05 15.0
+// FoV:  23.7801 deg
+// Roll: 289.212 deg
 
 #include "SSMatrix.hpp"
 #include "Tetra3.hpp"
