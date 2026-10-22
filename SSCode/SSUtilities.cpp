@@ -732,7 +732,7 @@ void msleep ( uint32_t ms )
 #endif
 }
 
-// Returns unix time (seconds since 1 January 1970) with microsecond precision.
+// Returns unix time (seconds since 1 January 1970) with microsecond precision, always in UTC.
 // Time may not increate monotonically because of system clock adjustments (leap seconds, etc.) 
 // From https://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows
 
@@ -764,7 +764,7 @@ double unixtime_since ( double &start )
 
 // Returns a timestamp in seconds with nanosecond precision for performance timing.
 // Time increases monotonically and is not affected by system clock adjustments.
-// Starting point is undefined, and returned value may reset to zero at midnight.
+// Starting point is undefined, and returned value may reset to zero at local midnight.
 // From https://create.stephan-brumme.com/windows-and-linux-code-timing/
 
 double clocksec ( void )

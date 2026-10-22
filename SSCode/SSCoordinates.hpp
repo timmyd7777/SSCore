@@ -150,6 +150,7 @@ public:
     static SSAngle refractionAngle ( SSAngle alt, bool a );
     static SSAngle applyRefraction ( SSAngle alt );
     static SSAngle removeRefraction ( SSAngle alt );
+    static double airmass ( SSAngle alt );
     
     SSVector apparentDirection ( SSVector position, double &distance );
 };

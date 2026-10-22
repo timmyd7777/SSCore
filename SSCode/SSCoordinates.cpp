@@ -649,6 +649,18 @@ SSAngle SSCoordinates::removeRefraction ( SSAngle alt )
     return alt - SSCoordinates::refractionAngle ( alt, false );
 }
 
+// Returns thickness of atmosphere at a given apparent altitude (alt) in radians
+// relative to thickness of atmosphere looking straight up at zenith (1.0).
+// Formula is from Pickering (2002), described in this Wikipedia article:
+// https://en.wikipedia.org/wiki/Air_mass_(astronomy)
+
+double SSCoordinates::airmass ( SSAngle alt )
+{
+    double h = radtodeg ( alt );
+    double d = h + 244 / ( 167 + 47 * pow ( h, 1.1 ) );
+    return 1.0 / sin ( degtorad ( d ) );
+}
+
 // Given a heliocentric position vector in the fundamental referene frame in units of AU,
 // returns apparent direction unit vector and distance from observer's position in AU.
 // If desired, apply aberration of light.
