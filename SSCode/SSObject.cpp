@@ -494,9 +494,16 @@ int SSImportObjectsFromCSV ( const string &filename, SSObjectVec &objects, SSObj
 
     while ( fgetline ( file, line ) )
     {
+        // skip header lines
+        
+        if ( line.compare ( 0, 4, "Type" ) == 0 || line.compare ( 0, 11, "OBJECT_NAME" ) == 0 )
+            continue;
+        
         // Attempt to create object from CSV file line
         
-        SSObjectPtr pObject = SSPlanet::fromCSV ( line );
+        SSObjectPtr pObject = SSSatellite::fromCSV ( line );
+        if ( pObject == nullptr )
+            pObject = SSPlanet::fromCSV ( line );
         if ( pObject == nullptr )
             pObject = SSStar::fromCSV ( line );
         if ( pObject == nullptr )
