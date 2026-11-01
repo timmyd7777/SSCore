@@ -954,34 +954,34 @@ int mkdir_p(const char *dir, mode_t mode)
 // Returns zero if the array is empty.
 
 template <class T>
-T min ( const T *pData, size_t n )
+T minimum ( const T *pData, size_t n )
 {
     if ( n == 0 )
         return T(0);
 
-    T minimum = pData[0];
+    T minval = pData[0];
     for ( size_t i = 1; i < n; i++ )
-        if ( pData[i] < minimum )
-            minimum = pData[i];
+        if ( pData[i] < minval )
+            minval = pData[i];
 
-    return minimum;
+    return minval;
 }
 
 // Returns maximum value of array of n elements of type T (int, float, double, whatever).
 // Returns zero if the array is empty.
 
 template <class T>
-T max ( const T *pData, size_t n )
+T maximum ( const T *pData, size_t n )
 {
     if ( n == 0 )
         return T(0);
 
-    T maximum = pData[0];
+    T maxval = pData[0];
     for ( size_t i = 1; i < n; i++ )
-        if ( pData[i] > maximum )
-            maximum = pData[i];
+        if ( pData[i] > maxval )
+            maxval = pData[i];
 
-    return maximum;
+    return maxval;
 }
 
 // Returns arithmetic mean of array of n elements of type T (int, float, double, whatever).
@@ -1068,27 +1068,27 @@ T mad ( const T *pData, size_t n, T med )
 
 // Explicit template instantiations.
 
-template int8_t   min ( const int8_t   *, size_t );
-template uint8_t  min ( const uint8_t  *, size_t );
-template int16_t  min ( const int16_t  *, size_t );
-template uint16_t min ( const uint16_t *, size_t );
-template int32_t  min ( const int32_t  *, size_t );
-template uint32_t min ( const uint32_t *, size_t );
-template int64_t  min ( const int64_t  *, size_t );
-template uint64_t min ( const uint64_t *, size_t );
-template float    min ( const float    *, size_t );
-template double   min ( const double   *, size_t );
+template int8_t   minimum ( const int8_t   *, size_t );
+template uint8_t  minimum ( const uint8_t  *, size_t );
+template int16_t  minimum ( const int16_t  *, size_t );
+template uint16_t minimum ( const uint16_t *, size_t );
+template int32_t  minimum ( const int32_t  *, size_t );
+template uint32_t minimum ( const uint32_t *, size_t );
+template int64_t  minimum ( const int64_t  *, size_t );
+template uint64_t minimum ( const uint64_t *, size_t );
+template float    minimum ( const float    *, size_t );
+template double   minimum ( const double   *, size_t );
 
-template int8_t   max ( const int8_t   *, size_t );
-template uint8_t  max ( const uint8_t  *, size_t );
-template int16_t  max ( const int16_t  *, size_t );
-template uint16_t max ( const uint16_t *, size_t );
-template int32_t  max ( const int32_t  *, size_t );
-template uint32_t max ( const uint32_t *, size_t );
-template int64_t  max ( const int64_t  *, size_t );
-template uint64_t max ( const uint64_t *, size_t );
-template float    max ( const float    *, size_t );
-template double   max ( const double   *, size_t );
+template int8_t   maximum ( const int8_t   *, size_t );
+template uint8_t  maximum ( const uint8_t  *, size_t );
+template int16_t  maximum ( const int16_t  *, size_t );
+template uint16_t maximum ( const uint16_t *, size_t );
+template int32_t  maximum ( const int32_t  *, size_t );
+template uint32_t maximum ( const uint32_t *, size_t );
+template int64_t  maximum ( const int64_t  *, size_t );
+template uint64_t maximum ( const uint64_t *, size_t );
+template float    maximum ( const float    *, size_t );
+template double   maximum ( const double   *, size_t );
 
 template int8_t   mean ( const int8_t   *, size_t );
 template uint8_t  mean ( const uint8_t  *, size_t );
