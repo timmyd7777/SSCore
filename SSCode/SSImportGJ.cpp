@@ -448,6 +448,12 @@ static string strip_component ( string &name )
 {
     if ( name.length() < 1 )
         return name;
+
+    // SPECIAL CASE for Fomalhaut: The 10pc sample's "alf PsA" ends in a constellation abbreviation,
+    // not a component letter. No other stars in the current 10pc sample have this problem!
+    
+    if ( name == "alf PsA" || name == "alp PsA" )
+        return cleanHIPNameString ( name );
     
     char c = name.back();
     if ( c == 'A' || c == 'B' || c == 'C' || c == 'D' )
