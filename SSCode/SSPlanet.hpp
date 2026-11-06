@@ -196,7 +196,7 @@ public:
 
     double distance ( SSPlanet &other ) { return _position.distance ( other._position ); }
     
-    bool surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist );
+    bool surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale = 1.0 );
 
     static double horizonDistance ( double radius, double distance );
     double horizonDistance ( void );

@@ -416,13 +416,14 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 // on the surface of this solar system object, computes apparent direction
 // unit vector (dir) and distance in AU (dist) to that point, seen from the
 // observer's current position.
+// Scale (scale) multiplies the object's physical radius; default 1.0 uses its actual size.
 // Returns true if the point is on the visible part of the planet's surface;
 // returns false if the point is "over the horizon" on the far side the planet.
 // Assumes planet's apparent direction and distance from observer have already been calculated!
 
-bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist )
+bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale )
 {
-    SSVector point = SSSpherical ( lon, lat, _radius < INFINITY ? _radius / SSCoordinates::kKmPerAU : 0.0 );
+    SSVector point = SSSpherical ( lon, lat, _radius < INFINITY ? _radius * scale / SSCoordinates::kKmPerAU : 0.0 );
     point.z *= 1.0 - getFlattening();
     point = getPlanetographicMatrix() * point;
     dir = ( point + getDirection() * getDistance() ).normalize ( dist );
