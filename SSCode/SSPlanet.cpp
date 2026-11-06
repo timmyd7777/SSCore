@@ -271,6 +271,28 @@ void SSPlanet::computeMinorPlanetPositionVelocity ( double jed, double lt, SSVec
     vel = matrix.multiply ( vel );
 }
 
+// Returns the planet ID corresponding to this solar system objects' primary (i.e. the object it orbits).
+// Major planets, dwarf planets, asteroids, and comets orbit the Sun; Satellites orbit Earth.
+// For moons, this method returns the ID of the primary planet from its numeric ID.
+// If this method can't find the primary, the object orbits the Sun by default.
+
+int SSPlanet::getPrimaryID ( void )
+{
+    if ( _type == kTypeSatellite )
+        return kEarth;
+
+    if ( _type != kTypeMoon || _id.catalog() != kCatJPLanet )
+        return kSun;
+
+    int moonID = (int) _id.identifier();
+    if ( moonID >= 300 && moonID <= 999 )
+        return moonID / 100;
+    if ( moonID >= 50000 && moonID <= 89999 )
+        return moonID / 10000;
+
+    return kSun;
+}
+
 // Computes moon's heliocentric position and velocity vectors in AU and AU/day.
 // Current time (jed) is Julian Ephemeris Date in dynamic time (TDT), not civil time (UTC).
 // Light travel time to moon (lt) is in days; may be zero for first approximation.
@@ -286,9 +308,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     // Get moon and primary planet identifier.
     
     int m = (int) _id.identifier();
-    int p = m / 100;
-    if ( p < 0 || p > 9 )
-        p = 0;
+    int p = getPrimaryID();
 
     // Special case for Moon: use JPL ephemeris to compute heliocentric position and velocity directly;
     // or if that fails, use PS ephemeris to compute Moon's geocentric position and velocity.

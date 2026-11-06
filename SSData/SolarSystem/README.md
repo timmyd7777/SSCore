@@ -75,6 +75,7 @@ Columns are identical to Planets.csv, above.
 - version 1.7 (27 Jun 2026): correct absolute magnitudes for Pluto's moons (they were incorrectly entered as apparent magnitudes previously). Add column headers.
 - Version 2.0 (30 Jun 2026): added 171 new moons discovered since 2023, rates of motion for argument of perihelion and longitude of ascending node; added J2000 RA and Dec of reference plane.
 - Version 2.01 (8 Jul 2026): corrected rates of ascending node and mean motion for moons with inclination < 90 deg.
+- Version 2.02 (8 Nov 2026): added NAIF IDs for S/2009 S 1 (69999) and S 2 (65304).  The ID for S 1 is fictional as that moon is not present in JPL HORIZONS.
 
 Asteroids-13.csv
 ----------------

@@ -574,7 +574,7 @@ void TestEphemeris ( string inputDir, string outputDir )
         
         if ( p->getType() == kTypeMoon )
         {
-            SSPlanet *primary = SSGetPlanetPtr ( solsys[ p->getIdentifier().identifier() / 100 ] );
+            SSPlanet *primary = SSGetPlanetPtr ( solsys[ p->getPrimaryID() ] );
             SSSpherical primaryDir ( primary->getDirection() );
             primaryDir = coords.transform ( kFundamental, kEquatorial, primaryDir );
             double x = modpi ( dir.lon - primaryDir.lon ) * SSAngle::kArcsecPerRad * cos ( primaryDir.lat );
