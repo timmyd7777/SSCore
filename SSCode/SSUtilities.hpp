@@ -26,7 +26,7 @@ using namespace std;
 // clamp(value,low,high) returns value clamped to limits (low, high).
 // This is a C++11 replacement for std::clamp() declared in <algorithm> in C++17.
 
-#if __cplusplus < 201703L
+#if __cplusplus < 201703L && (!defined(_MSVC_LANG) || _MSVC_LANG < 201703L)
 template <typename T>  const T &clamp ( const T &value, const T &low, const T &high ) { return value < low ? low : value > high ? high : value; }
 #endif
 
