@@ -222,7 +222,6 @@ int SSHTM::loadRegions ( uint64_t htmID, bool sync, void *userData )
 // returns nullptr; when finished loading region, calls notification callback
 // installed by SSHTMSetRegionLoadCallback() above, and subsequent calls to
 // loadRegion() or getObjects() return a pointer to the region's object vector.
-// If USE_THREADS is 0, this function always loads synchronously.
 
 SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 {
@@ -231,7 +230,6 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 
     if ( regionLoaded ( htmID ) )
     {
-#if USE_THREADS
         if ( _loadThreads.count ( htmID ) != 0 )
         {
             if ( _loadThreads[htmID]->joinable() )
@@ -239,11 +237,9 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
             delete _loadThreads[htmID];
             _loadThreads.erase ( htmID );
         }
-#endif
         return getObjects ( htmID );
     }
     
-#if USE_THREADS
     if ( !sync )
     {
         // Load in a background thread
@@ -256,7 +252,6 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 
         return nullptr;
     }
-#endif
     
     // Load region synchronously.
 
@@ -328,7 +323,6 @@ SSObjectVec *SSHTM::getObjects ( uint64_t htmID )
 
 void SSHTM::dumpRegion ( uint64_t htmID )
 {
-#if USE_THREADS
     // If still loading this region asynchronously, wait for load to complete
     
     if ( _loadThreads.count ( htmID ) != 0 )
@@ -338,7 +332,6 @@ void SSHTM::dumpRegion ( uint64_t htmID )
         delete _loadThreads[htmID];
         _loadThreads.erase ( htmID );
     }
-#endif
 
     // Now delete object vector (and its objects) associated with this region.
     
@@ -362,7 +355,6 @@ void SSHTM::dumpRegion ( uint64_t htmID )
 
 void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
 {
-#if USE_THREADS
     // Let all load threads run to completion, and delete them before destroying regions!
     
     for ( auto it = _loadThreads.begin(); it != _loadThreads.end(); it++ )
@@ -374,7 +366,6 @@ void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
             delete it->second;
         }
     }
-#endif
     
     // Move the map out under the mutex so workers cannot change it while
     // we iterate or invoke the caller's region test callback.
@@ -396,9 +387,7 @@ void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
         }
     }
 
-#if USE_THREADS
     _loadThreads.clear();
-#endif
 }
 
 // Empties all regions in this HTM, but does not delete objects!
