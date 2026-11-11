@@ -17,6 +17,7 @@
 
 #if USE_THREADS
 #include <thread>
+#include <mutex>
 #endif
 
 #include "SSObject.hpp"
@@ -54,7 +55,8 @@ protected:
     map<uint64_t,thread *>      _loadThreads;           // background threads currently loading region objects from data files, indexed by HTM region ID
 #endif
     SSObjectVec *_loadRegion ( uint64_t htmID, RegionLoadCallback callback, void *userData );    // private method to load object data file for a given HTM region ID
-    
+    static std::mutex &regionMutex ( void );            // returns reference to mutex that guards region map access while background loads publish objects
+
 public:
     
     // constructors and destructor
@@ -80,7 +82,7 @@ public:
  
     // Count number of regions and objects in HTM or in a region therein.
     
-    int countRegions ( void ) { return (int) _regions.size(); }
+    int countRegions ( void );
     int countStars ( void );
     int countStars ( uint64_t htmID );
     

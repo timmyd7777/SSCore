@@ -21,6 +21,15 @@ int cc_name2Triangle ( const char *name, double *v0, double *v1, double *v2 );
 
 static SSHTM::RegionLoadCallback _callback = nullptr;
 
+// Returns the shared region mutex. It must outlive global SSHTM objects,
+// whose destructors may still access the region map during process exit.
+
+std::mutex &SSHTM::regionMutex ( void )
+{
+    static std::mutex *mutex = new std::mutex();
+    return *mutex;
+}
+
 void SSHTMSetRegionLoadCallback ( SSHTM::RegionLoadCallback pCallback )
 {
     _callback = pCallback;
@@ -252,7 +261,7 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
     // Load region synchronously.
 
     _loadRegion ( htmID, nullptr, userData );
-    return _regions[htmID];
+    return getObjects ( htmID );
 }
 
 // Private method to load region, possibly from a background thread.
@@ -269,9 +278,24 @@ SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, RegionLoadCallback callback, v
         n = SSImportObjectsFromCSV ( _rootpath + ID2name ( htmID ) + ".csv", *objects );
     
     if ( n > 0 )
-        _regions[htmID] = objects;
+    {
+        // Another loader may have published the same region while this one read it.
+        // Keep the first object vector and publish under the map's mutex.
+        std::lock_guard<std::mutex> lock ( regionMutex() );
+        SSObjectVec *&loaded = _regions[htmID];
+        if ( loaded == nullptr )
+            loaded = objects;
+        else
+        {
+            delete objects;
+            objects = loaded;
+        }
+    }
     else
+    {
         delete objects;
+        objects = nullptr;
+    }
     
     if ( callback != nullptr )
         callback ( this, htmID );
@@ -284,7 +308,9 @@ SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, RegionLoadCallback callback, v
 
 bool SSHTM::regionLoaded ( uint64_t htmID )
 {
-    return _regions[htmID] != nullptr;
+    std::lock_guard<std::mutex> lock ( regionMutex() );
+    auto it = _regions.find ( htmID );
+    return it != _regions.end() && it->second != nullptr;
 }
 
 // Returns pointer to array of objects stored in the region
@@ -293,7 +319,9 @@ bool SSHTM::regionLoaded ( uint64_t htmID )
 
 SSObjectVec *SSHTM::getObjects ( uint64_t htmID )
 {
-    return _regions[htmID];
+    std::lock_guard<std::mutex> lock ( regionMutex() );
+    auto it = _regions.find ( htmID );
+    return it != _regions.end() ? it->second : nullptr;
 }
 
 // Deletes all star data for a specific region in this HTM from memory.
@@ -314,12 +342,18 @@ void SSHTM::dumpRegion ( uint64_t htmID )
 
     // Now delete object vector (and its objects) associated with this region.
     
-    if ( _regions.count ( htmID ) )
+    SSObjectVec *objects = nullptr;
     {
-        if ( _regions[htmID] != nullptr )
-            delete _regions[htmID];
-        _regions.erase ( htmID );
+        std::lock_guard<std::mutex> lock ( regionMutex() );
+        auto it = _regions.find ( htmID );
+        if ( it != _regions.end() )
+        {
+            objects = it->second;
+            _regions.erase ( it );
+        }
     }
+    if ( objects != nullptr )
+        delete objects;
 }
 
 // Deletes all star data for all regions in this HTM from memory if testFunc is nullptr.
@@ -342,9 +376,16 @@ void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
     }
 #endif
     
-    // Now delete object vectors (and their objects) for all loaded regions.
-    
-    for ( auto it = _regions.begin(); it != _regions.end(); it++ )
+    // Move the map out under the mutex so workers cannot change it while
+    // we iterate or invoke the caller's region test callback.
+    map<uint64_t,SSObjectVec *> regions;
+    {
+        std::lock_guard<std::mutex> lock ( regionMutex() );
+        regions.swap ( _regions );
+    }
+
+    // Delete the selected object vectors after releasing the map mutex.
+    for ( auto it = regions.begin(); it != regions.end(); it++ )
     {
         if ( it->second != nullptr )
         {
@@ -358,16 +399,24 @@ void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
 #if USE_THREADS
     _loadThreads.clear();
 #endif
-    _regions.clear();
 }
 
 // Empties all regions in this HTM, but does not delete objects!
 
 void SSHTM::clearRegions ( void )
 {
+    std::lock_guard<std::mutex> lock ( regionMutex() );
     for ( auto it = _regions.begin(); it != _regions.end(); it++ )
         if ( it->second != nullptr )
             it->second->clear();
+}
+
+// Returns the number of regions currently stored in this HTM.
+// The map may be updated concurrently by background loaders.
+int SSHTM::countRegions ( void )
+{
+    std::lock_guard<std::mutex> lock ( regionMutex() );
+    return (int) _regions.size();
 }
 
 // Counts total number of stars stored in all regions in this HTM.
@@ -375,7 +424,8 @@ void SSHTM::clearRegions ( void )
 int SSHTM::countStars ( void )
 {
     int count = 0;
-    
+
+    std::lock_guard<std::mutex> lock ( regionMutex() );
     for ( auto it = _regions.begin(); it != _regions.end(); it++ )
         if ( it->second != nullptr )
             count += it->second->size();
@@ -388,9 +438,11 @@ int SSHTM::countStars ( void )
 int SSHTM::countStars ( uint64_t htmID )
 {
     int count = 0;
-    
-    if ( _regions.count ( htmID ) && _regions[htmID] != nullptr )
-        count = (int) _regions[htmID]->size();
+
+    std::lock_guard<std::mutex> lock ( regionMutex() );
+    auto it = _regions.find ( htmID );
+    if ( it != _regions.end() && it->second != nullptr )
+        count = (int) it->second->size();
 
     return count;
 }
