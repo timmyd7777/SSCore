@@ -21,8 +21,9 @@ int cc_name2Triangle ( const char *name, double *v0, double *v1, double *v2 );
 
 static SSHTM::RegionLoadCallback _callback = nullptr;
 
-// Returns the shared region mutex. It must outlive global SSHTM objects,
-// whose destructors may still access the region map during process exit.
+// Returns the shared mutex that guards every HTM's region map and object indexes
+// (_nameIndex, _identIndex). It must outlive global SSHTM objects, whose destructors
+// may still access the region map during process exit.
 
 std::mutex &SSHTM::regionMutex ( void )
 {
@@ -60,11 +61,39 @@ SSHTM::SSHTM ( const vector<float> &magLevels, const string &rootpath )
         _rootpath += '/';
 }
 
-// Destructor frees memory for all loaded regions and all objects therein.
+// Destructor waits for background tasks and region loads to finish, then frees
+// memory for all loaded regions and all objects therein.
+// Subclasses whose background work calls their virtual methods should call
+// waitForBackgroundTasks() and dumpRegions() in their own destructors first.
 
 SSHTM::~SSHTM ( void )
 {
+    waitForBackgroundTasks();
     dumpRegions();
+}
+
+// Runs (task) on a new background thread that this HTM keeps track of, e.g. to load
+// an object map with loadObjectMap() without blocking the caller. The thread stays
+// joinable; waitForBackgroundTasks() (called by the destructor) waits for it.
+// Must only be called from the thread that owns this HTM.
+
+void SSHTM::startBackgroundTask ( std::function<void(void)> task )
+{
+    _taskThreads.push_back ( new thread ( task ) );
+}
+
+// Waits for all threads started by startBackgroundTask() to finish, then deletes them.
+// Blocks the calling thread until every task has returned; tasks cannot be interrupted.
+
+void SSHTM::waitForBackgroundTasks ( void )
+{
+    for ( thread *pThread : _taskThreads )
+    {
+        if ( pThread->joinable() )
+            pThread->join();
+        delete pThread;
+    }
+    _taskThreads.clear();
 }
 
 // Returns the HTM level corresponding to a specific stellar magnitude,
@@ -222,33 +251,27 @@ int SSHTM::loadRegions ( uint64_t htmID, bool sync, void *userData )
 // returns nullptr; when finished loading region, calls notification callback
 // installed by SSHTMSetRegionLoadCallback() above, and subsequent calls to
 // loadRegion() or getObjects() return a pointer to the region's object vector.
+// Background threads stay joinable, so dumpRegion(), dumpRegions(), and the destructor
+// can wait for them; the next loadRegion() call for the region joins and deletes its finished thread.
 
 SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 {
-    // If region is loaded, delete thread associated with loading it,
+    // If region is loaded, join and delete the finished thread that loaded it (if any),
     // then return pointer to that region's objects.
 
     if ( regionLoaded ( htmID ) )
     {
-        if ( _loadThreads.count ( htmID ) != 0 )
-        {
-            if ( _loadThreads[htmID]->joinable() )
-                _loadThreads[htmID]->join();
-            delete _loadThreads[htmID];
-            _loadThreads.erase ( htmID );
-        }
+        joinLoadThread ( htmID );
         return getObjects ( htmID );
     }
-    
+
     if ( !sync )
     {
-        // Load in a background thread
+        // Load in a background thread. Don't detach it: owners must be able to
+        // wait for it before freeing regions or destroying this HTM.
 
         if ( _loadThreads.count ( htmID ) == 0 )
-        {
             _loadThreads[htmID] = new thread ( &SSHTM::_loadRegion, this, htmID, _callback, userData );
-            _loadThreads[htmID]->detach();
-        }
 
         return nullptr;
     }
@@ -298,6 +321,37 @@ SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, RegionLoadCallback callback, v
     return objects;
 }
 
+// Waits for the background thread loading region htmID (if any) to finish, then deletes it.
+// Blocks the calling thread until that region's data file has been read.
+// Must only be called from the thread that calls loadRegion(), since _loadThreads is not locked.
+
+void SSHTM::joinLoadThread ( uint64_t htmID )
+{
+    auto it = _loadThreads.find ( htmID );
+    if ( it == _loadThreads.end() )
+        return;
+
+    if ( it->second != nullptr )
+    {
+        if ( it->second->joinable() )
+            it->second->join();
+        delete it->second;
+    }
+    _loadThreads.erase ( it );
+}
+
+// Waits for every background region load started by loadRegion() to finish, then deletes
+// its thread. Loaded regions stay in memory. Call this before process exit begins
+// destroying globals that region loaders may use (e.g. via a data file read function).
+
+void SSHTM::waitForRegionLoads ( void )
+{
+    // Advance the iterator before joining, since joinLoadThread() erases the entry.
+
+    for ( auto it = _loadThreads.begin(); it != _loadThreads.end(); )
+        joinLoadThread ( ( it++ )->first );
+}
+
 // Tests whether star data for a specific region in this HTM has been
 // loaded into memory, i.e. if that region exists in this HTM.
 
@@ -323,15 +377,10 @@ SSObjectVec *SSHTM::getObjects ( uint64_t htmID )
 
 void SSHTM::dumpRegion ( uint64_t htmID )
 {
-    // If still loading this region asynchronously, wait for load to complete
-    
-    if ( _loadThreads.count ( htmID ) != 0 )
-    {
-        if ( _loadThreads[htmID]->joinable() )
-            _loadThreads[htmID]->join();
-        delete _loadThreads[htmID];
-        _loadThreads.erase ( htmID );
-    }
+    // If still loading this region asynchronously, wait for load to complete,
+    // so it can't publish the region again after we delete it.
+
+    joinLoadThread ( htmID );
 
     // Now delete object vector (and its objects) associated with this region.
     
@@ -352,21 +401,26 @@ void SSHTM::dumpRegion ( uint64_t htmID )
 // Deletes all star data for all regions in this HTM from memory if testFunc is nullptr.
 // Otherwise deletes only regions for which testFunc returns true.
 // userData is a pointer to arbitrary user-defined data passed to testFunc (if not nullptr).
+// Dumping all regions blocks until every background load finishes, so none can publish
+// afterward (this also makes the destructor safe). A selective dump only joins and deletes
+// threads whose regions are already published, and does not wait for files still being read.
 
 void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
 {
-    // Let all load threads run to completion, and delete them before destroying regions!
-    
-    for ( auto it = _loadThreads.begin(); it != _loadThreads.end(); it++ )
+    // Wait for load threads to finish and delete them before destroying regions.
+    // A full dump waits for all of them; a selective dump only for those already published.
+    // Advance the iterator before joining, since joinLoadThread() erases the entry.
+
+    if ( testFunc == nullptr )
+        waitForRegionLoads();
+
+    for ( auto it = _loadThreads.begin(); it != _loadThreads.end(); )
     {
-        if ( it->second != nullptr )
-        {
-            if ( it->second->joinable() )
-                it->second->join();
-            delete it->second;
-        }
+        uint64_t htmID = ( it++ )->first;
+        if ( regionLoaded ( htmID ) )
+            joinLoadThread ( htmID );
     }
-    
+
     // Move the map out under the mutex so workers cannot change it while
     // we iterate or invoke the caller's region test callback.
     map<uint64_t,SSObjectVec *> regions;
@@ -375,19 +429,32 @@ void SSHTM::dumpRegions ( RegionTestCallback testFunc, void *userData )
         regions.swap ( _regions );
     }
 
-    // Delete the selected object vectors after releasing the map mutex.
+    // Delete the selected object vectors after releasing the map mutex,
+    // and set aside the regions the caller wants to keep.
+    map<uint64_t,SSObjectVec *> kept;
     for ( auto it = regions.begin(); it != regions.end(); it++ )
     {
-        if ( it->second != nullptr )
-        {
-            if ( testFunc == nullptr )
-                delete it->second;
-            else if ( testFunc ( this, it->first, userData ) )
-                delete it->second;
-        }
+        if ( it->second == nullptr )
+            continue;
+        if ( testFunc == nullptr || testFunc ( this, it->first, userData ) )
+            delete it->second;
+        else
+            kept[it->first] = it->second;
     }
 
-    _loadThreads.clear();
+    // Put kept regions back. A background load may have published a duplicate
+    // of one meanwhile; keep the original, since callers may hold pointers into it.
+    if ( ! kept.empty() )
+    {
+        std::lock_guard<std::mutex> lock ( regionMutex() );
+        for ( auto it = kept.begin(); it != kept.end(); it++ )
+        {
+            SSObjectVec *&slot = _regions[it->first];
+            if ( slot != nullptr )
+                delete slot;
+            slot = it->second;
+        }
+    }
 }
 
 // Empties all regions in this HTM, but does not delete objects!
@@ -828,12 +895,19 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat )
     for ( auto it = _regions.begin(); it != _regions.end(); it++ )
         makeObjectMap ( cat, it->first, nameMap, identMap );
     
-    if ( cat == kCatUnknown && nameMap.size() > 0 )
-        _nameIndex[cat] = nameMap;
-    if ( cat != kCatUnknown && identMap.size() > 0 )
-        _identIndex[cat] = identMap;
-    
-    return cat == kCatUnknown ? nameMap.size() : identMap.size();
+    // Publish the new map under the index mutex; move it so the lock is held briefly.
+
+    size_t n = cat == kCatUnknown ? nameMap.size() : identMap.size();
+    if ( n > 0 )
+    {
+        std::lock_guard<std::mutex> lock ( regionMutex() );
+        if ( cat == kCatUnknown )
+            _nameIndex[cat] = std::move ( nameMap );
+        else
+            _identIndex[cat] = std::move ( identMap );
+    }
+
+    return n;
 }
 
 // Adds index entries for objects with identifiers in the specifid catalog (cat)
@@ -873,6 +947,8 @@ size_t SSHTM::makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap
 // Writes objects with user-definded function (saveFunc) and data (userData);
 // if these are nullptr, writes map in CSV format to HTM's "index" subdirectory.
 // Returns number of map entries written to file.
+// Must not run while a background task is loading the same catalog's map, since the
+// map is written without holding the index mutex (saveFunc may need other HTM locks).
 
 size_t SSHTM::saveObjectMap ( SSCatalog cat, IdentMapFunc saveFunc, void *userData )
 {
@@ -987,16 +1063,35 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userDa
     }
     
     // If we read anything, save the name map or ident map we just read.
-    
+    // This may run on a background thread, so publish under the index mutex,
+    // and move the map so the lock is held only briefly.
+
     if ( n > 0 )
     {
+        std::lock_guard<std::mutex> lock ( regionMutex() );
         if ( cat == kCatUnknown )
-            _nameIndex[cat] = nameMap;
+            _nameIndex[cat] = std::move ( nameMap );
         else
-            _identIndex[cat] = identMap;
+            _identIndex[cat] = std::move ( identMap );
     }
 
     return n;
+}
+
+// Returns the number of entries in this HTM's object map for catalog (cat);
+// kCatUnknown means the name map. Safe to call while background tasks load maps.
+
+size_t SSHTM::objectMapSize ( SSCatalog cat )
+{
+    std::lock_guard<std::mutex> lock ( regionMutex() );
+    if ( cat == kCatUnknown )
+    {
+        auto it = _nameIndex.find ( cat );
+        return it != _nameIndex.end() ? it->second.size() : 0;
+    }
+
+    auto it = _identIndex.find ( cat );
+    return it != _identIndex.end() ? it->second.size() : 0;
 }
 
 // Given an identifier, uses this HTM's identifier index to find all objects matching
@@ -1005,11 +1100,15 @@ size_t SSHTM::loadObjectMap ( SSCatalog cat, IdentMapFunc loadFunc, void *userDa
 
 int SSHTM::findObjectLocs ( SSIdentifier ident, vector<SSHTM::ObjectLoc> &results )
 {
+    // Hold the index mutex while searching, since a background task may publish maps meanwhile.
+
     SSCatalog cat = ident.catalog();
-    if ( objectMapSize ( cat ) == 0 )
+    std::lock_guard<std::mutex> lock ( regionMutex() );
+    auto mapIt = _identIndex.find ( cat );
+    if ( mapIt == _identIndex.end() || mapIt->second.empty() )
         return 0;
-    
-    IdentMap &map = _identIndex[cat];
+
+    IdentMap &map = mapIt->second;
     auto it0 = map.lower_bound ( ident );
     auto it1 = map.upper_bound ( ident );
     
@@ -1026,10 +1125,14 @@ int SSHTM::findObjectLocs ( SSIdentifier ident, vector<SSHTM::ObjectLoc> &result
 
 int SSHTM::findObjectLocs ( const string &name, vector<SSHTM::ObjectLoc> &results, bool casesens, bool begins )
 {
-    if ( objectMapSize ( kCatUnknown ) == 0 )
+    // Hold the index mutex while searching, since a background task may publish maps meanwhile.
+
+    std::lock_guard<std::mutex> lock ( regionMutex() );
+    auto mapIt = _nameIndex.find ( kCatUnknown );
+    if ( mapIt == _nameIndex.end() || mapIt->second.empty() )
         return 0;
-    
-    NameMap &map = _nameIndex[kCatUnknown];
+
+    NameMap &map = mapIt->second;
     int n = (int) results.size();
     
     if ( casesens == true && begins == false )

@@ -9,6 +9,7 @@
 
 #include <thread>
 #include <mutex>
+#include <functional>
 
 #include "SSObject.hpp"
 #include "SSStar.hpp"
@@ -41,8 +42,10 @@ protected:
     vector<float>               _magLevels;             // faintest magnitude of objects at each HTM level; vector size is depth of mesh tree
     string                      _rootpath;              // directory containing object data files on filesystem.
     
-    map<uint64_t,thread *>      _loadThreads;           // background threads currently loading region objects from data files, indexed by HTM region ID
+    map<uint64_t,thread *>      _loadThreads;           // joinable background threads loading region objects from data files, indexed by HTM region ID; not yet joined and deleted
     SSObjectVec *_loadRegion ( uint64_t htmID, RegionLoadCallback callback, void *userData );    // private method to load object data file for a given HTM region ID
+    void joinLoadThread ( uint64_t htmID );             // waits for and deletes the background thread loading a region, if any
+    vector<thread *>            _taskThreads;           // joinable background threads started by startBackgroundTask(), e.g. object map loads
     static std::mutex &regionMutex ( void );            // returns reference to mutex that guards region map access while background loads publish objects
 
 public:
@@ -52,6 +55,12 @@ public:
     SSHTM();
     SSHTM ( const vector<float> &magLevels, const string &rootpath );
     virtual ~SSHTM ( void );
+
+    // run a task on a tracked background thread; wait for all such tasks to finish
+
+    void startBackgroundTask ( std::function<void(void)> task );
+    void waitForBackgroundTasks ( void );
+    void waitForRegionLoads ( void );
     
     // return path to directory containing region data files
     
@@ -124,7 +133,7 @@ public:
     size_t makeObjectMap ( SSCatalog cat );
     size_t makeObjectMap ( SSCatalog cat, uint64_t regionID, NameMap &nameMap, IdentMap &identMap );
     
-    size_t objectMapSize ( SSCatalog cat ) { return cat == kCatUnknown ? _nameIndex[cat].size() : _identIndex[cat].size(); }
+    size_t objectMapSize ( SSCatalog cat );
     
     int findObjectLocs ( const string &name, vector<ObjectLoc> &locs, bool casesens = true, bool begins = false );
     int findObjectLocs ( SSIdentifier ident, vector<ObjectLoc> &locs );
