@@ -256,7 +256,7 @@ int SSHTM::loadRegions ( uint64_t htmID, bool sync, void *userData )
 
 SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 {
-    // If region is loaded, join and delete the finished thread that loaded it (if any),
+    // If region is already loaded, join and delete the finished thread that loaded it (if any),
     // then return pointer to that region's objects.
 
     if ( regionLoaded ( htmID ) )
@@ -265,60 +265,54 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
         return getObjects ( htmID );
     }
 
-    if ( !sync )
+    // This local lambda reads the requested region and publishes its objects under the map mutex.
+    // The notification callback is called after the read, including when no objects were read.
+    // Both the synchronous and async modes use this lambda; it returns nothing.
+
+    auto readRegion = [this, htmID, userData] ( RegionLoadCallback callback ) -> void
+    {
+        int n = 0;
+        SSObjectVec *objects = new SSObjectVec();
+
+        if ( _readFunc != nullptr )
+            n = _readFunc ( this, htmID, objects, userData );
+        else
+            n = SSImportObjectsFromCSV ( _rootpath + ID2name ( htmID ) + ".csv", *objects );
+
+        if ( n > 0 )
+        {
+            // Another loader may have published this region during the read.
+            // Keep the first vector and discard the duplicate under the map mutex.
+
+            std::lock_guard<std::mutex> lock ( regionMutex() );
+            SSObjectVec *&loaded = _regions[htmID];
+            if ( loaded == nullptr )
+                loaded = objects;
+            else
+                delete objects;
+        }
+        else
+            delete objects;
+
+        if ( callback != nullptr )
+            callback ( this, htmID );
+    };
+
+    if ( ! sync )
     {
         // Load in a background thread. Don't detach it: owners must be able to
         // wait for it before freeing regions or destroying this HTM.
 
         if ( _loadThreads.count ( htmID ) == 0 )
-            _loadThreads[htmID] = new thread ( &SSHTM::_loadRegion, this, htmID, _callback, userData );
+            _loadThreads[htmID] = new thread ( readRegion, _callback );
 
         return nullptr;
     }
     
     // Load region synchronously.
 
-    _loadRegion ( htmID, nullptr, userData );
+    readRegion ( nullptr );
     return getObjects ( htmID );
-}
-
-// Private method to load region, possibly from a background thread.
-// Returns pointed to loaded object vector if successful or nullptr on failure.
-
-SSObjectVec *SSHTM::_loadRegion ( uint64_t htmID, RegionLoadCallback callback, void *userData )
-{
-    int n = 0;
-    SSObjectVec *objects = new SSObjectVec();
-    
-    if ( _readFunc != nullptr )
-        n = _readFunc ( this, htmID, objects, userData );
-    else
-        n = SSImportObjectsFromCSV ( _rootpath + ID2name ( htmID ) + ".csv", *objects );
-    
-    if ( n > 0 )
-    {
-        // Another loader may have published the same region while this one read it.
-        // Keep the first object vector and publish under the map's mutex.
-        std::lock_guard<std::mutex> lock ( regionMutex() );
-        SSObjectVec *&loaded = _regions[htmID];
-        if ( loaded == nullptr )
-            loaded = objects;
-        else
-        {
-            delete objects;
-            objects = loaded;
-        }
-    }
-    else
-    {
-        delete objects;
-        objects = nullptr;
-    }
-    
-    if ( callback != nullptr )
-        callback ( this, htmID );
-
-    return objects;
 }
 
 // Waits for the background thread loading region htmID (if any) to finish, then deletes it.

@@ -43,9 +43,9 @@ protected:
     string                      _rootpath;              // directory containing object data files on filesystem.
     
     map<uint64_t,thread *>      _loadThreads;           // joinable background threads loading region objects from data files, indexed by HTM region ID; not yet joined and deleted
-    SSObjectVec *_loadRegion ( uint64_t htmID, RegionLoadCallback callback, void *userData );    // private method to load object data file for a given HTM region ID
-    void joinLoadThread ( uint64_t htmID );             // waits for and deletes the background thread loading a region, if any
     vector<thread *>            _taskThreads;           // joinable background threads started by startBackgroundTask(), e.g. object map loads
+
+    void joinLoadThread ( uint64_t htmID );             // waits for and deletes the background thread loading a region, if any
     static std::mutex &regionMutex ( void );            // returns reference to mutex that guards region map access while background loads publish objects
 
 public:
