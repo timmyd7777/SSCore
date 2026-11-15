@@ -162,7 +162,7 @@ bool SSHTM::store ( SSStar *pStar )
     if ( level > 0 )
         htmID = SSHTM::vector2ID ( pos, level - 1 );
 
-    if ( _regions.count ( htmID ) == 0 )
+    if ( _regions[htmID] == nullptr )
         _regions[htmID] = new SSObjectVec();
     
     _regions[htmID]->append ( pStar );
@@ -214,7 +214,7 @@ int SSHTM::saveRegion ( uint64_t htmID, void *userData )
 {
     int n = 0;
     
-    if ( _regions.count ( htmID ) )
+    if ( getObjects ( htmID ) != nullptr )
     {
         if ( _writeFunc != nullptr )
             n = _writeFunc ( this, htmID, _regions[htmID], userData );
@@ -251,13 +251,14 @@ int SSHTM::loadRegions ( uint64_t htmID, bool sync, void *userData )
 // returns nullptr; when finished loading region, calls notification callback
 // installed by SSHTMSetRegionLoadCallback() above, and subsequent calls to
 // loadRegion() or getObjects() return a pointer to the region's object vector.
+// Empty regions or regions which failed to load are marked with nullptr in this SSHTM's region map.
 // Background threads stay joinable, so dumpRegion(), dumpRegions(), and the destructor
 // can wait for them; the next loadRegion() call for the region joins and deletes its finished thread.
 
 SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
 {
-    // If region is already loaded, join and delete the finished thread that loaded it (if any),
-    // then return pointer to that region's objects.
+    // If region is already loaded (or empty, or failed to load), join and delete
+    // the finished thread that loaded it, then return pointer to that region's objects.
 
     if ( regionLoaded ( htmID ) )
     {
@@ -292,7 +293,14 @@ SSObjectVec *SSHTM::loadRegion ( uint64_t htmID, bool sync, void *userData )
                 delete objects;
         }
         else
+        {
+            // Mark an empty or unreadable region with nullptr;
+            // this prevents re-trying to read the region indefinitely.
+
             delete objects;
+            std::lock_guard<std::mutex> lock ( regionMutex() );
+            _regions.emplace ( htmID, nullptr );
+        }
 
         if ( callback != nullptr )
             callback ( this, htmID );
@@ -346,19 +354,17 @@ void SSHTM::waitForRegionLoads ( void )
         joinLoadThread ( ( it++ )->first );
 }
 
-// Tests whether star data for a specific region in this HTM has been
-// loaded into memory, i.e. if that region exists in this HTM.
+// Tests whether a region load has finished, even if the region contained no objects
+// or the read failed. A null object vector marks both an empty region and failed load.
 
 bool SSHTM::regionLoaded ( uint64_t htmID )
 {
     std::lock_guard<std::mutex> lock ( regionMutex() );
-    auto it = _regions.find ( htmID );
-    return it != _regions.end() && it->second != nullptr;
+    return _regions.find ( htmID ) != _regions.end();
 }
 
-// Returns pointer to array of objects stored in the region
-// with the specified HTM triangle ID. If region is not present
-// in this HTM or objects have not been loaded, returns nullptr.
+// Returns pointer to array of objects stored in the region with the specified HTM triangle ID.
+// If region is not present in this HTM, contains no objects, or has not yet been loaded, returns nullptr.
 
 SSObjectVec *SSHTM::getObjects ( uint64_t htmID )
 {
@@ -461,8 +467,9 @@ void SSHTM::clearRegions ( void )
             it->second->clear();
 }
 
-// Returns the number of regions currently stored in this HTM.
-// The map may be updated concurrently by background loaders.
+// Returns the number of regions that have been loaded (or stored) into this HTM,
+// including empty or failed regions. The count may be updated by background loaders.
+
 int SSHTM::countRegions ( void )
 {
     std::lock_guard<std::mutex> lock ( regionMutex() );

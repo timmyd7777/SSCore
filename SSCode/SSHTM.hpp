@@ -38,7 +38,7 @@ public:
 protected:
     DataFileFunc                _readFunc = nullptr;    // custom function for reading region data files
     DataFileFunc                _writeFunc = nullptr;   // custom function for writing region data files
-    map<uint64_t,SSObjectVec *> _regions;               // arrays of objects loaded into memory, indexed by HTM region ID
+    map<uint64_t,SSObjectVec *> _regions;               // arrays of objects loaded into memory, indexed by HTM region ID; empty or failed regions are marked with nullptr
     vector<float>               _magLevels;             // faintest magnitude of objects at each HTM level; vector size is depth of mesh tree
     string                      _rootpath;              // directory containing object data files on filesystem.
     
