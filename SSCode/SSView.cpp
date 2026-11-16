@@ -149,7 +149,7 @@ SSAngle SSView::maxAngularWidth ( void )
     else if ( _projection == kOrthographic )
         return SSAngle::fromDegrees ( 180.0 );
     else if ( _projection == kStereographic )
-        return SSAngle::fromDegrees ( 270.0 );
+        return SSAngle::fromDegrees ( 180.0 );
     else // ( _projection == kMercator || _projection == kEquirectangular || _projection == kMollweide || _projection == kSinusoidal )
         return SSAngle::fromDegrees ( 360.0 );
 }
