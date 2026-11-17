@@ -2049,21 +2049,29 @@ double SSPlanet::umbraLength ( float s )
 // Returns radius of this solar system object's umbral shadow cone, in AU,
 // with the object's physical radius multipled by a scale factor (s),
 // at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
+// The umbra narrows by (Sun radius - object radius) per unit distance from the Sun.
+// Result is negative beyond the umbra's apex, where its magnitude is the antumbra radius.
+// Uses hard-coded Sun radius of 695500 km.
 
 double SSPlanet::umbraRadius ( double d, float s )
 {
-    double u = umbraLength ( s );
-    double r = _radius < INFINITY ? _radius * s * ( u - d ) / u : 0.0;
+    double rm = _radius * s;                    // scaled object radius, km
+    double D = _position.magnitude();           // object distance from Sun, AU
+    double r = _radius < INFINITY ? rm - ( 695500.0 - rm ) * d / D : 0.0;   // umbra radius, km
     return r / SSCoordinates::kKmPerAU;
 }
 
 // Returns radius of this solar system object's penumbral shadow cone, in AU,
-// with the object's physical radius multipled by a scale factor (scale),
+// with the object's physical radius multipled by a scale factor (s),
 // at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
+// The penumbra's edge runs from one edge of the Sun to the opposite edge of this object,
+// so it widens by (Sun radius + object radius) per unit distance from the Sun.
+// Uses hard-coded Sun radius of 695500 km.
 
 double SSPlanet::penumbraRadius ( double d, float s )
 {
-    double u = umbraLength ( s );
-    double r = _radius < INFINITY ? _radius * s * ( u + d ) / u : 0.0;
+    double rm = _radius * s;                    // scaled object radius, km
+    double D = _position.magnitude();           // object distance from Sun, AU
+    double r = _radius < INFINITY ? rm + ( 695500.0 + rm ) * d / D : 0.0;   // penumbra radius, km
     return r / SSCoordinates::kKmPerAU;
 }
