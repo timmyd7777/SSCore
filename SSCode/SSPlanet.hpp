@@ -196,6 +196,8 @@ public:
 
     double distance ( SSPlanet &other ) { return _position.distance ( other._position ); }
     
+    SSMatrix ellipsoidForm ( double radius );
+    static double surfaceVisibility ( SSMatrix &form, SSVector offset, SSVector apparent );
     bool surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale = 1.0 );
 
     static double horizonDistance ( double radius, double distance );

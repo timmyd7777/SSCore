@@ -412,6 +412,33 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     moon_mutex.unlock();
 }
 
+// Returns the quadratic form of this object's oblate ellipsoid with equatorial radius (radius) in AU.
+// A planetocentric offset (x) in the fundamental J2000 frame lies on the surface when
+// x * ( form * x ) == 1; form * x is proportional to the outward surface normal.
+// Assumes the planetographic matrix has been calculated and radius is positive.
+// This is standard ellipsoid geometry, not NAIF source code. Related NAIF routines are surfnm_c and edlimb_c:
+// https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/surfnm_c.html
+// https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/edlimb_c.html
+
+SSMatrix SSPlanet::ellipsoidForm ( double radius )
+{
+    double polarRadius = radius * ( 1.0 - getFlattening() );
+    SSMatrix d ( 1.0 / ( radius * radius ), 0.0, 0.0,
+                 0.0, 1.0 / ( radius * radius ), 0.0,
+                 0.0, 0.0, 1.0 / ( polarRadius * polarRadius ) );
+    return _pmatrix * d * _pmatrix.transpose();
+}
+
+// Tests whether a surface point with planetocentric offset (offset) faces the observer.
+// The object's quadratic ellipsoid form (form) is from ellipsoidForm(); the vector (apparent)
+// runs from the observer to the object's center. Offsets and apparent are in AU in the fundamental frame.
+// Returns a negative value for a visible point, positive for a far-side point, or zero at the limb.
+
+double SSPlanet::surfaceVisibility ( SSMatrix &form, SSVector offset, SSVector apparent )
+{
+    return ( form * offset ) * ( offset + apparent );
+}
+
 // Given a point at planetographic longituade (lon) and latitude (lat) in radians,
 // on the surface of this solar system object, computes apparent direction
 // unit vector (dir) and distance in AU (dist) to that point, seen from the
@@ -423,11 +450,16 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 
 bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale )
 {
-    SSVector point = SSSpherical ( lon, lat, _radius < INFINITY ? _radius * scale / SSCoordinates::kKmPerAU : 0.0 );
+    double radius = _radius < INFINITY ? _radius * scale / SSCoordinates::kKmPerAU : 0.0;
+    SSVector point = SSSpherical ( lon, lat, radius );
     point.z *= 1.0 - getFlattening();
     point = getPlanetographicMatrix() * point;
-    dir = ( point + getDirection() * getDistance() ).normalize ( dist );
-    return dir * point < 0.0;
+    SSVector apparent = getDirection() * getDistance();
+    dir = ( point + apparent ).normalize ( dist );
+    if ( radius <= 0.0 )
+        return false;
+    SSMatrix form = ellipsoidForm ( radius );
+    return surfaceVisibility ( form, point, apparent ) < 0.0;
 }
 
 // Returns distance to solar system object's limb (i.e. horizon) in arbitrary units.
@@ -2050,15 +2082,14 @@ double SSPlanet::umbraLength ( float s )
 // with the object's physical radius multipled by a scale factor (s),
 // at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
 // The umbra narrows by (Sun radius - object radius) per unit distance from the Sun.
-// Result is negative beyond the umbra's apex, where its magnitude is the antumbra radius.
-// Uses SSCoordinates::kKmPerSolarRadii for the Sun's radius in km.
+// Result is negative beyond the umbra's apex.
 
 double SSPlanet::umbraRadius ( double d, float s )
 {
     double rm = _radius * s;                    // scaled object radius, km
     double D = _position.magnitude();           // object distance from Sun, AU
-    double r = _radius < INFINITY ? rm - ( SSCoordinates::kKmPerSolarRadii - rm ) * d / D : 0.0;   // umbra radius, km
-    return r / SSCoordinates::kKmPerAU;
+    double r = _radius < INFINITY ? rm - ( SSCoordinates::kKmPerSolarRadii - rm ) * d / D : 0.0;
+    return r / SSCoordinates::kKmPerAU;         // umbra radius, AU
 }
 
 // Returns radius of this solar system object's penumbral shadow cone, in AU,
@@ -2066,12 +2097,12 @@ double SSPlanet::umbraRadius ( double d, float s )
 // at a distance (d) from the object's center along the shadow cone axis, away from the Sun, in AU.
 // The penumbra's edge runs from one edge of the Sun to the opposite edge of this object,
 // so it widens by (Sun radius + object radius) per unit distance from the Sun.
-// Uses SSCoordinates::kKmPerSolarRadii for the Sun's radius in km.
+// Result is non-negative for non-negative d.
 
 double SSPlanet::penumbraRadius ( double d, float s )
 {
     double rm = _radius * s;                    // scaled object radius, km
     double D = _position.magnitude();           // object distance from Sun, AU
-    double r = _radius < INFINITY ? rm + ( SSCoordinates::kKmPerSolarRadii + rm ) * d / D : 0.0;   // penumbra radius, km
-    return r / SSCoordinates::kKmPerAU;
+    double r = _radius < INFINITY ? rm + ( SSCoordinates::kKmPerSolarRadii + rm ) * d / D : 0.0;
+    return r / SSCoordinates::kKmPerAU;         // penumbra radius, AU
 }
