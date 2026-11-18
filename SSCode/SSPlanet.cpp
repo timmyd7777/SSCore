@@ -435,7 +435,7 @@ SSMatrix SSPlanet::ellipsoidMatrix ( double a )
 // Returns a negative value for a point on the visible (near-side) part of the planet,
 // positive value for a point on the far side, or zero for a point on the planet's visible limb/edge.
 
-double SSPlanet::surfaceVisibility ( SSMatrix &q, SSVector p, SSVector d )
+double SSPlanet::surfacePointVisibility ( SSMatrix &q, SSVector p, SSVector d )
 {
     return ( q * p ) * ( p + d );
 }
@@ -459,7 +459,7 @@ bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, 
     if ( radius <= 0.0 )
         return false;
     SSMatrix q = ellipsoidMatrix ( radius );
-    return surfaceVisibility ( q, point, apparent ) < 0.0;
+    return surfacePointVisibility ( q, point, apparent ) < 0.0;
 }
 
 // Returns distance to solar system object's limb (i.e. horizon) in arbitrary units.
@@ -2068,7 +2068,6 @@ bool SSPlanet::isSmallMoon ( void )
 
 // Returns length of this solar system object's umbral shadow cone, in AU,
 // with the object's physical radius multipled by a scale factor (s).
-// Uses SSCoordinates::kKmPerSolarRadii for the Sun's radius in km.
 
 double SSPlanet::umbraLength ( float s )
 {
