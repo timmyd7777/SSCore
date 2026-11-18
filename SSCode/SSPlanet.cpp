@@ -412,38 +412,38 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     moon_mutex.unlock();
 }
 
-// Returns the quadratic form of this object's oblate ellipsoid with equatorial radius (radius) in AU.
-// A planetocentric offset (x) in the fundamental J2000 frame lies on the surface when
-// x * ( form * x ) == 1; form * x is proportional to the outward surface normal.
-// Assumes the planetographic matrix has been calculated and radius is positive.
-// This is standard ellipsoid geometry, not NAIF source code. Related NAIF routines are surfnm_c and edlimb_c:
+// Returns the quadratic matrix Q of this object's oblate ellipsoid with equatorial radius (a) in AU.
+// A planetocentric point (p) in the fundamental J2000 frame lies on the planet's surface when
+// p * ( Q * p ) == 1. At that point, Q * p is proportional to the planet's outward surface normal.
+// Assumes the planetographic matrix has been calculated, and radius is positive.
+// Related NAIF routines are surfnm_c and edlimb_c, but this is not NAIF source code.
 // https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/surfnm_c.html
 // https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/edlimb_c.html
 
-SSMatrix SSPlanet::ellipsoidForm ( double radius )
+SSMatrix SSPlanet::ellipsoidMatrix ( double a )
 {
-    double polarRadius = radius * ( 1.0 - getFlattening() );
-    SSMatrix d ( 1.0 / ( radius * radius ), 0.0, 0.0,
-                 0.0, 1.0 / ( radius * radius ), 0.0,
-                 0.0, 0.0, 1.0 / ( polarRadius * polarRadius ) );
+    double b = a * ( 1.0 - getFlattening() );   // polar radius
+    SSMatrix d ( 1.0 / ( a * a ), 0.0, 0.0,
+                 0.0, 1.0 / ( a * a ), 0.0,
+                 0.0, 0.0, 1.0 / ( b * b ) );
     return _pmatrix * d * _pmatrix.transpose();
 }
 
-// Tests whether a surface point with planetocentric offset (offset) faces the observer.
-// The object's quadratic ellipsoid form (form) is from ellipsoidForm(); the vector (apparent)
-// runs from the observer to the object's center. Offsets and apparent are in AU in the fundamental frame.
-// Returns a negative value for a visible point, positive for a far-side point, or zero at the limb.
+// Tests whether a planetary surface point with planetocentric offset (p) faces the observer.
+// The object's ellipsoid matrix (q) is from ellipsoidMatrix(); the apparent direction vector (d)
+// runs from the observer to the object's center. Both vectors p and d are in AU in the fundamental frame.
+// Returns a negative value for a point on the visible (near-side) part of the planet,
+// positive value for a point on the far side, or zero for a point on the planet's visible limb/edge.
 
-double SSPlanet::surfaceVisibility ( SSMatrix &form, SSVector offset, SSVector apparent )
+double SSPlanet::surfaceVisibility ( SSMatrix &q, SSVector p, SSVector d )
 {
-    return ( form * offset ) * ( offset + apparent );
+    return ( q * p ) * ( p + d );
 }
 
 // Given a point at planetographic longituade (lon) and latitude (lat) in radians,
 // on the surface of this solar system object, computes apparent direction
 // unit vector (dir) and distance in AU (dist) to that point, seen from the
-// observer's current position.
-// Scale (scale) multiplies the object's physical radius; default 1.0 uses its actual size.
+// observer's current position. The object's radius may be multiplied (scale).
 // Returns true if the point is on the visible part of the planet's surface;
 // returns false if the point is "over the horizon" on the far side the planet.
 // Assumes planet's apparent direction and distance from observer have already been calculated!
@@ -458,8 +458,8 @@ bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, 
     dir = ( point + apparent ).normalize ( dist );
     if ( radius <= 0.0 )
         return false;
-    SSMatrix form = ellipsoidForm ( radius );
-    return surfaceVisibility ( form, point, apparent ) < 0.0;
+    SSMatrix q = ellipsoidMatrix ( radius );
+    return surfaceVisibility ( q, point, apparent ) < 0.0;
 }
 
 // Returns distance to solar system object's limb (i.e. horizon) in arbitrary units.
