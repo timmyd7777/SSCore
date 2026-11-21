@@ -345,3 +345,15 @@ This folder contains the original files from GeoNames and the Gazetteer of Plane
 
 - Version 1.0 (10 Nov 2020): initial checkin.
 - Version 1.1 (24 Nov 2020): added type column.
+
+Jupos
+-----
+
+This folder contains a CSV file with System II longitudes for Jupiter's Great Red Spot (GRS) at 30-day intervals covering January 1964 through December 2027. Measurements after August 2026 are extrapolated. Original data were obtained from [jupos.org](https://jupos.org).
+
+This directory contains a `ReadMe.txt` file with detailed documentation, and python code to extend the CSV file with future jupos data updates.
+
+**Revision History**
+
+- Version 1.0 (21 Nov 2026): initial checkin.
+

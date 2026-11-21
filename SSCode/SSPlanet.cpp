@@ -1960,14 +1960,16 @@ SSSpherical SSPlanet::subsolarCoordinates ( void )
     return coords;
 }
 
-// Returns System II longitude of Jupiter's Gred Red Spot, in degrees.
-// Formula is a manual linear fit to 2019-2021 data published here:
-// http://jupos.privat.t-online.de/img/Grs.GIF
+// Returns System II longitude of Jupiter's Great Red Spot, in degrees.
+// This is an approximation for 2026-2027; update periodically.
+// Formula is a linear fit to measurements published at:
+// https://jupos.org/img/Grs.GIF
+// Reference: 97.8 degrees on 2026-11-21. Drift rate: +19.6 degrees/year.
 
 double SSPlanet::getGRSLongitude ( double jd )
 {
     double y = SSTime ( jd ).toJulianYear();
-    double l = 350.0 + 25.5 * ( y - 2021.0 );
+    double l = 97.8 + 19.6 * ( y - 2026.8871 );
     return mod360 ( l );
 }
 
