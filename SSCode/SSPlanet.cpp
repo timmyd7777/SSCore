@@ -1961,16 +1961,94 @@ SSSpherical SSPlanet::subsolarCoordinates ( void )
 }
 
 // Returns System II longitude of Jupiter's Great Red Spot, in degrees.
-// This is an approximation for 2026-2027; update periodically.
-// Formula is a linear fit to measurements published at:
-// https://jupos.org/img/Grs.GIF
-// Reference: 97.8 degrees on 2026-11-21. Drift rate: +19.6 degrees/year.
+// Based on data from https://jupos.org/ for January 1965 through August 2026,
+// extrapolated to January 2028. Dates outside the table are clamped to the nearest endpoint.
+// Interpolation follows the shortest path across the 0/360-degree wrap.
+// Accuracy is within a few degrees of actual JUPOS measurements over 1965-2026.
 
 double SSPlanet::getGRSLongitude ( double jd )
 {
-    double y = SSTime ( jd ).toJulianYear();
-    double l = 97.8 + 19.6 * ( y - 2026.8871 );
-    return mod360 ( l );
+   struct GRSEntry { int year; double lon; };
+   static constexpr GRSEntry grs[] = {
+       { 1965, 19.886333 },
+       { 1966, 22.533000 },
+       { 1967, 27.355708 },
+       { 1968, 27.737219 },
+       { 1969, 20.904183 },
+       { 1970, 20.124133 },
+       { 1971, 13.190333 },
+       { 1972, 3.171762 },
+       { 1973, 1.943338 },
+       { 1974, 12.129017 },
+       { 1975, 28.573667 },
+       { 1976, 49.129183 },
+       { 1977, 47.810875 },
+       { 1978, 54.693000 },
+       { 1979, 58.960992 },
+       { 1980, 56.533000 },
+       { 1981, 53.068108 },
+       { 1982, 53.088667 },
+       { 1983, 43.740333 },
+       { 1984, 31.402233 },
+       { 1985, 24.761000 },
+       { 1986, 20.026667 },
+       { 1987, 14.540417 },
+       { 1988, 15.733000 },
+       { 1989, 21.380333 },
+       { 1990, 26.075367 },
+       { 1991, 31.200000 },
+       { 1992, 31.688583 },
+       { 1993, 41.140333 },
+       { 1994, 43.804600 },
+       { 1995, 46.650925 },
+       { 1996, 53.899000 },
+       { 1997, 62.236010 },
+       { 1998, 63.717942 },
+       { 1999, 67.029175 },
+       { 2000, 73.417550 },
+       { 2001, 75.134608 },
+       { 2002, 80.355333 },
+       { 2003, 86.252275 },
+       { 2004, 92.415550 },
+       { 2005, 100.927842 },
+       { 2006, 109.409100 },
+       { 2007, 115.384231 },
+       { 2008, 122.977766 },
+       { 2009, 131.072134 },
+       { 2010, 144.716497 },
+       { 2011, 162.052840 },
+       { 2012, 174.164437 },
+       { 2013, 189.916047 },
+       { 2014, 207.018775 },
+       { 2015, 222.220868 },
+       { 2016, 239.189910 },
+       { 2017, 261.581786 },
+       { 2018, 285.136014 },
+       { 2019, 301.318735 },
+       { 2020, 324.520682 },
+       { 2021, 350.674323 },
+       { 2022, 9.579612 },
+       { 2023, 30.603347 },
+       { 2024, 49.800196 },
+       { 2025, 67.878941 },
+       { 2026, 81.224485 },
+       { 2027, 97.151328 },
+       { 2028, 113.142296 }
+   };
+
+   constexpr int firstYear = 1965;
+   constexpr int lastYear  = 2028;
+   const double y = 2000.0 + ( jd - 2451545.0 ) / 365.25;
+
+   if ( y <= firstYear ) return grs[0].lon;
+   if ( y >= lastYear )  return grs[lastYear - firstYear].lon;
+
+   const int i = static_cast<int>( y ) - firstYear;
+   const double t = y - grs[i].year;
+   double delta = grs[i + 1].lon - grs[i].lon;
+   if ( delta > 180.0 ) delta -= 360.0;
+   if ( delta < -180.0 ) delta += 360.0;
+   return mod360 ( grs[i].lon + t * delta );
 }
 
 // Determines if a ray from an external point (p) extending in direction of the unit vector (r) intersects
