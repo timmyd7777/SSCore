@@ -133,6 +133,7 @@ protected:
     SSVector    _position;      // current heliocentric position in fundamental frame in AU
     SSVector    _velocity;      // current heliocentric velocity in fundamental frame in AU per day
     SSMatrix    _pmatrix;       // transforms from planetographic to fundamental J2000 mean equatorial frame.
+    bool        _eclipsed;      // true if this object is totally eclipsed by its primary.
     
     void computeMinorPlanetPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
     void computeMoonPositionVelocity ( double jed, double lt, SSVector &pos, SSVector &vel );
@@ -221,7 +222,7 @@ public:
     
     static double getGRSLongitude ( double jd );
     bool rayIntersect ( SSVector p, SSVector u, double &d, SSVector &q, float s = 1.0f );
-
+    
     // Sets whether to use (accurate, but slow) VSOP/ELP planetary & lunar ephemeris when JPL DE442 is not available.
     // Also USE_VSOP_ELP must be #defined as 1 at the top of SSPlanet.cpp!
     
@@ -239,6 +240,9 @@ public:
     double umbraRadius ( double d, float s = 1.0f );
     double penumbraRadius ( double d, float s = 1.0f );
 
+    static bool isEclipsed ( SSVector mpos, double mrad, SSVector ppos, double prad );
+    bool isEclipsed ( void ) { return _eclipsed; }
+    
     // Convenience methods for testing whether a planet is the Sun/Moon/Earth or a small moon.
 
     bool isSun ( void ) { return _type == kTypePlanet && _id.identifier() == kSun; }

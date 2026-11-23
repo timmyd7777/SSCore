@@ -50,6 +50,7 @@ SSPlanet::SSPlanet ( SSObjectType type ) : SSObject ( type )
     _albedo = 0.0;
     _taxonomy = "";
     _position = _velocity = SSVector ( INFINITY, INFINITY, INFINITY );
+    _eclipsed = false;
 }
 
 SSPlanet::SSPlanet ( SSObjectType type, SSPlanetID id ) : SSPlanet ( type )
@@ -304,37 +305,42 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
 {
     static SSVector primaryPos[10], primaryVel[10];
     static double primaryJED[10] = { 0.0 };
-
+    static double primaryRad[10] = { 695508, 2440, 6052, 6378, 3396, 71492, 60268, 25559, 24764, 1188 };    // planetary radii [km]
+    
     // Get moon and primary planet identifier.
     
     int m = (int) _id.identifier();
     int p = getPrimaryID();
 
     // Special case for Moon: use JPL ephemeris to compute heliocentric position and velocity directly;
-    // or if that fails, use PS ephemeris to compute Moon's geocentric position and velocity.
+    // or if that fails, use ELP or PS ephemeris to compute Moon's geocentric position and velocity.
     
+    bool heliocentric = false;
     if ( m == kLuna )
     {
-        // When planets or the Moon are more than 1 light day away, don't use JPL DE 408; VSOP/ELP is much faster in this case.
-        
-        if ( lt < 1.0 && SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
-            return;
-
+        // When planets or the Moon are more than 1 light day away, don't use JPL DE; VSOP/ELP is much faster in this case.
         // ELPMPP02 is valid within 3000 years of J2000; use PS Ephemeris if outside that range.
 
-#if USE_VSOP_ELP
-        double y = fabs ( jed - lt - SSTime::kJ2000 ) / 365.25;
-        if ( _useVSOPELP && y < 3000.0 )
-            _elp.computePositionVelocity ( jed - lt, pos, vel );
+        if ( lt < 1.0 && SSJPLDEphemeris::compute ( 10, jed - lt, false, pos, vel ) )
+        {
+            heliocentric = true;
+        }
         else
-            computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
+        {
+#if USE_VSOP_ELP
+            double y = fabs ( jed - lt - SSTime::kJ2000 ) / 365.25;
+            if ( _useVSOPELP && y < 3000.0 )
+                _elp.computePositionVelocity ( jed - lt, pos, vel );
+            else
+                computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
 #elif USE_VPEPHEMERIS
-        SSVPEphemeris::fundamentalPositionVelocity ( 10, jed - lt, pos, vel );
-        pos *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
-        vel *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+            SSVPEphemeris::fundamentalPositionVelocity ( 10, jed - lt, pos, vel );
+            pos *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
+            vel *= SSCoordinates::kKmPerEarthRadii / SSCoordinates::kKmPerAU;
 #else
-        computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
+            computePSPlanetMoonPositionVelocity ( kLuna, jed, lt, pos, vel );
 #endif
+        }
     }
     else
     {
@@ -389,6 +395,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
     // Mutex lock prevents multiple threads from modifying these shared resources simultaneously.
     
     moon_mutex.lock();
+    SSVector primaryPosLT;
     if ( lt < 1.0 )
     {
         if ( primaryJED[p] != jed )
@@ -396,8 +403,7 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
             computeMajorPlanetPositionVelocity ( p, jed, 0.0, primaryPos[p], primaryVel[p] );
             primaryJED[p] = jed;
         }
-        pos += primaryPos[p] - primaryVel[p] * lt;
-        vel += primaryVel[p];
+        primaryPosLT = primaryPos[p] - primaryVel[p] * lt;
     }
     else
     {
@@ -406,9 +412,20 @@ void SSPlanet::computeMoonPositionVelocity ( double jed, double lt, SSVector &po
             computeMajorPlanetPositionVelocity ( p, jed, lt, primaryPos[p], primaryVel[p] );
             primaryJED[p] = jed - lt;
         }
-        pos += primaryPos[p];
+        primaryPosLT = primaryPos[p];
+    }
+
+    // If the moon's position/velocity are not already heliocentric, add its primary's to make them so.
+
+    if ( ! heliocentric )
+    {
+        pos += primaryPosLT;
         vel += primaryVel[p];
     }
+    
+    // Determine if the moon is totally eclipsed by its primary.
+    
+    _eclipsed = isEclipsed ( pos, _radius, primaryPosLT, primaryRad[p] );
     moon_mutex.unlock();
 }
 
@@ -448,7 +465,7 @@ double SSPlanet::surfacePointVisibility ( SSMatrix &q, SSVector p, SSVector d )
 // returns false if the point is "over the horizon" on the far side the planet.
 // Assumes planet's apparent direction and distance from observer have already been calculated!
 
-bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale )
+bool SSPlanet::surfacePointDirection (SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale )
 {
     double radius = _radius < INFINITY ? _radius * scale / SSCoordinates::kKmPerAU : 0.0;
     SSVector point = SSSpherical ( lon, lat, radius );
@@ -1154,6 +1171,7 @@ float SSSatellite::computeMagnitude ( double rad, double dist, double phase )
 // Returned position (pos) and velocity (vel) vectors are both in fundamental J2000 equatorial frame.
 // Also computes satellite's "planetographic" orientation matrix, which describes how the
 // satellite is oriented relative to the Earth's J2000 mean equatorial (fundamental) frame.
+// Determines whether this satellite is eclipsed by the Earth's umbral shadow.
 
 mutex sat_mutex;
 
@@ -1230,8 +1248,13 @@ void SSSatellite::computePositionVelocity ( double jed, double lt, SSVector &pos
     
     // Add Earth's position (antedated for light time) and velocity to satellite position and velocity.
     
-    pos += earthPos - earthVel * lt;
+    SSVector earthPosLT = earthPos - earthVel * lt;
+    pos += earthPosLT;
     vel += earthVel;
+    
+    // Determine if the satellite is totally eclipsed inside Earth's umbral shadow.
+    
+    _eclipsed = isEclipsed ( pos, _radius, earthPosLT, SSCoordinates::kKmPerEarthRadii );
 }
 
 #if USE_VSOP_ELP
@@ -2171,7 +2194,7 @@ double SSPlanet::umbraRadius ( double d, float s )
 {
     double rm = _radius * s;                    // scaled object radius, km
     double D = _position.magnitude();           // object distance from Sun, AU
-    double r = _radius < INFINITY ? rm - ( SSCoordinates::kKmPerSolarRadii - rm ) * d / D : 0.0;
+    double r = rm - ( SSCoordinates::kKmPerSolarRadii - rm ) * d / D;
     return r / SSCoordinates::kKmPerAU;         // umbra radius, AU
 }
 
@@ -2186,6 +2209,27 @@ double SSPlanet::penumbraRadius ( double d, float s )
 {
     double rm = _radius * s;                    // scaled object radius, km
     double D = _position.magnitude();           // object distance from Sun, AU
-    double r = _radius < INFINITY ? rm + ( SSCoordinates::kKmPerSolarRadii + rm ) * d / D : 0.0;
+    double r = rm + ( SSCoordinates::kKmPerSolarRadii + rm ) * d / D;
     return r / SSCoordinates::kKmPerAU;         // penumbra radius, AU
+}
+
+// Returns true if a moon or satellite is completely eclipsed by its primary.
+// The satellite and its primary's heliocentric position vectors (satPos, priPos) are in AU.
+// The satellite and its primary's physical radii (satRad, priRad) are in km.
+// Display scale factors for satellie and primary should be preapplied to satRad/priRad!
+
+bool SSPlanet::isEclipsed ( SSVector satPos, double satRad, SSVector priPos, double priRad )
+{
+    // Compute unit apparent direction vector and distance to Sun and primary as seen from satellite.
+    
+    double sunDist = 0.0, priDist = 0.0;
+    SSVector sunDir = ( satPos * -1.0 ).normalize ( sunDist );
+    SSVector priDir = ( priPos - satPos ).normalize ( priDist );
+
+    // Compute angular radius of Sun and primary (reduced by satellite's pnyiscal radius) as seen
+    // from satellite; total eclipse if Sun's apparent disk appears completely inside primary's.
+
+    double sunAng = angularRadius ( SSCoordinates::kAUPerSolarRadii, sunDist );
+    double priAng = angularRadius ( ( priRad - satRad ) / SSCoordinates::kKmPerAU, priDist );
+    return sunDir.angularSeparation ( priDir ) <= priAng - sunAng;
 }
