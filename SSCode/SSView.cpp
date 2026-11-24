@@ -626,8 +626,160 @@ bool SSView::inBoundRect ( double x, double y, double r )
 
     if ( point_in_circle ( x, y, xmin, ymax, r ) )
         return true;
-    
+
     return false;
+}
+
+// Computes a circle on the 2D field of view which encloses the projected image of a circular disk on the
+// celestial sphere (such as the apparent disk of a spherical planet). The disk's center direction (cvec) is
+// a unit vector in the same celestial frame passed to project(); the disk's angular radius (angRad) is in radians.
+// Returns the enclosing circle's center (x,y) and radius (r) in pixels. If the disk's image is unbounded
+// (e.g. the disk reaches the point opposite the view center in the stereographic projection, or wraps around
+// a 360-degree projection's edge), (x,y) is the view center and r is INFINITY. Returns false if the disk lies
+// entirely on the hidden far side of a gnomonic or orthographic projection, so it cannot appear in the view at all.
+// The circle is exact in the stereographic projection, which maps circles on the celestial sphere to circles in the view,
+// Otherwise it is a conservative bound: it may be larger than the disk's projected image, but never smaller.
+
+bool SSView::projectDisk ( SSVector cvec, SSAngle angRad, double &x, double &y, double &r )
+{
+    // Transform disk center to view frame, where the view center is along the +x axis.
+    // Get disk center's angular distance from view center (theta) and disk's angular radius (rho), both radians.
+
+    SSVector v = transform ( cvec ).normalize();
+    double theta = acos ( min ( max ( v.x, -1.0 ), 1.0 ) );
+    double rho = angRad;
+
+    // Default result is an unbounded image. A disk which covers the view center is always visible.
+
+    x = _centerX;
+    y = _centerY;
+    r = INFINITY;
+    if ( rho >= theta )
+        return true;
+
+    // Azimuthal projections map the disk to a shape symmetric about the line from the view center
+    // through the disk center. Get unit direction (ay,az) of that line in the view frame.
+
+    if ( _projection == kStereographic || _projection == kGnomonic || _projection == kOrthographic )
+    {
+        double ay = v.y, az = v.z, s = sqrt ( ay * ay + az * az );
+        if ( s > 0.0 )
+        {
+            ay /= s;
+            az /= s;
+        }
+        else
+        {
+            ay = 1.0;
+            az = 0.0;
+        }
+
+        // Find image center offset (m) along that line and image radius (R), both in units of radians / scale.
+        // Disk's near and far limb points are at angular distances (theta1) and (theta2) from view center.
+
+        double theta1 = theta - rho, theta2 = theta + rho, m = 0.0, R = 0.0;
+        if ( _projection == kStereographic )
+        {
+            // Exact: image is a circle through both limb points. Unbounded if the disk reaches the antipode.
+
+            if ( theta2 >= SSAngle::kPi )
+                return true;
+
+            double g1 = tan ( theta1 / 2.0 ), g2 = tan ( theta2 / 2.0 );
+            m = ( g1 + g2 ) / 2.0;
+            R = ( g2 - g1 ) / 2.0;
+        }
+        else if ( _projection == kGnomonic )
+        {
+            // Image is an ellipse whose major axis joins the limb points. Invisible if the whole disk is
+            // 90 degrees or more from view center; unbounded if only part of it is.
+
+            if ( theta1 >= SSAngle::kHalfPi )
+                return false;
+
+            if ( theta2 >= SSAngle::kHalfPi )
+                return true;
+
+            double g1 = tan ( theta1 ), g2 = tan ( theta2 );
+            m = ( g1 + g2 ) / 2.0;
+            R = ( g2 - g1 ) / 2.0;
+        }
+        else // kOrthographic
+        {
+            // Image is the parallel projection of the disk's limb circle: an ellipse centered on the projected
+            // limb circle center, with semi-major axis equal to the limb circle's radius. Invisible if the whole
+            // disk is on the far hemisphere.
+
+            if ( theta1 >= SSAngle::kHalfPi )
+                return false;
+
+            m = cos ( rho ) * sin ( theta );
+            R = sin ( rho );
+        }
+
+        // Convert to pixels, using the same sign conventions as project(). Use the smaller scale so the circle
+        // still encloses the image if horizontal and vertical scales differ.
+
+        x = _centerX - ay * m / _scaleX;
+        y = _centerY - az * m / _scaleY;
+        r = R / min ( fabs ( _scaleX ), fabs ( _scaleY ) );
+        return true;
+    }
+
+    // Cylindrical and pseudocylindrical projections: find the disk's longitude and latitude extents in the view frame.
+    // A disk containing a pole of the view frame, or crossing the seam 180 degrees from the view center, wraps around
+    // the map edges, so treat its image as unbounded.
+
+    double lon = atan2 ( v.y, v.x ), lat = asin ( max ( -1.0, min ( v.z, 1.0 ) ) );
+    if ( fabs ( lat ) + rho >= SSAngle::kHalfPi )
+        return true;
+
+    double dlon = asin ( min ( sin ( rho ) / cos ( lat ), 1.0 ) );
+    if ( fabs ( lon ) + dlon >= SSAngle::kPi )
+        return true;
+
+    // These projections map longitude linearly to x (scaled by a factor which shrinks away from the equator)
+    // and latitude monotonically to y. So the image of the disk's longitude/latitude box is bounded by the
+    // projections of its corners, plus its edge points on the equator if it straddles the equator.
+    // Return a circle enclosing that bounding box.
+
+    double lats[3] = { lat - rho, lat + rho, 0.0 };
+    int nlats = lat - rho < 0.0 && lat + rho > 0.0 ? 3 : 2;
+    double xmin = INFINITY, xmax = -INFINITY, ymin = INFINITY, ymax = -INFINITY;
+    for ( int i = 0; i < nlats; i++ )
+    {
+        for ( int j = -1; j <= 1; j += 2 )
+        {
+            double qlon = lon + j * dlon;
+            SSVector q ( cos ( lats[i] ) * cos ( qlon ), cos ( lats[i] ) * sin ( qlon ), sin ( lats[i] ) );
+            SSVector p = project ( untransform ( q ) );
+            if ( p.isinf() )
+                return true;
+
+            xmin = min ( xmin, p.x );
+            xmax = max ( xmax, p.x );
+            ymin = min ( ymin, p.y );
+            ymax = max ( ymax, p.y );
+        }
+    }
+
+    double hw = ( xmax - xmin ) / 2.0, hh = ( ymax - ymin ) / 2.0;
+    x = ( xmin + xmax ) / 2.0;
+    y = ( ymin + ymax ) / 2.0;
+    r = sqrt ( hw * hw + hh * hh );
+    return true;
+}
+
+// Tests whether the projected image of a circular disk on the celestial sphere, centered in direction (cvec)
+// with angular radius (angRad) in radians, intersects the view's 2D bounding rectangle. See projectDisk().
+
+bool SSView::diskInBoundRect ( SSVector cvec, SSAngle angRad )
+{
+    double x = 0.0, y = 0.0, r = 0.0;
+    if ( ! projectDisk ( cvec, angRad, x, y, r ) )
+        return false;
+
+    return isinf ( r ) ? true : inBoundRect ( x, y, r );
 }
 
 // tests whether triangle with vertices (x1,y1), (x2,y2), (x3,y3)

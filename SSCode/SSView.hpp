@@ -120,6 +120,12 @@ public:
     bool inBoundRect ( double xmin, double ymin, double xmax, double ymax );
     bool inCircle ( double xc, double yc, double r );
 
+    // projects a circular disk on the celestial sphere onto the field of view,
+    // and tests whether it intersects the view's 2D bounding rectangle
+
+    bool projectDisk ( SSVector cvec, SSAngle angRad, double &x, double &y, double &r );
+    bool diskInBoundRect ( SSVector cvec, SSAngle angRad );
+
     // converts horizontal/vertical distance from chart center in radians to pixels, and vice-versa
     
     double radiansToPixelsX ( SSAngle radians );
