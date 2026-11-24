@@ -465,9 +465,9 @@ double SSPlanet::surfacePointVisibility ( SSMatrix &q, SSVector p, SSVector d )
 // returns false if the point is "over the horizon" on the far side the planet.
 // Assumes planet's apparent direction and distance from observer have already been calculated!
 
-bool SSPlanet::surfacePointDirection (SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale )
+bool SSPlanet::surfacePointDirection ( SSAngle lon, SSAngle lat, SSVector &dir, double &dist, double scale )
 {
-    double radius = _radius < INFINITY ? _radius * scale / SSCoordinates::kKmPerAU : 0.0;
+    double radius = _radius * scale / SSCoordinates::kKmPerAU;
     SSVector point = SSSpherical ( lon, lat, radius );
     point.z *= 1.0 - getFlattening();
     point = getPlanetographicMatrix() * point;
@@ -493,10 +493,7 @@ double SSPlanet::horizonDistance ( double radius, double distance )
 
 double SSPlanet::horizonDistance ( void )
 {
-    if ( _radius < INFINITY )
-        return horizonDistance ( _radius / SSCoordinates::kKmPerAU, _distance );
-    else
-        return _distance;
+    return horizonDistance ( _radius / SSCoordinates::kKmPerAU, _distance );
 }
 
 // Returns solar system object's angular radius in radians.
@@ -514,10 +511,7 @@ double SSPlanet::angularRadius ( double radius, double distance )
 
 double SSPlanet::angularRadius ( float s )
 {
-    if ( _radius < INFINITY )
-        return angularRadius ( _radius * s, _distance * SSCoordinates::kKmPerAU );
-    else
-        return 0.0;
+    return angularRadius ( _radius * s, _distance * SSCoordinates::kKmPerAU );
 }
 
 // Returns solar system object's phase angle in radians.
@@ -2094,7 +2088,7 @@ bool SSPlanet::rayIntersect ( SSVector p, SSVector r, double &d, SSVector &q, fl
     p = tmatrix * p;
     r = tmatrix * r;
     SSVector c = tmatrix * _position;
-    double re = _radius < INFINITY ? _radius * s / SSCoordinates::kKmPerAU : 0.0;
+    double re = _radius * s / SSCoordinates::kKmPerAU;
     double f = getFlattening();
     
     // Define some variables
@@ -2178,10 +2172,7 @@ bool SSPlanet::isSmallMoon ( void )
 
 double SSPlanet::umbraLength ( float s )
 {
-    if ( _radius < INFINITY )
-        return _position.magnitude() * _radius * s / ( SSCoordinates::kKmPerSolarRadii - _radius * s );
-    else
-        return 0.0;
+    return _position.magnitude() * _radius * s / ( SSCoordinates::kKmPerSolarRadii - _radius * s );
 }
 
 // Returns radius of this solar system object's umbral shadow cone, in AU,
@@ -2216,7 +2207,7 @@ double SSPlanet::penumbraRadius ( double d, float s )
 // Returns true if a moon or satellite is completely eclipsed by its primary.
 // The satellite and its primary's heliocentric position vectors (satPos, priPos) are in AU.
 // The satellite and its primary's physical radii (satRad, priRad) are in km.
-// Display scale factors for satellie and primary should be preapplied to satRad/priRad!
+// Display scale factors for satellite and primary should be pre-applied to satRad/priRad!
 
 bool SSPlanet::isEclipsed ( SSVector satPos, double satRad, SSVector priPos, double priRad )
 {
@@ -2226,7 +2217,7 @@ bool SSPlanet::isEclipsed ( SSVector satPos, double satRad, SSVector priPos, dou
     SSVector sunDir = ( satPos * -1.0 ).normalize ( sunDist );
     SSVector priDir = ( priPos - satPos ).normalize ( priDist );
 
-    // Compute angular radius of Sun and primary (reduced by satellite's pnyiscal radius) as seen
+    // Compute angular radius of Sun and primary (reduced by satellite's physical radius) as seen
     // from satellite; total eclipse if Sun's apparent disk appears completely inside primary's.
 
     double sunAng = angularRadius ( SSCoordinates::kAUPerSolarRadii, sunDist );

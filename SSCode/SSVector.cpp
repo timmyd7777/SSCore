@@ -35,12 +35,13 @@ SSSpherical::SSSpherical ( SSAngle lon, SSAngle lat, double rad )
 }
 
 // Constructs spherical coordinates from a rectangular coordinate vector.
+// A zero-length vector has no direction; its longitude and latitude are both zero.
 
 SSSpherical::SSSpherical ( SSVector vec )
 {
     rad = vec.magnitude();
-    lat = SSAngle ( asin ( vec.z / rad ) );
-    lon = SSAngle ( atan2 ( vec.y, vec.x ) ).mod2Pi();
+    lat = SSAngle ( rad > 0.0 ? asin ( vec.z / rad ) : 0.0 );
+    lon = SSAngle ( rad > 0.0 ? atan2 ( vec.y, vec.x ) : 0.0 ).mod2Pi();
 }
 
 // Converts spherical coordinates to rectanguler x,y,z position vector.
