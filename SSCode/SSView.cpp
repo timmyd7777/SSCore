@@ -252,7 +252,7 @@ SSAngle SSView::getAngularHeight ( void )
     else if ( _projection == kStereographic )
         return SSAngle ( 4.0 * atan ( _scaleY * _height / 2.0 ) );
     else if ( _projection == kMercator )
-        return SSAngle ( 2.0 * atan ( _scaleY * _height ) );
+        return SSAngle ( 2.0 * atan ( _scaleY * _height / 2.0 ) );
     else if ( _projection == kMollweide )
         return SSAngle ( min ( _scaleY * _height / SSAngle::kHalfPi, (double) SSAngle::kPi ) );
     else // ( _projection == kEquirectangular || _projection == kSinusoidal )
