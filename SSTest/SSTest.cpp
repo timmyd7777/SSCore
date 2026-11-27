@@ -21,6 +21,7 @@
 #include "SSFeature.hpp"
 #include "SSStar.hpp"
 #include "SSConstellation.hpp"
+#include "SSContour.hpp"
 #include "SSImportGCVS.hpp"
 #include "SSImportHIP.hpp"
 #include "SSImportSKY2000.hpp"
@@ -333,6 +334,21 @@ void TestDeepSky ( string inputDir, string outputDir )
     
     numObjs = SSImportObjectsFromCSV ( inputDir + "/DeepSky/Caldwell.csv", caldwell );
     cout << "Imported " << numObjs << " Caldwell objects" << endl;
+    
+    SSContourVec contours;
+    int numContours = SSImportContours ( inputDir + "/DeepSky/Nebulae/Contours.csv", inputDir + "/DeepSky/Nebulae/Index.csv", contours );
+    int numPoints = 0, numIdents = 0, numNames = 0;
+    for ( SSContour &contour : contours )
+    {
+        numPoints += (int) contour.points.size();
+        numIdents += (int) contour.idents.size();
+        numNames += (int) contour.names.size();
+    }
+    cout << "Imported " << numContours << " nebula contours with " << numPoints << " points, " << numIdents << " identifiers, and " << numNames << " names" << endl;
+    
+    SSContourMap contourMap = SSMakeContourMap ( contours );
+    SSIdentifier m42 = SSIdentifier::fromString ( "M 42" );
+    cout << "Mapped " << contourMap.size() << " contour identifiers; M 42 has " << contourMap.count ( m42 ) << " contours" << endl;
     
     if ( ! outputDir.empty() )
     {

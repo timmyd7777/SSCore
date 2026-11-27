@@ -33,6 +33,9 @@
     <ClCompile Include="..\..\SSCode\SSConstellation.cpp">
       <Filter>Source Files\SSCode</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SSCode\SSContour.cpp">
+      <Filter>Source Files\SSCode</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\SSCode\SSIdentifier.cpp">
       <Filter>Source Files\SSCode</Filter>
     </ClCompile>
@@ -144,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SSCode\SSConstellation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SSCode\SSContour.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SSCode\SSIdentifier.hpp">

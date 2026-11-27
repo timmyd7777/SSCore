@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\SSCode\SSAngle.cpp" />
     <ClCompile Include="..\..\SSCode\SSConstellation.cpp" />
+    <ClCompile Include="..\..\SSCode\SSContour.cpp" />
     <ClCompile Include="..\..\SSCode\SSCoordinates.cpp" />
     <ClCompile Include="..\..\SSCode\SSEvent.cpp" />
     <ClCompile Include="..\..\SSCode\SSFeature.cpp" />
@@ -61,6 +62,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\SSCode\SSAngle.hpp" />
     <ClInclude Include="..\..\SSCode\SSConstellation.hpp" />
+    <ClInclude Include="..\..\SSCode\SSContour.hpp" />
     <ClInclude Include="..\..\SSCode\SSCoordinates.hpp" />
     <ClInclude Include="..\..\SSCode\SSEvent.hpp" />
     <ClInclude Include="..\..\SSCode\SSFeature.hpp" />

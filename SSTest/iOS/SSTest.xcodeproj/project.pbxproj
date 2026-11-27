@@ -43,6 +43,7 @@
 		A3EBE0F8243AE4E800B47EAE /* SSImportNGCIC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E0243AE4E800B47EAE /* SSImportNGCIC.cpp */; };
 		A3EBE0F9243AE4E800B47EAE /* SSUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E1243AE4E800B47EAE /* SSUtilities.cpp */; };
 		A3EBE0FA243AE4E800B47EAE /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E2243AE4E800B47EAE /* SSStar.cpp */; };
+		22E1D196A138ED74D53A7A95 /* SSContour.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 51FD97593A3692B1544539A2 /* SSContour.cpp */; };
 		A3EBE0FB243AE4E800B47EAE /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E3243AE4E800B47EAE /* SSPlanet.cpp */; };
 		A3EBE0FC243AE4E800B47EAE /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E4243AE4E800B47EAE /* SSVector.cpp */; };
 		A3EBE0FD243AE4E800B47EAE /* SSImportMPC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EBE0E5243AE4E800B47EAE /* SSImportMPC.cpp */; };
@@ -113,6 +114,7 @@
 		A3EBE0D5243AE4E800B47EAE /* SSUtilities.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSUtilities.hpp; sourceTree = "<group>"; };
 		A3EBE0D6243AE4E800B47EAE /* SSImportNGCIC.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportNGCIC.hpp; sourceTree = "<group>"; };
 		A3EBE0D7243AE4E800B47EAE /* SSStar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSStar.hpp; sourceTree = "<group>"; };
+		E43326A96FAD48DF790A5627 /* SSContour.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSContour.hpp; sourceTree = "<group>"; };
 		A3EBE0D8243AE4E800B47EAE /* SSPlanet.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSPlanet.hpp; sourceTree = "<group>"; };
 		A3EBE0D9243AE4E800B47EAE /* SSTime.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSTime.hpp; sourceTree = "<group>"; };
 		A3EBE0DA243AE4E800B47EAE /* SSImportSKY2000.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportSKY2000.hpp; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 		A3EBE0E0243AE4E800B47EAE /* SSImportNGCIC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportNGCIC.cpp; sourceTree = "<group>"; };
 		A3EBE0E1243AE4E800B47EAE /* SSUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSUtilities.cpp; sourceTree = "<group>"; };
 		A3EBE0E2243AE4E800B47EAE /* SSStar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSStar.cpp; sourceTree = "<group>"; };
+		51FD97593A3692B1544539A2 /* SSContour.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSContour.cpp; sourceTree = "<group>"; };
 		A3EBE0E3243AE4E800B47EAE /* SSPlanet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSPlanet.cpp; sourceTree = "<group>"; };
 		A3EBE0E4243AE4E800B47EAE /* SSVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSVector.cpp; sourceTree = "<group>"; };
 		A3EBE0E5243AE4E800B47EAE /* SSImportMPC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportMPC.cpp; sourceTree = "<group>"; };
@@ -252,7 +255,9 @@
 				A322CA7D24467485004E0670 /* SSPSEphemeris.cpp */,
 				A322CA7E24467485004E0670 /* SSPSEphemeris.hpp */,
 				A3EBE0E2243AE4E800B47EAE /* SSStar.cpp */,
+				51FD97593A3692B1544539A2 /* SSContour.cpp */,
 				A3EBE0D7243AE4E800B47EAE /* SSStar.hpp */,
+				E43326A96FAD48DF790A5627 /* SSContour.hpp */,
 				A3EBE0CE243AE4E800B47EAE /* SSTime.cpp */,
 				A3EBE0D9243AE4E800B47EAE /* SSTime.hpp */,
 				A3EBE0D2243AE4E800B47EAE /* SSTLE.cpp */,
@@ -351,6 +356,7 @@
 			files = (
 				A3EBE0F2243AE4E800B47EAE /* SSImportSKY2000.cpp in Sources */,
 				A3EBE0FA243AE4E800B47EAE /* SSStar.cpp in Sources */,
+				22E1D196A138ED74D53A7A95 /* SSContour.cpp in Sources */,
 				A3F33359243B8B0100D27A15 /* ContentView.swift in Sources */,
 				A3EBE100243AE4E800B47EAE /* SSCoordinates.cpp in Sources */,
 				A307FB0C297A329E003E30AD /* SSFeature.cpp in Sources */,

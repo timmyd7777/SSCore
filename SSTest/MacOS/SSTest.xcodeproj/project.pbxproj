@@ -24,6 +24,7 @@
 		A30545C2241EDBB400197F8A /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
 		A30545C5241EE07900197F8A /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C3241EE07900197F8A /* SSPlanet.cpp */; };
 		A30545C8241EF45000197F8A /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
+		F48837BE9AD053674144422E /* SSContour.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E5A9B50411E0D8DDF782CF1E /* SSContour.cpp */; };
 		A307FB09297A31E7003E30AD /* SSImportTLE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A307FB07297A31E7003E30AD /* SSImportTLE.cpp */; };
 		A30C7A4A24251E96004FEF82 /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */; };
 		A315D76E26370EEA00A2F317 /* SSImportGCVS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A315D76C26370EEA00A2F317 /* SSImportGCVS.cpp */; };
@@ -36,6 +37,7 @@
 		A33DE0F5302176670055EB20 /* SSPSEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3ED2F8E244614A00040ECE5 /* SSPSEphemeris.cpp */; };
 		A33DE0F6302176720055EB20 /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
 		A33DE0F7302176840055EB20 /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
+		067CB90312FEC64233035C1F /* SSContour.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E5A9B50411E0D8DDF782CF1E /* SSContour.cpp */; };
 		A33DE0F8302176980055EB20 /* SSFeature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27706A4A2565BC5E003C221A /* SSFeature.cpp */; };
 		A33DE0F9302176AD0055EB20 /* SSConstellation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3BFC836242BEDB2001CBE62 /* SSConstellation.cpp */; };
 		A33DE0FA302176C60055EB20 /* SSJPLDEphemeris.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A358CF10243779F200B39D5C /* SSJPLDEphemeris.cpp */; };
@@ -47,6 +49,7 @@
 		A34D208528D39F4F0005A5F1 /* SSAngle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87C2404EEEA00BDD11C /* SSAngle.cpp */; };
 		A34D208628D39F600005A5F1 /* SSObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C0241EDBB400197F8A /* SSObject.cpp */; };
 		A34D208728D39F710005A5F1 /* SSStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C6241EF45000197F8A /* SSStar.cpp */; };
+		DF47C8F026782561587C6F37 /* SSContour.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E5A9B50411E0D8DDF782CF1E /* SSContour.cpp */; };
 		A34D208828D39F780005A5F1 /* SSPlanet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30545C3241EE07900197F8A /* SSPlanet.cpp */; };
 		A34D208928D39F890005A5F1 /* SSIdentifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */; };
 		A34D208A28D39F990005A5F1 /* SSVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4703A87E2404EF0800BDD11C /* SSVector.cpp */; };
@@ -182,7 +185,9 @@
 		A30545C3241EE07900197F8A /* SSPlanet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSPlanet.cpp; sourceTree = "<group>"; };
 		A30545C4241EE07900197F8A /* SSPlanet.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSPlanet.hpp; sourceTree = "<group>"; };
 		A30545C6241EF45000197F8A /* SSStar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSStar.cpp; sourceTree = "<group>"; };
+		E5A9B50411E0D8DDF782CF1E /* SSContour.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSContour.cpp; sourceTree = "<group>"; };
 		A30545C7241EF45000197F8A /* SSStar.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSStar.hpp; sourceTree = "<group>"; };
+		C6CC4B832F7DEFF5083C027C /* SSContour.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SSContour.hpp; sourceTree = "<group>"; };
 		A307FB07297A31E7003E30AD /* SSImportTLE.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSImportTLE.cpp; sourceTree = "<group>"; };
 		A307FB08297A31E7003E30AD /* SSImportTLE.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SSImportTLE.hpp; sourceTree = "<group>"; };
 		A30C7A4824251E96004FEF82 /* SSIdentifier.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SSIdentifier.cpp; sourceTree = "<group>"; };
@@ -394,7 +399,9 @@
 				A37E084528D399B600489544 /* SSSocket.cpp */,
 				A37E084228D399B600489544 /* SSSocket.hpp */,
 				A30545C6241EF45000197F8A /* SSStar.cpp */,
+				E5A9B50411E0D8DDF782CF1E /* SSContour.cpp */,
 				A30545C7241EF45000197F8A /* SSStar.hpp */,
+				C6CC4B832F7DEFF5083C027C /* SSContour.hpp */,
 				4703A8862404EF7F00BDD11C /* SSTime.cpp */,
 				4703A8872404EF7F00BDD11C /* SSTime.hpp */,
 				A33E45B62438E7F900C15780 /* SSTLE.cpp */,
@@ -613,6 +620,7 @@
 				4703A87D2404EEEA00BDD11C /* SSAngle.cpp in Sources */,
 				A3BEBE9A29CA59F10048AAFA /* SSMountModel.cpp in Sources */,
 				A30545C8241EF45000197F8A /* SSStar.cpp in Sources */,
+				F48837BE9AD053674144422E /* SSContour.cpp in Sources */,
 				A358D99D24147D3E009078A6 /* SSOrbit.cpp in Sources */,
 				A33E45B82438E7F900C15780 /* SSTLE.cpp in Sources */,
 				A3C22D1524574892004CE083 /* VSOP2013p9.cpp in Sources */,
@@ -645,6 +653,7 @@
 				A33DE0F43021763B0055EB20 /* SSIdentifier.cpp in Sources */,
 				A3783D5B2B9CE445007AD7E7 /* SSMatrix.cpp in Sources */,
 				A33DE0F7302176840055EB20 /* SSStar.cpp in Sources */,
+				067CB90312FEC64233035C1F /* SSContour.cpp in Sources */,
 				A3783D552B9CD9B3007AD7E7 /* SSTLETest.cpp in Sources */,
 				A3783D582B9CE0A9007AD7E7 /* SSUtilities.cpp in Sources */,
 				A33DE0F1302175FF0055EB20 /* SSImportTLE.cpp in Sources */,
@@ -674,6 +683,7 @@
 				A34D209428D3A04B0005A5F1 /* VSOP2013p4.cpp in Sources */,
 				A34D209328D3A0330005A5F1 /* SSMatrix.cpp in Sources */,
 				A34D208728D39F710005A5F1 /* SSStar.cpp in Sources */,
+				DF47C8F026782561587C6F37 /* SSContour.cpp in Sources */,
 				A34D209F28D3A0630005A5F1 /* SSJPLDEphemeris.cpp in Sources */,
 				A34D209C28D3A04B0005A5F1 /* VSOP2013p3.cpp in Sources */,
 				A34D208E28D39FD90005A5F1 /* SSMoonEphemeris.cpp in Sources */,

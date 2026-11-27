@@ -5,6 +5,7 @@ SOURCEDIR=../../SSCode
 SSCORE_SOURCES=\
 $(SOURCEDIR)/SSAngle.cpp \
 $(SOURCEDIR)/SSConstellation.cpp \
+$(SOURCEDIR)/SSContour.cpp \
 $(SOURCEDIR)/SSCoordinates.cpp \
 $(SOURCEDIR)/SSEvent.cpp \
 $(SOURCEDIR)/SSFeature.cpp \
@@ -56,6 +57,7 @@ $(SOURCEDIR)/Tetra3/svdcmp.c \
 SSCORE_HEADERS=\
 $(SOURCEDIR)/SSAngle.hpp \
 $(SOURCEDIR)/SSConstellation.cpp \
+$(SOURCEDIR)/SSContour.hpp \
 $(SOURCEDIR)/SSCoordinates.hpp \
 $(SOURCEDIR)/SSEvent.hpp \
 $(SOURCEDIR)/SSFeature.hpp \
