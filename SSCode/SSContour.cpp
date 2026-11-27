@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <fstream>
+#include <cstdio>
 
 #include "SSContour.hpp"
 #include "SSUtilities.hpp"
@@ -57,12 +57,12 @@ int SSImportContours ( const string &contourPath, const string &indexPath, SSCon
 {
     // Open contour file; return on failure. Skip its header line.
 
-    ifstream contourFile ( contourPath );
+    FILE *contourFile = fopen ( contourPath.c_str(), "rb" );
     if ( ! contourFile )
         return ( 0 );
 
     string line = "";
-    getline ( contourFile, line );
+    fgetline ( contourFile, line );
 
     // Read outline points. Start a new contour whenever the contour number changes, and remember
     // where each contour number's contour is in the output vector, to attach identifiers to it below.
@@ -71,7 +71,7 @@ int SSImportContours ( const string &contourPath, const string &indexPath, SSCon
     size_t first = contours.size();
     int lastNum = 0;
 
-    while ( getline ( contourFile, line ) )
+    while ( fgetline ( contourFile, line ) )
     {
         // Require 3 fields per line, and a positive contour number; skip line if we don't have them.
         
@@ -97,6 +97,8 @@ int SSImportContours ( const string &contourPath, const string &indexPath, SSCon
         contours.back().points.push_back ( SSVector ( SSSpherical ( ra, dec ) ) );
     }
 
+    fclose ( contourFile );
+
     // Compute the enclosing circle of each newly imported contour, now that all its points are read.
 
     for ( size_t i = first; i < contours.size(); i++ )
@@ -105,16 +107,16 @@ int SSImportContours ( const string &contourPath, const string &indexPath, SSCon
     // Open index file; if we can't, return contours without identifiers. Skip its header line.
 
     int numContours = (int) ( contours.size() - first );
-    ifstream indexFile ( indexPath );
+    FILE *indexFile = fopen ( indexPath.c_str(), "rb" );
     if ( ! indexFile )
         return numContours;
 
-    getline ( indexFile, line );
+    fgetline ( indexFile, line );
 
     // Read each contour's identifiers, and attach them to the contour with that number:
     // those we can parse as identifiers, and those we cannot parse as names.
     
-    while ( getline ( indexFile, line ) )
+    while ( fgetline ( indexFile, line ) )
     {
         vector<string> fields = split ( line, "," );
         if ( fields.size() < 2 )
@@ -140,6 +142,7 @@ int SSImportContours ( const string &contourPath, const string &indexPath, SSCon
         }
     }
 
+    fclose ( indexFile );
     return numContours;
 }
 
